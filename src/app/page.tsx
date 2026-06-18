@@ -1,5 +1,5 @@
-import HelloView from '@/components/hello-view'
 import { queryClient } from '@/lib/query-client'
+import { HomeView } from '@/modules/home/ui/components/home-view'
 import { HydrateClient, trpc } from '@/trpc/server'
 
 const Page = async () => {
@@ -10,7 +10,7 @@ const Page = async () => {
 	)
 	return (
 		<HydrateClient>
-			<HelloView />
+			<HomeView />
 		</HydrateClient>
 	)
 }
