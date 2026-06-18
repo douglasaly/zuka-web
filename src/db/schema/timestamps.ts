@@ -7,7 +7,9 @@ export const timestamps = {
 
 	updatedAt: timestamp('updated_at', {
 		withTimezone: true,
-	}).defaultNow(),
+	})
+		.defaultNow()
+		.$onUpdate(() => new Date()),
 
 	deletedAt: timestamp('deleted_at', {
 		withTimezone: true,

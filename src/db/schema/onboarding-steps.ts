@@ -10,7 +10,9 @@ export const onboardingSteps = pgTable('seller_onboarding_steps', {
 		.$defaultFn(() => uuidv7()),
 
 	onboardingId: uuid('onboarding_id')
-		.references(() => sellerOnboardings.id)
+		.references(() => sellerOnboardings.id, {
+			onDelete: 'cascade',
+		})
 		.notNull(),
 
 	step: varchar('step', {

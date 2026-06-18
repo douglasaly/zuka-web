@@ -4,10 +4,14 @@ import { uuidv7 } from 'uuidv7'
 import { conversationParticipants } from './conversation-participants'
 import { messages } from './messages'
 
+import { timestamps } from './timestamps'
+
 export const conversations = pgTable('conversations', {
 	id: uuid('id')
 		.primaryKey()
 		.$defaultFn(() => uuidv7()),
+
+	...timestamps,
 })
 
 export const conversationsRelations = relations(conversations, ({ many }) => ({

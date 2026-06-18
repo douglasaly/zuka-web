@@ -25,6 +25,7 @@ export const conversationParticipants = pgTable(
 		index('idx_conversation_participants_conversation_id').on(
 			t.conversationId
 		),
+		index('idx_conversation_participants_user_id').on(t.userId),
 	]
 )
 

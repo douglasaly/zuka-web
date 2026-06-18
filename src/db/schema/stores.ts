@@ -52,11 +52,9 @@ export const stores = pgTable('stores', {
 			onDelete: 'set null',
 		}
 	),
-	provinceId: uuid('province_id')
-		.references(() => provinces.id, {
-			onDelete: 'set null',
-		})
-		.notNull(),
+	provinceId: uuid('province_id').references(() => provinces.id, {
+		onDelete: 'set null',
+	}),
 
 	slug: varchar('slug', {
 		length: 180,

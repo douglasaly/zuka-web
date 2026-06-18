@@ -3,6 +3,7 @@ import { pgTable, text, uuid } from 'drizzle-orm/pg-core'
 import { uuidv7 } from 'uuidv7'
 import { conversations } from './conversations'
 import { messageProducts } from './message_products'
+import { timestamps } from './timestamps'
 import { users } from './users'
 
 export const messages = pgTable('messages', {
@@ -23,6 +24,8 @@ export const messages = pgTable('messages', {
 		}),
 
 	content: text('content').notNull(),
+
+	...timestamps,
 })
 
 export const messagesRelations = relations(messages, ({ one, many }) => ({

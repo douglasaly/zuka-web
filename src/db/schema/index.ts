@@ -18,6 +18,7 @@ import { storeFollowers } from './store-followers'
 import { stores } from './stores'
 import { userRoles } from './user-roles'
 import { users } from './users'
+import { verificationDocuments } from './verification-documents'
 
 export const schema = {
 	roles,
@@ -40,4 +41,5 @@ export const schema = {
 	userRoles,
 	provinces,
 	storeFollowers,
+	verificationDocuments,
 }

@@ -1,9 +1,12 @@
 import { relations } from 'drizzle-orm'
-import { pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core'
+import { pgEnum, pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core'
 import { uuidv7 } from 'uuidv7'
 import { onboardingSteps } from './onboarding-steps'
 import { sellerProfiles } from './seller-profiles'
 import { timestamps } from './timestamps'
+
+
+export const onboardingStatusEnum = pgEnum('on_boarding_status_enum', ['DRAFT', 'SUBMITTED', 'APPROVED', 'REJECTED'])
 
 export const sellerOnboardings = pgTable('seller_onboarding', {
 	id: uuid('id')
@@ -17,9 +20,7 @@ export const sellerOnboardings = pgTable('seller_onboarding', {
 		.notNull()
 		.unique(),
 
-	status: varchar('status', {
-		length: 50,
-	}).default('DRAFT'),
+	status: onboardingStatusEnum('status').default('DRAFT').notNull(),
 
 	currentStep: varchar('current_step', {
 		length: 100,
