@@ -1,9 +1,9 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { useTRPC } from '@/trpc/client'
 import { Button } from './ui/button'
-import { toast } from 'sonner'
 
 const HelloView = () => {
 	const trpc = useTRPC()
@@ -19,7 +19,8 @@ const HelloView = () => {
 
 	return (
 		<div>
-			<p>{JSON.stringify(data?.greeting)}</p>
+			<pre>{JSON.stringify(data?.greeting)}</pre>
+
 			<Button
 				variant='ghost'
 				className='border-2 border-gray-600 hover:bg-gray-500 hover:text-zinc-50 cursor-pointer'
