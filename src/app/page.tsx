@@ -8,7 +8,6 @@ const Page = async () => {
 			text: 'Marvin Mussacate',
 		})
 	)
-
 	return (
 		<HydrateClient>
 			<HelloView />

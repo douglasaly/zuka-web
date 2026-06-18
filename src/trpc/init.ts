@@ -1,23 +1,23 @@
-
 import { initTRPC, TRPCError } from '@trpc/server'
 import * as admin from 'firebase-admin'
-import SuperJSON from 'superjson'
+import superjson from 'superjson'
 import { db } from '@/db'
 
-if (!admin.apps.length) {
+const app = admin.getApps()
+if (!app.length) {
 	admin.initializeApp({
-		credential: admin.credential.applicationDefault(),
+		credential: admin.applicationDefault(),
 	})
 }
 
 export const createTRPCContext = async (opts: { headers: Headers }) => {
-	const authHeader = opts.headers.get('authorization')
+	// const authHeader = opts.headers.get('authorization')
 
-	if (!authHeader || !authHeader.startsWith('Bearer ')) {
-		return { user: null, dbUser: null }
-	}
+	// if (!authHeader || !authHeader.startsWith('Bearer ')) {
+	// 	return { user: null, dbUser: null }
+	// }
 
-	const token = authHeader.split(' ')[1]
+	// const token = authHeader.split(' ')[1]
 
 	// try {
 	// 	// Validar o token gerado
@@ -34,12 +34,13 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
 	// 	console.error('Erro na autenticação ou ao consultar o Prisma:', error)
 	// 	return { user: null, dbUser: null }
 	// }
+	return { userId: '123' }
 }
 
 const t = initTRPC
 	.context<Awaited<ReturnType<typeof createTRPCContext>>>()
 	.create({
-		transformer: SuperJSON,
+		// transformer: superjson,
 	})
 
 export const createTRPCRouter = t.router
@@ -49,20 +50,20 @@ export const baseProcedure = t.procedure
 /**
  * Middleware de Autenticação
  */
-const isAuthenticated = t.middleware(({ ctx, next }) => {
-	if (!ctx.user || !ctx.dbUser) {
-		throw new TRPCError({
-			code: 'UNAUTHORIZED',
-			message: 'Acesso negado. Usuário inválido ou não registrado.',
-		})
-	}
+// const isAuthenticated = t.middleware(({ ctx, next }) => {
+// 	if (!ctx.user ) { //|| !ctx.dbUser
+// 		throw new TRPCError({
+// 			code: 'UNAUTHORIZED',
+// 			message: 'Acesso negado. Usuário inválido ou não registrado.',
+// 		})
+// 	}
 
-	return next({
-		ctx: {
-			user: ctx.user,
-			dbUser: ctx.dbUser, // ctx.dbUser agora é fortemente tipado com o seu Model do Prisma!
-		},
-	})
-})
+// 	return next({
+// 		ctx: {
+// 			user: ctx.user,
+// 			dbUser: ctx.dbUser, // ctx.dbUser agora é fortemente tipado com o seu Model do Prisma!
+// 		},
+// 	})
+// })
 
-export const protectedProcedure = t.procedure.use(isAuthenticated)
+// export const protectedProcedure = t.procedure.use(isAuthenticated)

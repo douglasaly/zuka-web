@@ -13,7 +13,6 @@ const HelloView = () => {
 			text: 'Marvin Mussacate',
 		})
 	)
-
 	function onClick() {
 		toast.success('Hello')
 	}
