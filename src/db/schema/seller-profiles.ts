@@ -1,46 +1,53 @@
-import { relations } from "drizzle-orm";
-import { pgEnum, pgTable, timestamp, uuid } from "drizzle-orm/pg-core";
-import { uuidv7 } from "uuidv7";
-import { sellerOnboardings } from "./seller-onboarding";
-import { stores } from "./stores";
-import { timestamps } from "./timestamps";
-import { users } from "./users";
+import { relations } from 'drizzle-orm'
+import { pgEnum, pgTable, timestamp, uuid } from 'drizzle-orm/pg-core'
+import { uuidv7 } from 'uuidv7'
+import { sellerOnboardings } from './seller-onboarding'
+import { stores } from './stores'
+import { timestamps } from './timestamps'
+import { users } from './users'
 
-export const StatusEnum = pgEnum('status_enum',['PENDING','VERIFIED','DENIED'])
+export const StatusEnum = pgEnum('status_enum', [
+	'PENDING',
+	'VERIFIED',
+	'DENIED',
+])
 
+export const sellerProfiles = pgTable('seller_profiles', {
+	id: uuid('id')
+		.primaryKey()
+		.$defaultFn(() => uuidv7()),
 
-export const sellerProfiles = pgTable("seller_profiles", {
+	userId: uuid('user_id')
+		.references(() => users.id, {
+			onDelete: 'cascade',
+		})
+		.notNull()
+		.unique(),
 
-  id: uuid("id").primaryKey().$defaultFn(() => uuidv7()),
+	status: StatusEnum('status').default('PENDING').notNull(),
 
-  userId: uuid("user_id")
-    .references(() => users.id, {
-      onDelete: "cascade",
-    })
-    .notNull()
-    .unique(),
+	verifiedAt: timestamp('verified_at', {
+		withTimezone: true,
+	}),
 
-  status: StatusEnum("status").default("PENDING").notNull(),
+	onboardedAt: timestamp('onboarded_at', {
+		withTimezone: true,
+	}),
 
-  verifiedAt: timestamp("verified_at", {
-    withTimezone: true
-  }),
+	...timestamps,
+})
 
-  onboardedAt: timestamp("onboarded_at", {
-    withTimezone: true
-  }),
-
-  ...timestamps
-});
-
-export const sellerProfilesRelations = relations(sellerProfiles, ({ one, many }) => ({
-  user: one(users, {
-    fields: [sellerProfiles.userId],
-    references: [users.id],
-  }),
-  onboarding: one(sellerOnboardings, {
-    fields: [sellerProfiles.id],
-    references: [sellerOnboardings.sellerProfileId],
-  }),
-  stores: many(stores),
-}));
+export const sellerProfilesRelations = relations(
+	sellerProfiles,
+	({ one, many }) => ({
+		user: one(users, {
+			fields: [sellerProfiles.userId],
+			references: [users.id],
+		}),
+		onboarding: one(sellerOnboardings, {
+			fields: [sellerProfiles.id],
+			references: [sellerOnboardings.sellerProfileId],
+		}),
+		stores: many(stores),
+	})
+)

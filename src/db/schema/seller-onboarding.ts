@@ -1,45 +1,48 @@
-import { relations } from "drizzle-orm";
-import { pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
-import { uuidv7 } from "uuidv7";
-import { onboardingSteps } from "./onboarding-steps";
-import { sellerProfiles } from "./seller-profiles";
-import { timestamps } from "./timestamps";
+import { relations } from 'drizzle-orm'
+import { pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core'
+import { uuidv7 } from 'uuidv7'
+import { onboardingSteps } from './onboarding-steps'
+import { sellerProfiles } from './seller-profiles'
+import { timestamps } from './timestamps'
 
-export const sellerOnboardings =
-pgTable("seller_onboarding", {
+export const sellerOnboardings = pgTable('seller_onboarding', {
+	id: uuid('id')
+		.primaryKey()
+		.$defaultFn(() => uuidv7()),
 
-   id: uuid("id").primaryKey().$defaultFn(() => uuidv7()),
+	sellerProfileId: uuid('seller_profile_id')
+		.references(() => sellerProfiles.id, {
+			onDelete: 'cascade',
+		})
+		.notNull()
+		.unique(),
 
-  sellerProfileId: uuid("seller_profile_id")
-    .references(() => sellerProfiles.id, {
-      onDelete: "cascade",
-    })
-    .notNull()
-    .unique(),
+	status: varchar('status', {
+		length: 50,
+	}).default('DRAFT'),
 
-  status: varchar("status", {
-    length: 50
-  }).default("DRAFT"),
+	currentStep: varchar('current_step', {
+		length: 100,
+	}),
 
-  currentStep: varchar("current_step", {
-    length: 100
-  }),
+	submittedAt: timestamp('submitted_at', {
+		withTimezone: true,
+	}),
 
-  submittedAt: timestamp("submitted_at", {
-    withTimezone: true
-  }),
+	approvedAt: timestamp('approved_at', {
+		withTimezone: true,
+	}),
 
-  approvedAt: timestamp("approved_at", {
-    withTimezone: true
-  }),
+	...timestamps,
+})
 
-  ...timestamps
-});
-
-export const sellerOnboardingsRelations = relations(sellerOnboardings, ({ one, many }) => ({
-  sellerProfile: one(sellerProfiles, {
-    fields: [sellerOnboardings.sellerProfileId],
-    references: [sellerProfiles.id],
-  }),
-  steps: many(onboardingSteps),
-}));
+export const sellerOnboardingsRelations = relations(
+	sellerOnboardings,
+	({ one, many }) => ({
+		sellerProfile: one(sellerProfiles, {
+			fields: [sellerOnboardings.sellerProfileId],
+			references: [sellerProfiles.id],
+		}),
+		steps: many(onboardingSteps),
+	})
+)
