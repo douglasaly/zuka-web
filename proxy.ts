@@ -1,14 +1,22 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
+import { SESSION_COOKIE } from '@/utils/constants'
 
-// This function can be marked `async` if using `await` inside
-export function proxy(request: NextRequest) {
-	return NextResponse.redirect(new URL('/home', request.url))
+export async function proxy(request: NextRequest) {
+	const session = request.cookies.get(SESSION_COOKIE)?.value
+
+
+	const isProtectedRoute =
+		request.nextUrl.pathname.startsWith('/dashboard') ||
+		request.nextUrl.pathname.startsWith('/profile')
+
+	if (isProtectedRoute && !session) {
+		return NextResponse.redirect(new URL('/auth/login', request.url))
+	}
+
+	return NextResponse.next()
 }
 
-// Alternatively, you can use a default export:
-// export default function proxy(request: NextRequest) { ... }
-
 export const config = {
-	matcher: '/about/:path*',
+	matcher: ['/dashboard/:path*', '/profile/:path*'],
 }

@@ -9,7 +9,7 @@ import {
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { auth } from '@/lib/firebase-client'
+import { auth } from '@/lib/firebase/firebase-client'
 import { createSession } from '@/utils/cookies'
 
 export default function LoginPage() {
