@@ -1,3 +1,9 @@
-import { getQueryClient } from '@/trpc/server'
+import { QueryClient } from '@tanstack/react-query'
 
-export const queryClient = getQueryClient()
+export const queryClient = new QueryClient({
+	defaultOptions: {
+		queries: {
+			staleTime: 60 * 1000,
+		},
+	},
+})

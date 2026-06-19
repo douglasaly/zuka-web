@@ -2,8 +2,9 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono, Inter } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'sonner'
+import { TooltipProvider } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
-import { TRPCReactProvider } from '@/trpc/client'
+import { Providers } from './providers'
 
 const inter = Inter({
 	subsets: ['latin'],
@@ -46,7 +47,9 @@ export default function RootLayout({
 		>
 			<body className={`min-h-full flex flex-col ${inter.className}`}>
 				<Toaster />
-				<TRPCReactProvider>{children}</TRPCReactProvider>
+				<TooltipProvider>
+					<Providers>{children}</Providers>
+				</TooltipProvider>
 			</body>
 		</html>
 	)

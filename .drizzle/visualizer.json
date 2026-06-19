@@ -1,0 +1,23 @@
+[
+	{ "id": "categories", "position": { "x": 930, "y": 1450 } },
+	{ "id": "conversations", "position": { "x": 1820, "y": 3800 } },
+	{ "id": "conversation_participants", "position": { "x": 2250, "y": 3700 } },
+	{ "id": "messages", "position": { "x": 1370, "y": 3430 } },
+	{ "id": "message_products", "position": { "x": 930, "y": 3470 } },
+	{ "id": "seller_onboarding_steps", "position": { "x": 1370, "y": 830 } },
+	{ "id": "permissions", "position": { "x": 50, "y": 70 } },
+	{ "id": "product_images", "position": { "x": 930, "y": 1040 } },
+	{ "id": "product_stock", "position": { "x": 930, "y": 1640 } },
+	{ "id": "product_variants", "position": { "x": 2680, "y": 920 } },
+	{ "id": "products", "position": { "x": 1460, "y": 1420 } },
+	{ "id": "provinces", "position": { "x": 3130, "y": 4180 } },
+	{ "id": "role_permissions", "position": { "x": 490, "y": 50 } },
+	{ "id": "roles", "position": { "x": 50, "y": 390 } },
+	{ "id": "seller_onboarding", "position": { "x": 930, "y": 790 } },
+	{ "id": "seller_profiles", "position": { "x": 490, "y": 810 } },
+	{ "id": "store_followers", "position": { "x": 4010, "y": 3050 } },
+	{ "id": "stores", "position": { "x": 930, "y": 1930 } },
+	{ "id": "user_roles", "position": { "x": 490, "y": 1370 } },
+	{ "id": "users", "position": { "x": 50, "y": 710 } },
+	{ "id": "verification_documents", "position": { "x": 4010, "y": 4290 } }
+]

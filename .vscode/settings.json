@@ -14,7 +14,7 @@
 		"editor.defaultFormatter": "biomejs.biome"
 	},
 	"[typescript]": {
-		"editor.defaultFormatter": "vladstudio.biome-bunx-formatter"
+		"editor.defaultFormatter": "biomejs.biome"
 	},
 	"[javascriptreact]": {
 		"editor.defaultFormatter": "biomejs.biome"
@@ -26,9 +26,13 @@
 		"editor.defaultFormatter": "Prisma.prisma"
 	},
 	"[json]": {
-		"editor.defaultFormatter": "vladstudio.biome-bunx-formatter"
+		"editor.defaultFormatter": "biomejs.biome"
 	},
 	"[jsonc]": {
 		"editor.defaultFormatter": "biomejs.biome"
-	}
+	},
+	"[dockercompose]": {
+		"editor.defaultFormatter": "ms-azuretools.vscode-containers"
+	},
+	"notebook.defaultFormatter": "biomejs.biome"
 }
