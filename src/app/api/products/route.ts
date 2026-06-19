@@ -18,7 +18,7 @@ export async function GET(req: Request) {
 		const limit = Math.min(Number(searchParams.get('limit') ?? 50), 100)
 		const offset = (page - 1) * limit
 
-		const conditions = []
+		const conditions = [eq(products.isVisible, true)]
 
 		if (category) {
 			conditions.push(eq(products.id, category))

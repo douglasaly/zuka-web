@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { NextResponse } from 'next/server'
 import { db } from '@/db'
 import { categories } from '@/db/schema/categories'
@@ -31,7 +31,7 @@ export async function GET(
 			.leftJoin(stores, eq(products.storeId, stores.id))
 			.leftJoin(categories, eq(products.categoryId, categories.id))
 			.leftJoin(productImages, eq(productImages.productId, products.id))
-			.where(eq(products.id, id))
+			.where(and(eq(products.id, id), eq(products.isVisible, true)))
 
 		if (!rows.length) {
 			return NextResponse.json(
