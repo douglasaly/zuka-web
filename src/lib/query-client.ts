@@ -1,3 +1,3 @@
-import { getQueryClient } from '@/trpc/server'
+import { useQueryClient } from '@tanstack/react-query'
 
-export const queryClient = getQueryClient()
+export const queryClient = useQueryClient()

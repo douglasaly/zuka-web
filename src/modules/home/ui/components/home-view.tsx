@@ -9,13 +9,11 @@ import {
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { useSyncUser } from '@/hooks/use-sync-user'
 import { auth } from '@/lib/firebase-client'
 import { createSession } from '@/utils/cookies'
 
 export default function LoginPage() {
 	const router = useRouter()
-	const syncUser = useSyncUser()
 
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
@@ -29,9 +27,6 @@ export default function LoginPage() {
 		if (!res.success) {
 			throw new Error(res.error || 'Erro session')
 		}
-
-		// 🔥 sync user no DB (React Query)
-		await syncUser.mutateAsync()
 
 		router.refresh()
 		router.push('/dashboard')

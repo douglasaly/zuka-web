@@ -1,18 +1,16 @@
-import HelloView from '@/components/hello-view'
-import { queryClient } from '@/lib/query-client'
-import { HydrateClient, trpc } from '@/trpc/server'
+import { cookies as getCookies } from 'next/headers'
+import { SESSION_COOKIE } from '@/utils/constants'
 
-const Page = () => {
-	void queryClient.prefetchQuery(
-		trpc.hello.getHello.queryOptions({
-			text: 'Marvin Mussacate',
-		})
-	)
+const Page = async () => {
+	const cookies = await getCookies()
+
+	const session = cookies.get(SESSION_COOKIE)
 
 	return (
-		<HydrateClient>
-			<HelloView />
-		</HydrateClient>
+		<div>
+			Hello from dashboard
+			{JSON.stringify(session, null, 2)}
+		</div>
 	)
 }
 

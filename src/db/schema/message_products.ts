@@ -23,11 +23,7 @@ export const messageProducts = pgTable(
 				onDelete: 'cascade',
 			}),
 	},
-	(t) => [
-		index('idx_message_products_unique')
-			.on(t.messageId, t.productId)
-			
-	]
+	(t) => [index('idx_message_products_unique').on(t.messageId, t.productId)]
 )
 
 export const messageProductsRelations = relations(

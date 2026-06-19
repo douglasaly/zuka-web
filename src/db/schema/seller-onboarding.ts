@@ -5,8 +5,12 @@ import { onboardingSteps } from './onboarding-steps'
 import { sellerProfiles } from './seller-profiles'
 import { timestamps } from './timestamps'
 
-
-export const onboardingStatusEnum = pgEnum('on_boarding_status_enum', ['DRAFT', 'SUBMITTED', 'APPROVED', 'REJECTED'])
+export const onboardingStatusEnum = pgEnum('on_boarding_status_enum', [
+	'DRAFT',
+	'SUBMITTED',
+	'APPROVED',
+	'REJECTED',
+])
 
 export const sellerOnboardings = pgTable('seller_onboarding', {
 	id: uuid('id')
