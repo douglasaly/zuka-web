@@ -36,6 +36,7 @@ async function seed() {
 					'Responsável pelo atendimento ao cliente e resolução de disputas',
 			},
 		])
+		.onConflictDoNothing()
 		.returning()
 
 	//? PERMISSÕES
@@ -59,6 +60,7 @@ async function seed() {
 				description: 'Gerenciar disputas e conflitos',
 			},
 		])
+		.onConflictDoNothing()
 		.returning()
 
 	const permMap = Object.fromEntries(perms.map((p) => [p.key, p.id]))

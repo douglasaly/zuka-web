@@ -26,9 +26,9 @@ export const productImages = pgTable(
 
 		url: text('url').notNull(),
 
-		position: integer('position').default(0),
+		position: integer('position').notNull().default(0),
 
-		isPrimary: boolean('is_primary').default(false),
+		isPrimary: boolean('is_primary').notNull().default(false),
 
 		alt: text('alt'),
 

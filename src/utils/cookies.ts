@@ -24,12 +24,12 @@ export async function createSession(idToken: string) {
 		})
 		return { success: true }
 	} catch (error) {
-		return { success: false, error: 'Falha ao criar sessão' }
+		return { success: false, message: 'Falha ao criar sessão', error }
 	}
 }
 
 export async function deleteSession() {
 	const cookieStore = await cookies()
-	cookieStore.delete('session')
+	cookieStore.delete(SESSION_COOKIE)
 	return { success: true }
 }
