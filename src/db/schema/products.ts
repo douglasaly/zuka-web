@@ -1,20 +1,21 @@
+import { relations } from 'drizzle-orm'
 import {
 	boolean,
+	integer,
 	pgEnum,
 	pgTable,
 	text,
 	uuid,
 	varchar,
 } from 'drizzle-orm/pg-core'
-import { stores } from './stores'
-import { categories } from './categories'
-import { timestamps } from './timestamps'
 import { uuidv7 } from 'uuidv7'
-import { relations } from 'drizzle-orm'
+import { categories } from './categories'
+import { messageProducts } from './message_products'
+import { productImages } from './product-images'
 import { productStock } from './product-stock'
 import { productVariants } from './product-variants'
-import { productImages } from './product-images'
-import { messageProducts } from './message_products'
+import { stores } from './stores'
+import { timestamps } from './timestamps'
 
 export const ProductStatus = pgEnum('product_status_enum', [
 	'DRAFT',
@@ -56,6 +57,12 @@ export const products = pgTable('products', {
 	description: text('description'),
 
 	status: ProductStatus('status').default('DRAFT'),
+
+	price: integer('price').notNull(),
+
+	discountPrice: integer('discount_price'),
+
+	currency: varchar('currency', { length: 3 }).default('MZN'),
 
 	...timestamps,
 })

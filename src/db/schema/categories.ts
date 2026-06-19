@@ -1,8 +1,8 @@
-import { AnyPgColumn, pgTable, uuid, varchar } from 'drizzle-orm/pg-core'
-import { timestamps } from './timestamps'
-import { uuidv7 } from 'uuidv7'
 import { relations } from 'drizzle-orm'
+import { pgTable, uuid, varchar } from 'drizzle-orm/pg-core'
+import { uuidv7 } from 'uuidv7'
 import { products } from './products'
+import { timestamps } from './timestamps'
 
 export const categories = pgTable('categories', {
 	id: uuid('id')

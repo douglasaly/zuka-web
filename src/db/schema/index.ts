@@ -43,3 +43,5 @@ export const schema = {
 	storeFollowers,
 	verificationDocuments,
 }
+export { categories, conversationParticipants, conversations, messageProducts, messages, onboardingSteps, permissions, productImages, productStock, products, productVariants, provinces, rolePermissions, roles, sellerOnboardings, sellerProfiles, storeFollowers, stores, userRoles, users, verificationDocuments }
+
