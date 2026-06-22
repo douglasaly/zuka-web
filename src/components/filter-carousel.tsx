@@ -77,7 +77,7 @@ export const FilterCarousel = ({
 										? 'default'
 										: 'secondary'
 								}
-								className='rounded-lg px-3 py-1 cursor-pointer whitespace-nowrap text-sm'
+								className='rounded-2xl p-5 cursor-pointer whitespace-nowrap text-sm'
 							>
 								Todos
 							</Badge>
@@ -109,7 +109,7 @@ export const FilterCarousel = ({
 											? 'default'
 											: 'secondary'
 									}
-									className='rounded-lg px-3 py-1 cursor-pointer whitespace-nowrap text-sm'
+									className='rounded-2xl p-5 cursor-pointer whitespace-nowrap text-sm'
 								>
 									{item.label}
 								</Badge>

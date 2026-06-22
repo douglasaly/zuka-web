@@ -1,6 +1,6 @@
 'use client'
 
-import { SearchIcon, XIcon } from 'lucide-react'
+import { SearchIcon, SlidersHorizontal, XIcon } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -41,7 +41,7 @@ export const SearchInput = () => {
 		<form className='flex w-full pb-4' onSubmit={handleSearch}>
 			<button
 				type='submit'
-				className='px-5 py-2.5 bg-gray-100 border border-l-0 rounded-l-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed border-r-0 placeholder:-px-5'
+				className='px-5 py-2.5 bg-gray-100 border border-l-0 rounded-l-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed border-r-0 placeholder:-px-5 cursor-pointer'
 			>
 				<SearchIcon className='size-5 text-muted-foreground' />
 			</button>
@@ -52,7 +52,7 @@ export const SearchInput = () => {
 					onChange={(e) => setValue(e.target.value)}
 					type='text'
 					placeholder='Procurar produtos, lojas...'
-					className='w-full h-14 pl-4 py-2 pr-12 border rounded-r-lg focus:outline-none focus:border-blue-500 bg-gray-100 border-l-0 focus:border-l'
+					className='w-full h-14 pl-4 py-2 pr-12 border  focus:outline-none focus:border-blue-500 bg-gray-100 border-l-0 border-r-0  focus:border-l focus:border-r'
 				/>
 
 				{value && (
@@ -68,6 +68,12 @@ export const SearchInput = () => {
 					</Button>
 				)}
 			</div>
+			<button
+				type='submit'
+				className='px-5 py-2.5 bg-gray-100 border border-r-0 rounded-r-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed border-l-0 placeholder:-px-5 cursor-pointer'
+			>
+				<SlidersHorizontal className='size-5 text-muted-foreground' />
+			</button>
 		</form>
 	)
 }

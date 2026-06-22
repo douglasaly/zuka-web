@@ -28,20 +28,24 @@ export const HomeNavbar = () => {
 					</div>
 
 					{/* Activity */}
-					<div className='flex justify-center items-center gap-2'>
+					<div className='flex justify-center items-center gap-4'>
 						<Button
 							variant='ghost'
 							size='icon'
 							className='size-5 cursor-pointer'
-							render={<Heart className='size-5 mr-2' />}
-						/>
+							type='button'
+						>
+							<Heart className='size-5 mr-2' />
+						</Button>
 
 						<Button
 							variant='ghost'
 							size='icon'
 							className='size-5 cursor-pointer'
-							render={<Bell className='size-5 mr-2' />}
-						/>
+							type='button'
+						>
+							<Bell className='size-5 mr-2' />
+						</Button>
 					</div>
 				</div>
 
