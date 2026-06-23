@@ -35,17 +35,12 @@ export default function RootLayout({
 	return (
 		<html
 			lang='en'
-			className={cn(
-				'h-full',
-				'antialiased',
-				geistSans.variable,
-				geistMono.variable,
-				'font-sans',
-				inter.variable
-			)}
+			className={cn('font-sans', inter.variable)}
 			suppressHydrationWarning
 		>
-			<body className={`min-h-full flex flex-col ${inter.className}`}>
+			<body
+				className={`min-h-full flex flex-col ${inter.className} ${inter.variable}  bg-[#FAFAF7] antialiased`}
+			>
 				<Toaster />
 				<TooltipProvider>
 					<Providers>{children}</Providers>
