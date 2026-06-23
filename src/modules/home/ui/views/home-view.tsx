@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import { CategoriesSection } from '../sections/categories-section'
 import { FeaturedStoresSection } from '../sections/featured-stores'
 import ProductsSection from '../sections/products-section'

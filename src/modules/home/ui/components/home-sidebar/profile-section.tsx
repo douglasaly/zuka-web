@@ -36,7 +36,7 @@ export const DashboardSection = () => {
 											prefetch
 											href={item.url}
 											className='flex items-center
-                     gap-4'
+                     gap-4 text-muted-foreground'
 										>
 											<item.icon />
 											<span className='text-sm'>

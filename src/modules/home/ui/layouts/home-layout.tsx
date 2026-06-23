@@ -1,3 +1,4 @@
+// import { AppFooter } from '@/components/app-footer'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { HomeNavbar } from '../components/home-navbar'
 import { HomeSidebar } from '../components/home-sidebar'
@@ -31,6 +32,7 @@ export const HomeLayout = ({ children }: HomeLayoutProps) => {
 						{children}
 					</main>
 				</div>
+				{/* <AppFooter /> */}
 			</div>
 		</div>
 	)
