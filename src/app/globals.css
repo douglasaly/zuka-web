@@ -115,6 +115,23 @@
 	--sidebar-border: oklch(1 0 0 / 10%);
 	--sidebar-ring: oklch(0.556 0 0);
 }
+@keyframes marquee-hover {
+	0% {
+		transform: translateX(0);
+	}
+
+	100% {
+		transform: translateX(-50%);
+	}
+}
+
+.animate-marquee-hover {
+	transition: transform 0.3s ease;
+}
+
+.group:hover .animate-marquee-hover {
+	animation: marquee-hover 4s linear infinite alternate;
+}
 
 @layer base {
 	* {

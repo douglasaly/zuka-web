@@ -1,6 +1,7 @@
 /** biome-ignore-all lint/suspicious/noArrayIndexKey: <export> */
 'use client'
 
+import WheelGesturesPlugin from 'embla-carousel-wheel-gestures'
 import { useEffect, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { Badge } from './ui/badge'
@@ -63,6 +64,7 @@ export const FilterCarousel = ({
 					align: 'start',
 					dragFree: true,
 				}}
+				plugins={[WheelGesturesPlugin()]}
 				className='w-full px-12'
 			>
 				<CarouselContent className='-ml-3'>
