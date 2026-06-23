@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono, Inter } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -10,16 +10,6 @@ const inter = Inter({
 	subsets: ['latin'],
 	weight: ['400', '500', '600', '700'],
 	variable: '--font-sans',
-})
-
-const geistSans = Geist({
-	variable: '--font-geist-sans',
-	subsets: ['latin'],
-})
-
-const geistMono = Geist_Mono({
-	variable: '--font-geist-mono',
-	subsets: ['latin'],
 })
 
 export const metadata: Metadata = {
@@ -40,6 +30,7 @@ export default function RootLayout({
 		>
 			<body
 				className={`min-h-full flex flex-col ${inter.className} ${inter.variable}  bg-[#FAFAF7] antialiased`}
+				cz-shortcut-listen='true'
 			>
 				<Toaster />
 				<TooltipProvider>
