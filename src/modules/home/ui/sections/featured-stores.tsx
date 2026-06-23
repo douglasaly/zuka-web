@@ -15,7 +15,7 @@ export const FeaturedStoresSection = () => {
 				</Link>
 			</div>
 			<div className='flex gap-4 overflow-x-auto scrollbar-hide'>
-				{Array.from({ length: 4 }, (_, index) => (
+				{Array.from({ length: 3 }, (_, index) => (
 					<div
 						key={index}
 						className='flex flex-col items-center shrink-0 group w-24'
@@ -49,6 +49,36 @@ export const FeaturedStoresSection = () => {
 						</div>
 					</div>
 				))}
+
+				<div className='flex flex-col items-center shrink-0 group w-24'>
+					<div className='border-4 border-green-500 rounded-full'>
+						<Link href='/lojas/loja-da-fatima' prefetch>
+							<StoreAvatar
+								imageUrl='/placeholder.jpg'
+								name='Loja da Fátima'
+								size='xl'
+							/>
+						</Link>
+					</div>
+
+					<div className='mt-2 w-full'>
+						<Link href='/lojas/loja-da-fatima' prefetch>
+							<div className='relative w-full overflow-hidden'>
+								<span className='block whitespace-nowrap text-sm font-semibold animate-marquee-hover'>
+									Loja da Fátima Muito Grande e Com Nome
+									Gigante
+								</span>
+
+								{/* Fade à direita */}
+								<div className='pointer-events-none absolute right-0 top-0 h-full w-6 bg-linear-to-l from-background to-transparent' />
+							</div>
+						</Link>
+
+						<span className='block text-center text-xs text-muted-foreground'>
+							Maputo • Baixa
+						</span>
+					</div>
+				</div>
 			</div>
 		</div>
 	)
