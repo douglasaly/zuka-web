@@ -1,0 +1,17 @@
+export const marketplaceCategories = [
+	{ name: 'Eletrônicos', slug: 'eletronicos' },
+	{ name: 'Moda e Vestuário', slug: 'moda-e-vestuario' },
+	{ name: 'Capulanas e Tecidos', slug: 'capulanas-e-tecidos' },
+	{ name: 'Casa e Decoração', slug: 'casa-e-decoracao' },
+	{ name: 'Móveis', slug: 'moveis' },
+	{ name: 'Beleza e Cuidados Pessoais', slug: 'beleza-cuidados-pessoais' },
+	{ name: 'Esportes e Lazer', slug: 'esportes-lazer' },
+	{ name: 'Alimentos e Bebidas', slug: 'alimentos-e-bebidas' },
+	{ name: 'Livros e Educação', slug: 'livros-educacao' },
+	{ name: 'Automóveis e Motos', slug: 'automoveis-motos' },
+	{ name: 'Saúde e Bem-estar', slug: 'saude-bem-estar' },
+	{ name: 'Tecnologia e Acessórios', slug: 'tecnologia-acessorios' },
+	{ name: 'Bebé e Criança', slug: 'bebe-e-crianca' },
+	{ name: 'Animais e Pet', slug: 'animais-e-pet' },
+	{ name: 'Serviços', slug: 'servicos' },
+] as const

@@ -1,9 +1,9 @@
 import { z } from 'zod'
 
 const categoriesSchema = z.object({
-	createdAt: z.date().nullable(),
-	updatedAt: z.date().nullable(),
-	deletedAt: z.date().nullable(),
+	createdAt: z.string().nullable(),
+	updatedAt: z.string().nullable(),
+	deletedAt: z.string().nullable(),
 	id: z.string(),
 	parentId: z.string().nullable(),
 	name: z.string(),

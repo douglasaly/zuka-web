@@ -1,11 +1,5 @@
-import { and, desc, eq, lt, or } from 'drizzle-orm'
 import { NextResponse } from 'next/server'
-
-import { db } from '@/db'
-import { categories } from '@/db/schema/categories'
-import { productImages } from '@/db/schema/product-images'
-import { products } from '@/db/schema/products'
-import { stores } from '@/db/schema/stores'
+import { createSupabaseAdmin } from '@/lib/supabase/admin'
 
 interface GetStoreProductsProps {
 	params: Promise<{
@@ -24,15 +18,18 @@ export async function GET(req: Request, { params }: GetStoreProductsProps) {
 			20
 		)
 
-		const [store] = await db
-			.select({
-				id: stores.id,
-				name: stores.name,
-				slug: stores.slug,
-			})
-			.from(stores)
-			.where(eq(stores.slug, slug))
-			.limit(1)
+		const supabase = createSupabaseAdmin()
+
+		const { data: store, error: storeError } = await supabase
+			.from('stores')
+			.select('id, name, slug')
+			.eq('slug', slug)
+			.is('deleted_at', null)
+			.maybeSingle()
+
+		if (storeError) {
+			throw storeError
+		}
 
 		if (!store) {
 			return NextResponse.json(
@@ -44,80 +41,82 @@ export async function GET(req: Request, { params }: GetStoreProductsProps) {
 			)
 		}
 
-		const conditions = [
-			eq(products.storeId, store.id),
-			eq(products.isVisible, true),
-			or(
-				eq(products.status, 'ACTIVE'),
-				eq(products.status, 'OUT_OF_STOCK')
-			),
-		]
-
-		if (cursor) {
-			conditions.push(lt(products.id, cursor))
-		}
-
-		const rows = await db
-			.select({
-				id: products.id,
-				name: products.name,
-				price: products.price,
-				currency: products.currency,
-				slug: products.slug,
-				createdAt: products.createdAt,
-
-				category: {
-					id: categories.id,
-					name: categories.name,
-				},
-
-				image: productImages.url,
-			})
-			.from(products)
-			.leftJoin(categories, eq(products.categoryId, categories.id))
-			.leftJoin(
-				productImages,
-				and(
-					eq(productImages.productId, products.id),
-					eq(productImages.isPrimary, true)
-				)
+		let query = supabase
+			.from('products')
+			.select(
+				`
+				id,
+				name,
+				price,
+				currency,
+				slug,
+				created_at,
+				categories ( id, name ),
+				product_images!inner ( url )
+			`
 			)
-			.where(and(...conditions))
-			.orderBy(desc(products.createdAt), desc(products.id))
+			.eq('store_id', String(store.id))
+			.eq('is_visible', true)
+			.in('status', ['ACTIVE', 'OUT_OF_STOCK'])
+			.is('deleted_at', null)
+			.eq('product_images.is_primary', true)
+			.order('created_at', { ascending: false })
+			.order('id', { ascending: false })
 			.limit(limit + 1)
 
+		if (cursor) {
+			query = query.lt('id', cursor)
+		}
+
+		const { data: rows, error: productsError } = await query
+
+		if (productsError) {
+			throw productsError
+		}
+
+		const productRows = (rows ?? []) as Array<{
+			id: string
+			name: string
+			slug: string | null
+			price: number
+			currency: string | null
+			created_at: string | null
+			categories: { id: string; name: string } | null
+			product_images: Array<{ url: string }> | null
+		}>
 		let nextCursor: string | null = null
 
-		if (rows.length > limit) {
-			const extra = rows.pop()
-
+		if (productRows.length > limit) {
+			const extra = productRows.pop()
 			if (extra) {
 				nextCursor = extra.id
 			}
 		}
 
-		const productsData = rows.map((product) => ({
-			id: product.id,
-			name: product.name,
-			slug: product.slug,
-			price: product.price,
-			currency: product.currency,
-			image: product.image,
-			category: product.category,
-		}))
+		const productsData = productRows.map((product) => {
+			const images = product.product_images
+			const category = product.categories
+
+			return {
+				id: product.id,
+				name: product.name,
+				slug: product.slug,
+				price: product.price,
+				currency: product.currency,
+				image: images?.[0]?.url ?? null,
+				category,
+			}
+		})
 
 		return NextResponse.json({
 			success: true,
-
 			data: {
 				store,
 				products: productsData,
 			},
-
 			metadata: {
 				productCount: productsData.length,
 			},
-
 			pagination: {
 				nextCursor,
 				hasMore: nextCursor !== null,

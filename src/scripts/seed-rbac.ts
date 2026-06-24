@@ -1,101 +1,65 @@
-import { db } from '@/db'
-import { permissions } from '@/db/schema/permissions'
-import { rolePermissions } from '@/db/schema/role-permissions'
-import { roles } from '@/db/schema/roles'
+import './load-env'
+import { createSupabaseAdmin } from '../lib/supabase/admin'
+
+const supabase = createSupabaseAdmin()
 
 async function seed() {
 	console.log('🌱 Iniciando seed de RBAC...')
 
-	//? ROLES
-	const [admin, superAdmin, seller, buyer, support] = await db
-		.insert(roles)
-		.values([
-			{
-				name: 'admin',
-				description:
-					'Gerencia o marketplace com acesso total às funcionalidades administrativas',
-			},
-			{
-				name: 'super_admin',
-				description:
-					'Acesso total ao sistema, incluindo override de todas as regras e permissões',
-			},
-			{
-				name: 'seller',
-				description:
-					'Pode gerenciar produtos e pedidos relacionados às suas vendas',
-			},
-			{
-				name: 'buyer',
-				description:
-					'Pode comprar produtos e gerenciar seus próprios pedidos',
-			},
-			{
-				name: 'support',
-				description:
-					'Responsável pelo atendimento ao cliente e resolução de disputas',
-			},
-		])
-		.onConflictDoNothing()
-		.returning()
+	const roles = [
+		{ name: 'admin', description: 'Gerencia o marketplace com acesso total às funcionalidades administrativas' },
+		{ name: 'super_admin', description: 'Acesso total ao sistema, incluindo override de todas as regras e permissões' },
+		{ name: 'seller', description: 'Pode gerenciar produtos e pedidos relacionados às suas vendas' },
+		{ name: 'buyer', description: 'Pode comprar produtos e gerenciar seus próprios pedidos' },
+		{ name: 'support', description: 'Responsável pelo atendimento ao cliente e resolução de disputas' },
+	]
 
-	//? PERMISSÕES
-	const perms = await db
-		.insert(permissions)
-		.values([
-			{ key: 'product.create', description: 'Criar produtos' },
-			{ key: 'product.update', description: 'Atualizar produtos' },
-			{ key: 'product.delete', description: 'Excluir produtos' },
-			{ key: 'product.read', description: 'Visualizar produtos' },
+	const permissions = [
+		{ key: 'product.create', description: 'Criar produtos' },
+		{ key: 'product.update', description: 'Atualizar produtos' },
+		{ key: 'product.delete', description: 'Excluir produtos' },
+		{ key: 'product.read', description: 'Visualizar produtos' },
+		{ key: 'order.create', description: 'Criar pedidos' },
+		{ key: 'order.read', description: 'Visualizar pedidos' },
+		{ key: 'order.update', description: 'Atualizar pedidos' },
+		{ key: 'user.read', description: 'Visualizar usuários' },
+		{ key: 'user.ban', description: 'Banir usuários do sistema' },
+		{ key: 'dispute.manage', description: 'Gerenciar disputas e conflitos' },
+	]
 
-			{ key: 'order.create', description: 'Criar pedidos' },
-			{ key: 'order.read', description: 'Visualizar pedidos' },
-			{ key: 'order.update', description: 'Atualizar pedidos' },
+	await supabase.from('roles').upsert(roles, { onConflict: 'name' })
+	await supabase.from('permissions').upsert(permissions, { onConflict: 'key' })
 
-			{ key: 'user.read', description: 'Visualizar usuários' },
-			{ key: 'user.ban', description: 'Banir usuários do sistema' },
+	const { data: insertedRoles } = await supabase.from('roles').select('*')
+	const { data: insertedPermissions } = await supabase.from('permissions').select('*')
 
-			{
-				key: 'dispute.manage',
-				description: 'Gerenciar disputas e conflitos',
-			},
-		])
-		.onConflictDoNothing()
-		.returning()
+	if (!insertedRoles?.length || !insertedPermissions?.length) {
+		throw new Error('Failed to load roles or permissions after upsert')
+	}
 
-	const permMap = Object.fromEntries(perms.map((p) => [p.key, p.id]))
+	const roleMap = Object.fromEntries(insertedRoles.map((r) => [r.name, r.id]))
+	const permMap = Object.fromEntries(insertedPermissions.map((p) => [p.key, p.id]))
 
-	//? ROLE-PERMISSIONS
-	await db.insert(rolePermissions).values([
-		// ADMIN (controle total do marketplace)
-		...perms.map((p) => ({
-			roleId: admin.id,
-			permissionId: p.id,
-		})),
+	const rolePermissions = [
+		...insertedPermissions.map((p) => ({ role_id: roleMap.admin, permission_id: p.id })),
+		...insertedPermissions.map((p) => ({ role_id: roleMap.super_admin, permission_id: p.id })),
+		{ role_id: roleMap.seller, permission_id: permMap['product.create'] },
+		{ role_id: roleMap.seller, permission_id: permMap['product.update'] },
+		{ role_id: roleMap.seller, permission_id: permMap['product.delete'] },
+		{ role_id: roleMap.seller, permission_id: permMap['product.read'] },
+		{ role_id: roleMap.seller, permission_id: permMap['order.read'] },
+		{ role_id: roleMap.buyer, permission_id: permMap['order.create'] },
+		{ role_id: roleMap.buyer, permission_id: permMap['order.read'] },
+		{ role_id: roleMap.buyer, permission_id: permMap['product.read'] },
+		{ role_id: roleMap.support, permission_id: permMap['order.read'] },
+		{ role_id: roleMap.support, permission_id: permMap['user.read'] },
+		{ role_id: roleMap.support, permission_id: permMap['dispute.manage'] },
+	]
 
-		// SUPER ADMIN (controle total do sistema)
-		...perms.map((p) => ({
-			roleId: superAdmin.id,
-			permissionId: p.id,
-		})),
-
-		// SELLER (vendedor)
-		{ roleId: seller.id, permissionId: permMap['product.create'] },
-		{ roleId: seller.id, permissionId: permMap['product.update'] },
-		{ roleId: seller.id, permissionId: permMap['product.delete'] },
-		{ roleId: seller.id, permissionId: permMap['product.read'] },
-		{ roleId: seller.id, permissionId: permMap['order.read'] },
-
-		// BUYER (cliente)
-		{ roleId: buyer.id, permissionId: permMap['order.create'] },
-		{ roleId: buyer.id, permissionId: permMap['order.read'] },
-		{ roleId: buyer.id, permissionId: permMap['product.read'] },
-
-		// SUPPORT (suporte)
-		{ roleId: support.id, permissionId: permMap['order.read'] },
-		{ roleId: support.id, permissionId: permMap['user.read'] },
-		{ roleId: support.id, permissionId: permMap['dispute.manage'] },
-	])
+	await supabase.from('role_permissions').upsert(rolePermissions, {
+		onConflict: 'role_id,permission_id',
+		ignoreDuplicates: true,
+	})
 
 	console.log('✅ Seed de RBAC concluído com sucesso!')
 }

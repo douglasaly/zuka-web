@@ -1,87 +1,78 @@
 'use client'
 
-import {
-	HomeIcon,
-	MessageSquare,
-	Search,
-	ShoppingBag,
-	User,
-} from 'lucide-react'
+import { Compass, HomeIcon, ShoppingBag, User } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
 	SidebarGroup,
 	SidebarGroupContent,
+	SidebarGroupLabel,
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from '@/components/ui/sidebar'
-import { cn } from '@/lib/utils'
+import { useUserProfile } from '@/hooks/use-user-profile'
 
-const items = [
+const publicItems = [
 	{ title: 'Início', url: '/', icon: HomeIcon },
-	{
-		title: 'Explorar',
-		url: '/feed/explorar',
-		icon: Search,
-	},
-	{
-		title: 'Pedidios',
-		url: '/feed/pedidos',
-		icon: ShoppingBag,
-	},
-	{
-		title: 'Mensagens',
-		url: '/feed/messages',
-		icon: MessageSquare,
-	},
-	{
-		title: 'Perfil',
-		url: '/perfil',
-		icon: User,
-	},
+	{ title: 'Explorar', url: '/feed/explorar', icon: Compass },
+]
+
+const authItems = [
+	{ title: 'Pedidos', url: '/feed/pedidos', icon: ShoppingBag },
+	{ title: 'Perfil', url: '/perfil', icon: User },
 ]
 
 export const MainSection = () => {
 	const pathname = usePathname()
+	const { isAuthenticated, isLoading } = useUserProfile()
+
+	const items = [
+		...publicItems,
+		...(isAuthenticated ? authItems : []),
+	]
+
+	if (isLoading) {
+		return (
+			<SidebarGroup>
+				<SidebarGroupLabel className='text-xs font-semibold uppercase tracking-wider text-muted-foreground/70'>
+					Comprar
+				</SidebarGroupLabel>
+			</SidebarGroup>
+		)
+	}
 
 	return (
-		<main>
-			<div className='p-4'>
-				<Link href='/' className='font-bold text-3xl'>
-					Zuka
-				</Link>
-			</div>
-			<SidebarGroup>
-				<SidebarGroupContent>
-					<SidebarMenu>
-						{items.map((item) => (
+		<SidebarGroup>
+			<SidebarGroupLabel className='text-xs font-semibold uppercase tracking-wider text-muted-foreground/70'>
+				Comprar
+			</SidebarGroupLabel>
+			<SidebarGroupContent>
+				<SidebarMenu>
+					{items.map((item) => {
+						const isActive =
+							item.url === '/'
+								? pathname === '/'
+								: pathname === item.url ||
+									pathname.startsWith(`${item.url}/`)
+
+						return (
 							<SidebarMenuItem key={item.title}>
 								<SidebarMenuButton
 									tooltip={item.title}
+									isActive={isActive}
 									render={
-										<Link
-											prefetch
-											href={item.url}
-											className={cn(
-												'flex items-center gap-4 text-muted-foreground',
-												pathname === item.url &&
-													'font-semibold'
-											)}
-										>
-											<item.icon />
-											<span className='text-sm'>
-												{item.title}
-											</span>
+										<Link prefetch href={item.url}>
+											<item.icon className='size-4' />
+											<span>{item.title}</span>
 										</Link>
 									}
-									isActive={pathname === item.url}
 								/>
 							</SidebarMenuItem>
-						))}
-					</SidebarMenu>
-				</SidebarGroupContent>
-			</SidebarGroup>
-		</main>
+						)
+					})}
+				</SidebarMenu>
+			</SidebarGroupContent>
+		</SidebarGroup>
 	)
 }

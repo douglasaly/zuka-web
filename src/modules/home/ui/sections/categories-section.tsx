@@ -24,12 +24,9 @@ export const CategoriesSectionSuspense = ({ categoryId }: Props) => {
 	const { data: categories = [] } = useQuery<Categories[]>({
 		queryKey: ['categories'],
 		queryFn: async () => {
-			const response = await fetch(
-				'http://localhost:3000/api/categories',
-				{
-					method: 'GET',
-				}
-			)
+			const response = await fetch('/api/categories', {
+				method: 'GET',
+			})
 
 			if (!response.ok) {
 				throw new Error('Fetch error')
@@ -71,7 +68,13 @@ export const CategoriesSectionSuspense = ({ categoryId }: Props) => {
 export const CategoriesSection = ({ categoryId }: Props) => {
 	return (
 		<Suspense fallback={<CategorySkeleton />}>
-			<ErrorBoundary fallback={<p>Error...</p>}>
+			<ErrorBoundary
+				fallback={
+					<p className='text-sm text-muted-foreground'>
+						Não foi possível carregar as categorias.
+					</p>
+				}
+			>
 				<CategoriesSectionSuspense categoryId={categoryId} />
 			</ErrorBoundary>
 		</Suspense>

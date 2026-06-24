@@ -4,6 +4,8 @@ import { SearchIcon, SlidersHorizontal, XIcon } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
 
 export const SearchInput = () => {
 	const searchParams = useSearchParams()
@@ -38,42 +40,45 @@ export const SearchInput = () => {
 	}
 
 	return (
-		<form className='flex w-full pb-4' onSubmit={handleSearch}>
-			<button
-				type='submit'
-				className='px-5 py-2.5 bg-gray-100 border border-l-0 rounded-l-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed border-r-0 placeholder:-px-5 cursor-pointer'
-			>
-				<SearchIcon className='size-5 text-muted-foreground' />
-			</button>
-
-			<div className='relative w-full'>
-				<input
-					value={value}
-					onChange={(e) => setValue(e.target.value)}
-					type='text'
-					placeholder='Procurar produtos, lojas...'
-					className='w-full h-14 pl-4 py-2 pr-12 border  focus:outline-none focus:border-blue-500 bg-gray-100 border-l-0 border-r-0  focus:border-l focus:border-r'
-				/>
-
+		<form className='relative w-full max-w-xl' onSubmit={handleSearch}>
+			<SearchIcon className='pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground' />
+			<Input
+				value={value}
+				onChange={(e) => setValue(e.target.value)}
+				type='search'
+				placeholder='Procurar produtos, lojas, categorias...'
+				className={cn(
+					'h-11 rounded-full border border-border/80 bg-muted/30 pl-10 pr-20 shadow-none',
+					'placeholder:text-muted-foreground/70',
+					'focus-visible:bg-background focus-visible:ring-secondary/20'
+				)}
+			/>
+			<div className='absolute top-1/2 right-1.5 flex -translate-y-1/2 items-center gap-0.5'>
 				{value && (
 					<Button
-						disabled={!value.trim()}
 						type='button'
 						variant='ghost'
-						size='icon'
+						size='icon-xs'
 						onClick={() => setValue('')}
-						className='absolute right-2 top-1/2 -translate-y-1/2 rounded-full'
+						className='rounded-full text-muted-foreground'
+						aria-label='Limpar pesquisa'
 					>
-						<XIcon className=' text-gray-500' />
+						<XIcon className='size-3.5' />
 					</Button>
 				)}
+				<Button
+					type='button'
+					variant='ghost'
+					size='icon-xs'
+					className='rounded-full text-muted-foreground'
+					aria-label='Filtros'
+				>
+					<SlidersHorizontal className='size-3.5' />
+				</Button>
+				<Button type='submit' size='sm' className='rounded-full px-3.5'>
+					Buscar
+				</Button>
 			</div>
-			<button
-				type='submit'
-				className='px-5 py-2.5 bg-gray-100 border border-r-0 rounded-r-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed border-l-0 placeholder:-px-5 cursor-pointer'
-			>
-				<SlidersHorizontal className='size-5 text-muted-foreground' />
-			</button>
 		</form>
 	)
 }

@@ -1,8 +1,5 @@
-import { getApps, initializeApp } from 'firebase-admin/app'
 import { NextResponse } from 'next/server'
 import { createSession } from '@/utils/cookies'
-
-if (!getApps().length) initializeApp()
 
 export async function POST(request: Request) {
 	const { token } = await request.json()

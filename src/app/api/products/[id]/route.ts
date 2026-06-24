@@ -1,10 +1,5 @@
-import { and, eq } from 'drizzle-orm'
 import { NextResponse } from 'next/server'
-import { db } from '@/db'
-import { categories } from '@/db/schema/categories'
-import { productImages } from '@/db/schema/product-images'
-import { products } from '@/db/schema/products'
-import { stores } from '@/db/schema/stores'
+import { createSupabaseAdmin } from '@/lib/supabase/admin'
 
 export async function GET(
 	req: Request,
@@ -20,40 +15,37 @@ export async function GET(
 			)
 		}
 
-		const rows = await db
-			.select({
-				product: products,
-				store: stores,
-				category: categories,
-				image: productImages,
-			})
-			.from(products)
-			.leftJoin(stores, eq(products.storeId, stores.id))
-			.leftJoin(categories, eq(products.categoryId, categories.id))
-			.leftJoin(productImages, eq(productImages.productId, products.id))
-			.where(and(eq(products.id, id), eq(products.isVisible, true)))
+		const supabase = createSupabaseAdmin()
+		const { data, error } = await supabase
+			.from('products')
+			.select('*, stores(*), categories(*), product_images(*)')
+			.eq('id', id)
+			.eq('is_visible', true)
+			.is('deleted_at', null)
+			.maybeSingle()
 
-		if (!rows.length) {
+		if (error) {
+			throw error
+		}
+
+		if (!data) {
 			return NextResponse.json(
 				{ success: false, message: 'Produto não encontrado' },
 				{ status: 404 }
 			)
 		}
 
-		const base = rows[0]
-
-		const images = rows.map((r) => r.image).filter(Boolean)
-
-		const data = {
-			product: base.product,
-			store: base.store,
-			category: base.category,
-			images,
-		}
+		const row = data as Record<string, unknown>
+		const { stores, categories, product_images, ...product } = row
 
 		return NextResponse.json({
 			success: true,
-			data,
+			data: {
+				product,
+				store: stores,
+				category: categories,
+				images: product_images ?? [],
+			},
 		})
 	} catch (error) {
 		return NextResponse.json(

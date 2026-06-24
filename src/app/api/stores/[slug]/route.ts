@@ -1,19 +1,56 @@
-import { desc, eq } from 'drizzle-orm'
 import { NextResponse } from 'next/server'
-import { db } from '@/db'
-import { categories } from '@/db/schema/categories'
-import { productImages } from '@/db/schema/product-images'
-import { products } from '@/db/schema/products'
-import { stores } from '@/db/schema/stores'
+import { createSupabaseAdmin } from '@/lib/supabase/admin'
 
 interface GetStoreProps {
 	params: Promise<{ slug: string }>
 }
 
+type ProductRow = {
+	id: string
+	store_id: string
+	category_id: string
+	name: string
+	slug: string | null
+	is_visible: boolean | null
+	description: string | null
+	status: string | null
+	price: number
+	discount_price: number | null
+	currency: string | null
+	created_at: string | null
+	updated_at: string | null
+	deleted_at: string | null
+	categories: Record<string, unknown> | null
+	product_images: Array<Record<string, unknown>> | null
+}
+
+function groupStoreProducts(rows: ProductRow[]) {
+	const map = new Map<
+		string,
+		{
+			product: Record<string, unknown>
+			category: Record<string, unknown> | null
+			images: Array<Record<string, unknown>>
+		}
+	>()
+
+	for (const row of rows) {
+		if (!map.has(row.id)) {
+			const { categories, product_images, ...product } = row
+			map.set(row.id, {
+				product,
+				category: categories,
+				images: product_images ?? [],
+			})
+		}
+	}
+
+	return Array.from(map.values())
+}
+
 export async function GET(req: Request, { params }: GetStoreProps) {
 	try {
 		const { slug } = await params
-
 		const { searchParams } = new URL(req.url)
 
 		const page = Number(searchParams.get('page') ?? 1)
@@ -21,13 +58,20 @@ export async function GET(req: Request, { params }: GetStoreProps) {
 		const offset = (page - 1) * limit
 		const category = searchParams.get('category')
 
-		const storeResult = await db
-			.select()
-			.from(stores)
-			.where(eq(stores.slug, slug))
-			.limit(1)
+		const supabase = createSupabaseAdmin()
 
-		if (!storeResult.length) {
+		const { data: store, error: storeError } = await supabase
+			.from('stores')
+			.select('*, provinces(name)')
+			.eq('slug', slug)
+			.is('deleted_at', null)
+			.maybeSingle()
+
+		if (storeError) {
+			throw storeError
+		}
+
+		if (!store) {
 			return NextResponse.json(
 				{
 					success: false,
@@ -37,54 +81,50 @@ export async function GET(req: Request, { params }: GetStoreProps) {
 			)
 		}
 
-		const store = storeResult[0]
+		const storeRow = store as Record<string, unknown>
+		const storeId = String(storeRow.id)
 
-		const conditions = [eq(products.storeId, store.id)]
+		let productsQuery = supabase
+			.from('products')
+			.select('*, categories(*), product_images(*)')
+			.eq('store_id', storeId)
+			.is('deleted_at', null)
+			.order('created_at', { ascending: false })
+			.range(offset, offset + limit - 1)
 
 		if (category) {
-			conditions.push(eq(products.categoryId, category))
+			productsQuery = productsQuery.eq('category_id', category)
 		}
 
-		const rows = await db
-			.select({
-				product: products,
-				category: categories,
-				image: productImages,
-			})
-			.from(products)
-			.leftJoin(categories, eq(products.categoryId, categories.id))
-			.leftJoin(productImages, eq(productImages.productId, products.id))
-			.where(eq(products.storeId, store.id))
-			.orderBy(desc(products.createdAt))
-			.limit(limit)
-			.offset(offset)
+		const { data: productsRows, error: productsError } = await productsQuery
 
-		const map = new Map<string, any>()
-
-		for (const row of rows) {
-			const id = row.product.id
-
-			if (!map.has(id)) {
-				map.set(id, {
-					product: row.product,
-					category: row.category,
-					images: [],
-				})
-			}
-
-			const item = map.get(id)
-
-			if (row.image) {
-				item.images.push(row.image)
-			}
+		if (productsError) {
+			throw productsError
 		}
 
-		const productsData = Array.from(map.values())
+		const productsData = groupStoreProducts(
+			(productsRows ?? []) as ProductRow[]
+		)
+
+		const { count: productCount } = await supabase
+			.from('products')
+			.select('*', { count: 'exact', head: true })
+			.eq('store_id', storeId)
+			.is('deleted_at', null)
+
+		const { count: followerCount } = await supabase
+			.from('store_followers')
+			.select('*', { count: 'exact', head: true })
+			.eq('store_id', storeId)
 
 		return NextResponse.json({
 			success: true,
 			data: {
-				store,
+				store: {
+					...storeRow,
+					product_count: productCount ?? 0,
+					follower_count: followerCount ?? 0,
+				},
 				products: productsData,
 				page,
 				limit,

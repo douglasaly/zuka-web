@@ -1,61 +1,120 @@
-import { Bell, Heart, MapPin } from 'lucide-react'
+'use client'
+
+import { Bell, Heart, ShoppingBag, User } from 'lucide-react'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import { Button } from '@/components/ui/button'
+import { SidebarTrigger } from '@/components/ui/sidebar'
+import { useUserProfile } from '@/hooks/use-user-profile'
 import { SearchInput } from './search-input'
+
+function NavbarOrdersLink() {
+	const { isAuthenticated, isLoading } = useUserProfile()
+
+	if (isLoading || !isAuthenticated) return null
+
+	return (
+		<Button
+			render={<Link href='/feed/pedidos' />}
+			variant='ghost'
+			size='icon-sm'
+			aria-label='Pedidos'
+		>
+			<ShoppingBag className='size-4' />
+		</Button>
+	)
+}
+function NavbarAuth() {
+	const { profile, isAuthenticated, isLoading } = useUserProfile()
+
+	if (isLoading) {
+		return (
+			<Button size='sm' variant='ghost' disabled className='ml-1 rounded-full px-4'>
+				...
+			</Button>
+		)
+	}
+
+	if (!isAuthenticated) {
+		return (
+			<>
+				<Button
+					size='sm'
+					variant='ghost'
+					className='hidden rounded-full sm:inline-flex'
+					render={<Link href='/signup'>Registar</Link>}
+				/>
+				<Button
+					size='sm'
+					className='ml-1 rounded-full px-4'
+					render={<Link href='/auth/login'>Entrar</Link>}
+				/>
+			</>
+		)
+	}
+
+	const name =
+		[profile?.firstName, profile?.lastName].filter(Boolean).join(' ') ||
+		profile?.email ||
+		'Conta'
+
+	return (
+		<Button
+			render={<Link href='/perfil' />}
+			size='sm'
+			variant='outline'
+			className='ml-1 max-w-[160px] rounded-full px-3'
+		>
+			<User className='size-4 shrink-0' />
+			<span className='truncate'>{name}</span>
+		</Button>
+	)
+}
 
 export const HomeNavbar = () => {
 	return (
-		<nav className='shadow bg-white flex flex-col gap-4 items-center px-2 pr-5 z-30'>
-			<div className='w-full px-4'>
-				<div className='flex items-center gap-4 w-full '>
-					{/* Menu and logo */}
-					<div className='flex items-center shrink-0'>
-						{/* <SidebarTrigger /> */}
-						<Link prefetch href='/' className=''>
-							<div className='flex gap-2 py-4 items-center '>
-								<p className='font-bold text-3xl tracking-tight hidden md:block'>
-									Zuka
-								</p>
-							</div>
-						</Link>
+		<header className='sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl'>
+			<div className='mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 md:px-6'>
+				<div className='flex items-center gap-3 md:gap-4'>
+					<SidebarTrigger className='md:hidden' />
+
+					<Link
+						prefetch
+						href='/'
+						className='flex shrink-0 items-center gap-2 transition-opacity hover:opacity-80'
+					>
+						<div className='flex size-9 items-center justify-center rounded-xl bg-primary text-sm font-extrabold text-primary-foreground'>
+							Z
+						</div>
+						<span className='hidden font-heading text-xl font-bold tracking-tight sm:block'>
+							Zuka
+						</span>
+					</Link>
+
+					<div className='hidden min-w-0 flex-1 md:block'>
+						<Suspense fallback={<div className='h-11 w-full max-w-xl' />}>
+							<SearchInput />
+						</Suspense>
 					</div>
 
-					{/* Project Location */}
-					<div className='flex-1 flex justify-center max-w-180 mx-auto items-center font-semibold'>
-						<MapPin className='size-5 mr-1' />
-						Maputo, MZ
-					</div>
-
-					{/* Activity */}
-					<div className='flex justify-center items-center gap-4'>
-						<Button
-							variant='ghost'
-							size='icon'
-							className='size-5 cursor-pointer'
-							type='button'
-						>
-							<Heart className='size-5 mr-2' />
+					<div className='ml-auto flex items-center gap-1'>
+						<Button variant='ghost' size='icon-sm' type='button' aria-label='Favoritos'>
+							<Heart className='size-4' />
 						</Button>
-
-						<Button
-							variant='ghost'
-							size='icon'
-							className='size-5 cursor-pointer'
-							type='button'
-						>
-							<Bell className='size-5 mr-2' />
+						<Button variant='ghost' size='icon-sm' type='button' aria-label='Notificações'>
+							<Bell className='size-4' />
 						</Button>
+						<NavbarOrdersLink />
+						<NavbarAuth />
 					</div>
 				</div>
 
-				{/* Search Input */}
-				<div className='flex-1 flex justify-center w-full mx-auto '>
-					<Suspense fallback={<div className='w-full h-10' />}>
+				<div className='md:hidden'>
+					<Suspense fallback={<div className='h-11 w-full' />}>
 						<SearchInput />
 					</Suspense>
 				</div>
 			</div>
-		</nav>
+		</header>
 	)
 }
