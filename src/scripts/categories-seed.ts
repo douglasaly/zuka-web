@@ -1,61 +1,76 @@
-import { db } from '@/db'
-import { categories } from '@/db/schema/categories'
+import './load-env'
+import { uuidv7 } from 'uuidv7'
+import { marketplaceCategories } from '../data/categories'
+import { createSupabaseAdmin } from '../lib/supabase/admin'
 
-export const categoriesSeed = [
-	{
-		name: 'Eletrônicos',
-		slug: 'eletronicos',
-	},
-	{
-		name: 'Moda e Vestuário',
-		slug: 'moda-e-vestuario',
-	},
-	{
-		name: 'Casa e Decoração',
-		slug: 'casa-e-decoracao',
-	},
-	{
-		name: 'Beleza e Cuidados Pessoais',
-		slug: 'beleza-e-cuidados-pessoais',
-	},
-	{
-		name: 'Esportes e Lazer',
-		slug: 'esportes-e-lazer',
-	},
-	{
-		name: 'Alimentos e Bebidas',
-		slug: 'alimentos-e-bebidas',
-	},
-	{
-		name: 'Livros e Educação',
-		slug: 'livros-e-educacao',
-	},
-	{
-		name: 'Automóveis e Motos',
-		slug: 'automoveis-e-motos',
-	},
-	{
-		name: 'Saúde e Bem-estar',
-		slug: 'saude-e-bem-estar',
-	},
-	{
-		name: 'Tecnologia e Acessórios',
-		slug: 'tecnologia-e-acessorios',
-	},
+const duplicateSlugs = [
+	'beleza-e-cuidados-pessoais',
+	'esportes-e-lazer',
+	'livros-e-educacao',
+	'automoveis-e-motos',
+	'saude-e-bem-estar',
+	'tecnologia-e-acessorios',
 ]
+
+async function removeDuplicateCategories(supabase: ReturnType<typeof createSupabaseAdmin>) {
+	for (const slug of duplicateSlugs) {
+		const { data: category } = await supabase
+			.from('categories')
+			.select('id')
+			.eq('slug', slug)
+			.maybeSingle()
+
+		if (!category) continue
+
+		const { count } = await supabase
+			.from('products')
+			.select('*', { count: 'exact', head: true })
+			.eq('category_id', category.id as string)
+
+		if ((count ?? 0) === 0) {
+			await supabase.from('categories').delete().eq('id', category.id as string)
+			console.log(`🧹 Removed duplicate category: ${slug}`)
+		}
+	}
+}
 
 async function seed() {
 	try {
-		console.log('🔗 Seeding categories')
+		console.log('🔗 Seeding categories...')
 
-		await db.insert(categories).values(categoriesSeed)
+		const supabase = createSupabaseAdmin()
 
-		console.log('✔️ Categories seeded successfully')
+		await removeDuplicateCategories(supabase)
 
+		const { data: existing, error: selectError } = await supabase
+			.from('categories')
+			.select('slug')
+
+		if (selectError) throw selectError
+
+		const existingSlugs = new Set((existing ?? []).map((row) => String(row.slug)))
+		const toInsert = marketplaceCategories
+			.filter((category) => !existingSlugs.has(category.slug))
+			.map((category) => ({
+				id: uuidv7(),
+				...category,
+			}))
+
+		if (toInsert.length === 0) {
+			console.log(`✔️ All ${marketplaceCategories.length} categories already exist`)
+			process.exit(0)
+		}
+
+		const { error } = await supabase.from('categories').insert(toInsert)
+		if (error) throw error
+
+		console.log(`✔️ Created ${toInsert.length} categories`)
+		console.log(`✔️ Total: ${existingSlugs.size + toInsert.length} categories`)
 		process.exit(0)
 	} catch (error) {
 		console.error(error)
 		process.exit(1)
 	}
 }
+
 seed()

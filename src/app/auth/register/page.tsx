@@ -1,5 +1,5 @@
-import { RegisterView } from '@/modules/auth/register-view'
+import { redirect } from 'next/navigation'
 
 export default function RegisterPage() {
-	return <RegisterView />
+	redirect('/signup')
 }

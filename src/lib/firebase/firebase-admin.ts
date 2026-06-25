@@ -1,7 +1,7 @@
 import { cert, getApps, initializeApp } from 'firebase-admin/app'
 import { getAuth } from 'firebase-admin/auth'
 
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === 'true') {
 	process.env.FIREBASE_AUTH_EMULATOR_HOST = '127.0.0.1:9099'
 }
 

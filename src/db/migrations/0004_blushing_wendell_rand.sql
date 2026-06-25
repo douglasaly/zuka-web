@@ -1,1 +1,0 @@
-CREATE INDEX "idx_conversation_messages" ON "conversation_participants" USING btree ("conversation_id");

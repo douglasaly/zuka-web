@@ -1,10 +1,11 @@
 'use client'
 
+import { Heart, Store, Truck } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { getBadge } from '@/utils/badge'
 import { formatPrice } from '@/utils/format-price'
 
 interface Product {
@@ -13,76 +14,91 @@ interface Product {
 	price: number
 	discountPrice?: number | null
 	currency: string
-	isVisible: boolean
-	status: string
 	image?: string
-}
-
-const badgeConfig = {
-	promo: {
-		label: '🔥 Promoção',
-		className: 'bg-red-100 text-red-700',
-	},
-	active: {
-		label: '🟢 Disponível',
-		className: 'bg-green-100 text-green-700',
-	},
-	hidden: {
-		label: '⚫ Indisponível',
-		className: 'bg-gray-200 text-gray-600',
-	},
+	hasDelivery?: boolean
 }
 
 export const ProductCard = ({ product }: { product: Product }) => {
 	const router = useRouter()
 
-	const badgeType = getBadge(product)
-	const badge = badgeConfig[badgeType]
-
 	const finalPrice = product.discountPrice ?? product.price
+	const hasDiscount =
+		product.discountPrice != null && product.discountPrice < product.price
+	const discountPercent = hasDiscount
+		? Math.round(
+				((product.price - product.discountPrice!) / product.price) * 100
+			)
+		: null
 
 	return (
 		<Card
 			onClick={() => router.push(`/product/${product.id}`)}
-			className='group cursor-pointer overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg p-0'
+			className='group cursor-pointer gap-0 overflow-hidden rounded-2xl border border-border/60 bg-card p-0 transition-all duration-300 hover:-translate-y-0.5 hover:border-border'
 		>
-			{/* Image */}
-			<div className='relative w-full'>
-				<div className='relative w-full aspect-4/4.5 overflow-hidden bg-gray-50'>
+			<div className='relative overflow-hidden'>
+				<div className='relative aspect-4/5 w-full bg-muted'>
 					<Image
-						loading='eager'
+						loading='lazy'
 						src={product.image ?? '/product-placeholder.jpg'}
 						alt={product.name}
 						fill
 						sizes='(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw'
-						className='object-cover'
+						className='object-cover transition-transform duration-500 group-hover:scale-[1.03]'
 					/>
 				</div>
 
-				<Badge
-					className={`absolute left-3 bottom-3 ${badge.className}`}
+				{hasDiscount && discountPercent && (
+					<Badge className='absolute top-3 left-3 border-0 bg-secondary px-2 py-0.5 text-[11px] font-bold text-secondary-foreground'>
+						-{discountPercent}%
+					</Badge>
+				)}
+
+				<Button
+					variant='secondary'
+					size='icon-sm'
+					type='button'
+					onClick={(e) => e.stopPropagation()}
+					className='absolute top-3 right-3 size-8 rounded-full border border-border/50 bg-background/90 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100'
+					aria-label='Adicionar aos favoritos'
 				>
-					{badge.label}
+					<Heart className='size-3.5' />
+				</Button>
+
+				<Badge
+					className={
+						product.hasDelivery
+							? 'absolute bottom-3 left-3 gap-1 border-0 bg-emerald-600 px-2 py-0.5 text-[11px] font-semibold text-white'
+							: 'absolute bottom-3 left-3 gap-1 border border-border bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground'
+					}
+				>
+					{product.hasDelivery ? (
+						<>
+							<Truck className='size-3' />
+							Entrega
+						</>
+					) : (
+						<>
+							<Store className='size-3' />
+							Levantamento
+						</>
+					)}
 				</Badge>
 			</div>
 
-			{/* Content */}
-			<CardContent className='pb-4'>
-				<h3 className='line-clamp-2 text-md font-semibold text-gray-800'>
+			<CardContent className='space-y-2 px-4 pt-3.5 pb-4'>
+				<h3 className='line-clamp-2 text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-secondary'>
 					{product.name}
 				</h3>
 
-				<div className='mt-2 flex items-baseline gap-2'>
-					<span className='text-lg font-bold text-gray-900'>
+				<div className='flex items-baseline gap-2'>
+					<span className='text-base font-bold text-foreground'>
 						{formatPrice(finalPrice, product.currency)}
 					</span>
-
-					{product.discountPrice &&
-						product.discountPrice < product.price && (
-							<span className='text-xs text-gray-400 line-through'>
-								{formatPrice(product.price, product.currency)}
-							</span>
-						)}
+					{hasDiscount && (
+						<span className='text-xs text-muted-foreground line-through'>
+							{formatPrice(product.price, product.currency)}
+						</span>
+					)}
 				</div>
 			</CardContent>
 		</Card>

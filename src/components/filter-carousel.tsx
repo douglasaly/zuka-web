@@ -4,7 +4,6 @@
 import WheelGesturesPlugin from 'embla-carousel-wheel-gestures'
 import { useEffect, useState } from 'react'
 import { cn } from '@/lib/utils'
-import { Badge } from './ui/badge'
 import {
 	Carousel,
 	type CarouselApi,
@@ -24,6 +23,15 @@ interface FilterCarouselProps {
 		label: string
 	}[]
 }
+
+const pillBase =
+	'inline-flex cursor-pointer items-center rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 select-none'
+
+const pillInactive =
+	'border-border/70 bg-background text-muted-foreground hover:border-secondary/30 hover:bg-secondary/5 hover:text-foreground'
+
+const pillActive =
+	'border-primary bg-primary text-primary-foreground hover:bg-primary/90'
 
 export const FilterCarousel = ({
 	data,
@@ -49,87 +57,88 @@ export const FilterCarousel = ({
 	}, [api])
 
 	return (
-		<div className='relative w-full overflow-hidden'>
-			{/* Left Fade */}
-			<div
-				className={cn(
-					'absolute left-12 top-0 bottom-0 w-12 z-10 bg-linear-to-r from-white to-transparent pointer-events-none',
-					current === 1 && 'hidden'
-				)}
-			/>
+		<section className='space-y-3'>
+			<h2 className='font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground'>
+				Categorias
+			</h2>
 
-			<Carousel
-				setApi={setApi}
-				opts={{
-					align: 'start',
-					dragFree: true,
-				}}
-				plugins={[WheelGesturesPlugin()]}
-				className='w-full px-12'
-			>
-				<CarouselContent className='-ml-3'>
-					{!isLoading && (
-						<CarouselItem
-							className=' pl-3 basis-auto'
-							onClick={() => onSelect?.(null)}
-						>
-							<Badge
-								variant={
-									value === undefined
-										? 'default'
-										: 'secondary'
-								}
-								className='rounded-2xl p-5 cursor-pointer whitespace-nowrap text-sm'
-							>
-								Todos
-							</Badge>
-						</CarouselItem>
+			<div className='relative w-full overflow-hidden'>
+				<div
+					className={cn(
+						'pointer-events-none absolute top-0 bottom-0 left-10 z-10 w-10 bg-gradient-to-r from-background to-transparent',
+						current === 1 && 'hidden'
 					)}
+				/>
 
-					{isLoading &&
-						Array.from({ length: 14 }).map((_, index) => (
+				<Carousel
+					setApi={setApi}
+					opts={{
+						align: 'start',
+						dragFree: true,
+					}}
+					plugins={[WheelGesturesPlugin()]}
+					className='w-full px-10'
+				>
+					<CarouselContent className='-ml-2'>
+						{!isLoading && (
 							<CarouselItem
-								key={index}
-								className='pl-3 basis-auto'
+								className='basis-auto pl-2'
+								onClick={() => onSelect?.(null)}
 							>
-								<Skeleton className='rounded-lg px-3 py-1 text-sm h-full w-25 font-semibold'>
-									&nbsp;
-								</Skeleton>
-							</CarouselItem>
-						))}
-
-					{!isLoading &&
-						data.map((item) => (
-							<CarouselItem
-								key={item.value}
-								className='pl-3 basis-auto'
-								onClick={() => onSelect?.(item.value)}
-							>
-								<Badge
-									variant={
-										value === item.value
-											? 'default'
-											: 'secondary'
-									}
-									className='rounded-2xl p-5 cursor-pointer whitespace-nowrap text-sm'
+								<span
+									className={cn(
+										pillBase,
+										value === undefined || value === null
+											? pillActive
+											: pillInactive
+									)}
 								>
-									{item.label}
-								</Badge>
+									Todos
+								</span>
 							</CarouselItem>
-						))}
-				</CarouselContent>
-				<CarouselPrevious className='left-0 z-20' />
-				<CarouselNext className='right-0 z-20' />
-			</Carousel>
+						)}
 
-			{/* Right Fade */}
+						{isLoading &&
+							Array.from({ length: 10 }).map((_, index) => (
+								<CarouselItem
+									key={index}
+									className='basis-auto pl-2'
+								>
+									<Skeleton className='h-9 w-24 rounded-full' />
+								</CarouselItem>
+							))}
 
-			<div
-				className={cn(
-					'absolute right-12 top-0 bottom-0 w-12 z-10 bg-linear-to-l from-white to-transparent pointer-events-none',
-					current === count && 'hidden'
-				)}
-			/>
-		</div>
+						{!isLoading &&
+							data.map((item) => (
+								<CarouselItem
+									key={item.value}
+									className='basis-auto pl-2'
+									onClick={() => onSelect?.(item.value)}
+								>
+									<span
+										className={cn(
+											pillBase,
+											value === item.value
+												? pillActive
+												: pillInactive
+										)}
+									>
+										{item.label}
+									</span>
+								</CarouselItem>
+							))}
+					</CarouselContent>
+					<CarouselPrevious className='left-0 z-20 size-8 border border-border/60 bg-background/90 backdrop-blur-sm' />
+					<CarouselNext className='right-0 z-20 size-8 border border-border/60 bg-background/90 backdrop-blur-sm' />
+				</Carousel>
+
+				<div
+					className={cn(
+						'pointer-events-none absolute top-0 right-10 bottom-0 z-10 w-10 bg-gradient-to-l from-background to-transparent',
+						current === count && 'hidden'
+					)}
+				/>
+			</div>
+		</section>
 	)
 }

@@ -1,13 +1,19 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/db'
-import { provinces } from '@/db/schema/provinces'
-import type { Province } from './types'
+import { createSupabaseAdmin } from '@/lib/supabase/admin'
 
 export async function GET() {
 	try {
-		const data = await db.select().from(provinces)
+		const supabase = createSupabaseAdmin()
+		const { data, error } = await supabase
+			.from('provinces')
+			.select('*')
+			.order('name')
 
-		return NextResponse.json<Province[]>(data)
+		if (error) {
+			throw error
+		}
+
+		return NextResponse.json(data ?? [])
 	} catch (error) {
 		return NextResponse.json(
 			{

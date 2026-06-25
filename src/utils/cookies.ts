@@ -8,24 +8,21 @@ export async function createSession(idToken: string) {
 	const cookieStore = await cookies()
 	const expiresIn = 60 * 60 * 24 * 7 * 1000 // 7 dias
 
-	try {
-		const sessionCookie = await adminAuth.createSessionCookie(idToken, {
-			expiresIn,
-		})
+	const sessionCookie = await adminAuth.createSessionCookie(idToken, {
+		expiresIn,
+	})
 
-		const maxAge = expiresIn / 1000
+	const maxAge = expiresIn / 1000
 
-		cookieStore.set(SESSION_COOKIE, sessionCookie, {
-			maxAge,
-			httpOnly: process.env.NODE_ENV === 'production',
-			secure: process.env.NODE_ENV === 'production',
-			sameSite: 'strict',
-			path: '/',
-		})
-		return { success: true }
-	} catch (error) {
-		return { success: false, message: 'Falha ao criar sessão', error }
-	}
+	cookieStore.set(SESSION_COOKIE, sessionCookie, {
+		maxAge,
+		httpOnly: process.env.NODE_ENV === 'production',
+		secure: process.env.NODE_ENV === 'production',
+		sameSite: 'strict',
+		path: '/',
+	})
+
+	return { success: true }
 }
 
 export async function deleteSession() {
