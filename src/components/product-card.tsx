@@ -26,7 +26,9 @@ export const ProductCard = ({ product }: { product: Product }) => {
 		product.discountPrice != null && product.discountPrice < product.price
 	const discountPercent = hasDiscount
 		? Math.round(
-				((product.price - product.discountPrice!) / product.price) * 100
+				((product.price - (product.discountPrice ?? 0)) /
+					product.price) *
+					100
 			)
 		: null
 
@@ -58,10 +60,10 @@ export const ProductCard = ({ product }: { product: Product }) => {
 					size='icon-sm'
 					type='button'
 					onClick={(e) => e.stopPropagation()}
-					className='absolute top-3 right-3 size-8 rounded-full border border-border/50 bg-background/90 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100'
+					className='absolute top-3 right-3 size-8 rounded-full border border-border/50 bg-background/90 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100 hover:[&svg]:text-white'
 					aria-label='Adicionar aos favoritos'
 				>
-					<Heart className='size-3.5' />
+					<Heart className='size-3.5 text-black' />
 				</Button>
 
 				<Badge

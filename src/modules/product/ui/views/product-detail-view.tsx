@@ -1,5 +1,6 @@
 'use client'
 
+import { useQuery } from '@tanstack/react-query'
 import {
 	ArrowLeft,
 	BadgeCheck,
@@ -14,19 +15,24 @@ import {
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useMemo, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useEffect, useMemo, useState } from 'react'
 import { ExploreProductCard } from '@/components/explore-product-card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+	Carousel,
+	type CarouselApi,
+	CarouselContent,
+	CarouselItem,
+} from '@/components/ui/carousel'
 import {
 	fetchProduct,
 	fetchProducts,
 	PRODUCT_PLACEHOLDER,
 	STORE_PLACEHOLDER,
 } from '@/lib/api/marketplace'
-import { formatPrice } from '@/utils/format-price'
 import { cn } from '@/lib/utils'
+import { formatPrice } from '@/utils/format-price'
 
 interface ProductDetailViewProps {
 	id: string
@@ -34,6 +40,7 @@ interface ProductDetailViewProps {
 
 export const ProductDetailView = ({ id }: ProductDetailViewProps) => {
 	const router = useRouter()
+	const [api, setApi] = useState<CarouselApi>()
 	const [activeImage, setActiveImage] = useState(0)
 
 	const { data, isLoading } = useQuery({
@@ -56,6 +63,22 @@ export const ProductDetailView = ({ id }: ProductDetailViewProps) => {
 		[related, id]
 	)
 
+	useEffect(() => {
+		if (!api) return
+
+		setActiveImage(api.selectedScrollSnap())
+
+		const onSelect = () => {
+			setActiveImage(api.selectedScrollSnap())
+		}
+
+		api.on('select', onSelect)
+
+		return () => {
+			api.off('select', onSelect)
+		}
+	}, [api])
+
 	if (isLoading) {
 		return (
 			<div className='flex min-h-[50vh] items-center justify-center px-4'>
@@ -68,7 +91,10 @@ export const ProductDetailView = ({ id }: ProductDetailViewProps) => {
 		return (
 			<div className='flex min-h-[50vh] flex-col items-center justify-center gap-4 px-4'>
 				<p className='text-muted-foreground'>Produto não encontrado.</p>
-				<Button render={<Link href='/feed/explorar' />} variant='outline'>
+				<Button
+					render={<Link href='/feed/explorar' />}
+					variant='outline'
+				>
 					Voltar a explorar
 				</Button>
 			</div>
@@ -77,20 +103,34 @@ export const ProductDetailView = ({ id }: ProductDetailViewProps) => {
 
 	const { product, images } = data
 	const gallery =
-		images.length > 0
-			? images
-			: [product.image ?? PRODUCT_PLACEHOLDER]
+		images.length > 0 ? images : [product.image ?? PRODUCT_PLACEHOLDER]
 
 	return (
 		<div className='mx-auto max-w-3xl pb-10'>
 			<div className='relative aspect-square overflow-hidden bg-muted md:rounded-2xl'>
-				<Image
-					src={gallery[activeImage] ?? PRODUCT_PLACEHOLDER}
-					alt={product.name}
-					fill
-					className='object-cover'
-					priority
-				/>
+				<Carousel
+					setApi={setApi}
+					opts={{
+						align: 'start',
+					}}
+					className='w-full'
+				>
+					<CarouselContent>
+						{gallery.map((image, index) => (
+							<CarouselItem key={index}>
+								<div className='relative aspect-square'>
+									<Image
+										src={image}
+										alt={product.name}
+										fill
+										className='object-cover'
+										priority={index === 0}
+									/>
+								</div>
+							</CarouselItem>
+						))}
+					</CarouselContent>
+				</Carousel>
 
 				<div className='absolute top-4 left-4 right-4 flex items-center justify-between'>
 					<Button
@@ -98,38 +138,40 @@ export const ProductDetailView = ({ id }: ProductDetailViewProps) => {
 						size='icon-sm'
 						type='button'
 						onClick={() => router.back()}
-						className='rounded-full border border-border/60 bg-background/90 backdrop-blur-sm'
+						className='rounded-full border border-border/60 bg-background/90 backdrop-blur-sm group'
 					>
-						<ArrowLeft className='size-4' />
+						<ArrowLeft className='size-4 text-black group-hover:[&svg]:text-white' />
 					</Button>
 					<div className='flex gap-2'>
 						<Button
 							variant='secondary'
 							size='icon-sm'
 							type='button'
-							className='rounded-full border border-border/60 bg-background/90 backdrop-blur-sm'
+							className='rounded-full border border-border/60 bg-background/90 backdrop-blur-sm group'
 						>
-							<Heart className='size-4' />
+							<Heart className='size-4 text-black group-hover:[&svg]:text-white' />
 						</Button>
 						<Button
 							variant='secondary'
 							size='icon-sm'
 							type='button'
-							className='rounded-full border border-border/60 bg-background/90 backdrop-blur-sm'
+							className='rounded-full border border-border/60 bg-background/90 backdrop-blur-sm group'
 						>
-							<Share2 className='size-4' />
+							<Share2 className='size-4 text-black group-hover:[&svg]:text-white' />
 						</Button>
 					</div>
 				</div>
 
-				{gallery.length > 1 && (
+				{gallery.length >= 1 && (
 					<div className='absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-1.5'>
 						{gallery.map((_, i) => (
 							<div
 								key={i}
 								className={cn(
 									'size-1.5 rounded-full transition-all',
-									i === activeImage ? 'w-4 bg-white' : 'bg-white/50'
+									i === activeImage
+										? 'w-4 bg-white'
+										: 'bg-white/50'
 								)}
 							/>
 						))}
@@ -137,22 +179,29 @@ export const ProductDetailView = ({ id }: ProductDetailViewProps) => {
 				)}
 			</div>
 
-			{gallery.length > 1 && (
-				<div className='mt-3 flex gap-2 px-4 md:px-0'>
-					{gallery.map((img, i) => (
-						<button
-							key={i}
+			{gallery.length >= 1 && (
+				<div className='mt-4 flex gap-3 overflow-x-auto px-2'>
+					{gallery.map((img, index) => (
+						<Button
+							key={index}
 							type='button'
-							onClick={() => setActiveImage(i)}
-							className={cn(
-								'relative size-16 overflow-hidden rounded-xl border-2 transition-all',
-								i === activeImage
-									? 'border-primary'
-									: 'border-transparent opacity-70'
-							)}
+							variant='ghost'
+							size='icon'
+							onClick={() => api?.scrollTo(index)}
+							className={`relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border transition
+				${
+					activeImage === index
+						? 'border-black border-2'
+						: 'border-gray-200 opacity-70 hover:opacity-100'
+				}`}
 						>
-							<Image src={img} alt='' fill className='object-cover' />
-						</button>
+							<Image
+								src={img}
+								alt={`${product.name} ${index + 1}`}
+								fill
+								className='object-cover'
+							/>
+						</Button>
 					))}
 				</div>
 			)}
@@ -182,7 +231,9 @@ export const ProductDetailView = ({ id }: ProductDetailViewProps) => {
 						</span>
 					)}
 					{product.negotiable && (
-						<span className='text-sm text-muted-foreground'>Negociável</span>
+						<span className='text-sm text-muted-foreground'>
+							Negociável
+						</span>
 					)}
 				</div>
 
