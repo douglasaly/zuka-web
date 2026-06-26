@@ -21,7 +21,10 @@ export function proxy(request: NextRequest) {
 
 	if (isProtected && !session) {
 		const loginUrl = new URL('/auth/login', request.url)
-		loginUrl.searchParams.set('next', pathname)
+		loginUrl.searchParams.set(
+			'next',
+			`${request.nextUrl.pathname}${request.nextUrl.search}`
+		)
 		return NextResponse.redirect(loginUrl)
 	}
 

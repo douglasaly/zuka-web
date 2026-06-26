@@ -1,5 +1,7 @@
+/** biome-ignore-all lint/a11y/useAnchorContent: <APP> */
 'use client'
 
+import { useQuery } from '@tanstack/react-query'
 import {
 	ArrowLeft,
 	BadgeCheck,
@@ -13,12 +15,12 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
 import { ExploreProductCard } from '@/components/explore-product-card'
 import { Button } from '@/components/ui/button'
+import { useFollowStore } from '@/hooks/use-follow-store'
 import { fetchStoreBySlug, STORE_PLACEHOLDER } from '@/lib/api/marketplace'
-import type { StoreProfile } from '@/types/marketplace'
 import { cn } from '@/lib/utils'
+import type { StoreProfile } from '@/types/marketplace'
 
 interface StoreViewProps {
 	slug: string
@@ -51,7 +53,10 @@ export const StoreView = ({ slug }: StoreViewProps) => {
 		return (
 			<div className='flex min-h-[50vh] flex-col items-center justify-center gap-4 px-4'>
 				<p className='text-muted-foreground'>Loja não encontrada.</p>
-				<Button render={<Link href='/feed/explorar' />} variant='outline'>
+				<Button
+					render={<Link href='/feed/explorar' />}
+					variant='outline'
+				>
 					Voltar a explorar
 				</Button>
 			</div>
@@ -93,7 +98,10 @@ export const StoreView = ({ slug }: StoreViewProps) => {
 								</p>
 							) : (
 								products.map((product) => (
-									<ExploreProductCard key={product.id} product={product} />
+									<ExploreProductCard
+										key={product.id}
+										product={product}
+									/>
 								))
 							)}
 						</div>
@@ -111,7 +119,9 @@ export const StoreView = ({ slug }: StoreViewProps) => {
 						<div className='rounded-2xl border border-border/60 bg-card p-8 text-center'>
 							<div className='mx-auto mb-2 flex items-center justify-center gap-1'>
 								<Star className='size-5 fill-amber-400 text-amber-400' />
-								<span className='text-2xl font-bold'>{store.rating}</span>
+								<span className='text-2xl font-bold'>
+									{store.rating}
+								</span>
 							</div>
 							<p className='text-sm text-muted-foreground'>
 								{store.reviewCount} avaliações de clientes
@@ -178,6 +188,9 @@ function StoreHero({
 function StoreInfoCard({ store }: { store: StoreProfile }) {
 	const whatsapp = store.whatsapp?.replace(/\D/g, '') ?? ''
 
+	const { isFollowing, toggleFollow, isFollowLoading, isLoading } =
+		useFollowStore(store.slug)
+
 	return (
 		<div className='relative -mt-16 rounded-2xl border border-border/60 bg-card p-5'>
 			<div className='flex gap-4'>
@@ -191,7 +204,9 @@ function StoreInfoCard({ store }: { store: StoreProfile }) {
 				</div>
 				<div className='min-w-0 flex-1 pt-1'>
 					<div className='flex flex-wrap items-center gap-2'>
-						<h1 className='font-heading text-xl font-bold'>{store.name}</h1>
+						<h1 className='font-heading text-xl font-bold'>
+							{store.name}
+						</h1>
 						{store.verified && (
 							<span className='inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700'>
 								<BadgeCheck className='size-3' />
@@ -211,7 +226,9 @@ function StoreInfoCard({ store }: { store: StoreProfile }) {
 							</span>
 							({store.reviewCount})
 						</span>
-						<span>{store.followers.toLocaleString('pt-PT')} seguidores</span>
+						<span>
+							{store.followers.toLocaleString('pt-PT')} seguidores
+						</span>
 						<span>
 							{store.productCount} produto
 							{store.productCount !== 1 ? 's' : ''}
@@ -245,8 +262,13 @@ function StoreInfoCard({ store }: { store: StoreProfile }) {
 						Ligar
 					</Button>
 				)}
-				<Button variant='outline' className='rounded-xl sm:px-6'>
-					Seguir
+				<Button
+					variant='outline'
+					className='rounded-xl sm:px-6'
+					onClick={toggleFollow}
+					disabled={isFollowLoading || isLoading}
+				>
+					{isFollowing ? 'Seguindo' : 'Seguir'}
 				</Button>
 			</div>
 		</div>

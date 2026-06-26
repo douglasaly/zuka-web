@@ -57,14 +57,21 @@ export async function fetchProduct(id: string) {
 		product: mapProductRow({
 			...(product as Parameters<typeof mapProductRow>[0]),
 			stores: store as Parameters<typeof mapProductRow>[0]['stores'],
-			categories: category as Parameters<typeof mapProductRow>[0]['categories'],
-			product_images: images as Parameters<typeof mapProductRow>[0]['product_images'],
+			categories: category as Parameters<
+				typeof mapProductRow
+			>[0]['categories'],
+			product_images: images as Parameters<
+				typeof mapProductRow
+			>[0]['product_images'],
 		}),
 		images: (images ?? []).map((img) => String(img.url)),
 	}
 }
 
-export async function fetchStores(params?: { search?: string; limit?: number }) {
+export async function fetchStores(params?: {
+	search?: string
+	limit?: number
+}) {
 	const url = new URL('/api/stores', window.location.origin)
 	if (params?.search) url.searchParams.set('search', params.search)
 	if (params?.limit) url.searchParams.set('limit', String(params.limit))
@@ -290,3 +297,4 @@ export function toProductCard(product: ExploreProduct) {
 		hasDelivery: product.hasDelivery ?? false,
 	}
 }
+
