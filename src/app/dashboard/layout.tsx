@@ -1,11 +1,11 @@
-import { BaseLayout } from '@/modules/base/base-layout'
+import { SellerLayout } from '@/modules/seller/ui/layout/seller-layout'
 
 interface PageLayout {
 	children: React.ReactNode
 }
 
 const Layout = ({ children }: PageLayout) => {
-	return <BaseLayout>{children}</BaseLayout>
+	return <SellerLayout>{children}</SellerLayout>
 }
 
 export default Layout
