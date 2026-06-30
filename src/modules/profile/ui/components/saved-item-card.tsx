@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import type { SavedItem } from '@/types/saved-items'
+import { formatPrice } from '@/utils/format-price'
 
 type SavedItemCardProps = {
 	item: SavedItem
@@ -56,7 +57,7 @@ export const SavedItemCard = ({
 						{item.storeName}
 					</p>
 					<p className='pt-1 text-sm font-bold text-secondary'>
-						{item.price}
+						{formatPrice(item.price)}
 					</p>
 				</div>
 			</Link>

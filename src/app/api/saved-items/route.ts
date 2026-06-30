@@ -17,19 +17,20 @@ export async function GET() {
 		const { data, error } = await supabase
 			.from('saved_items')
 			.select(`
-				id,
-				product:products (
 					id,
-					name,
-					price,
-					product_images (
-						url
-					),
-					store:stores (
-						name
+					product:products (
+						id,
+						name,
+						price,
+						product_images (
+							url,
+							is_primary
+						),
+						store:stores (
+							name
+						)
 					)
-				)
-			`)
+				`)
 			.eq('user_id', user.id)
 			.order('created_at', { ascending: false })
 			.limit(8)
@@ -39,7 +40,12 @@ export async function GET() {
 		const items: SavedItem[] =
 			data?.map(({ product }) => ({
 				id: product.id,
-				imageUrl: product.product_images?.[0]?.url ?? null,
+				imageUrl:
+					product.product_images?.find((img) => img.is_primary)
+						?.url ??
+					product.product_images?.[0]?.url ??
+					null,
+
 				name: product.name,
 				storeName: product.store.name,
 				price: product.price,
