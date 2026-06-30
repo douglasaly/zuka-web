@@ -1,6 +1,6 @@
 'use client'
 
-import { Compass, HomeIcon, ShoppingBag, User } from 'lucide-react'
+import { Compass, HomeIcon, MessageSquare, ShoppingBag, User } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
@@ -20,6 +20,7 @@ const publicItems = [
 
 const authItems = [
 	{ title: 'Pedidos', url: '/feed/pedidos', icon: ShoppingBag },
+	{ title: 'Mensagens', url: '/mensagens', icon: MessageSquare },
 	{ title: 'Perfil', url: '/perfil', icon: User },
 ]
 
@@ -27,10 +28,7 @@ export const MainSection = () => {
 	const pathname = usePathname()
 	const { isAuthenticated, isLoading } = useUserProfile()
 
-	const items = [
-		...publicItems,
-		...(isAuthenticated ? authItems : []),
-	]
+	const items = [...publicItems, ...(isAuthenticated ? authItems : [])]
 
 	if (isLoading) {
 		return (

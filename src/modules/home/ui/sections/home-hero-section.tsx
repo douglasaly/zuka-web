@@ -1,9 +1,9 @@
 'use client'
 
+import { useQuery } from '@tanstack/react-query'
 import { ArrowRight, Sparkles } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useQuery } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { fetchStores } from '@/lib/api/marketplace'
 
@@ -17,7 +17,7 @@ export const HomeHeroSection = () => {
 
 	return (
 		<section className='relative overflow-hidden rounded-2xl md:rounded-3xl'>
-			<div className='relative aspect-[16/7] min-h-[220px] w-full sm:aspect-[16/6] sm:min-h-[280px]'>
+			<div className='relative aspect-16/7 min-h-55 w-full sm:aspect-16/6 sm:min-h-70'>
 				<Image
 					src={featured?.bannerUrl ?? '/featured-placeholder.jpg'}
 					alt={featured?.name ?? 'Destaque Zuka'}
@@ -26,8 +26,8 @@ export const HomeHeroSection = () => {
 					className='object-cover'
 					priority
 				/>
-				<div className='absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent' />
-				<div className='absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent' />
+				<div className='absolute inset-0 bg-linear-to-r from-black/70 via-black/40 to-transparent' />
+				<div className='absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent' />
 
 				<div className='absolute inset-0 flex flex-col justify-between p-5 sm:p-8'>
 					<div className='flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm'>
@@ -51,7 +51,11 @@ export const HomeHeroSection = () => {
 							{featured ? (
 								<>
 									<Button
-										render={<Link href={`/lojas/${featured.slug}`} />}
+										render={
+											<Link
+												href={`/lojas/${featured.slug}`}
+											/>
+										}
 										size='lg'
 										className='rounded-full bg-white font-semibold text-foreground hover:bg-white/90'
 									>

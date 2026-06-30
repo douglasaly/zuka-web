@@ -105,6 +105,10 @@ export const ProductDetailView = ({ id }: ProductDetailViewProps) => {
 	const gallery =
 		images.length > 0 ? images : [product.image ?? PRODUCT_PLACEHOLDER]
 
+	function redirectToChat(productId: string) {
+		router.push(`/mensagens?product=${productId}`)
+	}
+
 	return (
 		<div className='mx-auto max-w-3xl pb-10'>
 			<div className='relative aspect-square overflow-hidden bg-muted md:rounded-2xl'>

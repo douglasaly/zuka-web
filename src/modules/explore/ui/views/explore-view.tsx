@@ -1,15 +1,15 @@
 'use client'
 
+import { useQuery } from '@tanstack/react-query'
 import { Search, SlidersHorizontal } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { useQuery } from '@tanstack/react-query'
+import { useEffect, useMemo, useState } from 'react'
 import { ExploreProductCard } from '@/components/explore-product-card'
 import { SegmentedControl } from '@/components/segmented-control'
-import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
 	fetchProducts,
 	fetchStores,
@@ -24,7 +24,8 @@ interface Category {
 
 export const ExploreView = () => {
 	const searchParams = useSearchParams()
-	const initialTab = searchParams.get('tab') === 'stores' ? 'stores' : 'products'
+	const initialTab =
+		searchParams.get('tab') === 'stores' ? 'stores' : 'products'
 	const [tab, setTab] = useState(initialTab)
 
 	useEffect(() => {
@@ -63,7 +64,10 @@ export const ExploreView = () => {
 	})
 
 	const categoryOptions = useMemo(
-		() => [{ value: 'all', label: 'Todos' }, ...categories.map((c) => ({ value: c.id, label: c.name }))],
+		() => [
+			{ value: 'all', label: 'Todos' },
+			...categories.map((c) => ({ value: c.id, label: c.name })),
+		],
 		[categories]
 	)
 
@@ -84,7 +88,7 @@ export const ExploreView = () => {
 						variant='outline'
 						size='icon-lg'
 						type='button'
-						className='shrink-0 rounded-xl border-border/60'
+						className='shrink-0 rounded-lg border-border/60 h-12'
 						aria-label='Filtros'
 					>
 						<SlidersHorizontal className='size-4' />
@@ -109,7 +113,7 @@ export const ExploreView = () => {
 									type='button'
 									onClick={() => setCategory(cat.value)}
 									className={cn(
-										'shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-all',
+										'shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-all cursor-pointer',
 										category === cat.value
 											? 'border-primary bg-primary text-primary-foreground'
 											: 'border-border/70 bg-background text-muted-foreground hover:border-secondary/30 hover:bg-secondary/5'
@@ -128,7 +132,10 @@ export const ExploreView = () => {
 
 						<div className='grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4'>
 							{products.map((product) => (
-								<ExploreProductCard key={product.id} product={product} />
+								<ExploreProductCard
+									key={product.id}
+									product={product}
+								/>
 							))}
 						</div>
 
@@ -157,7 +164,10 @@ export const ExploreView = () => {
 								>
 									<div className='relative size-16 shrink-0 overflow-hidden rounded-xl'>
 										<Image
-											src={store.logoUrl ?? STORE_PLACEHOLDER}
+											src={
+												store.logoUrl ??
+												STORE_PLACEHOLDER
+											}
 											alt={store.name}
 											fill
 											className='object-cover'
@@ -168,10 +178,12 @@ export const ExploreView = () => {
 											{store.name}
 										</p>
 										<p className='text-sm text-muted-foreground'>
-											{store.location} · {store.neighborhood}
+											{store.location} ·{' '}
+											{store.neighborhood}
 										</p>
 										<p className='mt-0.5 text-xs text-muted-foreground'>
-											★ {store.rating} · {store.productCount} produtos
+											★ {store.rating} ·{' '}
+											{store.productCount} produtos
 										</p>
 									</div>
 								</Link>

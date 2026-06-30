@@ -1,10 +1,10 @@
 'use client'
 
+import { useQuery } from '@tanstack/react-query'
 import { ArrowRight, MapPin } from 'lucide-react'
 import Link from 'next/link'
-import { useQuery } from '@tanstack/react-query'
-import { Button } from '@/components/ui/button'
 import { StoreAvatar } from '@/components/store-avatar'
+import { Button } from '@/components/ui/button'
 import { fetchStores } from '@/lib/api/marketplace'
 import { cn } from '@/lib/utils'
 
@@ -37,15 +37,17 @@ export const FeaturedStoresSection = () => {
 			</div>
 
 			{isLoading ? (
-				<p className='text-sm text-muted-foreground'>A carregar lojas...</p>
+				<p className='text-sm text-muted-foreground'>
+					A carregar lojas...
+				</p>
 			) : (
-				<div className='flex gap-4 overflow-x-auto pb-1 scrollbar-hide sm:gap-5'>
+				<div className='flex gap-4 overflow-x-auto py-1 scrollbar-hide sm:gap-5'>
 					{stores.map((store, index) => (
 						<Link
 							key={store.id}
 							href={`/lojas/${store.slug}`}
 							prefetch
-							className='group flex w-[88px] shrink-0 flex-col items-center sm:w-24'
+							className='group flex w-22 shrink-0 flex-col items-center sm:w-24'
 						>
 							<div
 								className={cn(
@@ -55,17 +57,24 @@ export const FeaturedStoresSection = () => {
 								)}
 							>
 								<StoreAvatar
-									imageUrl={store.logoUrl ?? '/placeholder.jpg'}
+									imageUrl={
+										store.logoUrl ?? '/placeholder.jpg'
+									}
 									name={store.name}
 									size='xl'
-									className='size-16 transition-transform duration-300 group-hover:scale-105 sm:size-[4.5rem]'
+									className='size-16 transition-transform duration-300 group-hover:scale-105 sm:size-18'
 								/>
 							</div>
 
-							<div className='mt-2.5 w-full text-center'>
-								<p className='truncate text-xs font-semibold text-foreground transition-colors group-hover:text-secondary sm:text-sm'>
-									{store.name}
-								</p>
+							<div className='mt-2.5 w-full'>
+								<div className='relative overflow-hidden'>
+									<p className='store-name animate-marquee-hover whitespace-nowrap text-center text-xs font-semibold text-foreground transition-colors group-hover:text-secondary sm:text-sm'>
+										{store.name}
+									</p>
+
+									<div className='pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-background to-transparent' />
+								</div>
+
 								<p className='mt-0.5 flex items-center justify-center gap-0.5 text-[10px] text-muted-foreground sm:text-xs'>
 									<MapPin className='size-2.5 shrink-0' />
 									<span className='truncate'>

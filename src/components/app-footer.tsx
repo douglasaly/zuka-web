@@ -35,8 +35,9 @@ export const AppFooter = () => {
 							</span>
 						</div>
 						<p className='max-w-xs text-sm leading-relaxed text-muted-foreground'>
-							Marketplace multivendor moçambicano. Lojas publicam produtos;
-							compradores exploram e encomendam com confiança.
+							Marketplace multivendor moçambicano. Lojas publicam
+							produtos; compradores exploram e encomendam com
+							confiança.
 						</p>
 						<div className='flex gap-2'>
 							{socialLinks.map(({ icon: Icon, href, label }) => (
@@ -56,7 +57,7 @@ export const AppFooter = () => {
 						<h3 className='mb-3 text-sm font-semibold text-foreground'>
 							Explorar
 						</h3>
-						<ul className='space-y-2.5'>
+						<ul className='space-y-0.5'>
 							{exploreLinks.map((link) => (
 								<li key={link.label}>
 									<Link
@@ -74,7 +75,7 @@ export const AppFooter = () => {
 						<h3 className='mb-3 text-sm font-semibold text-foreground'>
 							Recursos
 						</h3>
-						<ul className='space-y-2.5'>
+						<ul className='space-y-0.5'>
 							{resourceLinks.map((link) => (
 								<li key={link.label}>
 									<Link
@@ -94,6 +95,7 @@ export const AppFooter = () => {
 						</h3>
 						<p className='text-sm leading-relaxed text-muted-foreground'>
 							M-Pesa, e-Mola, Visa e transferência bancária.
+							<br />
 							Compre com confiança.
 						</p>
 					</div>
@@ -110,7 +112,10 @@ export const AppFooter = () => {
 						. Todos os direitos reservados.
 					</p>
 					<div className='flex gap-4'>
-						<Link href='/privacidade' className='hover:text-secondary'>
+						<Link
+							href='/privacidade'
+							className='hover:text-secondary'
+						>
 							Privacidade
 						</Link>
 						<Link href='/termos' className='hover:text-secondary'>

@@ -63,7 +63,7 @@ function NavbarAuth() {
 			render={<Link href='/perfil' />}
 			size='sm'
 			variant='outline'
-			className='ml-1 max-w-[160px] rounded-full px-3'
+			className='ml-1 max-w-40 rounded-full px-3'
 		>
 			<User className='size-4 shrink-0' />
 			<span className='truncate'>{name}</span>
@@ -73,7 +73,7 @@ function NavbarAuth() {
 
 export const HomeNavbar = () => {
 	return (
-		<header className='sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl'>
+		<header className='sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl py-1.5'>
 			<div className='mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 md:px-6'>
 				<div className='flex items-center gap-3 md:gap-4'>
 					<SidebarTrigger className='md:hidden' />

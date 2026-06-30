@@ -18,7 +18,7 @@ export const SegmentedControl = ({
 	return (
 		<div
 			className={cn(
-				'inline-flex w-full max-w-xs rounded-xl border border-border/40 bg-muted/40 p-1',
+				'inline-flex w-full  rounded-xl border border-border/40 bg-muted/40 p-1',
 				className
 			)}
 		>
@@ -28,7 +28,7 @@ export const SegmentedControl = ({
 					type='button'
 					onClick={() => onChange(option.value)}
 					className={cn(
-						'flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-all',
+						'flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-all cursor-pointer',
 						value === option.value
 							? 'border border-border/60 bg-background text-foreground'
 							: 'text-muted-foreground hover:text-foreground'
