@@ -70,7 +70,7 @@ export const ProfileView = () => {
 	]
 
 	const options = [
-		{ title: 'Definições', icon: Settings, url: '/definicoes' },
+		{ title: 'Definições', icon: Settings, url: '/perfil/definicoes' },
 		{
 			title: 'Ajuda e suporte',
 			icon: CircleQuestionMark,
