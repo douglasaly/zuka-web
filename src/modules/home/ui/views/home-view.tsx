@@ -1,7 +1,7 @@
 import { CategoriesSection } from '../sections/categories-section'
 import { FeaturedStoresSection } from '../sections/featured-stores'
 import { HomeHeroSection } from '../sections/home-hero-section'
-import ProductsSection from '../sections/products-section'
+import { ProductsSection } from '../sections/products-section'
 
 interface HomeViewProps {
 	categoryId?: string

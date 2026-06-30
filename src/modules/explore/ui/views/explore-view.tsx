@@ -6,7 +6,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
-import { ExploreProductCard } from '@/components/explore-product-card'
+import { ProductCard } from '@/components/explore-product-card'
 import { SegmentedControl } from '@/components/segmented-control'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -132,7 +132,7 @@ export const ExploreView = () => {
 
 						<div className='grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4'>
 							{products.map((product) => (
-								<ExploreProductCard
+								<ProductCard
 									key={product.id}
 									product={product}
 								/>

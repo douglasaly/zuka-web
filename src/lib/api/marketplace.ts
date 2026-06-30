@@ -1,10 +1,11 @@
 import {
-	mapGroupedProduct, mapProductRow,
-	mapStoreRow
+	mapGroupedProduct,
+	mapProductRow,
+	mapStoreRow,
 } from '@/lib/mappers/marketplace'
 import type {
-	ExploreProduct,
 	OrderSummary,
+	Product,
 	StoreProfile,
 	UserProfile,
 } from '@/types/marketplace'
@@ -284,7 +285,7 @@ export async function submitVerification(input: {
 	}
 }
 
-export function toProductCard(product: ExploreProduct) {
+export function toProductCard(product: Product) {
 	return {
 		id: product.id,
 		name: product.name,
@@ -295,4 +296,3 @@ export function toProductCard(product: ExploreProduct) {
 		hasDelivery: product.hasDelivery ?? false,
 	}
 }
-

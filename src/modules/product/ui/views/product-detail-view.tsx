@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import {
 	fetchProduct,
@@ -84,7 +85,7 @@ export const ProductDetailView = ({ id }: ProductDetailViewProps) => {
 		}
 
 		await navigator.clipboard.writeText(url)
-		// TODO: mostrar toast "Link copiado"
+		toast.success('Link copiado')
 	}
 
 	const handleChat = () => {

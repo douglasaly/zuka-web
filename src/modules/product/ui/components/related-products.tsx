@@ -1,8 +1,8 @@
-import { ExploreProductCard } from '@/components/explore-product-card'
-import type { ExploreProduct } from '@/types/marketplace'
+import { ProductCard } from '@/components/explore-product-card'
+import type { Product } from '@/types/marketplace'
 
 type RelatedProductsProps = {
-	products: ExploreProduct[]
+	products: Product[]
 }
 
 export const RelatedProducts = ({ products }: RelatedProductsProps) => {
@@ -15,7 +15,7 @@ export const RelatedProducts = ({ products }: RelatedProductsProps) => {
 			</h2>
 			<div className='grid grid-cols-2 gap-3 sm:grid-cols-4'>
 				{products.map((p) => (
-					<ExploreProductCard key={p.id} product={p} variant='compact' />
+					<ProductCard key={p.id} product={p} variant='compact' />
 				))}
 			</div>
 		</div>

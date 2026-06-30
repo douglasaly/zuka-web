@@ -6,20 +6,20 @@ import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { PRODUCT_PLACEHOLDER } from '@/lib/api/marketplace'
 import { cn } from '@/lib/utils'
-import type { ExploreProduct } from '@/types/marketplace'
+import type { Product } from '@/types/marketplace'
 import { formatPrice } from '@/utils/format-price'
 
-interface ExploreProductCardProps {
-	product: ExploreProduct
+interface ProductCardProps {
+	product: Product
 	className?: string
 	variant?: 'default' | 'compact'
 }
 
-export const ExploreProductCard = ({
+export const ProductCard = ({
 	product,
 	className,
 	variant = 'default',
-}: ExploreProductCardProps) => {
+}: ProductCardProps) => {
 	const isCompact = variant === 'compact'
 
 	return (

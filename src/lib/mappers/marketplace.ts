@@ -1,8 +1,4 @@
-import type {
-	ExploreProduct,
-	OrderSummary,
-	StoreProfile,
-} from '@/types/marketplace'
+import type { OrderSummary, Product, StoreProfile } from '@/types/marketplace'
 
 type DbImage = {
 	url: string
@@ -64,7 +60,7 @@ function storeLocation(store?: DbStore | null) {
 	return [province, neighborhood].filter(Boolean).join(' · ')
 }
 
-export function mapProductRow(row: DbProduct): ExploreProduct {
+export function mapProductRow(row: DbProduct): Product {
 	const store = row.stores
 	const createdAt = row.created_at ? new Date(row.created_at) : null
 	const isNew =
@@ -99,7 +95,7 @@ export function mapGroupedProduct(item: {
 	store: Record<string, unknown> | null
 	category: Record<string, unknown> | null
 	images: Array<Record<string, unknown>>
-}): ExploreProduct {
+}): Product {
 	return mapProductRow({
 		...(item.product as DbProduct),
 		stores: item.store as DbStore,
