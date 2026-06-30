@@ -18,7 +18,7 @@ export const SegmentedControl = ({
 	return (
 		<div
 			className={cn(
-				'inline-flex w-full  rounded-xl border border-border/40 bg-muted/40 p-1',
+				'inline-flex w-full rounded-xl border border-border/40 bg-muted/40 p-1',
 				className
 			)}
 		>

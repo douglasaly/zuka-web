@@ -60,6 +60,9 @@ export interface UserProfile {
 	lastName: string | null
 	avatarUrl: string | null
 	roles: string[]
+	phoneNumber: string | null
+	emailVerified: boolean | null
+	phoneVerified: boolean | null
 	sellerProfile: {
 		id: string
 		status: string

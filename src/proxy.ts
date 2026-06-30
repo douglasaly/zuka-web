@@ -8,7 +8,7 @@ const protectedPrefixes = [
 	'/feed/pedidos',
 	'/onboarding',
 	'/perfil',
-	'mensagens',
+	'/mensagens',
 	'/admin',
 ]
 
@@ -41,6 +41,7 @@ export const config = {
 		'/onboarding',
 		'/onboarding/:path*',
 		'/perfil',
+		'/perfil/:path*',
 		'/mensagens',
 		'/mensagens/:path*',
 		'/admin',

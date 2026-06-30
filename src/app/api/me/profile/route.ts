@@ -68,6 +68,9 @@ export async function GET() {
 			firstName: user.first_name as string | null,
 			lastName: user.last_name as string | null,
 			avatarUrl: user.avatar_url as string | null,
+			phoneNumber: user.phone_number,
+			emailVerified: user.email_verified,
+			phoneVerified: user.phone_verified,
 			roles,
 			sellerProfile: sellerProfile
 				? {

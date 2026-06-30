@@ -1,18 +1,17 @@
 'use client'
 
+import { useQuery } from '@tanstack/react-query'
 import { ArrowRight, LayoutGrid, List } from 'lucide-react'
 import Link from 'next/link'
-import { useQuery } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
-import { ProductCard } from '../../../../components/product-card'
 import { fetchProducts, toProductCard } from '@/lib/api/marketplace'
+import { ProductCard } from '../../../../components/product-card'
 
 export default function ProductsSection() {
 	const { data: products = [], isLoading } = useQuery({
 		queryKey: ['home-products'],
 		queryFn: () => fetchProducts({ limit: 8 }),
 	})
-
 	return (
 		<section className='space-y-5'>
 			<div className='flex items-end justify-between gap-4'>
@@ -55,7 +54,9 @@ export default function ProductsSection() {
 			</div>
 
 			{isLoading ? (
-				<p className='text-sm text-muted-foreground'>A carregar produtos...</p>
+				<p className='text-sm text-muted-foreground'>
+					A carregar produtos...
+				</p>
 			) : (
 				<div className='grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4'>
 					{products.map((p) => (

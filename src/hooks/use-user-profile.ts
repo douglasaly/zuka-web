@@ -1,7 +1,7 @@
 'use client'
 
-import { onAuthStateChanged, type User } from 'firebase/auth'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { onAuthStateChanged, type User } from 'firebase/auth'
 import { useEffect, useState } from 'react'
 import { fetchUserProfile } from '@/lib/api/marketplace'
 import { createAppSession } from '@/lib/firebase/create-session'

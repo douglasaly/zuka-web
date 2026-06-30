@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { useSavedItems } from '@/hooks/use-saved-items'
+import { cn } from '@/lib/utils'
 import { formatPrice } from '@/utils/format-price'
 
 interface Product {
@@ -20,6 +22,13 @@ interface Product {
 
 export const ProductCard = ({ product }: { product: Product }) => {
 	const router = useRouter()
+
+	const { toggleSavedItem, isSaving, isSaved } = useSavedItems()
+
+	function handleSaveItem(itemId: string) {
+		toggleSavedItem(itemId)
+	}
+	const saved = isSaved(product.id)
 
 	const finalPrice = product.discountPrice ?? product.price
 	const hasDiscount =
@@ -59,11 +68,23 @@ export const ProductCard = ({ product }: { product: Product }) => {
 					variant='secondary'
 					size='icon-sm'
 					type='button'
-					onClick={(e) => e.stopPropagation()}
-					className='absolute top-3 right-3 size-8 rounded-full border border-border/50 bg-background/90 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100 hover:[&svg]:text-white'
+					onClick={(e) => {
+						e.stopPropagation()
+						handleSaveItem(product.id)
+					}}
+					disabled={isSaving}
+					className={cn(
+						'absolute top-3 right-3 size-8 rounded-full border border-border/50 bg-background/90 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100 hover:[&svg]:text-white',
+						saved && 'opacity-100 '
+					)}
 					aria-label='Adicionar aos favoritos'
 				>
-					<Heart className='size-3.5 text-foreground' />{' '}
+					<Heart
+						className={cn(
+							'size-3.5 text-foreground',
+							saved && 'fill-red-500 text-red-500 size-4'
+						)}
+					/>{' '}
 				</Button>
 
 				<Badge

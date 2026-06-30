@@ -4,14 +4,7 @@ import { Heart } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-
-export type SavedItem = {
-	id: string
-	imageUrl?: string | null
-	name: string
-	storeName: string
-	price: string
-}
+import type { SavedItem } from '@/types/saved-items'
 
 type SavedItemCardProps = {
 	item: SavedItem
@@ -44,7 +37,7 @@ export const SavedItemCard = ({
 				<Heart className='size-4 fill-red-500 text-red-500' />
 			</Button>
 
-			<Link href={`/produto/${item.id}`} className='block'>
+			<Link href={`/product/${item.id}`} className='block'>
 				<div className='relative aspect-square w-full overflow-hidden bg-muted/40'>
 					<Image
 						src={item.imageUrl ?? '/placeholder.jpg'}

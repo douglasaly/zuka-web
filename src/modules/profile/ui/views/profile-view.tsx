@@ -16,8 +16,9 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { UserAvatar } from '@/components/user-avatar'
+import { useSavedItems } from '@/hooks/use-saved-items'
 import { useUserProfile } from '@/hooks/use-user-profile'
-import { MOCK_FOLLOWED_STORES, MOCK_SAVED_ITEMS } from '../../constants'
+import { MOCK_FOLLOWED_STORES } from '../../constants'
 import { EmptyState } from '../components/empty-state'
 import { FollowedStoreCard } from '../components/followed-store-card'
 import { ProfileActionLink } from '../components/product-action-link'
@@ -33,13 +34,12 @@ const TABS = [
 
 export const ProfileView = () => {
 	const [tab, setTab] = useState('Guardados')
-	const [removingIds, setRemovingIds] = useState<Set<string>>(new Set())
 	const router = useRouter()
 	const { profile, isAuthenticated, isLoading, isSeller } = useUserProfile()
+	const { savedItems, toggleSavedItem, isRemoving, isSavedItemsLoading } =
+		useSavedItems()
+	console.log(savedItems)
 
-	const savedItems = MOCK_SAVED_ITEMS.filter(
-		(item) => !removingIds.has(item.id)
-	)
 	const followedStores = MOCK_FOLLOWED_STORES
 
 	if (isLoading) {
@@ -79,10 +79,8 @@ export const ProfileView = () => {
 		{ title: 'Sair', icon: LogOut, url: '/log-out' },
 	]
 
-	const handleRemoveSavedItem = (id: string) => {
-		setRemovingIds((prev) => new Set(prev).add(id))
-		// TODO: chamar API para remover dos guardados
-		// em caso de erro, remover o id do set e mostrar um toast
+	function handleRemoveItem(itemId: string) {
+		toggleSavedItem(itemId)
 	}
 
 	return (
@@ -106,7 +104,9 @@ export const ProfileView = () => {
 								<p className='text-lg font-semibold'>
 									{displayName}
 								</p>
-								<BadgeCheck className='size-4 text-white bg-green-400 rounded-full' />
+								{profile.emailVerified && (
+									<BadgeCheck className='size-4 text-white bg-green-400 rounded-full' />
+								)}
 							</div>
 							<p className='text-sm text-muted-foreground'>
 								{profile.email}
@@ -142,8 +142,10 @@ export const ProfileView = () => {
 									<SavedItemCard
 										key={item.id}
 										item={item}
-										onRemove={handleRemoveSavedItem}
-										isRemoving={removingIds.has(item.id)}
+										onRemove={() =>
+											handleRemoveItem(item.id)
+										}
+										isRemoving={isRemoving}
 									/>
 								))
 							)}

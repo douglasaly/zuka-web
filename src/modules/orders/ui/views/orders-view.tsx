@@ -72,7 +72,7 @@ export const OrdersView = () => {
 	)
 
 	return (
-		<div className='mx-auto max-w-3xl px-4 py-6 md:px-6 md:py-8'>
+		<div className='mx-auto max-w-4xl px-4 py-6 md:px-6 md:py-8'>
 			<h1 className='mb-6 font-heading text-2xl font-bold tracking-tight md:text-3xl'>
 				Os meus pedidos
 			</h1>
@@ -102,7 +102,7 @@ export const OrdersView = () => {
 					</p>
 				) : filtered.length === 0 ? (
 					<p className='py-12 text-center text-sm text-muted-foreground'>
-						Nenhum pedido nesta categoria.
+						Nenhum pedido.
 					</p>
 				) : (
 					filtered.map((order) => (

@@ -81,7 +81,7 @@ export const SettingsView = () => {
 				{
 					id: 'phone',
 					label: 'Telefone',
-					value: '',
+					value: profile.phoneNumber ?? '',
 					type: 'tel',
 				},
 			]

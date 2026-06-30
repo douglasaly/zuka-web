@@ -1,8 +1,6 @@
 import {
-	mapGroupedProduct,
-	mapOrderRow,
-	mapProductRow,
-	mapStoreRow,
+	mapGroupedProduct, mapProductRow,
+	mapStoreRow
 } from '@/lib/mappers/marketplace'
 import type {
 	ExploreProduct,

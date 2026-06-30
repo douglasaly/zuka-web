@@ -2,6 +2,7 @@
 
 import { Bell, Heart, ShoppingBag, User } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Suspense } from 'react'
 import { Button } from '@/components/ui/button'
 import { SidebarTrigger } from '@/components/ui/sidebar'
@@ -29,7 +30,12 @@ function NavbarAuth() {
 
 	if (isLoading) {
 		return (
-			<Button size='sm' variant='ghost' disabled className='ml-1 rounded-full px-4'>
+			<Button
+				size='sm'
+				variant='ghost'
+				disabled
+				className='ml-1 rounded-full px-4'
+			>
 				...
 			</Button>
 		)
@@ -72,6 +78,8 @@ function NavbarAuth() {
 }
 
 export const HomeNavbar = () => {
+	const router = useRouter()
+
 	return (
 		<header className='sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl py-1.5'>
 			<div className='mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 md:px-6'>
@@ -92,16 +100,29 @@ export const HomeNavbar = () => {
 					</Link>
 
 					<div className='hidden min-w-0 flex-1 md:block'>
-						<Suspense fallback={<div className='h-11 w-full max-w-xl' />}>
+						<Suspense
+							fallback={<div className='h-11 w-full max-w-xl' />}
+						>
 							<SearchInput />
 						</Suspense>
 					</div>
 
 					<div className='ml-auto flex items-center gap-1'>
-						<Button variant='ghost' size='icon-sm' type='button' aria-label='Favoritos'>
+						<Button
+							variant='ghost'
+							size='icon-sm'
+							type='button'
+							aria-label='Favoritos'
+							onClick={() => router.push('/perfil')}
+						>
 							<Heart className='size-4' />
 						</Button>
-						<Button variant='ghost' size='icon-sm' type='button' aria-label='Notificações'>
+						<Button
+							variant='ghost'
+							size='icon-sm'
+							type='button'
+							aria-label='Notificações'
+						>
 							<Bell className='size-4' />
 						</Button>
 						<NavbarOrdersLink />
