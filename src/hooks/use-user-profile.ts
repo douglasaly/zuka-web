@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { onAuthStateChanged, type User } from 'firebase/auth'
 import { useEffect, useState } from 'react'
 import { fetchUserProfile } from '@/lib/api/marketplace'
+import { getFollowedStores } from '@/lib/api/stores'
 import { createAppSession } from '@/lib/firebase/create-session'
 import { auth } from '@/lib/firebase/firebase-client'
 import type { UserProfile } from '@/types/marketplace'
@@ -36,6 +37,15 @@ export function useUserProfile() {
 	const resolvedProfile = (profile ?? null) as UserProfile | null
 	const hasValidSession = Boolean(resolvedProfile)
 
+	const { data: followedData } = useQuery({
+		queryKey: ['followed-stores', { limit: 8, cursor: undefined }],
+		queryFn: getFollowedStores,
+		staleTime: 1000 * 60 * 5,
+	})
+
+	const followedStores = followedData?.data ?? []
+	const followedCount = followedData?.metaData?.total ?? 0
+
 	return {
 		firebaseUser,
 		profile: resolvedProfile,
@@ -45,5 +55,7 @@ export function useUserProfile() {
 		isAuthenticated: hasValidSession,
 		isSeller: Boolean(resolvedProfile?.roles.includes('seller')),
 		isBuyer: Boolean(resolvedProfile?.roles.includes('buyer')),
+		followedStores,
+		followedCount,
 	}
 }

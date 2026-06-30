@@ -3,11 +3,14 @@ import Link from 'next/link'
 import { StoreAvatar } from '@/components/store-avatar'
 
 export type FollowedStore = {
+	followedAt: string | null
 	id: string
-	imageUrl?: string | null
 	name: string
-	location: string
+	imageUrl: string | null
+	slug: string
 	verified: boolean
+	verifiedAt: string | null
+	location: string
 }
 
 type FollowedStoreCardProps = {
@@ -17,7 +20,7 @@ type FollowedStoreCardProps = {
 export const FollowedStoreCard = ({ store }: FollowedStoreCardProps) => {
 	return (
 		<Link
-			href={`/loja/${store.id}`}
+			href={`/lojas/${store.slug}`}
 			className='h-18 w-full rounded-xl bg-white p-4 flex items-center gap-2 border py-8 transition-all duration-200 hover:scale-101 hover:shadow-md'
 		>
 			<div className='relative shrink-0'>

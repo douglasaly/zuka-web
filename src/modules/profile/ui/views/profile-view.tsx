@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button'
 import { UserAvatar } from '@/components/user-avatar'
 import { useSavedItems } from '@/hooks/use-saved-items'
 import { useUserProfile } from '@/hooks/use-user-profile'
-import { MOCK_FOLLOWED_STORES } from '../../constants'
+import { normalizeStore } from '@/types/stores'
 import { EmptyState } from '../components/empty-state'
 import { FollowedStoreCard } from '../components/followed-store-card'
 import { ProfileActionLink } from '../components/product-action-link'
@@ -35,12 +35,17 @@ const TABS = [
 export const ProfileView = () => {
 	const [tab, setTab] = useState('Guardados')
 	const router = useRouter()
-	const { profile, isAuthenticated, isLoading, isSeller } = useUserProfile()
+	const {
+		profile,
+		isAuthenticated,
+		isLoading,
+		isSeller,
+		followedCount,
+		followedStores,
+	} = useUserProfile()
+
 	const { savedItems, toggleSavedItem, isRemoving, isSavedItemsLoading } =
 		useSavedItems()
-	console.log(savedItems)
-
-	const followedStores = MOCK_FOLLOWED_STORES
 
 	if (isLoading) {
 		return <ProfileSkeleton />
@@ -65,7 +70,7 @@ export const ProfileView = () => {
 
 	const stats = [
 		{ label: 'Guardados', value: savedItems.length },
-		{ label: 'A seguir', value: followedStores.length },
+		{ label: 'A seguir', value: followedCount },
 		{ label: 'Pedidos', value: 5 }, // TODO: ligar à API de pedidos
 	]
 
@@ -82,6 +87,8 @@ export const ProfileView = () => {
 	function handleRemoveItem(itemId: string) {
 		toggleSavedItem(itemId)
 	}
+
+	const normalizedStores = followedStores.map(normalizeStore) ?? []
 
 	return (
 		<div className='mx-auto max-w-4xl px-4 py-8 md:py-12'>
@@ -161,7 +168,7 @@ export const ProfileView = () => {
 									description='Siga lojas para ver as novidades delas aqui'
 								/>
 							) : (
-								followedStores.map((store) => (
+								normalizedStores.map((store) => (
 									<FollowedStoreCard
 										key={store.id}
 										store={store}

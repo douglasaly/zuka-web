@@ -1,5 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { followStore, isFollowing, unfollowStore } from '@/lib/api/stores'
+import {
+	followStore,
+	getFollowedStores,
+	isFollowing,
+	unfollowStore,
+} from '@/lib/api/stores'
 
 export function useFollowStore(storeSlug: string) {
 	const queryClient = useQueryClient()
@@ -8,7 +13,7 @@ export function useFollowStore(storeSlug: string) {
 		queryKey: ['store-follow', storeSlug],
 		queryFn: () => isFollowing(storeSlug),
 		enabled: !!storeSlug,
-		staleTime: 1000 * 60 * 5, // 5 min cache
+		staleTime: 1000 * 60 * 5,
 	})
 
 	const followMutation = useMutation({
@@ -39,6 +44,10 @@ export function useFollowStore(storeSlug: string) {
 		onSettled: () => {
 			queryClient.invalidateQueries({
 				queryKey: ['store-follow', storeSlug],
+			})
+
+			queryClient.invalidateQueries({
+				queryKey: ['followed-stores'],
 			})
 		},
 	})
@@ -72,6 +81,10 @@ export function useFollowStore(storeSlug: string) {
 			queryClient.invalidateQueries({
 				queryKey: ['store-follow', storeSlug],
 			})
+
+			queryClient.invalidateQueries({
+				queryKey: ['followed-stores'],
+			})
 		},
 	})
 
@@ -84,9 +97,11 @@ export function useFollowStore(storeSlug: string) {
 	}
 
 	return {
+		// state
 		isFollowing: isFollowingState ?? false,
 		isLoading: initialLoading,
 		isFollowLoading: followMutation.isPending || unfollowMutation.isPending,
+		// actions
 		follow: followMutation.mutate,
 		unfollow: unfollowMutation.mutate,
 		toggleFollow,

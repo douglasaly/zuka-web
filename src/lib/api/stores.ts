@@ -1,3 +1,5 @@
+import type { FollowedStores } from '@/types/stores'
+
 type FollowStoreResponse = {
 	success: boolean
 	action: 'followed' | 'unfollowed'
@@ -8,7 +10,6 @@ export async function followStore(
 	storeId: string
 ): Promise<FollowStoreResponse> {
 	const controller = new AbortController()
-
 	const timeout = setTimeout(() => controller.abort(), 10000)
 
 	try {
@@ -27,7 +28,7 @@ export async function followStore(
 			throw new Error(json?.error ?? 'Failed to follow store')
 		}
 
-		return json
+		return json as FollowStoreResponse
 	} finally {
 		clearTimeout(timeout)
 	}
@@ -58,6 +59,34 @@ export async function unfollowStore(storeId: string) {
 	if (!res.ok) {
 		const json = await res.json().catch(() => null)
 		throw new Error(json?.error ?? 'Failed to unfollow')
+	}
+
+	return res.json()
+}
+
+type QueryKey = ['followed-stores', { cursor?: string; limit?: number }]
+
+export async function getFollowedStores({
+	queryKey,
+	signal,
+}: {
+	queryKey: QueryKey
+	signal?: AbortSignal
+}): Promise<FollowedStores> {
+	const [, params] = queryKey
+
+	const searchParams = new URLSearchParams()
+
+	if (params?.cursor) searchParams.append('cursor', params.cursor)
+	if (params?.limit) searchParams.append('limit', String(params.limit))
+
+	const res = await fetch(`/api/stores/followed?${searchParams.toString()}`, {
+		credentials: 'include',
+		signal,
+	})
+
+	if (!res.ok) {
+		throw new Error('Failed to fetch followed stores')
 	}
 
 	return res.json()

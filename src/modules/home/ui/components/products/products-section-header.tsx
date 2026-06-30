@@ -1,13 +1,14 @@
 import { ArrowRight, LayoutGrid, List } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { type ViewMode, ViewModeToggle } from '@/components/view-mode-toggle'
 import { cn } from '@/lib/utils'
 
 export type ProductsViewMode = 'grid' | 'list'
 
 type ProductsSectionHeaderProps = {
-	viewMode: ProductsViewMode
-	onViewModeChange: (mode: ProductsViewMode) => void
+	viewMode: ViewMode
+	onViewModeChange: (mode: ViewMode) => void
 }
 
 export const ProductsSectionHeader = ({
@@ -25,26 +26,7 @@ export const ProductsSectionHeader = ({
 		</div>
 
 		<div className='flex items-center gap-1'>
-			<Button
-				variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
-				size='icon-sm'
-				type='button'
-				aria-label='Vista em grelha'
-				aria-pressed={viewMode === 'grid'}
-				onClick={() => onViewModeChange('grid')}
-			>
-				<LayoutGrid className='size-4' />
-			</Button>
-			<Button
-				variant={viewMode === 'list' ? 'secondary' : 'ghost'}
-				size='icon-sm'
-				type='button'
-				aria-label='Vista em lista'
-				aria-pressed={viewMode === 'list'}
-				onClick={() => onViewModeChange('list')}
-			>
-				<List className='size-4' />
-			</Button>
+			<ViewModeToggle value={viewMode} onChange={onViewModeChange} />
 			<Button
 				render={<Link href='/feed/explorar' />}
 				variant='ghost'
