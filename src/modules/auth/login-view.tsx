@@ -25,6 +25,22 @@ import { getPostLoginPath } from '@/lib/auth/routing'
 import { auth } from '@/lib/firebase/firebase-client'
 import { syncUserToBackend } from '@/lib/firebase/sync-user-to-backend'
 
+function logLogin(step: string, data?: Record<string, unknown>) {
+	console.log(`[auth/login] ${step}`, data ?? '')
+}
+
+function logLoginError(step: string, err: unknown) {
+	const firebaseCode =
+		err && typeof err === 'object' && 'code' in err
+			? String((err as { code: string }).code)
+			: undefined
+
+	console.error(`[auth/login] ${step}`, {
+		code: firebaseCode,
+		message: err instanceof Error ? err.message : String(err),
+	})
+}
+
 function LoginForm() {
 	const router = useRouter()
 	const searchParams = useSearchParams()
@@ -36,6 +52,7 @@ function LoginForm() {
 	const [error, setError] = useState<string | null>(null)
 
 	async function createSession(idToken: string) {
+		logLogin('createSession:start')
 		const res = await fetch('/api/auth/session', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
@@ -43,16 +60,43 @@ function LoginForm() {
 			body: JSON.stringify({ token: idToken }),
 		})
 
+		logLogin('createSession:response', {
+			ok: res.ok,
+			status: res.status,
+		})
+
 		if (!res.ok) {
+			const body = await res.json().catch(() => ({}))
+			logLogin('createSession:failed', { body })
 			throw new Error('Falha ao criar sessão')
 		}
 	}
 
-	async function finishLogin(idToken: string) {
+	async function finishLogin(
+		idToken: string,
+		meta: { uid: string; method: 'email' | 'google' }
+	) {
+		logLogin('finishLogin:start', {
+			uid: meta.uid,
+			method: meta.method,
+			next,
+		})
+
 		await createSession(idToken)
+
+		logLogin('syncUser:start', { uid: meta.uid })
 		await syncUserToBackend()
+		logLogin('syncUser:done', { uid: meta.uid })
+
 		const profile = await fetchUserProfile()
-		router.push(getPostLoginPath(profile, next))
+		const path = getPostLoginPath(profile, next)
+		logLogin('redirect', {
+			path,
+			roles: profile?.roles,
+			hasProfile: Boolean(profile),
+		})
+
+		router.push(path)
 	}
 
 	async function handleEmailLogin(e: React.FormEvent) {
@@ -61,14 +105,20 @@ function LoginForm() {
 		setError(null)
 
 		try {
+			logLogin('email:start', { email })
 			const userCredential = await signInWithEmailAndPassword(
 				auth,
 				email,
 				password
 			)
+			logLogin('email:firebase-ok', { uid: userCredential.user.uid })
 			const token = await userCredential.user.getIdToken()
-			await finishLogin(token)
+			await finishLogin(token, {
+				uid: userCredential.user.uid,
+				method: 'email',
+			})
 		} catch (err: unknown) {
+			logLoginError('email:failed', err)
 			setError(err instanceof Error ? err.message : 'Erro ao entrar')
 		} finally {
 			setLoading(false)
@@ -80,11 +130,17 @@ function LoginForm() {
 		setError(null)
 
 		try {
+			logLogin('google:start')
 			const provider = new GoogleAuthProvider()
 			const result = await signInWithPopup(auth, provider)
+			logLogin('google:firebase-ok', { uid: result.user.uid })
 			const token = await result.user.getIdToken()
-			await finishLogin(token)
+			await finishLogin(token, {
+				uid: result.user.uid,
+				method: 'google',
+			})
 		} catch (err: unknown) {
+			logLoginError('google:failed', err)
 			setError(err instanceof Error ? err.message : 'Erro ao entrar')
 		} finally {
 			setLoading(false)
