@@ -1,5 +1,6 @@
 import './load-env'
 import { createSupabaseAdmin } from '../lib/supabase/admin'
+import { uuidv7 } from 'uuidv7'
 
 const supabase = createSupabaseAdmin()
 
@@ -7,24 +8,24 @@ async function seed() {
 	console.log('🌱 Iniciando seed de RBAC...')
 
 	const roles = [
-		{ name: 'admin', description: 'Gerencia o marketplace com acesso total às funcionalidades administrativas' },
-		{ name: 'super_admin', description: 'Acesso total ao sistema, incluindo override de todas as regras e permissões' },
-		{ name: 'seller', description: 'Pode gerenciar produtos e pedidos relacionados às suas vendas' },
-		{ name: 'buyer', description: 'Pode comprar produtos e gerenciar seus próprios pedidos' },
-		{ name: 'support', description: 'Responsável pelo atendimento ao cliente e resolução de disputas' },
+		{ id: uuidv7(), name: 'admin', description: 'Gerencia o marketplace com acesso total às funcionalidades administrativas' },
+		{ id: uuidv7(), name: 'super_admin', description: 'Acesso total ao sistema, incluindo override de todas as regras e permissões' },
+		{ id: uuidv7(), name: 'seller', description: 'Pode gerenciar produtos e pedidos relacionados às suas vendas' },
+		{ id: uuidv7(), name: 'buyer', description: 'Pode comprar produtos e gerenciar seus próprios pedidos' },
+		{ id: uuidv7(), name: 'support', description: 'Responsável pelo atendimento ao cliente e resolução de disputas' },
 	]
 
 	const permissions = [
-		{ key: 'product.create', description: 'Criar produtos' },
-		{ key: 'product.update', description: 'Atualizar produtos' },
-		{ key: 'product.delete', description: 'Excluir produtos' },
-		{ key: 'product.read', description: 'Visualizar produtos' },
-		{ key: 'order.create', description: 'Criar pedidos' },
-		{ key: 'order.read', description: 'Visualizar pedidos' },
-		{ key: 'order.update', description: 'Atualizar pedidos' },
-		{ key: 'user.read', description: 'Visualizar usuários' },
-		{ key: 'user.ban', description: 'Banir usuários do sistema' },
-		{ key: 'dispute.manage', description: 'Gerenciar disputas e conflitos' },
+		{ id: uuidv7(), key: 'product.create', description: 'Criar produtos' },
+		{ id: uuidv7(), key: 'product.update', description: 'Atualizar produtos' },
+		{ id: uuidv7(), key: 'product.delete', description: 'Excluir produtos' },
+		{ id: uuidv7(), key: 'product.read', description: 'Visualizar produtos' },
+		{ id: uuidv7(), key: 'order.create', description: 'Criar pedidos' },
+		{ id: uuidv7(), key: 'order.read', description: 'Visualizar pedidos' },
+		{ id: uuidv7(), key: 'order.update', description: 'Atualizar pedidos' },
+		{ id: uuidv7(), key: 'user.read', description: 'Visualizar usuários' },
+		{ id: uuidv7(), key: 'user.ban', description: 'Banir usuários do sistema' },
+		{ id: uuidv7(), key: 'dispute.manage', description: 'Gerenciar disputas e conflitos' },
 	]
 
 	await supabase.from('roles').upsert(roles, { onConflict: 'name' })

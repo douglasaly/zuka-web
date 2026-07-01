@@ -84,6 +84,7 @@ export function mapProductRow(row: DbProduct): Product {
 		storeLocation: storeLocation(store),
 		storeVerified: Boolean(store?.verified_at),
 		storeAvatar: sanitizeUrl(store?.logo_url),
+		storePhone: store?.phone ?? null,
 		description: row.description ?? '',
 		categoryId: row.category_id,
 		categoryName: row.categories?.name,

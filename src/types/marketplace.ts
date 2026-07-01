@@ -16,6 +16,7 @@ export interface Product {
 	storeRating?: number
 	storeVerified?: boolean
 	storeAvatar: string | null
+	storePhone: string | null
 	description: string
 	categoryId: string
 	categoryName?: string

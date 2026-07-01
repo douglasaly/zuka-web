@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { requireAdminUser } from '@/lib/auth/admin'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
+import type { Database } from '@/lib/supabase/types'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -42,7 +43,7 @@ export async function PATCH(req: Request, { params }: Params) {
 	if (status) updates.status = status
 	if (status === 'ACTIVE') updates.verified_at = new Date().toISOString()
 
-	const { data, error } = await supabase.from('stores').update(updates).eq('id', id).select('*').single()
+	const { data, error } = await supabase.from('stores').update(updates as Database['public']['Tables']['stores']['Update']).eq('id', id).select('*').single()
 	if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
 	// Update seller onboarding status

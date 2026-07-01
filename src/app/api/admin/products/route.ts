@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server'
 import { requireAdminUser } from '@/lib/auth/admin'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
+import type { Database } from '@/lib/supabase/types'
 
 export async function GET(req: Request) {
 	await requireAdminUser()
 	const { searchParams } = new URL(req.url)
 	const search = searchParams.get('search') ?? ''
 	const categoryId = searchParams.get('category') ?? ''
-	const status = searchParams.get('status') ?? ''
+	const status = searchParams.get('status') as Database['public']['Enums']['product_status_enum'] | null
 	const page = Number(searchParams.get('page') ?? 1)
 	const limit = Math.min(Number(searchParams.get('limit') ?? 50), 100)
 	const offset = (page - 1) * limit

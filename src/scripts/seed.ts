@@ -1,14 +1,15 @@
 import './load-env'
 import { uuidv7 } from 'uuidv7'
 import { createSupabaseAdmin } from '../lib/supabase/admin'
+import type { Database } from '../lib/supabase/types'
 
 const supabase = createSupabaseAdmin()
 
 async function clearTable(table: string) {
 	const { error } = await supabase
-		.from(table)
+		.from(table as never)
 		.delete()
-		.neq('id', '00000000-0000-0000-0000-000000000000')
+		.neq('id' as never, '00000000-0000-0000-0000-000000000000')
 
 	if (!error) return
 	if (error.message.includes('Could not find')) return
@@ -22,9 +23,9 @@ async function clearTable(table: string) {
 	const column = compositeKeyColumn[table]
 	if (column) {
 		const { error: compositeError } = await supabase
-			.from(table)
+			.from(table as never)
 			.delete()
-			.gte(column, '00000000-0000-0000-0000-000000000000')
+			.gte(column as never, '00000000-0000-0000-0000-000000000000')
 
 		if (compositeError) {
 			console.warn(`Could not clear ${table}:`, compositeError.message)
@@ -163,8 +164,8 @@ async function seed() {
 		await supabase.from('provinces').insert(provinces)
 
 		const sellerProfiles = [
-			{ id: uuidv7(), user_id: users[1].id, status: 'VERIFIED', verified_at: new Date().toISOString(), onboarded_at: new Date().toISOString() },
-			{ id: uuidv7(), user_id: users[2].id, status: 'PENDING' },
+			{ id: uuidv7(), user_id: users[1].id, status: 'VERIFIED' as const, verified_at: new Date().toISOString(), onboarded_at: new Date().toISOString() },
+			{ id: uuidv7(), user_id: users[2].id, status: 'PENDING' as const },
 		]
 
 		await supabase.from('seller_profiles').insert(sellerProfiles)
@@ -176,19 +177,19 @@ async function seed() {
 		const food = categories[5]
 
 		const stores = [
-			{ id: uuidv7(), owner_id: users[1].id, seller_profile_id: sellerProfiles[0].id, name: 'Tech Store Maputo', email: 'tech@store.mz', state: 'Maputo', main_store_category_id: electronics.id, province_id: maputo.id, slug: 'tech-store-maputo', description: 'Loja de eletrônicos e tecnologia', logo_url: 'https://via.placeholder.com/200', banner_url: 'https://via.placeholder.com/1200x300', verified_at: new Date().toISOString(), status: 'ACTIVE' },
-			{ id: uuidv7(), owner_id: users[1].id, seller_profile_id: sellerProfiles[0].id, name: 'Fashion Hub', email: 'fashion@store.mz', state: 'Maputo', main_store_category_id: fashion.id, province_id: maputo.id, slug: 'fashion-hub', description: 'Moda e vestuário premium', logo_url: 'https://via.placeholder.com/200', banner_url: 'https://via.placeholder.com/1200x300', verified_at: new Date().toISOString(), status: 'ACTIVE' },
-			{ id: uuidv7(), owner_id: users[2].id, seller_profile_id: sellerProfiles[1].id, name: 'Gourmet Foods Gaza', email: 'gourmet@store.mz', state: 'Gaza', main_store_category_id: food.id, province_id: gaza.id, slug: 'gourmet-foods-gaza', description: 'Alimentos gourmet importados', logo_url: 'https://via.placeholder.com/200', banner_url: 'https://via.placeholder.com/1200x300', status: 'PENDING' },
+			{ id: uuidv7(), owner_id: users[1].id, seller_profile_id: sellerProfiles[0].id, name: 'Tech Store Maputo', email: 'tech@store.mz', state: 'Maputo', main_store_category_id: electronics.id, province_id: maputo.id, slug: 'tech-store-maputo', description: 'Loja de eletrônicos e tecnologia', logo_url: 'https://via.placeholder.com/200', banner_url: 'https://via.placeholder.com/1200x300', verified_at: new Date().toISOString(), status: 'ACTIVE' as const },
+			{ id: uuidv7(), owner_id: users[1].id, seller_profile_id: sellerProfiles[0].id, name: 'Fashion Hub', email: 'fashion@store.mz', state: 'Maputo', main_store_category_id: fashion.id, province_id: maputo.id, slug: 'fashion-hub', description: 'Moda e vestuário premium', logo_url: 'https://via.placeholder.com/200', banner_url: 'https://via.placeholder.com/1200x300', verified_at: new Date().toISOString(), status: 'ACTIVE' as const },
+			{ id: uuidv7(), owner_id: users[2].id, seller_profile_id: sellerProfiles[1].id, name: 'Gourmet Foods Gaza', email: 'gourmet@store.mz', state: 'Gaza', main_store_category_id: food.id, province_id: gaza.id, slug: 'gourmet-foods-gaza', description: 'Alimentos gourmet importados', logo_url: 'https://via.placeholder.com/200', banner_url: 'https://via.placeholder.com/1200x300', status: 'PENDING' as const },
 		]
 
 		await supabase.from('stores').insert(stores)
 
 		const products = [
-			{ id: uuidv7(), store_id: stores[0].id, category_id: electronics.id, name: 'Samsung Galaxy S24', slug: 'samsung-galaxy-s24', is_visible: true, description: 'Smartphone topo de linha', status: 'ACTIVE', price: 1200000, discount_price: 999900, currency: 'MZN' },
-			{ id: uuidv7(), store_id: stores[0].id, category_id: electronics.id, name: 'iPhone 15 Pro', slug: 'iphone-15-pro', is_visible: true, description: 'Apple flagship', status: 'ACTIVE', price: 1400000, currency: 'MZN' },
-			{ id: uuidv7(), store_id: stores[0].id, category_id: electronics.id, name: 'MacBook Pro 14', slug: 'macbook-pro-14', is_visible: true, description: 'Laptop profissional', status: 'ACTIVE', price: 5500000, discount_price: 5200000, currency: 'MZN' },
-			{ id: uuidv7(), store_id: stores[1].id, category_id: fashion.id, name: 'Jeans Premium', slug: 'jeans-premium', is_visible: true, description: 'Calça jeans premium', status: 'ACTIVE', price: 150000, discount_price: 120000, currency: 'MZN' },
-			{ id: uuidv7(), store_id: stores[1].id, category_id: fashion.id, name: 'Camiseta Básica', slug: 'camiseta-basica', is_visible: true, description: 'Algodão 100%', status: 'ACTIVE', price: 35000, discount_price: 25000, currency: 'MZN' },
+			{ id: uuidv7(), store_id: stores[0].id, category_id: electronics.id, name: 'Samsung Galaxy S24', slug: 'samsung-galaxy-s24', is_visible: true, description: 'Smartphone topo de linha', status: 'ACTIVE' as const, price: 1200000, discount_price: 999900, currency: 'MZN' },
+			{ id: uuidv7(), store_id: stores[0].id, category_id: electronics.id, name: 'iPhone 15 Pro', slug: 'iphone-15-pro', is_visible: true, description: 'Apple flagship', status: 'ACTIVE' as const, price: 1400000, currency: 'MZN' },
+			{ id: uuidv7(), store_id: stores[0].id, category_id: electronics.id, name: 'MacBook Pro 14', slug: 'macbook-pro-14', is_visible: true, description: 'Laptop profissional', status: 'ACTIVE' as const, price: 5500000, discount_price: 5200000, currency: 'MZN' },
+			{ id: uuidv7(), store_id: stores[1].id, category_id: fashion.id, name: 'Jeans Premium', slug: 'jeans-premium', is_visible: true, description: 'Calça jeans premium', status: 'ACTIVE' as const, price: 150000, discount_price: 120000, currency: 'MZN' },
+			{ id: uuidv7(), store_id: stores[1].id, category_id: fashion.id, name: 'Camiseta Básica', slug: 'camiseta-basica', is_visible: true, description: 'Algodão 100%', status: 'ACTIVE' as const, price: 35000, discount_price: 25000, currency: 'MZN' },
 		]
 
 		await supabase.from('products').insert(products)
@@ -241,7 +242,7 @@ async function seed() {
 		await supabase.from('seller_onboarding').insert({
 			id: onboardingId,
 			seller_profile_id: sellerProfiles[0].id,
-			status: 'APPROVED',
+			status: 'APPROVED' as const,
 			current_step: 'PAYMENT_VERIFICATION',
 			submitted_at: new Date().toISOString(),
 			approved_at: new Date().toISOString(),
@@ -260,7 +261,7 @@ async function seed() {
 			owner_id: users[1].id,
 			store_id: stores[0].id,
 			type: 'ID_CARD',
-			status: 'APPROVED',
+			status: 'APPROVED' as const,
 			file_url: 'https://via.placeholder.com/800',
 			metadata: JSON.stringify({ number: '123' }),
 			reviewed_at: new Date().toISOString(),
@@ -271,7 +272,7 @@ async function seed() {
 				id: uuidv7(),
 				buyer_id: users[3].id,
 				store_id: stores[0].id,
-				status: 'SHIPPING',
+				status: 'SHIPPING' as const,
 				total: 999900,
 				currency: 'MZN',
 				item_count: 1,
@@ -280,7 +281,7 @@ async function seed() {
 				id: uuidv7(),
 				buyer_id: users[3].id,
 				store_id: stores[1].id,
-				status: 'COMPLETED',
+				status: 'COMPLETED' as const,
 				total: 120000,
 				currency: 'MZN',
 				item_count: 1,
@@ -289,7 +290,7 @@ async function seed() {
 				id: uuidv7(),
 				buyer_id: users[4].id,
 				store_id: stores[0].id,
-				status: 'PENDING',
+				status: 'PENDING' as const,
 				total: 1400000,
 				currency: 'MZN',
 				item_count: 1,

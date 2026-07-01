@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { requireAdminUser } from '@/lib/auth/admin'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
+import type { Database } from '@/lib/supabase/types'
 
 export async function GET(req: Request) {
 	await requireAdminUser()
@@ -25,7 +26,7 @@ export async function GET(req: Request) {
 		.order('created_at', { ascending: false })
 		.range(offset, offset + limit - 1)
 
-	if (status) query = query.eq('status', status)
+	if (status) query = query.eq('status', status as Database['public']['Enums']['store_status'])
 	if (search) query = query.ilike('name', `%${search}%`)
 
 	const { data, error } = await query

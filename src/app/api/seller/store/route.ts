@@ -4,6 +4,7 @@ import { getUserRoles } from '@/lib/auth/roles'
 import { getSessionUser } from '@/lib/auth/session'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import { isR2PublicUrl } from '@/lib/storage/r2'
+import type { Database } from '@/lib/supabase/types'
 
 export async function PATCH(request: Request) {
 	try {
@@ -77,7 +78,7 @@ export async function PATCH(request: Request) {
 
 		const { data: updatedStore, error: storeError } = await supabase
 			.from('stores')
-			.update(updates)
+			.update(updates as Database['public']['Tables']['stores']['Update'])
 			.eq('id', store.id as string)
 			.select('*')
 			.single()
@@ -99,7 +100,7 @@ export async function PATCH(request: Request) {
 
 				await supabase
 					.from('seller_onboarding')
-					.update(onboardingUpdates)
+					.update(onboardingUpdates as Database['public']['Tables']['seller_onboarding']['Update'])
 					.eq('id', onboarding.id as string)
 
 				if (hasDelivery !== undefined) {

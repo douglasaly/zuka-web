@@ -4,7 +4,7 @@ import { getSessionUser } from '@/lib/auth/session'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 
 interface Props {
-	params: { id: string }
+	params: Promise<{ id: string }>
 }
 
 export async function DELETE(_req: Request, { params }: Props) {

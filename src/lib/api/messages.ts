@@ -1,5 +1,5 @@
 export async function GetMessages(cursor?: string | null) {
-	const url = new URL('/api/messages', window.location.origin)
+	const url = new URL('/api/messages', typeof window !== 'undefined' ? window.location.origin : '')
 
 	if (cursor) {
 		url.searchParams.set('cursor', cursor)
@@ -37,7 +37,7 @@ export async function GetConversationMessages(conversationId: string) {
 }
 
 export async function GetConversations(cursor?: string) {
-	const url = new URL('/api/messages/conversations', window.location.origin)
+	const url = new URL('/api/messages/conversations', typeof window !== 'undefined' ? window.location.origin : '')
 
 	if (cursor) {
 		url.searchParams.set('cursor', cursor)
