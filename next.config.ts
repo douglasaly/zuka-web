@@ -5,6 +5,7 @@ const r2PublicHost = process.env.R2_PUBLIC_URL
 	: null
 
 const nextConfig: NextConfig = {
+	serverExternalPackages: ['firebase-admin'],
 	images: {
 		remotePatterns: [
 			{

@@ -1,5 +1,3 @@
-'use server'
-
 import { cookies } from 'next/headers'
 import { adminAuth } from '@/lib/firebase/firebase-admin'
 import { SESSION_COOKIE } from '@/utils/constants'

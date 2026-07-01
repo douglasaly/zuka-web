@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { deleteSession } from '@/utils/cookies'
+import { deleteSession } from '@/lib/auth/session-cookie'
 
 export async function POST() {
 	await deleteSession()

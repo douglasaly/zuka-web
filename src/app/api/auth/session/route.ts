@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
-import { createSession } from '@/utils/cookies'
+import { createSession } from '@/lib/auth/session-cookie'
+
+export const runtime = 'nodejs'
 
 export async function POST(request: Request) {
 	const { token } = await request.json()
