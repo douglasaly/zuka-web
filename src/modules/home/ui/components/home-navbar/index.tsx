@@ -1,12 +1,13 @@
 'use client'
 
-import { Bell, Heart, ShoppingBag, User } from 'lucide-react'
+import { Heart, ShoppingBag, User } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Suspense } from 'react'
 import { Button } from '@/components/ui/button'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { useUserProfile } from '@/hooks/use-user-profile'
+import { NotificationDropdown } from '@/modules/notifications/ui/components/notification-dropdown'
 import { SearchInput } from './search-input'
 
 function NavbarOrdersLink() {
@@ -117,14 +118,7 @@ export const HomeNavbar = () => {
 						>
 							<Heart className='size-4' />
 						</Button>
-						<Button
-							variant='ghost'
-							size='icon-sm'
-							type='button'
-							aria-label='Notificações'
-						>
-							<Bell className='size-4' />
-						</Button>
+						<NotificationDropdown />
 						<NavbarOrdersLink />
 						<NavbarAuth />
 					</div>

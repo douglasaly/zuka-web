@@ -34,7 +34,9 @@ export function NotificationsView() {
 	const { data } = useQuery({
 		queryKey: ['admin-notifications'],
 		queryFn: async () => {
-			const res = await fetch('/api/admin/notifications', { credentials: 'include' })
+			const res = await fetch('/api/admin/notifications', {
+				credentials: 'include',
+			})
 			return res.json()
 		},
 	})
@@ -52,9 +54,14 @@ export function NotificationsView() {
 		},
 		onSuccess: (data) => {
 			toast.success('Notificação enviada com sucesso')
-			const prev = qc.getQueryData<{ notifications: Notification[] }>(['admin-notifications'])
+			const prev = qc.getQueryData<{ notifications: Notification[] }>([
+				'admin-notifications',
+			])
 			qc.setQueryData(['admin-notifications'], {
-				notifications: [data.notification, ...(prev?.notifications ?? [])],
+				notifications: [
+					data.notification,
+					...(prev?.notifications ?? []),
+				],
 			})
 			setTitle('')
 			setBody('')
@@ -64,20 +71,28 @@ export function NotificationsView() {
 
 	const notifications: Notification[] = data?.notifications ?? []
 
-	const targetLabel = (t: string) => TARGETS.find((x) => x.value === t)?.label ?? t
+	const targetLabel = (t: string) =>
+		TARGETS.find((x) => x.value === t)?.label ?? t
 
 	return (
 		<div className='grid gap-6 xl:grid-cols-[1fr_1.5fr]'>
 			{/* Compose */}
 			<div className='space-y-4'>
 				<div className='rounded-2xl border border-border/60 bg-card p-5 space-y-4'>
-					<p className='font-heading text-sm font-bold'>Compor notificação</p>
+					<p className='font-heading text-sm font-bold'>
+						Compor notificação
+					</p>
 
 					<div className='space-y-2'>
-						<Label className='text-xs font-medium'>Destinatário</Label>
+						<Label className='text-xs font-medium'>
+							Destinatário
+						</Label>
 						<div className='flex flex-col gap-1'>
 							{TARGETS.map((t) => (
-								<label key={t.value} className='flex cursor-pointer items-center gap-2.5 rounded-lg border border-border px-3 py-2.5 text-sm transition-colors hover:bg-muted has-[:checked]:border-primary has-[:checked]:bg-primary/5'>
+								<label
+									key={t.value}
+									className='flex cursor-pointer items-center gap-2.5 rounded-lg border border-border px-3 py-2.5 text-sm transition-colors hover:bg-muted has-[:checked]:border-primary has-[:checked]:bg-primary/5'
+								>
 									<input
 										type='radio'
 										name='target'
@@ -93,7 +108,12 @@ export function NotificationsView() {
 					</div>
 
 					<div className='space-y-2'>
-						<Label htmlFor='notif-title' className='text-xs font-medium'>Título</Label>
+						<Label
+							htmlFor='notif-title'
+							className='text-xs font-medium'
+						>
+							Título
+						</Label>
 						<Input
 							id='notif-title'
 							value={title}
@@ -103,7 +123,12 @@ export function NotificationsView() {
 					</div>
 
 					<div className='space-y-2'>
-						<Label htmlFor='notif-body' className='text-xs font-medium'>Mensagem</Label>
+						<Label
+							htmlFor='notif-body'
+							className='text-xs font-medium'
+						>
+							Mensagem
+						</Label>
 						<Textarea
 							id='notif-body'
 							value={body}
@@ -115,19 +140,27 @@ export function NotificationsView() {
 
 					<Button
 						type='button'
-						disabled={!title.trim() || !body.trim() || sendMutation.isPending}
+						disabled={
+							!title.trim() ||
+							!body.trim() ||
+							sendMutation.isPending
+						}
 						onClick={() => sendMutation.mutate()}
 						className='w-full'
 					>
 						<Send className='size-4' />
-						{sendMutation.isPending ? 'A enviar...' : 'Enviar notificação'}
+						{sendMutation.isPending
+							? 'A enviar...'
+							: 'Enviar notificação'}
 					</Button>
 				</div>
 			</div>
 
 			{/* Log */}
 			<div className='rounded-2xl border border-border/60 bg-card overflow-hidden'>
-				<p className='border-b border-border/60 px-5 py-4 font-heading text-sm font-bold'>Notificações enviadas</p>
+				<p className='border-b border-border/60 px-5 py-4 font-heading text-sm font-bold'>
+					Notificações enviadas
+				</p>
 				{notifications.length === 0 ? (
 					<div className='py-12 text-center text-sm text-muted-foreground'>
 						Nenhuma notificação enviada ainda.
@@ -138,15 +171,25 @@ export function NotificationsView() {
 							<div key={n.id} className='px-5 py-4 space-y-1'>
 								<div className='flex items-start justify-between gap-2'>
 									<div className='min-w-0'>
-										<p className='font-medium text-sm truncate'>{n.title}</p>
-										<p className='text-xs text-muted-foreground'>{n.body}</p>
+										<p className='font-medium text-sm truncate'>
+											{n.title}
+										</p>
+										<p className='text-xs text-muted-foreground'>
+											{n.body}
+										</p>
 									</div>
 									<span className='shrink-0 rounded-full border border-border bg-muted px-2 py-0.5 text-xs text-muted-foreground'>
 										{targetLabel(n.target)}
 									</span>
 								</div>
 								<p className='text-xs text-muted-foreground'>
-									{n.sentAt ? format(new Date(n.sentAt), "d MMM yyyy 'às' HH:mm", { locale: pt }) : '—'}
+									{n.sentAt
+										? format(
+												new Date(n.sentAt),
+												"d MMM yyyy 'às' HH:mm",
+												{ locale: pt }
+											)
+										: '—'}
 								</p>
 							</div>
 						))}

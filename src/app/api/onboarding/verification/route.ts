@@ -28,7 +28,9 @@ export async function POST(request: Request) {
 
 		if (!isR2PublicUrl(idCardUrl) || !isR2PublicUrl(selfieUrl)) {
 			return NextResponse.json(
-				{ error: 'Os documentos devem ser carregados para o armazenamento' },
+				{
+					error: 'Os documentos devem ser carregados para o armazenamento',
+				},
 				{ status: 400 }
 			)
 		}
@@ -42,7 +44,10 @@ export async function POST(request: Request) {
 			.maybeSingle()
 
 		if (!sellerProfile) {
-			return NextResponse.json({ error: 'Seller profile not found' }, { status: 404 })
+			return NextResponse.json(
+				{ error: 'Seller profile not found' },
+				{ status: 404 }
+			)
 		}
 
 		const { data: store } = await supabase
@@ -53,7 +58,10 @@ export async function POST(request: Request) {
 			.maybeSingle()
 
 		if (!store) {
-			return NextResponse.json({ error: 'Store not found' }, { status: 404 })
+			return NextResponse.json(
+				{ error: 'Store not found' },
+				{ status: 404 }
+			)
 		}
 
 		const storeId = store.id as string

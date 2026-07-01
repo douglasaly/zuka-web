@@ -1,4 +1,4 @@
-import type { ChatMessage } from "@/modules/messages/constants"
+import type { ChatMessage } from '@/modules/messages/constants'
 
 type ChatBubbleProps = {
 	message: ChatMessage

@@ -38,7 +38,10 @@ export async function PATCH(request: Request) {
 			.maybeSingle()
 
 		if (!sellerProfile) {
-			return NextResponse.json({ error: 'Seller profile not found' }, { status: 404 })
+			return NextResponse.json(
+				{ error: 'Seller profile not found' },
+				{ status: 404 }
+			)
 		}
 
 		const { data: store } = await supabase
@@ -49,7 +52,10 @@ export async function PATCH(request: Request) {
 			.maybeSingle()
 
 		if (!store) {
-			return NextResponse.json({ error: 'Store not found' }, { status: 404 })
+			return NextResponse.json(
+				{ error: 'Store not found' },
+				{ status: 404 }
+			)
 		}
 
 		if (logoUrl && !isR2PublicUrl(logoUrl)) {
@@ -100,7 +106,9 @@ export async function PATCH(request: Request) {
 
 				await supabase
 					.from('seller_onboarding')
-					.update(onboardingUpdates as Database['public']['Tables']['seller_onboarding']['Update'])
+					.update(
+						onboardingUpdates as Database['public']['Tables']['seller_onboarding']['Update']
+					)
 					.eq('id', onboarding.id as string)
 
 				if (hasDelivery !== undefined) {

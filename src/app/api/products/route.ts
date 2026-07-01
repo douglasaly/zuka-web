@@ -159,7 +159,9 @@ export async function POST(request: Request) {
 
 		if (imageUrl && !isR2PublicUrl(imageUrl)) {
 			return NextResponse.json(
-				{ error: 'A imagem do produto deve ser carregada para o armazenamento' },
+				{
+					error: 'A imagem do produto deve ser carregada para o armazenamento',
+				},
 				{ status: 400 }
 			)
 		}
@@ -190,7 +192,8 @@ export async function POST(request: Request) {
 				is_visible: true,
 				status: 'ACTIVE',
 				price: Number(price),
-				discount_price: discountPrice != null ? Number(discountPrice) : null,
+				discount_price:
+					discountPrice != null ? Number(discountPrice) : null,
 				currency,
 			})
 			.select('*')

@@ -40,7 +40,10 @@ export function OnboardingAuthBar() {
 						<Link
 							href='/auth/login'
 							className={cn(
-								buttonVariants({ variant: 'ghost', size: 'sm' }),
+								buttonVariants({
+									variant: 'ghost',
+									size: 'sm',
+								}),
 								'rounded-full'
 							)}
 						>

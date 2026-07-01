@@ -26,7 +26,9 @@ const RANGES = [
 ]
 
 async function fetchAnalytics(days: number) {
-	const res = await fetch(`/api/admin/analytics?days=${days}`, { credentials: 'include' })
+	const res = await fetch(`/api/admin/analytics?days=${days}`, {
+		credentials: 'include',
+	})
 	if (!res.ok) throw new Error('Failed')
 	return res.json()
 }
@@ -45,7 +47,13 @@ function formatDay(date: string) {
 	}
 }
 
-function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
+function ChartCard({
+	title,
+	children,
+}: {
+	title: string
+	children: React.ReactNode
+}) {
 	return (
 		<div className='rounded-2xl border border-border/60 bg-card p-5'>
 			<p className='mb-4 font-heading text-sm font-bold'>{title}</p>
@@ -57,15 +65,33 @@ function ChartCard({ title, children }: { title: string; children: React.ReactNo
 export function AnalyticsView() {
 	const [days, setDays] = useState(30)
 
-	const { data: stats, isLoading: statsLoading } = useQuery({ queryKey: ['admin-stats'], queryFn: fetchStats })
+	const { data: stats, isLoading: statsLoading } = useQuery({
+		queryKey: ['admin-stats'],
+		queryFn: fetchStats,
+	})
 	const { data, isLoading } = useQuery({
 		queryKey: ['admin-analytics', days],
 		queryFn: () => fetchAnalytics(days),
 	})
 
-	const signups = (data?.signupsByDay ?? []).map((d: { date: string; count: number }) => ({ ...d, date: formatDay(d.date) }))
-	const products = (data?.productsByDay ?? []).map((d: { date: string; count: number }) => ({ ...d, date: formatDay(d.date) }))
-	const stores = (data?.storesByDay ?? []).map((d: { date: string; count: number }) => ({ ...d, date: formatDay(d.date) }))
+	const signups = (data?.signupsByDay ?? []).map(
+		(d: { date: string; count: number }) => ({
+			...d,
+			date: formatDay(d.date),
+		})
+	)
+	const products = (data?.productsByDay ?? []).map(
+		(d: { date: string; count: number }) => ({
+			...d,
+			date: formatDay(d.date),
+		})
+	)
+	const stores = (data?.storesByDay ?? []).map(
+		(d: { date: string; count: number }) => ({
+			...d,
+			date: formatDay(d.date),
+		})
+	)
 	const topStores = data?.topStores ?? []
 
 	return (
@@ -87,13 +113,27 @@ export function AnalyticsView() {
 			{/* KPI Row */}
 			<div className='grid gap-4 sm:grid-cols-2 xl:grid-cols-4'>
 				{statsLoading ? (
-					Array.from({ length: 4 }, (_, i) => <Skeleton key={i} className='h-28 rounded-2xl' />)
+					Array.from({ length: 4 }, (_, i) => (
+						<Skeleton key={i} className='h-28 rounded-2xl' />
+					))
 				) : (
 					<>
-						<KpiCard label='Total utilizadores' value={stats?.totalUsers ?? 0} />
-						<KpiCard label='Lojas ativas' value={stats?.activeStores ?? 0} />
-						<KpiCard label='Produtos listados' value={stats?.totalProducts ?? 0} />
-						<KpiCard label='Taxa de aprovação' value={`${data?.approvalRate ?? 0}%`} />
+						<KpiCard
+							label='Total utilizadores'
+							value={stats?.totalUsers ?? 0}
+						/>
+						<KpiCard
+							label='Lojas ativas'
+							value={stats?.activeStores ?? 0}
+						/>
+						<KpiCard
+							label='Produtos listados'
+							value={stats?.totalProducts ?? 0}
+						/>
+						<KpiCard
+							label='Taxa de aprovação'
+							value={`${data?.approvalRate ?? 0}%`}
+						/>
 					</>
 				)}
 			</div>
@@ -101,48 +141,166 @@ export function AnalyticsView() {
 			{/* Charts */}
 			<div className='grid gap-6 xl:grid-cols-2'>
 				<ChartCard title={`Novos registos — ${days} dias`}>
-					{isLoading ? <Skeleton className='h-52 w-full rounded-xl' /> : (
+					{isLoading ? (
+						<Skeleton className='h-52 w-full rounded-xl' />
+					) : (
 						<ResponsiveContainer width='100%' height={210}>
-							<AreaChart data={signups} margin={{ top: 2, right: 4, bottom: 0, left: -20 }}>
+							<AreaChart
+								data={signups}
+								margin={{
+									top: 2,
+									right: 4,
+									bottom: 0,
+									left: -20,
+								}}
+							>
 								<defs>
-									<linearGradient id='signupGrad' x1='0' y1='0' x2='0' y2='1'>
-										<stop offset='5%' stopColor='#5C4AE4' stopOpacity={0.3} />
-										<stop offset='95%' stopColor='#5C4AE4' stopOpacity={0} />
+									<linearGradient
+										id='signupGrad'
+										x1='0'
+										y1='0'
+										x2='0'
+										y2='1'
+									>
+										<stop
+											offset='5%'
+											stopColor='#5C4AE4'
+											stopOpacity={0.3}
+										/>
+										<stop
+											offset='95%'
+											stopColor='#5C4AE4'
+											stopOpacity={0}
+										/>
 									</linearGradient>
 								</defs>
-								<CartesianGrid strokeDasharray='3 3' stroke='hsl(var(--border))' />
-								<XAxis dataKey='date' tick={{ fontSize: 10 }} tickLine={false} axisLine={false} interval={Math.ceil(signups.length / 8)} />
-								<YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} allowDecimals={false} />
-								<Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
-								<Area type='monotone' dataKey='count' stroke='#5C4AE4' strokeWidth={2} fill='url(#signupGrad)' name='Registos' />
+								<CartesianGrid
+									strokeDasharray='3 3'
+									stroke='hsl(var(--border))'
+								/>
+								<XAxis
+									dataKey='date'
+									tick={{ fontSize: 10 }}
+									tickLine={false}
+									axisLine={false}
+									interval={Math.ceil(signups.length / 8)}
+								/>
+								<YAxis
+									tick={{ fontSize: 10 }}
+									tickLine={false}
+									axisLine={false}
+									allowDecimals={false}
+								/>
+								<Tooltip
+									contentStyle={{
+										borderRadius: 8,
+										fontSize: 12,
+									}}
+								/>
+								<Area
+									type='monotone'
+									dataKey='count'
+									stroke='#5C4AE4'
+									strokeWidth={2}
+									fill='url(#signupGrad)'
+									name='Registos'
+								/>
 							</AreaChart>
 						</ResponsiveContainer>
 					)}
 				</ChartCard>
 
 				<ChartCard title={`Novos produtos — ${days} dias`}>
-					{isLoading ? <Skeleton className='h-52 w-full rounded-xl' /> : (
+					{isLoading ? (
+						<Skeleton className='h-52 w-full rounded-xl' />
+					) : (
 						<ResponsiveContainer width='100%' height={210}>
-							<BarChart data={products} margin={{ top: 2, right: 4, bottom: 0, left: -20 }}>
-								<CartesianGrid strokeDasharray='3 3' stroke='hsl(var(--border))' />
-								<XAxis dataKey='date' tick={{ fontSize: 10 }} tickLine={false} axisLine={false} interval={Math.ceil(products.length / 8)} />
-								<YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} allowDecimals={false} />
-								<Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
-								<Bar dataKey='count' fill='#5C4AE4' radius={[4, 4, 0, 0]} name='Produtos' />
+							<BarChart
+								data={products}
+								margin={{
+									top: 2,
+									right: 4,
+									bottom: 0,
+									left: -20,
+								}}
+							>
+								<CartesianGrid
+									strokeDasharray='3 3'
+									stroke='hsl(var(--border))'
+								/>
+								<XAxis
+									dataKey='date'
+									tick={{ fontSize: 10 }}
+									tickLine={false}
+									axisLine={false}
+									interval={Math.ceil(products.length / 8)}
+								/>
+								<YAxis
+									tick={{ fontSize: 10 }}
+									tickLine={false}
+									axisLine={false}
+									allowDecimals={false}
+								/>
+								<Tooltip
+									contentStyle={{
+										borderRadius: 8,
+										fontSize: 12,
+									}}
+								/>
+								<Bar
+									dataKey='count'
+									fill='#5C4AE4'
+									radius={[4, 4, 0, 0]}
+									name='Produtos'
+								/>
 							</BarChart>
 						</ResponsiveContainer>
 					)}
 				</ChartCard>
 
 				<ChartCard title={`Novas lojas — ${days} dias`}>
-					{isLoading ? <Skeleton className='h-52 w-full rounded-xl' /> : (
+					{isLoading ? (
+						<Skeleton className='h-52 w-full rounded-xl' />
+					) : (
 						<ResponsiveContainer width='100%' height={210}>
-							<BarChart data={stores} margin={{ top: 2, right: 4, bottom: 0, left: -20 }}>
-								<CartesianGrid strokeDasharray='3 3' stroke='hsl(var(--border))' />
-								<XAxis dataKey='date' tick={{ fontSize: 10 }} tickLine={false} axisLine={false} interval={Math.ceil(stores.length / 8)} />
-								<YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} allowDecimals={false} />
-								<Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
-								<Bar dataKey='count' fill='#A78BFA' radius={[4, 4, 0, 0]} name='Lojas' />
+							<BarChart
+								data={stores}
+								margin={{
+									top: 2,
+									right: 4,
+									bottom: 0,
+									left: -20,
+								}}
+							>
+								<CartesianGrid
+									strokeDasharray='3 3'
+									stroke='hsl(var(--border))'
+								/>
+								<XAxis
+									dataKey='date'
+									tick={{ fontSize: 10 }}
+									tickLine={false}
+									axisLine={false}
+									interval={Math.ceil(stores.length / 8)}
+								/>
+								<YAxis
+									tick={{ fontSize: 10 }}
+									tickLine={false}
+									axisLine={false}
+									allowDecimals={false}
+								/>
+								<Tooltip
+									contentStyle={{
+										borderRadius: 8,
+										fontSize: 12,
+									}}
+								/>
+								<Bar
+									dataKey='count'
+									fill='#A78BFA'
+									radius={[4, 4, 0, 0]}
+									name='Lojas'
+								/>
 							</BarChart>
 						</ResponsiveContainer>
 					)}
@@ -150,28 +308,63 @@ export function AnalyticsView() {
 
 				{/* Top stores */}
 				<div className='rounded-2xl border border-border/60 bg-card overflow-hidden'>
-					<p className='border-b border-border/60 px-5 py-4 font-heading text-sm font-bold'>Top lojas</p>
+					<p className='border-b border-border/60 px-5 py-4 font-heading text-sm font-bold'>
+						Top lojas
+					</p>
 					{isLoading ? (
-						<div className='p-5 space-y-2'>{Array.from({ length: 5 }, (_, i) => <Skeleton key={i} className='h-10 rounded-xl' />)}</div>
+						<div className='p-5 space-y-2'>
+							{Array.from({ length: 5 }, (_, i) => (
+								<Skeleton key={i} className='h-10 rounded-xl' />
+							))}
+						</div>
 					) : topStores.length === 0 ? (
-						<div className='py-10 text-center text-sm text-muted-foreground'>Sem dados</div>
+						<div className='py-10 text-center text-sm text-muted-foreground'>
+							Sem dados
+						</div>
 					) : (
 						<table className='w-full text-sm'>
 							<thead>
 								<tr className='border-b border-border/40'>
-									<th className='px-4 py-2 text-left text-xs font-medium text-muted-foreground'>Loja</th>
-									<th className='px-4 py-2 text-right text-xs font-medium text-muted-foreground'>Produtos</th>
-									<th className='px-4 py-2 text-right text-xs font-medium text-muted-foreground'>Seguidores</th>
-									<th className='px-4 py-2 text-left text-xs font-medium text-muted-foreground'>Criada</th>
+									<th className='px-4 py-2 text-left text-xs font-medium text-muted-foreground'>
+										Loja
+									</th>
+									<th className='px-4 py-2 text-right text-xs font-medium text-muted-foreground'>
+										Produtos
+									</th>
+									<th className='px-4 py-2 text-right text-xs font-medium text-muted-foreground'>
+										Seguidores
+									</th>
+									<th className='px-4 py-2 text-left text-xs font-medium text-muted-foreground'>
+										Criada
+									</th>
 								</tr>
 							</thead>
 							<tbody className='divide-y divide-border/40'>
 								{topStores.map((s: Record<string, unknown>) => (
-									<tr key={s.id as string} className='hover:bg-muted/30 transition-colors'>
-										<td className='px-4 py-2.5 font-medium'>{s.name as string}</td>
-										<td className='px-4 py-2.5 text-right tabular-nums'>{s.products as number}</td>
-										<td className='px-4 py-2.5 text-right tabular-nums'>{s.followers as number}</td>
-										<td className='px-4 py-2.5 text-xs text-muted-foreground'>{s.created_at ? format(new Date(s.created_at as string), 'd MMM yyyy', { locale: pt }) : '—'}</td>
+									<tr
+										key={s.id as string}
+										className='hover:bg-muted/30 transition-colors'
+									>
+										<td className='px-4 py-2.5 font-medium'>
+											{s.name as string}
+										</td>
+										<td className='px-4 py-2.5 text-right tabular-nums'>
+											{s.products as number}
+										</td>
+										<td className='px-4 py-2.5 text-right tabular-nums'>
+											{s.followers as number}
+										</td>
+										<td className='px-4 py-2.5 text-xs text-muted-foreground'>
+											{s.created_at
+												? format(
+														new Date(
+															s.created_at as string
+														),
+														'd MMM yyyy',
+														{ locale: pt }
+													)
+												: '—'}
+										</td>
 									</tr>
 								))}
 							</tbody>

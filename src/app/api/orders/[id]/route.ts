@@ -50,7 +50,10 @@ export async function GET(
 			storeSlug: (row.stores as { slug?: string } | null)?.slug ?? null,
 			items: (items ?? []).map((item) => {
 				const row = item as Record<string, unknown>
-				const product = row.products as { name: string; slug?: string | null } | null
+				const product = row.products as {
+					name: string
+					slug?: string | null
+				} | null
 				return {
 					id: row.id as string,
 					quantity: row.quantity as number,

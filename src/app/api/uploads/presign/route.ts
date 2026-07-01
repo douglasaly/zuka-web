@@ -28,7 +28,10 @@ export async function POST(request: Request) {
 		const contentType = String(body.contentType ?? '')
 
 		if (!ALLOWED_PURPOSES.has(purpose)) {
-			return NextResponse.json({ error: 'Invalid upload purpose' }, { status: 400 })
+			return NextResponse.json(
+				{ error: 'Invalid upload purpose' },
+				{ status: 400 }
+			)
 		}
 
 		if (!isAllowedImageContentType(contentType)) {
@@ -40,7 +43,10 @@ export async function POST(request: Request) {
 
 		const extension = extensionForContentType(contentType)
 		if (!extension) {
-			return NextResponse.json({ error: 'Unsupported image type' }, { status: 400 })
+			return NextResponse.json(
+				{ error: 'Unsupported image type' },
+				{ status: 400 }
+			)
 		}
 
 		const key = buildObjectKey(purpose, user.id as string, extension)

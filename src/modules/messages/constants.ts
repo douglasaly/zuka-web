@@ -68,19 +68,68 @@ export type ChatMessage = {
 }
 
 export const MOCK_MESSAGES: ChatMessage[] = [
-	{ id: 2, sender: 'user', text: 'Olá! Ainda está disponível o Samsung Galaxy A15?', time: '14:02' },
-	{ id: 3, sender: 'seller', text: 'Sim, está novo na caixa.', time: '14:03' },
+	{
+		id: 2,
+		sender: 'user',
+		text: 'Olá! Ainda está disponível o Samsung Galaxy A15?',
+		time: '14:02',
+	},
+	{
+		id: 3,
+		sender: 'seller',
+		text: 'Sim, está novo na caixa.',
+		time: '14:03',
+	},
 	{ id: 4, sender: 'user', text: 'Qual é o preço final?', time: '14:04' },
 	{ id: 5, sender: 'seller', text: 'Está a 12.500 MT.', time: '14:04' },
-	{ id: 6, sender: 'user', text: 'Consegue fazer por 11.000 MT?', time: '14:05' },
+	{
+		id: 6,
+		sender: 'user',
+		text: 'Consegue fazer por 11.000 MT?',
+		time: '14:05',
+	},
 	{ id: 7, sender: 'seller', text: 'Posso fazer 11.800 MT.', time: '14:06' },
-	{ id: 8, sender: 'user', text: 'Inclui carregador e caixa?', time: '14:06' },
-	{ id: 9, sender: 'seller', text: 'Sim, tudo original incluído.', time: '14:07' },
-	{ id: 10, sender: 'user', text: 'Perfeito 👍 posso ver hoje?', time: '14:07' },
-	{ id: 11, sender: 'seller', text: 'Sim, estou disponível à tarde.', time: '14:08' },
-	{ id: 12, sender: 'user', text: 'Onde podemos nos encontrar?', time: '14:08' },
-	{ id: 13, sender: 'seller', text: 'No centro de Maputo ou Matola.', time: '14:09' },
-	{ id: 14, sender: 'user', text: 'Ok, vou confirmar depois 👍', time: '14:09' },
+	{
+		id: 8,
+		sender: 'user',
+		text: 'Inclui carregador e caixa?',
+		time: '14:06',
+	},
+	{
+		id: 9,
+		sender: 'seller',
+		text: 'Sim, tudo original incluído.',
+		time: '14:07',
+	},
+	{
+		id: 10,
+		sender: 'user',
+		text: 'Perfeito 👍 posso ver hoje?',
+		time: '14:07',
+	},
+	{
+		id: 11,
+		sender: 'seller',
+		text: 'Sim, estou disponível à tarde.',
+		time: '14:08',
+	},
+	{
+		id: 12,
+		sender: 'user',
+		text: 'Onde podemos nos encontrar?',
+		time: '14:08',
+	},
+	{
+		id: 13,
+		sender: 'seller',
+		text: 'No centro de Maputo ou Matola.',
+		time: '14:09',
+	},
+	{
+		id: 14,
+		sender: 'user',
+		text: 'Ok, vou confirmar depois 👍',
+		time: '14:09',
+	},
 	{ id: 15, sender: 'seller', text: 'Fico à espera 👍', time: '14:10' },
 ]
-

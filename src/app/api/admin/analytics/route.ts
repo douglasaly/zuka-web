@@ -44,9 +44,20 @@ export async function GET(req: Request) {
 
 	const topStoresWithCounts = await Promise.all(
 		(topStores ?? []).map(async (store) => {
-			const { count: products } = await supabase.from('products').select('*', { count: 'exact', head: true }).eq('store_id', store.id as string).is('deleted_at', null)
-			const { count: followers } = await supabase.from('store_followers').select('*', { count: 'exact', head: true }).eq('store_id', store.id as string)
-			return { ...store, products: products ?? 0, followers: followers ?? 0 }
+			const { count: products } = await supabase
+				.from('products')
+				.select('*', { count: 'exact', head: true })
+				.eq('store_id', store.id as string)
+				.is('deleted_at', null)
+			const { count: followers } = await supabase
+				.from('store_followers')
+				.select('*', { count: 'exact', head: true })
+				.eq('store_id', store.id as string)
+			return {
+				...store,
+				products: products ?? 0,
+				followers: followers ?? 0,
+			}
 		})
 	)
 
@@ -60,19 +71,32 @@ export async function GET(req: Request) {
 		// Fill in all days in range
 		const result: Array<{ date: string; count: number }> = []
 		for (let i = days - 1; i >= 0; i--) {
-			const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+			const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000)
+				.toISOString()
+				.slice(0, 10)
 			result.push({ date: d, count: map[d] ?? 0 })
 		}
 		return result
 	}
 
-	const signupsByDay = groupByDay((rawUsers ?? []) as Array<{ created_at: string | null }>)
-	const productsByDay = groupByDay((rawProducts ?? []) as Array<{ created_at: string | null }>)
-	const storesByDay = groupByDay((rawStores ?? []) as Array<{ created_at: string | null }>)
+	const signupsByDay = groupByDay(
+		(rawUsers ?? []) as Array<{ created_at: string | null }>
+	)
+	const productsByDay = groupByDay(
+		(rawProducts ?? []) as Array<{ created_at: string | null }>
+	)
+	const storesByDay = groupByDay(
+		(rawStores ?? []) as Array<{ created_at: string | null }>
+	)
 
-	const approvedStores = (rawStores ?? []).filter((s) => s.status === 'ACTIVE').length
+	const approvedStores = (rawStores ?? []).filter(
+		(s) => s.status === 'ACTIVE'
+	).length
 	const totalStoresInPeriod = (rawStores ?? []).length
-	const approvalRate = totalStoresInPeriod > 0 ? Math.round((approvedStores / totalStoresInPeriod) * 100) : 0
+	const approvalRate =
+		totalStoresInPeriod > 0
+			? Math.round((approvedStores / totalStoresInPeriod) * 100)
+			: 0
 
 	return NextResponse.json({
 		signupsByDay,

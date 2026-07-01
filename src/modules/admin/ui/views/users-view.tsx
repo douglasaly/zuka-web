@@ -28,7 +28,9 @@ type UserRow = Record<string, unknown>
 async function fetchUsers(search: string) {
 	const params = new URLSearchParams()
 	if (search) params.set('search', search)
-	const res = await fetch(`/api/admin/users?${params}`, { credentials: 'include' })
+	const res = await fetch(`/api/admin/users?${params}`, {
+		credentials: 'include',
+	})
 	if (!res.ok) throw new Error('Failed')
 	return res.json()
 }
@@ -45,7 +47,10 @@ async function patchUser(id: string, body: Record<string, unknown>) {
 }
 
 async function deleteUser(id: string) {
-	const res = await fetch(`/api/admin/users/${id}`, { method: 'DELETE', credentials: 'include' })
+	const res = await fetch(`/api/admin/users/${id}`, {
+		method: 'DELETE',
+		credentials: 'include',
+	})
 	if (!res.ok) throw new Error('Failed')
 }
 
@@ -60,12 +65,21 @@ export function UsersView() {
 	})
 
 	const patchMutation = useMutation({
-		mutationFn: ({ id, body }: { id: string; body: Record<string, unknown> }) => patchUser(id, body),
+		mutationFn: ({
+			id,
+			body,
+		}: {
+			id: string
+			body: Record<string, unknown>
+		}) => patchUser(id, body),
 		onSuccess: (_, vars) => {
-			const msg = vars.body.makeAdmin ? 'Utilizador promovido a admin'
-				: vars.body.removeAdmin ? 'Função admin removida'
-				: vars.body.status === 'INACTIVE' ? 'Utilizador desativado'
-				: 'Utilizador atualizado'
+			const msg = vars.body.makeAdmin
+				? 'Utilizador promovido a admin'
+				: vars.body.removeAdmin
+					? 'Função admin removida'
+					: vars.body.status === 'INACTIVE'
+						? 'Utilizador desativado'
+						: 'Utilizador atualizado'
 			toast.success(msg)
 			qc.invalidateQueries({ queryKey: ['admin-users'] })
 		},
@@ -99,7 +113,10 @@ export function UsersView() {
 			{isLoading ? (
 				<TableSkeleton rows={8} cols={7} />
 			) : users.length === 0 ? (
-				<EmptyState icon={Users} message='Nenhum utilizador encontrado.' />
+				<EmptyState
+					icon={Users}
+					message='Nenhum utilizador encontrado.'
+				/>
 			) : (
 				<div className='rounded-2xl border border-border/60 bg-card overflow-hidden'>
 					<Table>
@@ -124,40 +141,94 @@ export function UsersView() {
 										<TableCell>
 											<div className='flex items-center gap-2'>
 												{user.avatar_url ? (
-													<img src={user.avatar_url as string} alt='' className='size-7 rounded-full object-cover' />
+													<img
+														src={
+															user.avatar_url as string
+														}
+														alt=''
+														className='size-7 rounded-full object-cover'
+													/>
 												) : (
 													<div className='flex size-7 items-center justify-center rounded-full bg-muted text-xs font-bold uppercase'>
-														{((user.first_name as string)?.[0] ?? '?')}
+														{(
+															user.first_name as string
+														)?.[0] ?? '?'}
 													</div>
 												)}
-												<Link href={`/admin/users/${user.id as string}`} className='text-sm font-medium hover:underline'>
-													{`${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || '—'}
+												<Link
+													href={`/admin/users/${user.id as string}`}
+													className='text-sm font-medium hover:underline'
+												>
+													{`${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() ||
+														'—'}
 												</Link>
 											</div>
 										</TableCell>
-										<TableCell className='text-sm text-muted-foreground'>{user.email as string ?? '—'}</TableCell>
-										<TableCell className='text-sm text-muted-foreground'>{user.phone_number as string ?? '—'}</TableCell>
+										<TableCell className='text-sm text-muted-foreground'>
+											{(user.email as string) ?? '—'}
+										</TableCell>
+										<TableCell className='text-sm text-muted-foreground'>
+											{(user.phone_number as string) ??
+												'—'}
+										</TableCell>
 										<TableCell>
 											<div className='flex flex-wrap gap-1'>
-												{roles.map((r) => <StatusBadge key={r} status={r} />)}
+												{roles.map((r) => (
+													<StatusBadge
+														key={r}
+														status={r}
+													/>
+												))}
 											</div>
 										</TableCell>
 										<TableCell>
-											<StatusBadge status={user.status as string ?? 'ACTIVE'} />
+											<StatusBadge
+												status={
+													(user.status as string) ??
+													'ACTIVE'
+												}
+											/>
 										</TableCell>
 										<TableCell className='text-xs text-muted-foreground'>
-											{user.created_at ? format(new Date(user.created_at as string), 'd MMM yyyy', { locale: pt }) : '—'}
+											{user.created_at
+												? format(
+														new Date(
+															user.created_at as string
+														),
+														'd MMM yyyy',
+														{ locale: pt }
+													)
+												: '—'}
 										</TableCell>
 										<TableCell>
 											<div className='flex gap-1'>
-												<Button size='sm' variant='ghost' render={<Link href={`/admin/users/${user.id as string}`}>Ver</Link>} />
+												<Button
+													size='sm'
+													variant='ghost'
+													render={
+														<Link
+															href={`/admin/users/${user.id as string}`}
+														>
+															Ver
+														</Link>
+													}
+												/>
 												{hasAdminRole ? (
 													<Button
 														size='sm'
 														variant='ghost'
 														type='button'
 														className='text-muted-foreground'
-														onClick={() => patchMutation.mutate({ id: user.id as string, body: { removeAdmin: true } })}
+														onClick={() =>
+															patchMutation.mutate(
+																{
+																	id: user.id as string,
+																	body: {
+																		removeAdmin: true,
+																	},
+																}
+															)
+														}
 													>
 														Remover admin
 													</Button>
@@ -166,7 +237,16 @@ export function UsersView() {
 														size='sm'
 														variant='ghost'
 														type='button'
-														onClick={() => patchMutation.mutate({ id: user.id as string, body: { makeAdmin: true } })}
+														onClick={() =>
+															patchMutation.mutate(
+																{
+																	id: user.id as string,
+																	body: {
+																		makeAdmin: true,
+																	},
+																}
+															)
+														}
 													>
 														Tornar admin
 													</Button>
@@ -177,7 +257,16 @@ export function UsersView() {
 														variant='ghost'
 														type='button'
 														className='text-amber-600'
-														onClick={() => patchMutation.mutate({ id: user.id as string, body: { status: 'INACTIVE' } })}
+														onClick={() =>
+															patchMutation.mutate(
+																{
+																	id: user.id as string,
+																	body: {
+																		status: 'INACTIVE',
+																	},
+																}
+															)
+														}
 													>
 														Desativar
 													</Button>
@@ -199,7 +288,9 @@ export function UsersView() {
 				description='Esta ação é irreversível. A conta e todos os dados do utilizador serão eliminados.'
 				confirmLabel='Eliminar'
 				loading={deleteMutation.isPending}
-				onConfirm={() => confirmDelete && deleteMutation.mutate(confirmDelete)}
+				onConfirm={() =>
+					confirmDelete && deleteMutation.mutate(confirmDelete)
+				}
 			/>
 		</div>
 	)

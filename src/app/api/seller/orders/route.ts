@@ -47,16 +47,20 @@ export async function GET() {
 
 		if (error) throw error
 
-		const orders = ((data ?? []) as Array<Record<string, unknown>>).map((row) =>
-			mapOrderRow({
-				id: row.id as string,
-				total: row.total as number,
-				currency: row.currency as string,
-				item_count: row.item_count as number,
-				status: row.status as string,
-				created_at: row.created_at as string,
-				stores: row.stores as { name: string; logo_url?: string | null },
-			})
+		const orders = ((data ?? []) as Array<Record<string, unknown>>).map(
+			(row) =>
+				mapOrderRow({
+					id: row.id as string,
+					total: row.total as number,
+					currency: row.currency as string,
+					item_count: row.item_count as number,
+					status: row.status as string,
+					created_at: row.created_at as string,
+					stores: row.stores as {
+						name: string
+						logo_url?: string | null
+					},
+				})
 		)
 
 		return NextResponse.json({ success: true, orders })

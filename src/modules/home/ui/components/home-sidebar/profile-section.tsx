@@ -30,7 +30,9 @@ export const DashboardSection = () => {
 						<SidebarMenuItem>
 							<SidebarMenuButton
 								tooltip='Painel do vendedor'
-								isActive={pathname.startsWith('/dashboard/seller')}
+								isActive={pathname.startsWith(
+									'/dashboard/seller'
+								)}
 								render={
 									<Link prefetch href='/dashboard/seller'>
 										<Store className='size-4' />
@@ -71,10 +73,10 @@ export const DashboardSection = () => {
 									tooltip='Criar conta'
 									isActive={pathname === '/auth/register'}
 									render={
-									<Link prefetch href='/signup'>
-										<UserPlus className='size-4' />
-										<span>Registar</span>
-									</Link>
+										<Link prefetch href='/signup'>
+											<UserPlus className='size-4' />
+											<span>Registar</span>
+										</Link>
 									}
 								/>
 							</SidebarMenuItem>
@@ -82,10 +84,10 @@ export const DashboardSection = () => {
 								<SidebarMenuButton
 									tooltip='Abrir uma loja'
 									render={
-									<Link prefetch href='/signup'>
-										<StoreIcon className='size-4' />
-										<span>Vender no Zuka</span>
-									</Link>
+										<Link prefetch href='/signup'>
+											<StoreIcon className='size-4' />
+											<span>Vender no Zuka</span>
+										</Link>
 									}
 								/>
 							</SidebarMenuItem>

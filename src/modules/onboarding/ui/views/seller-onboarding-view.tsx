@@ -43,7 +43,9 @@ function formatPhone(value: string) {
 	return digits ? `+258${digits}` : ''
 }
 
-function resolveStep(profile: Awaited<ReturnType<typeof fetchUserProfile>>): SellerStep {
+function resolveStep(
+	profile: Awaited<ReturnType<typeof fetchUserProfile>>
+): SellerStep {
 	if (!profile) return 1
 
 	const onboarding = profile.onboarding
@@ -167,7 +169,9 @@ export const SellerOnboardingView = () => {
 				</p>
 				<Button
 					render={
-						<Link href='/auth/login?next=/onboarding/seller'>Entrar</Link>
+						<Link href='/auth/login?next=/onboarding/seller'>
+							Entrar
+						</Link>
 					}
 				/>
 			</div>
@@ -188,12 +192,17 @@ export const SellerOnboardingView = () => {
 				<p className='text-muted-foreground'>
 					Ainda não escolheste o perfil de vendedor.
 				</p>
-				<Button render={<Link href='/onboarding'>Escolher perfil</Link>} />
+				<Button
+					render={<Link href='/onboarding'>Escolher perfil</Link>}
+				/>
 			</div>
 		)
 	}
 
-	if (profile.onboarding?.status === 'APPROVED' && profile.stores.length > 0) {
+	if (
+		profile.onboarding?.status === 'APPROVED' &&
+		profile.stores.length > 0
+	) {
 		router.replace('/dashboard/seller')
 		return null
 	}
@@ -234,7 +243,8 @@ export const SellerOnboardingView = () => {
 								provinceId: accountForm.provinceId,
 								categoryId: accountForm.categoryId || undefined,
 								email: accountForm.email || undefined,
-								phone: formatPhone(accountForm.phone) || undefined,
+								phone:
+									formatPhone(accountForm.phone) || undefined,
 							})
 						}}
 					>
@@ -248,7 +258,10 @@ export const SellerOnboardingView = () => {
 							required
 							value={accountForm.name}
 							onChange={(e) =>
-								setAccountForm((f) => ({ ...f, name: e.target.value }))
+								setAccountForm((f) => ({
+									...f,
+									name: e.target.value,
+								}))
 							}
 							placeholder='Ex: Loja da Fátima'
 							className={onboardingInputClass}
@@ -275,7 +288,10 @@ export const SellerOnboardingView = () => {
 							type='email'
 							value={accountForm.email}
 							onChange={(e) =>
-								setAccountForm((f) => ({ ...f, email: e.target.value }))
+								setAccountForm((f) => ({
+									...f,
+									email: e.target.value,
+								}))
 							}
 							placeholder='exemplo@email.com'
 							className={onboardingInputClass}
@@ -359,9 +375,13 @@ export const SellerOnboardingView = () => {
 							updateStoreMutation.mutate({
 								logoUrl: profileForm.logoUrl ?? undefined,
 								bannerUrl: profileForm.bannerUrl ?? undefined,
-								description: profileForm.description || undefined,
-								whatsapp: formatPhone(profileForm.whatsapp) || undefined,
-								phone: formatPhone(profileForm.phone) || undefined,
+								description:
+									profileForm.description || undefined,
+								whatsapp:
+									formatPhone(profileForm.whatsapp) ||
+									undefined,
+								phone:
+									formatPhone(profileForm.phone) || undefined,
 								hasDelivery: profileForm.hasDelivery,
 								currentStep: 'VERIFICATION',
 							})
@@ -412,7 +432,9 @@ export const SellerOnboardingView = () => {
 				<OnboardingFormCard>
 					<div className='flex items-center justify-between gap-4'>
 						<div>
-							<p className='text-sm font-semibold'>Fazes entregas?</p>
+							<p className='text-sm font-semibold'>
+								Fazes entregas?
+							</p>
 							<p className='text-xs text-muted-foreground'>
 								Entrega ao domicílio
 							</p>
@@ -475,7 +497,10 @@ export const SellerOnboardingView = () => {
 							!verificationForm.selfieUrl
 						}
 						onClick={() => {
-							if (!verificationForm.idCardUrl || !verificationForm.selfieUrl) {
+							if (
+								!verificationForm.idCardUrl ||
+								!verificationForm.selfieUrl
+							) {
 								return
 							}
 							verificationMutation.mutate({
@@ -516,8 +541,8 @@ export const SellerOnboardingView = () => {
 						<CheckCircle2 className='size-4' />
 					</div>
 					<p className='text-sm leading-relaxed text-emerald-900'>
-						Os teus documentos são tratados de forma confidencial e segura. Só
-						são usados para verificar a tua identidade.
+						Os teus documentos são tratados de forma confidencial e
+						segura. Só são usados para verificar a tua identidade.
 					</p>
 				</div>
 
@@ -542,8 +567,8 @@ export const SellerOnboardingView = () => {
 						A tua loja está em revisão!
 					</h1>
 					<p className='text-sm leading-relaxed text-muted-foreground sm:text-base'>
-						A nossa equipa vai verificar os teus dados. Vais receber uma
-						notificação quando a tua conta for aprovada.
+						A nossa equipa vai verificar os teus dados. Vais receber
+						uma notificação quando a tua conta for aprovada.
 					</p>
 				</div>
 

@@ -25,7 +25,10 @@ export async function fetchProducts(params?: {
 	search?: string
 	limit?: number
 }) {
-	const url = new URL('/api/products', typeof window !== 'undefined' ? window.location.origin : '')
+	const url = new URL(
+		'/api/products',
+		typeof window !== 'undefined' ? window.location.origin : ''
+	)
 	if (params?.category) url.searchParams.set('category', params.category)
 	if (params?.search) url.searchParams.set('search', params.search)
 	if (params?.limit) url.searchParams.set('limit', String(params.limit))
@@ -71,7 +74,10 @@ export async function fetchStores(params?: {
 	search?: string
 	limit?: number
 }) {
-	const url = new URL('/api/stores', typeof window !== 'undefined' ? window.location.origin : '')
+	const url = new URL(
+		'/api/stores',
+		typeof window !== 'undefined' ? window.location.origin : ''
+	)
 	if (params?.search) url.searchParams.set('search', params.search)
 	if (params?.limit) url.searchParams.set('limit', String(params.limit))
 

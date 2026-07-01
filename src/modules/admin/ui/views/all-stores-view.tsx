@@ -36,7 +36,9 @@ async function fetchStores(search: string, status: string) {
 	const params = new URLSearchParams()
 	if (search) params.set('search', search)
 	if (status) params.set('status', status)
-	const res = await fetch(`/api/admin/stores?${params}`, { credentials: 'include' })
+	const res = await fetch(`/api/admin/stores?${params}`, {
+		credentials: 'include',
+	})
 	if (!res.ok) throw new Error('Failed')
 	return res.json()
 }
@@ -53,7 +55,10 @@ async function patchStore(id: string, body: Record<string, unknown>) {
 }
 
 async function deleteStore(id: string) {
-	const res = await fetch(`/api/admin/stores/${id}`, { method: 'DELETE', credentials: 'include' })
+	const res = await fetch(`/api/admin/stores/${id}`, {
+		method: 'DELETE',
+		credentials: 'include',
+	})
 	if (!res.ok) throw new Error('Failed')
 	return res.json()
 }
@@ -71,7 +76,13 @@ export function AllStoresView() {
 	})
 
 	const patchMutation = useMutation({
-		mutationFn: ({ id, body }: { id: string; body: Record<string, unknown> }) => patchStore(id, body),
+		mutationFn: ({
+			id,
+			body,
+		}: {
+			id: string
+			body: Record<string, unknown>
+		}) => patchStore(id, body),
 		onSuccess: () => {
 			toast.success('Loja atualizada')
 			qc.invalidateQueries({ queryKey: ['admin-all-stores'] })
@@ -135,12 +146,22 @@ export function AllStoresView() {
 			{/* Bulk actions */}
 			{selected.size > 0 && (
 				<div className='flex items-center gap-2 rounded-xl border border-border bg-muted/50 px-4 py-2'>
-					<span className='text-xs font-medium text-muted-foreground'>{selected.size} selecionada{selected.size > 1 ? 's' : ''}</span>
+					<span className='text-xs font-medium text-muted-foreground'>
+						{selected.size} selecionada
+						{selected.size > 1 ? 's' : ''}
+					</span>
 					<Button
 						size='sm'
 						variant='outline'
 						type='button'
-						onClick={() => selected.forEach((id) => patchMutation.mutate({ id, body: { status: 'SUSPENDED' } }))}
+						onClick={() =>
+							selected.forEach((id) =>
+								patchMutation.mutate({
+									id,
+									body: { status: 'SUSPENDED' },
+								})
+							)
+						}
 					>
 						Suspender selecionadas
 					</Button>
@@ -148,7 +169,9 @@ export function AllStoresView() {
 						size='sm'
 						type='button'
 						className='bg-destructive/90 text-white hover:bg-destructive'
-						onClick={() => selected.forEach((id) => deleteMutation.mutate(id))}
+						onClick={() =>
+							selected.forEach((id) => deleteMutation.mutate(id))
+						}
 					>
 						Eliminar selecionadas
 					</Button>
@@ -168,7 +191,10 @@ export function AllStoresView() {
 									<input
 										type='checkbox'
 										className='size-4'
-										checked={selected.size === stores.length && stores.length > 0}
+										checked={
+											selected.size === stores.length &&
+											stores.length > 0
+										}
 										onChange={toggleSelectAll}
 									/>
 								</TableHead>
@@ -183,55 +209,137 @@ export function AllStoresView() {
 						</TableHeader>
 						<TableBody>
 							{stores.map((store) => {
-								const owner = store.users as Record<string, unknown>
+								const owner = store.users as Record<
+									string,
+									unknown
+								>
 								return (
-									<TableRow key={store.id as string} data-state={selected.has(store.id as string) ? 'selected' : undefined}>
+									<TableRow
+										key={store.id as string}
+										data-state={
+											selected.has(store.id as string)
+												? 'selected'
+												: undefined
+										}
+									>
 										<TableCell>
 											<input
 												type='checkbox'
 												className='size-4'
-												checked={selected.has(store.id as string)}
-												onChange={() => toggleSelect(store.id as string)}
+												checked={selected.has(
+													store.id as string
+												)}
+												onChange={() =>
+													toggleSelect(
+														store.id as string
+													)
+												}
 											/>
 										</TableCell>
 										<TableCell>
-											<Link href={`/admin/stores/${store.id as string}`} className='font-medium hover:underline'>
+											<Link
+												href={`/admin/stores/${store.id as string}`}
+												className='font-medium hover:underline'
+											>
 												{store.name as string}
 											</Link>
 										</TableCell>
 										<TableCell>
 											<div>
-												<p className='text-xs font-medium'>{`${owner?.first_name ?? ''} ${owner?.last_name ?? ''}`.trim() || '—'}</p>
-												<p className='text-xs text-muted-foreground'>{owner?.email as string ?? '—'}</p>
+												<p className='text-xs font-medium'>
+													{`${owner?.first_name ?? ''} ${owner?.last_name ?? ''}`.trim() ||
+														'—'}
+												</p>
+												<p className='text-xs text-muted-foreground'>
+													{(owner?.email as string) ??
+														'—'}
+												</p>
 											</div>
 										</TableCell>
-										<TableCell><StatusBadge status={store.status as string} /></TableCell>
-										<TableCell className='tabular-nums text-sm'>{store.productCount as number}</TableCell>
-										<TableCell className='tabular-nums text-sm'>{store.followerCount as number}</TableCell>
+										<TableCell>
+											<StatusBadge
+												status={store.status as string}
+											/>
+										</TableCell>
+										<TableCell className='tabular-nums text-sm'>
+											{store.productCount as number}
+										</TableCell>
+										<TableCell className='tabular-nums text-sm'>
+											{store.followerCount as number}
+										</TableCell>
 										<TableCell className='text-xs text-muted-foreground'>
-											{store.created_at ? format(new Date(store.created_at as string), 'd MMM yyyy', { locale: pt }) : '—'}
+											{store.created_at
+												? format(
+														new Date(
+															store.created_at as string
+														),
+														'd MMM yyyy',
+														{ locale: pt }
+													)
+												: '—'}
 										</TableCell>
 										<TableCell>
 											<div className='flex items-center gap-1'>
-												<Button size='sm' variant='ghost' render={<Link href={`/lojas/${store.slug as string}`} target='_blank'><ExternalLink className='size-3.5' /></Link>} />
-												<Button size='sm' variant='ghost' render={<Link href={`/admin/stores/${store.id as string}`}>Detalhes</Link>} />
-												{store.status === 'SUSPENDED' ? (
+												<Button
+													size='sm'
+													variant='ghost'
+													render={
+														<Link
+															href={`/lojas/${store.slug as string}`}
+															target='_blank'
+														>
+															<ExternalLink className='size-3.5' />
+														</Link>
+													}
+												/>
+												<Button
+													size='sm'
+													variant='ghost'
+													render={
+														<Link
+															href={`/admin/stores/${store.id as string}`}
+														>
+															Detalhes
+														</Link>
+													}
+												/>
+												{store.status ===
+												'SUSPENDED' ? (
 													<Button
 														size='sm'
 														variant='ghost'
 														type='button'
 														className='text-emerald-600'
-														onClick={() => patchMutation.mutate({ id: store.id as string, body: { status: 'ACTIVE' } })}
+														onClick={() =>
+															patchMutation.mutate(
+																{
+																	id: store.id as string,
+																	body: {
+																		status: 'ACTIVE',
+																	},
+																}
+															)
+														}
 													>
 														Reativar
 													</Button>
-												) : store.status === 'ACTIVE' ? (
+												) : store.status ===
+													'ACTIVE' ? (
 													<Button
 														size='sm'
 														variant='ghost'
 														type='button'
 														className='text-amber-600'
-														onClick={() => patchMutation.mutate({ id: store.id as string, body: { status: 'SUSPENDED' } })}
+														onClick={() =>
+															patchMutation.mutate(
+																{
+																	id: store.id as string,
+																	body: {
+																		status: 'SUSPENDED',
+																	},
+																}
+															)
+														}
 													>
 														Suspender
 													</Button>
@@ -241,7 +349,11 @@ export function AllStoresView() {
 													variant='ghost'
 													type='button'
 													className='text-destructive'
-													onClick={() => setConfirmDelete(store.id as string)}
+													onClick={() =>
+														setConfirmDelete(
+															store.id as string
+														)
+													}
 												>
 													<Trash2 className='size-3.5' />
 												</Button>
@@ -262,7 +374,9 @@ export function AllStoresView() {
 				description='Esta ação é irreversível. A loja e todos os seus dados serão eliminados permanentemente.'
 				confirmLabel='Eliminar loja'
 				loading={deleteMutation.isPending}
-				onConfirm={() => confirmDelete && deleteMutation.mutate(confirmDelete)}
+				onConfirm={() =>
+					confirmDelete && deleteMutation.mutate(confirmDelete)
+				}
 			/>
 		</div>
 	)

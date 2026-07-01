@@ -66,8 +66,7 @@ export const mockProducts: MockProduct[] = [
 		name: 'Smartphone Samsung Galaxy A15',
 		price: 1250000,
 		currency: 'MZN',
-		image:
-			'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&h=750&fit=crop',
+		image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&h=750&fit=crop',
 		slug: 'samsung-galaxy-a15',
 		negotiable: true,
 		hasDelivery: true,
@@ -89,8 +88,7 @@ export const mockProducts: MockProduct[] = [
 		name: 'Tablet Samsung Galaxy Tab A8',
 		price: 1890000,
 		currency: 'MZN',
-		image:
-			'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=750&fit=crop',
+		image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=750&fit=crop',
 		slug: 'galaxy-tab-a8',
 		hasDelivery: true,
 		storeId: 'tech-maputo',
@@ -102,15 +100,15 @@ export const mockProducts: MockProduct[] = [
 		storeAvatar:
 			'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop',
 		category: 'electronics',
-		description: 'Tablet Samsung Galaxy Tab A8 com ecrã de 10.5" e 64GB de armazenamento.',
+		description:
+			'Tablet Samsung Galaxy Tab A8 com ecrã de 10.5" e 64GB de armazenamento.',
 	},
 	{
 		id: '3',
 		name: 'T-Shirt Oversized Streetwear',
 		price: 350000,
 		currency: 'MZN',
-		image:
-			'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&h=750&fit=crop',
+		image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&h=750&fit=crop',
 		slug: 'tshirt-oversized',
 		negotiable: true,
 		hasDelivery: true,
@@ -122,15 +120,15 @@ export const mockProducts: MockProduct[] = [
 		storeAvatar:
 			'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=100&h=100&fit=crop',
 		category: 'fashion',
-		description: 'T-shirt oversized em algodão premium, disponível em várias cores.',
+		description:
+			'T-shirt oversized em algodão premium, disponível em várias cores.',
 	},
 	{
 		id: '4',
 		name: 'Nike Air Force 1',
 		price: 2200000,
 		currency: 'MZN',
-		image:
-			'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&h=750&fit=crop',
+		image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&h=750&fit=crop',
 		slug: 'nike-air-force-1',
 		hasDelivery: true,
 		storeId: 'fashion-hub',
@@ -141,15 +139,15 @@ export const mockProducts: MockProduct[] = [
 		storeAvatar:
 			'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=100&h=100&fit=crop',
 		category: 'footwear',
-		description: 'Ténis Nike Air Force 1 originais, tamanhos 38–44 disponíveis.',
+		description:
+			'Ténis Nike Air Force 1 originais, tamanhos 38–44 disponíveis.',
 	},
 	{
 		id: '5',
 		name: 'Escultura Madeira Mpingo',
 		price: 350000,
 		currency: 'MZN',
-		image:
-			'https://images.unsplash.com/photo-1610701596007-de9036d1c35f?w=600&h=750&fit=crop',
+		image: 'https://images.unsplash.com/photo-1610701596007-de9036d1c35f?w=600&h=750&fit=crop',
 		slug: 'escultura-mpingo',
 		negotiable: true,
 		storeId: 'artesanato-beira',
@@ -169,8 +167,7 @@ export const mockProducts: MockProduct[] = [
 		name: 'Capulana Tradicional Premium',
 		price: 850000,
 		currency: 'MZN',
-		image:
-			'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=600&h=750&fit=crop',
+		image: 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=600&h=750&fit=crop',
 		slug: 'capulana-premium',
 		negotiable: true,
 		hasDelivery: true,
@@ -183,15 +180,15 @@ export const mockProducts: MockProduct[] = [
 		storeAvatar:
 			'https://images.unsplash.com/photo-1596462502278-27bfdd403f7f?w=100&h=100&fit=crop',
 		category: 'fashion',
-		description: 'Capulana de alta qualidade com padrões tradicionais moçambicanos.',
+		description:
+			'Capulana de alta qualidade com padrões tradicionais moçambicanos.',
 	},
 	{
 		id: '7',
 		name: 'Headphones Bluetooth JBL',
 		price: 750000,
 		currency: 'MZN',
-		image:
-			'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=750&fit=crop',
+		image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=750&fit=crop',
 		slug: 'jbl-headphones',
 		hasDelivery: true,
 		storeId: 'tech-maputo',
@@ -203,15 +200,15 @@ export const mockProducts: MockProduct[] = [
 		storeAvatar:
 			'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop',
 		category: 'electronics',
-		description: 'Auscultadores Bluetooth JBL com cancelamento de ruído e 30h de bateria.',
+		description:
+			'Auscultadores Bluetooth JBL com cancelamento de ruído e 30h de bateria.',
 	},
 	{
 		id: '8',
 		name: 'Vestido Chitenge Elegante',
 		price: 1200000,
 		currency: 'MZN',
-		image:
-			'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600&h=750&fit=crop',
+		image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600&h=750&fit=crop',
 		slug: 'vestido-chitenge',
 		negotiable: true,
 		hasDelivery: true,
@@ -246,8 +243,7 @@ export const mockStores: MockStore[] = [
 			'https://images.unsplash.com/photo-1615066390851-0f0e0c1f42f2?w=200&h=200&fit=crop',
 		whatsapp: '+258840000000',
 		phone: '+258840000000',
-		about:
-			'Loja de artesanato tradicional moçambicano. Peças únicas feitas à mão por artesãos locais da Beira, com foco em madeira de mpingo e tecidos tradicionais.',
+		about: 'Loja de artesanato tradicional moçambicano. Peças únicas feitas à mão por artesãos locais da Beira, com foco em madeira de mpingo e tecidos tradicionais.',
 	},
 	{
 		id: 'tech-maputo',

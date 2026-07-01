@@ -10,7 +10,10 @@ export default function LogOutPage() {
 
 	useEffect(() => {
 		async function logout() {
-			await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
+			await fetch('/api/auth/logout', {
+				method: 'POST',
+				credentials: 'include',
+			})
 			await signOut(auth)
 			router.replace('/')
 		}

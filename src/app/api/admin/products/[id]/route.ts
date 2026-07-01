@@ -10,8 +10,12 @@ export async function PATCH(req: Request, { params }: Params) {
 	const body = await req.json()
 	const supabase = createSupabaseAdmin()
 
-	const { error } = await supabase.from('products').update({ ...body, updated_at: new Date().toISOString() }).eq('id', id)
-	if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+	const { error } = await supabase
+		.from('products')
+		.update({ ...body, updated_at: new Date().toISOString() })
+		.eq('id', id)
+	if (error)
+		return NextResponse.json({ error: error.message }, { status: 500 })
 	return NextResponse.json({ success: true })
 }
 
@@ -20,7 +24,11 @@ export async function DELETE(_req: Request, { params }: Params) {
 	const { id } = await params
 	const supabase = createSupabaseAdmin()
 
-	const { error } = await supabase.from('products').update({ deleted_at: new Date().toISOString() }).eq('id', id)
-	if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+	const { error } = await supabase
+		.from('products')
+		.update({ deleted_at: new Date().toISOString() })
+		.eq('id', id)
+	if (error)
+		return NextResponse.json({ error: error.message }, { status: 500 })
 	return NextResponse.json({ success: true })
 }

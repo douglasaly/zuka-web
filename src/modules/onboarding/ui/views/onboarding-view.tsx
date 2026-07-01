@@ -76,7 +76,9 @@ export const OnboardingView = () => {
 		<div className='flex flex-1 flex-col items-center justify-center bg-background px-4 py-12'>
 			<div className='w-full max-w-md space-y-8'>
 				<div className='space-y-2 text-center'>
-					<h1 className='font-heading text-4xl font-bold tracking-tight'>Zuka</h1>
+					<h1 className='font-heading text-4xl font-bold tracking-tight'>
+						Zuka
+					</h1>
 					<p className='text-sm text-muted-foreground'>
 						O mercado local de Moçambique
 					</p>
@@ -111,7 +113,9 @@ export const OnboardingView = () => {
 								</div>
 								<div className='min-w-0 flex-1'>
 									<p className='font-semibold text-foreground transition-colors group-hover:text-secondary'>
-										{loading === role.id ? 'A configurar...' : role.title}
+										{loading === role.id
+											? 'A configurar...'
+											: role.title}
 									</p>
 									<p className='text-sm text-muted-foreground'>
 										{role.description}

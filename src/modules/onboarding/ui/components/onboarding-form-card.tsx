@@ -40,7 +40,9 @@ export function OnboardingField({
 			<div>
 				<label className='text-sm font-semibold'>{label}</label>
 				{hint && (
-					<p className='mt-0.5 text-xs text-muted-foreground'>{hint}</p>
+					<p className='mt-0.5 text-xs text-muted-foreground'>
+						{hint}
+					</p>
 				)}
 			</div>
 			{children}

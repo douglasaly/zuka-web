@@ -4,7 +4,9 @@ import { createSupabaseAdmin } from '@/lib/supabase/admin'
 export const ADMIN_ROLE_NAMES = ['admin', 'super_admin'] as const
 
 export function hasAdminAccess(roles: string[]) {
-	return roles.some((role) => ADMIN_ROLE_NAMES.includes(role as (typeof ADMIN_ROLE_NAMES)[number]))
+	return roles.some((role) =>
+		ADMIN_ROLE_NAMES.includes(role as (typeof ADMIN_ROLE_NAMES)[number])
+	)
 }
 
 export async function getRoleIdByName(name: string) {
@@ -24,10 +26,12 @@ export async function assignUserRole(userId: string, roleName: string) {
 	const roleId = await getRoleIdByName(roleName)
 	if (!roleId) throw new Error(`Role ${roleName} not found`)
 
-	const { error } = await supabase.from('user_roles').upsert(
-		{ user_id: userId, role_id: roleId },
-		{ onConflict: 'user_id,role_id', ignoreDuplicates: true }
-	)
+	const { error } = await supabase
+		.from('user_roles')
+		.upsert(
+			{ user_id: userId, role_id: roleId },
+			{ onConflict: 'user_id,role_id', ignoreDuplicates: true }
+		)
 
 	if (error) throw error
 }
@@ -43,7 +47,10 @@ export async function getUserRoles(userId: string) {
 
 	return ((data ?? []) as Array<Record<string, unknown>>)
 		.map((row) => {
-			const roles = row.roles as { name: string } | { name: string }[] | null
+			const roles = row.roles as
+				| { name: string }
+				| { name: string }[]
+				| null
 			if (Array.isArray(roles)) return roles[0]?.name
 			return roles?.name
 		})

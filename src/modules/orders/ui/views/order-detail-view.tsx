@@ -34,7 +34,10 @@ export const OrderDetailView = ({ id }: OrderDetailViewProps) => {
 		return (
 			<div className='mx-auto flex min-h-[50vh] max-w-lg flex-col items-center justify-center gap-4 px-4'>
 				<p className='text-muted-foreground'>Pedido não encontrado.</p>
-				<Button render={<Link href='/feed/pedidos' />} variant='outline'>
+				<Button
+					render={<Link href='/feed/pedidos' />}
+					variant='outline'
+				>
 					Voltar aos pedidos
 				</Button>
 			</div>
@@ -68,9 +71,14 @@ export const OrderDetailView = ({ id }: OrderDetailViewProps) => {
 					</div>
 					<div className='min-w-0 flex-1'>
 						<p className='font-semibold'>{order.storeName}</p>
-						<p className='text-sm text-muted-foreground'>{order.date}</p>
+						<p className='text-sm text-muted-foreground'>
+							{order.date}
+						</p>
 					</div>
-					<OrderStatusBadge status={order.status} label={order.statusLabel} />
+					<OrderStatusBadge
+						status={order.status}
+						label={order.statusLabel}
+					/>
 				</div>
 
 				<div className='space-y-3 p-4'>
@@ -83,7 +91,10 @@ export const OrderDetailView = ({ id }: OrderDetailViewProps) => {
 								{item.productName} × {item.quantity}
 							</span>
 							<span className='font-medium'>
-								{formatPrice(item.unitPrice * item.quantity, item.currency)}
+								{formatPrice(
+									item.unitPrice * item.quantity,
+									item.currency
+								)}
 							</span>
 						</div>
 					))}

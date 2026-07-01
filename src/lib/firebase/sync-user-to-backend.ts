@@ -28,7 +28,10 @@ export async function syncUserToBackend() {
 	})
 
 	if (!res.ok) {
-		console.error('[auth/sync] failed', { uid: user.uid, error: data?.error })
+		console.error('[auth/sync] failed', {
+			uid: user.uid,
+			error: data?.error,
+		})
 		throw new Error(data?.error || 'Erro ao sincronizar usuário')
 	}
 

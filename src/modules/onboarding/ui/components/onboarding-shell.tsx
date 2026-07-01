@@ -83,13 +83,20 @@ export function OnboardingShell({
 						)}
 					</div>
 
-					<div className={cn('flex-1 space-y-6', className)}>{children}</div>
+					<div className={cn('flex-1 space-y-6', className)}>
+						{children}
+					</div>
 				</div>
 			</div>
 
 			{footer && (
 				<div className='sticky bottom-0 border-t border-border/60 bg-background/95 px-4 py-4 backdrop-blur-sm sm:px-6'>
-					<div className={cn('mx-auto w-full', maxWidthClass[maxWidth])}>
+					<div
+						className={cn(
+							'mx-auto w-full',
+							maxWidthClass[maxWidth]
+						)}
+					>
 						{footer}
 					</div>
 				</div>

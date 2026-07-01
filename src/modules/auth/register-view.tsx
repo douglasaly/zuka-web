@@ -106,7 +106,10 @@ export const RegisterView = () => {
 					</CardHeader>
 
 					<CardContent className='space-y-4'>
-						<form onSubmit={handleEmailRegister} className='space-y-4'>
+						<form
+							onSubmit={handleEmailRegister}
+							className='space-y-4'
+						>
 							<div className='space-y-2'>
 								<Label htmlFor='name'>Nome</Label>
 								<Input
@@ -139,7 +142,9 @@ export const RegisterView = () => {
 									type='password'
 									placeholder='Mínimo 6 caracteres'
 									value={password}
-									onChange={(e) => setPassword(e.target.value)}
+									onChange={(e) =>
+										setPassword(e.target.value)
+									}
 									autoComplete='new-password'
 									required
 									minLength={6}

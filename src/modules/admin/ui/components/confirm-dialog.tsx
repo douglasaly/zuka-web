@@ -27,11 +27,17 @@ export function ConfirmDialog({
 			<DialogContent className='max-w-sm'>
 				<div className='space-y-4'>
 					<div className='space-y-1'>
-						<p className='font-heading text-base font-bold'>{title}</p>
-						<p className='text-sm text-muted-foreground'>{description}</p>
+						<p className='font-heading text-base font-bold'>
+							{title}
+						</p>
+						<p className='text-sm text-muted-foreground'>
+							{description}
+						</p>
 					</div>
 					<div className='flex justify-end gap-2'>
-						<DialogClose render={<Button variant='outline'>Cancelar</Button>} />
+						<DialogClose
+							render={<Button variant='outline'>Cancelar</Button>}
+						/>
 						<Button
 							type='button'
 							onClick={onConfirm}

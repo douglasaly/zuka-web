@@ -7,7 +7,10 @@ export async function requireSellerStore() {
 	const user = await getSessionUser()
 	if (!user) {
 		return {
-			error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }),
+			error: NextResponse.json(
+				{ error: 'Unauthorized' },
+				{ status: 401 }
+			),
 		}
 	}
 
@@ -37,8 +40,7 @@ export async function requireSellerStore() {
 		return {
 			error: NextResponse.json(
 				{
-					error:
-						'Crie a sua loja antes de publicar produtos. No Zuka, apenas lojas vendem.',
+					error: 'Crie a sua loja antes de publicar produtos. No Zuka, apenas lojas vendem.',
 				},
 				{ status: 400 }
 			),

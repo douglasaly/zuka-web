@@ -115,7 +115,9 @@ export function FileUploadCard({
 							alt={label || config.emptyTitle}
 							className={cn(
 								'h-full min-h-[inherit] w-full',
-								variant === 'logo' ? 'object-contain p-4' : 'object-cover'
+								variant === 'logo'
+									? 'object-contain p-4'
+									: 'object-cover'
 							)}
 						/>
 						<div className='absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20' />
@@ -124,7 +126,8 @@ export function FileUploadCard({
 					<div
 						className={cn(
 							'flex h-full min-h-[inherit] flex-col items-center justify-center gap-3 p-4 text-center',
-							isWide && 'sm:flex-row sm:justify-start sm:px-6 sm:text-left'
+							isWide &&
+								'sm:flex-row sm:justify-start sm:px-6 sm:text-left'
 						)}
 					>
 						<div className='flex size-12 shrink-0 items-center justify-center rounded-xl bg-muted'>
@@ -136,13 +139,17 @@ export function FileUploadCard({
 						</div>
 						<div className='space-y-1'>
 							<p className='text-sm font-semibold'>
-								{uploading ? 'A carregar...' : hint || config.emptyTitle}
+								{uploading
+									? 'A carregar...'
+									: hint || config.emptyTitle}
 							</p>
 							<p className='text-xs text-muted-foreground'>
 								{config.emptyHint}
 							</p>
 							{variant === 'document' || variant === 'selfie' ? (
-								<p className='text-xs text-muted-foreground'>JPG, PNG, WebP</p>
+								<p className='text-xs text-muted-foreground'>
+									JPG, PNG, WebP
+								</p>
 							) : null}
 						</div>
 					</div>

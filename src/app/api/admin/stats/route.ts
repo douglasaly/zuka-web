@@ -7,9 +7,17 @@ export async function GET() {
 	const supabase = createSupabaseAdmin()
 
 	const now = new Date()
-	const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
-	const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString()
-	const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString()
+	const sevenDaysAgo = new Date(
+		now.getTime() - 7 * 24 * 60 * 60 * 1000
+	).toISOString()
+	const fourteenDaysAgo = new Date(
+		now.getTime() - 14 * 24 * 60 * 60 * 1000
+	).toISOString()
+	const todayStart = new Date(
+		now.getFullYear(),
+		now.getMonth(),
+		now.getDate()
+	).toISOString()
 
 	const [
 		{ count: totalUsers },
@@ -21,23 +29,61 @@ export async function GET() {
 		{ count: prevProducts },
 		{ count: messagesToday },
 	] = await Promise.all([
-		supabase.from('users').select('*', { count: 'exact', head: true }).is('deleted_at', null).gte('created_at', sevenDaysAgo),
-		supabase.from('users').select('*', { count: 'exact', head: true }).is('deleted_at', null).gte('created_at', fourteenDaysAgo).lt('created_at', sevenDaysAgo),
-		supabase.from('stores').select('*', { count: 'exact', head: true }).eq('status', 'ACTIVE').is('deleted_at', null),
-		supabase.from('stores').select('*', { count: 'exact', head: true }).eq('status', 'ACTIVE').is('deleted_at', null),
-		supabase.from('stores').select('*', { count: 'exact', head: true }).eq('status', 'PENDING').is('deleted_at', null),
-		supabase.from('products').select('*', { count: 'exact', head: true }).is('deleted_at', null),
-		supabase.from('products').select('*', { count: 'exact', head: true }).is('deleted_at', null).lt('created_at', sevenDaysAgo),
-		supabase.from('messages').select('*', { count: 'exact', head: true }).gte('created_at', todayStart),
+		supabase
+			.from('users')
+			.select('*', { count: 'exact', head: true })
+			.is('deleted_at', null)
+			.gte('created_at', sevenDaysAgo),
+		supabase
+			.from('users')
+			.select('*', { count: 'exact', head: true })
+			.is('deleted_at', null)
+			.gte('created_at', fourteenDaysAgo)
+			.lt('created_at', sevenDaysAgo),
+		supabase
+			.from('stores')
+			.select('*', { count: 'exact', head: true })
+			.eq('status', 'ACTIVE')
+			.is('deleted_at', null),
+		supabase
+			.from('stores')
+			.select('*', { count: 'exact', head: true })
+			.eq('status', 'ACTIVE')
+			.is('deleted_at', null),
+		supabase
+			.from('stores')
+			.select('*', { count: 'exact', head: true })
+			.eq('status', 'PENDING')
+			.is('deleted_at', null),
+		supabase
+			.from('products')
+			.select('*', { count: 'exact', head: true })
+			.is('deleted_at', null),
+		supabase
+			.from('products')
+			.select('*', { count: 'exact', head: true })
+			.is('deleted_at', null)
+			.lt('created_at', sevenDaysAgo),
+		supabase
+			.from('messages')
+			.select('*', { count: 'exact', head: true })
+			.gte('created_at', todayStart),
 	])
 
 	function pct(curr: number | null, prev: number | null) {
 		if (!prev || prev === 0) return curr ? 100 : 0
-		return Math.round(((curr ?? 0) - prev) / prev * 100)
+		return Math.round((((curr ?? 0) - prev) / prev) * 100)
 	}
 
-	const { count: totalUsersAll } = await supabase.from('users').select('*', { count: 'exact', head: true }).is('deleted_at', null)
-	const { count: prevTotalUsers } = await supabase.from('users').select('*', { count: 'exact', head: true }).is('deleted_at', null).lt('created_at', sevenDaysAgo)
+	const { count: totalUsersAll } = await supabase
+		.from('users')
+		.select('*', { count: 'exact', head: true })
+		.is('deleted_at', null)
+	const { count: prevTotalUsers } = await supabase
+		.from('users')
+		.select('*', { count: 'exact', head: true })
+		.is('deleted_at', null)
+		.lt('created_at', sevenDaysAgo)
 
 	return NextResponse.json({
 		totalUsers: totalUsersAll ?? 0,

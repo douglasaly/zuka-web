@@ -21,7 +21,10 @@ export async function GET() {
 
 		const products = (data ?? []).map((row) => {
 			const record = row as Record<string, unknown>
-			const images = record.product_images as Array<{ url: string; is_primary?: boolean }> | null
+			const images = record.product_images as Array<{
+				url: string
+				is_primary?: boolean
+			}> | null
 			const primary = images?.find((img) => img.is_primary) ?? images?.[0]
 
 			return {
@@ -32,7 +35,9 @@ export async function GET() {
 				currency: record.currency as string,
 				status: record.status as string,
 				isVisible: record.is_visible as boolean,
-				categoryName: (record.categories as { name: string } | null)?.name ?? null,
+				categoryName:
+					(record.categories as { name: string } | null)?.name ??
+					null,
 				image: primary?.url ?? null,
 			}
 		})

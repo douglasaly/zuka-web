@@ -28,7 +28,10 @@ export async function GET() {
 				item_count: row.item_count as number,
 				status: row.status as string,
 				created_at: row.created_at as string,
-				stores: row.stores as { name: string; logo_url?: string | null },
+				stores: row.stores as {
+					name: string
+					logo_url?: string | null
+				},
 			})
 		)
 

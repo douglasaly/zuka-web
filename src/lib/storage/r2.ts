@@ -5,11 +5,7 @@ import type { UploadPurpose } from '@/types/uploads'
 
 export type { UploadPurpose } from '@/types/uploads'
 
-const ALLOWED_CONTENT_TYPES = new Set([
-	'image/jpeg',
-	'image/png',
-	'image/webp',
-])
+const ALLOWED_CONTENT_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
 
 const CONTENT_TYPE_EXTENSION: Record<string, string> = {
 	'image/jpeg': 'jpg',

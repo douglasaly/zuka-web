@@ -38,7 +38,13 @@ export default function RootLayout({
 			className={cn(jakarta.variable, jakartaHeading.variable)}
 			suppressHydrationWarning
 		>
-			<body className={cn('min-h-screen flex flex-col font-sans', jakarta.className)}>
+			<body
+				className={cn(
+					'min-h-screen flex flex-col font-sans',
+					jakarta.className
+				)}
+				suppressHydrationWarning
+			>
 				<Toaster position='top-center' richColors closeButton />
 				<TooltipProvider>
 					<Providers>{children}</Providers>

@@ -20,7 +20,10 @@ interface CreateProductFormProps {
 	storeId: string
 }
 
-export function CreateProductForm({ categories, storeId }: CreateProductFormProps) {
+export function CreateProductForm({
+	categories,
+	storeId,
+}: CreateProductFormProps) {
 	const queryClient = useQueryClient()
 	const [open, setOpen] = useState(false)
 	const [form, setForm] = useState({
@@ -36,7 +39,9 @@ export function CreateProductForm({ categories, storeId }: CreateProductFormProp
 	const mutation = useMutation({
 		mutationFn: createProduct,
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['seller-products', storeId] })
+			queryClient.invalidateQueries({
+				queryKey: ['seller-products', storeId],
+			})
 			queryClient.invalidateQueries({ queryKey: ['user-profile'] })
 			setForm({
 				name: '',
@@ -95,8 +100,8 @@ export function CreateProductForm({ categories, storeId }: CreateProductFormProp
 			</div>
 
 			<p className='text-sm text-muted-foreground'>
-				Os produtos são publicados pela sua loja. Compradores não podem criar
-				anúncios no Zuka.
+				Os produtos são publicados pela sua loja. Compradores não podem
+				criar anúncios no Zuka.
 			</p>
 
 			<div className='space-y-2'>
@@ -105,7 +110,9 @@ export function CreateProductForm({ categories, storeId }: CreateProductFormProp
 					id='product-name'
 					required
 					value={form.name}
-					onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+					onChange={(e) =>
+						setForm((f) => ({ ...f, name: e.target.value }))
+					}
 					placeholder='Ex: Samsung Galaxy A15'
 				/>
 			</div>
@@ -131,7 +138,10 @@ export function CreateProductForm({ categories, storeId }: CreateProductFormProp
 						className='flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm'
 						value={form.categoryId}
 						onChange={(e) =>
-							setForm((f) => ({ ...f, categoryId: e.target.value }))
+							setForm((f) => ({
+								...f,
+								categoryId: e.target.value,
+							}))
 						}
 					>
 						<option value=''>Selecionar...</option>
@@ -165,18 +175,25 @@ export function CreateProductForm({ categories, storeId }: CreateProductFormProp
 						min={0}
 						required
 						value={form.price}
-						onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
+						onChange={(e) =>
+							setForm((f) => ({ ...f, price: e.target.value }))
+						}
 					/>
 				</div>
 				<div className='space-y-2'>
-					<Label htmlFor='product-discount'>Preço promocional (opcional)</Label>
+					<Label htmlFor='product-discount'>
+						Preço promocional (opcional)
+					</Label>
 					<Input
 						id='product-discount'
 						type='number'
 						min={0}
 						value={form.discountPrice}
 						onChange={(e) =>
-							setForm((f) => ({ ...f, discountPrice: e.target.value }))
+							setForm((f) => ({
+								...f,
+								discountPrice: e.target.value,
+							}))
 						}
 					/>
 				</div>
@@ -194,7 +211,9 @@ export function CreateProductForm({ categories, storeId }: CreateProductFormProp
 			/>
 
 			{mutation.error && (
-				<p className='text-sm text-destructive'>{mutation.error.message}</p>
+				<p className='text-sm text-destructive'>
+					{mutation.error.message}
+				</p>
 			)}
 
 			<Button

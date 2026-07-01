@@ -68,9 +68,14 @@ function NavItem({
 					<item.icon className='size-4 shrink-0' />
 					{!collapsed && (
 						<>
-							<span className='flex-1 text-left'>{item.label}</span>
+							<span className='flex-1 text-left'>
+								{item.label}
+							</span>
 							<ChevronRight
-								className={cn('size-3.5 transition-transform', (open || isActive) && 'rotate-90')}
+								className={cn(
+									'size-3.5 transition-transform',
+									(open || isActive) && 'rotate-90'
+								)}
 							/>
 						</>
 					)}
@@ -78,7 +83,9 @@ function NavItem({
 				{(open || isActive) && !collapsed && (
 					<div className='ml-4 mt-0.5 space-y-0.5 border-l border-white/10 pl-3'>
 						{item.children.map((child) => {
-							const active = pathname === child.href || pathname.startsWith(child.href + '/')
+							const active =
+								pathname === child.href ||
+								pathname.startsWith(child.href + '/')
 							return (
 								<Link
 									key={child.href}
@@ -101,9 +108,11 @@ function NavItem({
 		)
 	}
 
-	const active = 'exact' in item && item.exact
-		? pathname === item.href
-		: pathname === item.href || pathname.startsWith((item.href ?? '') + '/')
+	const active =
+		'exact' in item && item.exact
+			? pathname === item.href
+			: pathname === item.href ||
+				pathname.startsWith((item.href ?? '') + '/')
 
 	return (
 		<Link
@@ -140,15 +149,23 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 					</div>
 					{!collapsed && (
 						<div>
-							<p className='text-sm font-bold text-white'>Zuka Admin</p>
-							<p className='text-xs text-white/40'>Painel de controlo</p>
+							<p className='text-sm font-bold text-white'>
+								Zuka Admin
+							</p>
+							<p className='text-xs text-white/40'>
+								Painel de controlo
+							</p>
 						</div>
 					)}
 				</div>
 
 				<nav className='flex-1 space-y-0.5 overflow-y-auto p-2'>
 					{nav.map((item) => (
-						<NavItem key={item.label} item={item} collapsed={collapsed} />
+						<NavItem
+							key={item.label}
+							item={item}
+							collapsed={collapsed}
+						/>
 					))}
 				</nav>
 
@@ -160,8 +177,15 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 						onClick={() => setCollapsed((v) => !v)}
 						className='w-full justify-start text-white/50 hover:bg-white/5 hover:text-white'
 					>
-						<ChevronRight className={cn('size-4 transition-transform', !collapsed && 'rotate-180')} />
-						{!collapsed && <span className='ml-1 text-xs'>Colapsar</span>}
+						<ChevronRight
+							className={cn(
+								'size-4 transition-transform',
+								!collapsed && 'rotate-180'
+							)}
+						/>
+						{!collapsed && (
+							<span className='ml-1 text-xs'>Colapsar</span>
+						)}
 					</Button>
 					<Link
 						href='/log-out'
@@ -188,12 +212,17 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 function AdminTopBar() {
 	const pathname = usePathname()
 	const segments = pathname.replace('/admin', '').split('/').filter(Boolean)
-	const breadcrumb = ['Admin', ...segments.map((s) => s.charAt(0).toUpperCase() + s.slice(1))]
+	const breadcrumb = [
+		'Admin',
+		...segments.map((s) => s.charAt(0).toUpperCase() + s.slice(1)),
+	]
 
 	return (
 		<header className='sticky top-0 z-30 flex items-center justify-between border-b border-border/60 bg-background/95 px-6 py-3 backdrop-blur-sm'>
 			<div>
-				<p className='text-xs text-muted-foreground'>{breadcrumb.join(' / ')}</p>
+				<p className='text-xs text-muted-foreground'>
+					{breadcrumb.join(' / ')}
+				</p>
 				<p className='font-heading text-lg font-bold leading-tight'>
 					{breadcrumb[breadcrumb.length - 1]}
 				</p>

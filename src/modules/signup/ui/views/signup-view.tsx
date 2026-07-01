@@ -96,7 +96,10 @@ function friendlyError(error: unknown) {
 	const code = getErrorCode(error)
 	const msg = error instanceof Error ? error.message : String(error)
 
-	if (code === 'auth/email-already-in-use' || msg.includes('email-already-in-use')) {
+	if (
+		code === 'auth/email-already-in-use' ||
+		msg.includes('email-already-in-use')
+	) {
 		return 'Este email já está registado. Usa outro ou entra na tua conta.'
 	}
 	if (code === 'auth/weak-password' || msg.includes('weak-password')) {
@@ -105,13 +108,19 @@ function friendlyError(error: unknown) {
 	if (code === 'auth/invalid-email' || msg.includes('invalid-email')) {
 		return 'Endereço de email inválido.'
 	}
-	if (code === 'auth/network-request-failed' || msg.includes('network-request-failed')) {
+	if (
+		code === 'auth/network-request-failed' ||
+		msg.includes('network-request-failed')
+	) {
 		return 'Não foi possível contactar o servidor de autenticação. Verifica a ligação e tenta novamente.'
 	}
 	if (code === 'auth/too-many-requests') {
 		return 'Demasiadas tentativas. Aguarda um momento e tenta novamente.'
 	}
-	if (msg.includes('Falha ao criar sessão') || msg.includes('Validation failed')) {
+	if (
+		msg.includes('Falha ao criar sessão') ||
+		msg.includes('Validation failed')
+	) {
 		return 'Não foi possível concluir o registo. Verifica as credenciais Firebase no servidor e tenta novamente.'
 	}
 
@@ -254,7 +263,9 @@ export function SignupView() {
 			})
 			setStep('seller-4')
 		} catch (e) {
-			setError(e instanceof Error ? e.message : 'Erro ao enviar documentos')
+			setError(
+				e instanceof Error ? e.message : 'Erro ao enviar documentos'
+			)
 		} finally {
 			setLoading(false)
 		}
@@ -280,13 +291,29 @@ export function SignupView() {
 					const data = await res.json()
 					const addr = data.address ?? {}
 					const parts = [
-						addr.neighbourhood ?? addr.suburb ?? addr.quarter ?? addr.residential ?? addr.road,
-						addr.city ?? addr.town ?? addr.village ?? addr.municipality,
+						addr.neighbourhood ??
+							addr.suburb ??
+							addr.quarter ??
+							addr.residential ??
+							addr.road,
+						addr.city ??
+							addr.town ??
+							addr.village ??
+							addr.municipality,
 					].filter(Boolean)
-					const formatted = parts.join(', ') || data.display_name?.split(',').slice(0, 2).join(',').trim() || ''
+					const formatted =
+						parts.join(', ') ||
+						data.display_name
+							?.split(',')
+							.slice(0, 2)
+							.join(',')
+							.trim() ||
+						''
 					setS1((f) => ({ ...f, neighborhood: formatted }))
 				} catch {
-					setLocationError('Não foi possível obter o endereço. Preenche manualmente.')
+					setLocationError(
+						'Não foi possível obter o endereço. Preenche manualmente.'
+					)
 				} finally {
 					setLocationLoading(false)
 				}
@@ -339,7 +366,8 @@ export function SignupView() {
 										Quero comprar
 									</p>
 									<p className='text-sm text-muted-foreground'>
-										Descobre produtos e lojas locais em Moçambique
+										Descobre produtos e lojas locais em
+										Moçambique
 									</p>
 								</div>
 							</div>
@@ -359,7 +387,8 @@ export function SignupView() {
 										Tenho uma loja
 									</p>
 									<p className='text-sm text-muted-foreground'>
-										Vende os teus produtos para milhares de clientes
+										Vende os teus produtos para milhares de
+										clientes
 									</p>
 								</div>
 							</div>
@@ -426,7 +455,10 @@ export function SignupView() {
 							type='text'
 							value={buyerForm.name}
 							onChange={(e) =>
-								setBuyerForm((f) => ({ ...f, name: e.target.value }))
+								setBuyerForm((f) => ({
+									...f,
+									name: e.target.value,
+								}))
 							}
 							placeholder='O teu nome'
 							className={onboardingInputClass}
@@ -440,7 +472,10 @@ export function SignupView() {
 							required
 							value={buyerForm.email}
 							onChange={(e) =>
-								setBuyerForm((f) => ({ ...f, email: e.target.value }))
+								setBuyerForm((f) => ({
+									...f,
+									email: e.target.value,
+								}))
 							}
 							placeholder='exemplo@email.com'
 							className={onboardingInputClass}
@@ -456,7 +491,10 @@ export function SignupView() {
 								minLength={6}
 								value={buyerForm.password}
 								onChange={(e) =>
-									setBuyerForm((f) => ({ ...f, password: e.target.value }))
+									setBuyerForm((f) => ({
+										...f,
+										password: e.target.value,
+									}))
 								}
 								placeholder='Mínimo 6 caracteres'
 								className={cn(onboardingInputClass, 'pr-10')}
@@ -465,7 +503,11 @@ export function SignupView() {
 							<button
 								type='button'
 								tabIndex={-1}
-								aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+								aria-label={
+									showPassword
+										? 'Ocultar senha'
+										: 'Mostrar senha'
+								}
 								className='absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground'
 								onClick={() => setShowPassword((v) => !v)}
 							>
@@ -532,7 +574,11 @@ export function SignupView() {
 				<div className='sticky bottom-0 border-t border-border/60 bg-background/95 px-4 py-4 backdrop-blur-sm sm:px-6'>
 					<div className='mx-auto w-full max-w-lg'>
 						<Button
-							render={<Link href='/feed/explorar'>Começar a explorar</Link>}
+							render={
+								<Link href='/feed/explorar'>
+									Começar a explorar
+								</Link>
+							}
 							className='h-12 w-full rounded-full text-base font-semibold'
 							size='lg'
 						/>
@@ -586,7 +632,10 @@ export function SignupView() {
 							required
 							value={s1.storeName}
 							onChange={(e) =>
-								setS1((f) => ({ ...f, storeName: e.target.value }))
+								setS1((f) => ({
+									...f,
+									storeName: e.target.value,
+								}))
 							}
 							placeholder='Ex: Loja da Fátima'
 							className={onboardingInputClass}
@@ -598,7 +647,10 @@ export function SignupView() {
 							required
 							value={s1.provinceId}
 							onChange={(e) =>
-								setS1((f) => ({ ...f, provinceId: e.target.value }))
+								setS1((f) => ({
+									...f,
+									provinceId: e.target.value,
+								}))
 							}
 							className={`${onboardingInputClass} w-full text-sm`}
 						>
@@ -613,7 +665,9 @@ export function SignupView() {
 
 					<div className='space-y-2'>
 						<div className='flex items-center justify-between'>
-							<label className='text-sm font-semibold'>Endereço da loja</label>
+							<label className='text-sm font-semibold'>
+								Endereço da loja
+							</label>
 							<button
 								type='button'
 								disabled={locationLoading}
@@ -625,20 +679,27 @@ export function SignupView() {
 								) : (
 									<MapPin className='size-3' />
 								)}
-								{locationLoading ? 'A obter...' : 'Usar localização atual'}
+								{locationLoading
+									? 'A obter...'
+									: 'Usar localização atual'}
 							</button>
 						</div>
 						<Input
 							required
 							value={s1.neighborhood}
 							onChange={(e) =>
-								setS1((f) => ({ ...f, neighborhood: e.target.value }))
+								setS1((f) => ({
+									...f,
+									neighborhood: e.target.value,
+								}))
 							}
 							placeholder='Ex: Av. Eduardo Mondlane, Maputo'
 							className={onboardingInputClass}
 						/>
 						{locationError && (
-							<p className='text-xs text-destructive'>{locationError}</p>
+							<p className='text-xs text-destructive'>
+								{locationError}
+							</p>
 						)}
 					</div>
 
@@ -647,7 +708,9 @@ export function SignupView() {
 							type='email'
 							required
 							value={s1.email}
-							onChange={(e) => setS1((f) => ({ ...f, email: e.target.value }))}
+							onChange={(e) =>
+								setS1((f) => ({ ...f, email: e.target.value }))
+							}
 							placeholder='exemplo@email.com'
 							className={onboardingInputClass}
 							autoComplete='email'
@@ -662,7 +725,10 @@ export function SignupView() {
 								minLength={6}
 								value={s1.password}
 								onChange={(e) =>
-									setS1((f) => ({ ...f, password: e.target.value }))
+									setS1((f) => ({
+										...f,
+										password: e.target.value,
+									}))
 								}
 								placeholder='Mínimo 8 caracteres'
 								className={cn(onboardingInputClass, 'pr-10')}
@@ -671,7 +737,11 @@ export function SignupView() {
 							<button
 								type='button'
 								tabIndex={-1}
-								aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+								aria-label={
+									showPassword
+										? 'Ocultar senha'
+										: 'Mostrar senha'
+								}
 								className='absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground'
 								onClick={() => setShowPassword((v) => !v)}
 							>
@@ -688,7 +758,10 @@ export function SignupView() {
 						<select
 							value={s1.categoryId}
 							onChange={(e) =>
-								setS1((f) => ({ ...f, categoryId: e.target.value }))
+								setS1((f) => ({
+									...f,
+									categoryId: e.target.value,
+								}))
 							}
 							className={`${onboardingInputClass} w-full text-sm`}
 						>
@@ -704,7 +777,9 @@ export function SignupView() {
 					<OnboardingField label='Número de telefone'>
 						<PhoneInput
 							value={s1.phone}
-							onChange={(phone) => setS1((f) => ({ ...f, phone }))}
+							onChange={(phone) =>
+								setS1((f) => ({ ...f, phone }))
+							}
 						/>
 					</OnboardingField>
 				</OnboardingFormCard>
@@ -761,7 +836,10 @@ export function SignupView() {
 						<Textarea
 							value={s2.description}
 							onChange={(e) =>
-								setS2((f) => ({ ...f, description: e.target.value }))
+								setS2((f) => ({
+									...f,
+									description: e.target.value,
+								}))
 							}
 							placeholder='Descreve a tua loja em poucas palavras...'
 							className={`${onboardingInputClass} min-h-24 resize-none`}
@@ -772,7 +850,9 @@ export function SignupView() {
 				<OnboardingFormCard>
 					<div className='flex items-center justify-between gap-4'>
 						<div>
-							<p className='text-sm font-semibold'>Fazes entregas?</p>
+							<p className='text-sm font-semibold'>
+								Fazes entregas?
+							</p>
 							<p className='text-xs text-muted-foreground'>
 								Entrega ao domicílio
 							</p>
@@ -788,7 +868,9 @@ export function SignupView() {
 					<OnboardingField label='Número WhatsApp'>
 						<PhoneInput
 							value={s2.whatsapp}
-							onChange={(v) => setS2((f) => ({ ...f, whatsapp: v }))}
+							onChange={(v) =>
+								setS2((f) => ({ ...f, whatsapp: v }))
+							}
 						/>
 					</OnboardingField>
 
@@ -860,8 +942,8 @@ export function SignupView() {
 						<CheckCircle2 className='size-4' />
 					</div>
 					<p className='text-sm leading-relaxed text-emerald-900'>
-						Os teus documentos são tratados de forma confidencial e segura.
-						Só são usados para verificar a tua identidade.
+						Os teus documentos são tratados de forma confidencial e
+						segura. Só são usados para verificar a tua identidade.
 					</p>
 				</div>
 
@@ -888,8 +970,8 @@ export function SignupView() {
 						A tua loja está em revisão!
 					</h1>
 					<p className='text-sm leading-relaxed text-muted-foreground sm:text-base'>
-						A nossa equipa vai verificar os teus dados. Vais receber uma
-						notificação quando a tua conta for aprovada.
+						A nossa equipa vai verificar os teus dados. Vais receber
+						uma notificação quando a tua conta for aprovada.
 					</p>
 				</div>
 

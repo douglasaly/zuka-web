@@ -3,5 +3,5 @@ export const formatPrice = (value: number, currency = 'MZN') => {
 		style: 'currency',
 		currency,
 		maximumFractionDigits: 0,
-	}).format(value / 100) 
+	}).format(value / 100)
 }

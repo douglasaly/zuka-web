@@ -12,9 +12,21 @@ import { formatPrice } from '@/utils/format-price'
 import { cn } from '@/lib/utils'
 
 const tabs = [
-	{ value: 'active', label: 'Ativos', statuses: ['shipping', 'pending'] as const },
-	{ value: 'completed', label: 'Concluídos', statuses: ['completed'] as const },
-	{ value: 'cancelled', label: 'Cancelados', statuses: ['cancelled'] as const },
+	{
+		value: 'active',
+		label: 'Ativos',
+		statuses: ['shipping', 'pending'] as const,
+	},
+	{
+		value: 'completed',
+		label: 'Concluídos',
+		statuses: ['completed'] as const,
+	},
+	{
+		value: 'cancelled',
+		label: 'Cancelados',
+		statuses: ['cancelled'] as const,
+	},
 ]
 
 function OrderCard({ order }: { order: OrderSummary }) {
@@ -38,7 +50,10 @@ function OrderCard({ order }: { order: OrderSummary }) {
 						{order.itemCount !== 1 ? 'ns' : 'm'}
 					</p>
 				</div>
-				<OrderStatusBadge status={order.status} label={order.statusLabel} />
+				<OrderStatusBadge
+					status={order.status}
+					label={order.statusLabel}
+				/>
 			</div>
 
 			<div className='flex items-center justify-between border-t border-border/60 px-4 py-3'>

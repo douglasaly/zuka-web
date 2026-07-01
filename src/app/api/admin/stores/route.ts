@@ -26,18 +26,35 @@ export async function GET(req: Request) {
 		.order('created_at', { ascending: false })
 		.range(offset, offset + limit - 1)
 
-	if (status) query = query.eq('status', status as Database['public']['Enums']['store_status'])
+	if (status)
+		query = query.eq(
+			'status',
+			status as Database['public']['Enums']['store_status']
+		)
 	if (search) query = query.ilike('name', `%${search}%`)
 
 	const { data, error } = await query
-	if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+	if (error)
+		return NextResponse.json({ error: error.message }, { status: 500 })
 
 	const storesWithCounts = await Promise.all(
 		(data ?? []).map(async (store) => {
-			const sid = (store as unknown as Record<string, unknown>).id as string
-			const { count: productCount } = await supabase.from('products').select('*', { count: 'exact', head: true }).eq('store_id', sid).is('deleted_at', null)
-			const { count: followerCount } = await supabase.from('store_followers').select('*', { count: 'exact', head: true }).eq('store_id', sid)
-			return { ...(store as object), productCount: productCount ?? 0, followerCount: followerCount ?? 0 }
+			const sid = (store as unknown as Record<string, unknown>)
+				.id as string
+			const { count: productCount } = await supabase
+				.from('products')
+				.select('*', { count: 'exact', head: true })
+				.eq('store_id', sid)
+				.is('deleted_at', null)
+			const { count: followerCount } = await supabase
+				.from('store_followers')
+				.select('*', { count: 'exact', head: true })
+				.eq('store_id', sid)
+			return {
+				...(store as object),
+				productCount: productCount ?? 0,
+				followerCount: followerCount ?? 0,
+			}
 		})
 	)
 

@@ -12,7 +12,9 @@ const duplicateSlugs = [
 	'tecnologia-e-acessorios',
 ]
 
-async function removeDuplicateCategories(supabase: ReturnType<typeof createSupabaseAdmin>) {
+async function removeDuplicateCategories(
+	supabase: ReturnType<typeof createSupabaseAdmin>
+) {
 	for (const slug of duplicateSlugs) {
 		const { data: category } = await supabase
 			.from('categories')
@@ -28,7 +30,10 @@ async function removeDuplicateCategories(supabase: ReturnType<typeof createSupab
 			.eq('category_id', category.id as string)
 
 		if ((count ?? 0) === 0) {
-			await supabase.from('categories').delete().eq('id', category.id as string)
+			await supabase
+				.from('categories')
+				.delete()
+				.eq('id', category.id as string)
 			console.log(`🧹 Removed duplicate category: ${slug}`)
 		}
 	}
@@ -48,7 +53,9 @@ async function seed() {
 
 		if (selectError) throw selectError
 
-		const existingSlugs = new Set((existing ?? []).map((row) => String(row.slug)))
+		const existingSlugs = new Set(
+			(existing ?? []).map((row) => String(row.slug))
+		)
 		const toInsert = marketplaceCategories
 			.filter((category) => !existingSlugs.has(category.slug))
 			.map((category) => ({
@@ -57,7 +64,9 @@ async function seed() {
 			}))
 
 		if (toInsert.length === 0) {
-			console.log(`✔️ All ${marketplaceCategories.length} categories already exist`)
+			console.log(
+				`✔️ All ${marketplaceCategories.length} categories already exist`
+			)
 			process.exit(0)
 		}
 
@@ -65,7 +74,9 @@ async function seed() {
 		if (error) throw error
 
 		console.log(`✔️ Created ${toInsert.length} categories`)
-		console.log(`✔️ Total: ${existingSlugs.size + toInsert.length} categories`)
+		console.log(
+			`✔️ Total: ${existingSlugs.size + toInsert.length} categories`
+		)
 		process.exit(0)
 	} catch (error) {
 		console.error(error)

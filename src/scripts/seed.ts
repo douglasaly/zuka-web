@@ -70,24 +70,72 @@ async function seed() {
 		}
 
 		const roles = [
-			{ id: uuidv7(), name: 'admin', description: 'Gerencia o marketplace' },
-			{ id: uuidv7(), name: 'super_admin', description: 'Acesso total ao sistema' },
-			{ id: uuidv7(), name: 'seller', description: 'Gerencia produtos e vendas' },
+			{
+				id: uuidv7(),
+				name: 'admin',
+				description: 'Gerencia o marketplace',
+			},
+			{
+				id: uuidv7(),
+				name: 'super_admin',
+				description: 'Acesso total ao sistema',
+			},
+			{
+				id: uuidv7(),
+				name: 'seller',
+				description: 'Gerencia produtos e vendas',
+			},
 			{ id: uuidv7(), name: 'buyer', description: 'Compra produtos' },
-			{ id: uuidv7(), name: 'support', description: 'Atendimento ao cliente' },
+			{
+				id: uuidv7(),
+				name: 'support',
+				description: 'Atendimento ao cliente',
+			},
 		]
 
 		const permissions = [
-			{ id: uuidv7(), key: 'product.create', description: 'Criar produtos' },
-			{ id: uuidv7(), key: 'product.update', description: 'Atualizar produtos' },
-			{ id: uuidv7(), key: 'product.delete', description: 'Excluir produtos' },
-			{ id: uuidv7(), key: 'product.read', description: 'Visualizar produtos' },
+			{
+				id: uuidv7(),
+				key: 'product.create',
+				description: 'Criar produtos',
+			},
+			{
+				id: uuidv7(),
+				key: 'product.update',
+				description: 'Atualizar produtos',
+			},
+			{
+				id: uuidv7(),
+				key: 'product.delete',
+				description: 'Excluir produtos',
+			},
+			{
+				id: uuidv7(),
+				key: 'product.read',
+				description: 'Visualizar produtos',
+			},
 			{ id: uuidv7(), key: 'order.create', description: 'Criar pedidos' },
-			{ id: uuidv7(), key: 'order.read', description: 'Visualizar pedidos' },
-			{ id: uuidv7(), key: 'order.update', description: 'Atualizar pedidos' },
-			{ id: uuidv7(), key: 'user.read', description: 'Visualizar usuários' },
+			{
+				id: uuidv7(),
+				key: 'order.read',
+				description: 'Visualizar pedidos',
+			},
+			{
+				id: uuidv7(),
+				key: 'order.update',
+				description: 'Atualizar pedidos',
+			},
+			{
+				id: uuidv7(),
+				key: 'user.read',
+				description: 'Visualizar usuários',
+			},
 			{ id: uuidv7(), key: 'user.ban', description: 'Banir usuários' },
-			{ id: uuidv7(), key: 'dispute.manage', description: 'Gerenciar disputas' },
+			{
+				id: uuidv7(),
+				key: 'dispute.manage',
+				description: 'Gerenciar disputas',
+			},
 		]
 
 		await supabase.from('roles').insert(roles)
@@ -96,29 +144,100 @@ async function seed() {
 		const perm = Object.fromEntries(permissions.map((p) => [p.key, p.id]))
 		const role = Object.fromEntries(roles.map((r) => [r.name, r.id]))
 
-		await supabase.from('role_permissions').insert([
-			...permissions.map((p) => ({ role_id: role.admin, permission_id: p.id })),
-			...permissions.map((p) => ({ role_id: role.super_admin, permission_id: p.id })),
-			{ role_id: role.seller, permission_id: perm['product.create'] },
-			{ role_id: role.seller, permission_id: perm['product.update'] },
-			{ role_id: role.seller, permission_id: perm['product.delete'] },
-			{ role_id: role.seller, permission_id: perm['product.read'] },
-			{ role_id: role.seller, permission_id: perm['order.read'] },
-			{ role_id: role.buyer, permission_id: perm['order.create'] },
-			{ role_id: role.buyer, permission_id: perm['order.read'] },
-			{ role_id: role.buyer, permission_id: perm['product.read'] },
-			{ role_id: role.support, permission_id: perm['order.read'] },
-			{ role_id: role.support, permission_id: perm['user.read'] },
-			{ role_id: role.support, permission_id: perm['dispute.manage'] },
-		])
+		await supabase
+			.from('role_permissions')
+			.insert([
+				...permissions.map((p) => ({
+					role_id: role.admin,
+					permission_id: p.id,
+				})),
+				...permissions.map((p) => ({
+					role_id: role.super_admin,
+					permission_id: p.id,
+				})),
+				{ role_id: role.seller, permission_id: perm['product.create'] },
+				{ role_id: role.seller, permission_id: perm['product.update'] },
+				{ role_id: role.seller, permission_id: perm['product.delete'] },
+				{ role_id: role.seller, permission_id: perm['product.read'] },
+				{ role_id: role.seller, permission_id: perm['order.read'] },
+				{ role_id: role.buyer, permission_id: perm['order.create'] },
+				{ role_id: role.buyer, permission_id: perm['order.read'] },
+				{ role_id: role.buyer, permission_id: perm['product.read'] },
+				{ role_id: role.support, permission_id: perm['order.read'] },
+				{ role_id: role.support, permission_id: perm['user.read'] },
+				{
+					role_id: role.support,
+					permission_id: perm['dispute.manage'],
+				},
+			])
 
 		const users = [
-			{ id: uuidv7(), firebase_uid: 'firebase_admin_001', email: 'admin@zuka.com', first_name: 'Admin', last_name: 'User', phone_number: '+258-84-123-4567', email_verified: true, phone_verified: true, status: 'ACTIVE' },
-			{ id: uuidv7(), firebase_uid: 'firebase_seller_001', email: 'seller1@example.com', first_name: 'João', last_name: 'Silva', phone_number: '+258-82-345-6789', email_verified: true, phone_verified: true, status: 'ACTIVE' },
-			{ id: uuidv7(), firebase_uid: 'firebase_seller_002', email: 'seller2@example.com', first_name: 'Maria', last_name: 'Santos', phone_number: '+258-84-567-8901', email_verified: true, phone_verified: false, status: 'ACTIVE' },
-			{ id: uuidv7(), firebase_uid: 'firebase_buyer_001', email: 'buyer1@example.com', first_name: 'Pedro', last_name: 'Nunes', phone_number: '+258-87-123-4567', email_verified: true, phone_verified: true, status: 'ACTIVE' },
-			{ id: uuidv7(), firebase_uid: 'firebase_buyer_002', email: 'buyer2@example.com', first_name: 'Ana', last_name: 'Costa', phone_number: '+258-82-987-6543', email_verified: false, phone_verified: false, status: 'ACTIVE' },
-			{ id: uuidv7(), firebase_uid: 'firebase_moderator_001', email: 'moderator@zuka.com', first_name: 'Carlos', last_name: 'Ferreira', phone_number: '+258-84-246-8101', email_verified: true, phone_verified: true, status: 'ACTIVE' },
+			{
+				id: uuidv7(),
+				firebase_uid: 'firebase_admin_001',
+				email: 'admin@zuka.com',
+				first_name: 'Admin',
+				last_name: 'User',
+				phone_number: '+258-84-123-4567',
+				email_verified: true,
+				phone_verified: true,
+				status: 'ACTIVE',
+			},
+			{
+				id: uuidv7(),
+				firebase_uid: 'firebase_seller_001',
+				email: 'seller1@example.com',
+				first_name: 'João',
+				last_name: 'Silva',
+				phone_number: '+258-82-345-6789',
+				email_verified: true,
+				phone_verified: true,
+				status: 'ACTIVE',
+			},
+			{
+				id: uuidv7(),
+				firebase_uid: 'firebase_seller_002',
+				email: 'seller2@example.com',
+				first_name: 'Maria',
+				last_name: 'Santos',
+				phone_number: '+258-84-567-8901',
+				email_verified: true,
+				phone_verified: false,
+				status: 'ACTIVE',
+			},
+			{
+				id: uuidv7(),
+				firebase_uid: 'firebase_buyer_001',
+				email: 'buyer1@example.com',
+				first_name: 'Pedro',
+				last_name: 'Nunes',
+				phone_number: '+258-87-123-4567',
+				email_verified: true,
+				phone_verified: true,
+				status: 'ACTIVE',
+			},
+			{
+				id: uuidv7(),
+				firebase_uid: 'firebase_buyer_002',
+				email: 'buyer2@example.com',
+				first_name: 'Ana',
+				last_name: 'Costa',
+				phone_number: '+258-82-987-6543',
+				email_verified: false,
+				phone_verified: false,
+				status: 'ACTIVE',
+			},
+			{
+				id: uuidv7(),
+				firebase_uid: 'firebase_moderator_001',
+				email: 'moderator@zuka.com',
+				first_name: 'Carlos',
+				last_name: 'Ferreira',
+				phone_number: '+258-84-246-8101',
+				email_verified: true,
+				phone_verified: true,
+				status: 'ACTIVE',
+			},
 		]
 
 		await supabase.from('users').insert(users)
@@ -134,22 +253,58 @@ async function seed() {
 
 		const categories = [
 			{ id: uuidv7(), name: 'Eletrônicos', slug: 'eletronicos' },
-			{ id: uuidv7(), name: 'Moda e Vestuário', slug: 'moda-e-vestuario' },
-			{ id: uuidv7(), name: 'Casa e Decoração', slug: 'casa-e-decoracao' },
-			{ id: uuidv7(), name: 'Beleza e Cuidados Pessoais', slug: 'beleza-cuidados-pessoais' },
+			{
+				id: uuidv7(),
+				name: 'Moda e Vestuário',
+				slug: 'moda-e-vestuario',
+			},
+			{
+				id: uuidv7(),
+				name: 'Casa e Decoração',
+				slug: 'casa-e-decoracao',
+			},
+			{
+				id: uuidv7(),
+				name: 'Beleza e Cuidados Pessoais',
+				slug: 'beleza-cuidados-pessoais',
+			},
 			{ id: uuidv7(), name: 'Esportes e Lazer', slug: 'esportes-lazer' },
-			{ id: uuidv7(), name: 'Alimentos e Bebidas', slug: 'alimentos-e-bebidas' },
-			{ id: uuidv7(), name: 'Livros e Educação', slug: 'livros-educacao' },
-			{ id: uuidv7(), name: 'Automóveis e Motos', slug: 'automoveis-motos' },
-			{ id: uuidv7(), name: 'Saúde e Bem-estar', slug: 'saude-bem-estar' },
-			{ id: uuidv7(), name: 'Tecnologia e Acessórios', slug: 'tecnologia-acessorios' },
+			{
+				id: uuidv7(),
+				name: 'Alimentos e Bebidas',
+				slug: 'alimentos-e-bebidas',
+			},
+			{
+				id: uuidv7(),
+				name: 'Livros e Educação',
+				slug: 'livros-educacao',
+			},
+			{
+				id: uuidv7(),
+				name: 'Automóveis e Motos',
+				slug: 'automoveis-motos',
+			},
+			{
+				id: uuidv7(),
+				name: 'Saúde e Bem-estar',
+				slug: 'saude-bem-estar',
+			},
+			{
+				id: uuidv7(),
+				name: 'Tecnologia e Acessórios',
+				slug: 'tecnologia-acessorios',
+			},
 		]
 
 		await supabase.from('categories').insert(categories)
 
 		const provinces = [
 			{ id: uuidv7(), name: 'Maputo Cidade', slug: 'maputo-cidade' },
-			{ id: uuidv7(), name: 'Maputo Província', slug: 'maputo-provincia' },
+			{
+				id: uuidv7(),
+				name: 'Maputo Província',
+				slug: 'maputo-provincia',
+			},
 			{ id: uuidv7(), name: 'Gaza', slug: 'gaza' },
 			{ id: uuidv7(), name: 'Inhambane', slug: 'inhambane' },
 			{ id: uuidv7(), name: 'Sofala', slug: 'sofala' },
@@ -164,7 +319,13 @@ async function seed() {
 		await supabase.from('provinces').insert(provinces)
 
 		const sellerProfiles = [
-			{ id: uuidv7(), user_id: users[1].id, status: 'VERIFIED' as const, verified_at: new Date().toISOString(), onboarded_at: new Date().toISOString() },
+			{
+				id: uuidv7(),
+				user_id: users[1].id,
+				status: 'VERIFIED' as const,
+				verified_at: new Date().toISOString(),
+				onboarded_at: new Date().toISOString(),
+			},
 			{ id: uuidv7(), user_id: users[2].id, status: 'PENDING' as const },
 		]
 
@@ -177,19 +338,122 @@ async function seed() {
 		const food = categories[5]
 
 		const stores = [
-			{ id: uuidv7(), owner_id: users[1].id, seller_profile_id: sellerProfiles[0].id, name: 'Tech Store Maputo', email: 'tech@store.mz', state: 'Maputo', main_store_category_id: electronics.id, province_id: maputo.id, slug: 'tech-store-maputo', description: 'Loja de eletrônicos e tecnologia', logo_url: 'https://via.placeholder.com/200', banner_url: 'https://via.placeholder.com/1200x300', verified_at: new Date().toISOString(), status: 'ACTIVE' as const },
-			{ id: uuidv7(), owner_id: users[1].id, seller_profile_id: sellerProfiles[0].id, name: 'Fashion Hub', email: 'fashion@store.mz', state: 'Maputo', main_store_category_id: fashion.id, province_id: maputo.id, slug: 'fashion-hub', description: 'Moda e vestuário premium', logo_url: 'https://via.placeholder.com/200', banner_url: 'https://via.placeholder.com/1200x300', verified_at: new Date().toISOString(), status: 'ACTIVE' as const },
-			{ id: uuidv7(), owner_id: users[2].id, seller_profile_id: sellerProfiles[1].id, name: 'Gourmet Foods Gaza', email: 'gourmet@store.mz', state: 'Gaza', main_store_category_id: food.id, province_id: gaza.id, slug: 'gourmet-foods-gaza', description: 'Alimentos gourmet importados', logo_url: 'https://via.placeholder.com/200', banner_url: 'https://via.placeholder.com/1200x300', status: 'PENDING' as const },
+			{
+				id: uuidv7(),
+				owner_id: users[1].id,
+				seller_profile_id: sellerProfiles[0].id,
+				name: 'Tech Store Maputo',
+				email: 'tech@store.mz',
+				state: 'Maputo',
+				main_store_category_id: electronics.id,
+				province_id: maputo.id,
+				slug: 'tech-store-maputo',
+				description: 'Loja de eletrônicos e tecnologia',
+				logo_url: 'https://via.placeholder.com/200',
+				banner_url: 'https://via.placeholder.com/1200x300',
+				verified_at: new Date().toISOString(),
+				status: 'ACTIVE' as const,
+			},
+			{
+				id: uuidv7(),
+				owner_id: users[1].id,
+				seller_profile_id: sellerProfiles[0].id,
+				name: 'Fashion Hub',
+				email: 'fashion@store.mz',
+				state: 'Maputo',
+				main_store_category_id: fashion.id,
+				province_id: maputo.id,
+				slug: 'fashion-hub',
+				description: 'Moda e vestuário premium',
+				logo_url: 'https://via.placeholder.com/200',
+				banner_url: 'https://via.placeholder.com/1200x300',
+				verified_at: new Date().toISOString(),
+				status: 'ACTIVE' as const,
+			},
+			{
+				id: uuidv7(),
+				owner_id: users[2].id,
+				seller_profile_id: sellerProfiles[1].id,
+				name: 'Gourmet Foods Gaza',
+				email: 'gourmet@store.mz',
+				state: 'Gaza',
+				main_store_category_id: food.id,
+				province_id: gaza.id,
+				slug: 'gourmet-foods-gaza',
+				description: 'Alimentos gourmet importados',
+				logo_url: 'https://via.placeholder.com/200',
+				banner_url: 'https://via.placeholder.com/1200x300',
+				status: 'PENDING' as const,
+			},
 		]
 
 		await supabase.from('stores').insert(stores)
 
 		const products = [
-			{ id: uuidv7(), store_id: stores[0].id, category_id: electronics.id, name: 'Samsung Galaxy S24', slug: 'samsung-galaxy-s24', is_visible: true, description: 'Smartphone topo de linha', status: 'ACTIVE' as const, price: 1200000, discount_price: 999900, currency: 'MZN' },
-			{ id: uuidv7(), store_id: stores[0].id, category_id: electronics.id, name: 'iPhone 15 Pro', slug: 'iphone-15-pro', is_visible: true, description: 'Apple flagship', status: 'ACTIVE' as const, price: 1400000, currency: 'MZN' },
-			{ id: uuidv7(), store_id: stores[0].id, category_id: electronics.id, name: 'MacBook Pro 14', slug: 'macbook-pro-14', is_visible: true, description: 'Laptop profissional', status: 'ACTIVE' as const, price: 5500000, discount_price: 5200000, currency: 'MZN' },
-			{ id: uuidv7(), store_id: stores[1].id, category_id: fashion.id, name: 'Jeans Premium', slug: 'jeans-premium', is_visible: true, description: 'Calça jeans premium', status: 'ACTIVE' as const, price: 150000, discount_price: 120000, currency: 'MZN' },
-			{ id: uuidv7(), store_id: stores[1].id, category_id: fashion.id, name: 'Camiseta Básica', slug: 'camiseta-basica', is_visible: true, description: 'Algodão 100%', status: 'ACTIVE' as const, price: 35000, discount_price: 25000, currency: 'MZN' },
+			{
+				id: uuidv7(),
+				store_id: stores[0].id,
+				category_id: electronics.id,
+				name: 'Samsung Galaxy S24',
+				slug: 'samsung-galaxy-s24',
+				is_visible: true,
+				description: 'Smartphone topo de linha',
+				status: 'ACTIVE' as const,
+				price: 1200000,
+				discount_price: 999900,
+				currency: 'MZN',
+			},
+			{
+				id: uuidv7(),
+				store_id: stores[0].id,
+				category_id: electronics.id,
+				name: 'iPhone 15 Pro',
+				slug: 'iphone-15-pro',
+				is_visible: true,
+				description: 'Apple flagship',
+				status: 'ACTIVE' as const,
+				price: 1400000,
+				currency: 'MZN',
+			},
+			{
+				id: uuidv7(),
+				store_id: stores[0].id,
+				category_id: electronics.id,
+				name: 'MacBook Pro 14',
+				slug: 'macbook-pro-14',
+				is_visible: true,
+				description: 'Laptop profissional',
+				status: 'ACTIVE' as const,
+				price: 5500000,
+				discount_price: 5200000,
+				currency: 'MZN',
+			},
+			{
+				id: uuidv7(),
+				store_id: stores[1].id,
+				category_id: fashion.id,
+				name: 'Jeans Premium',
+				slug: 'jeans-premium',
+				is_visible: true,
+				description: 'Calça jeans premium',
+				status: 'ACTIVE' as const,
+				price: 150000,
+				discount_price: 120000,
+				currency: 'MZN',
+			},
+			{
+				id: uuidv7(),
+				store_id: stores[1].id,
+				category_id: fashion.id,
+				name: 'Camiseta Básica',
+				slug: 'camiseta-basica',
+				is_visible: true,
+				description: 'Algodão 100%',
+				status: 'ACTIVE' as const,
+				price: 35000,
+				discount_price: 25000,
+				currency: 'MZN',
+			},
 		]
 
 		await supabase.from('products').insert(products)
@@ -203,13 +467,32 @@ async function seed() {
 			}))
 		)
 
-		await supabase.from('product_variants').insert([
-			{ id: uuidv7(), store_id: stores[0].id, product_id: products[0].id, sku: 'SGS24-BLK', price: 1200000, stock: 20, attributes: { color: 'Black', storage: '256GB' } },
-		])
+		await supabase
+			.from('product_variants')
+			.insert([
+				{
+					id: uuidv7(),
+					store_id: stores[0].id,
+					product_id: products[0].id,
+					sku: 'SGS24-BLK',
+					price: 1200000,
+					stock: 20,
+					attributes: { color: 'Black', storage: '256GB' },
+				},
+			])
 
-		await supabase.from('product_images').insert([
-			{ id: uuidv7(), product_id: products[0].id, url: 'https://via.placeholder.com/500', position: 0, is_primary: true, alt: 'Galaxy S24' },
-		])
+		await supabase
+			.from('product_images')
+			.insert([
+				{
+					id: uuidv7(),
+					product_id: products[0].id,
+					url: 'https://via.placeholder.com/500',
+					position: 0,
+					is_primary: true,
+					alt: 'Galaxy S24',
+				},
+			])
 
 		const conversationId = uuidv7()
 		await supabase.from('conversations').insert({ id: conversationId })

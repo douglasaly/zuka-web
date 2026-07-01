@@ -1,4 +1,3 @@
-
 const Page = () => {
 	return <div>Products Page</div>
 }

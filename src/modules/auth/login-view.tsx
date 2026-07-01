@@ -196,7 +196,9 @@ function LoginForm() {
 									type='password'
 									placeholder='••••••••'
 									value={password}
-									onChange={(e) => setPassword(e.target.value)}
+									onChange={(e) =>
+										setPassword(e.target.value)
+									}
 									autoComplete='current-password'
 									required
 								/>
@@ -213,7 +215,9 @@ function LoginForm() {
 
 						<div className='flex items-center gap-3'>
 							<Separator className='flex-1' />
-							<span className='text-xs text-muted-foreground'>ou</span>
+							<span className='text-xs text-muted-foreground'>
+								ou
+							</span>
 							<Separator className='flex-1' />
 						</div>
 

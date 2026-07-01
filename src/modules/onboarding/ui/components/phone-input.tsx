@@ -17,7 +17,12 @@ export function PhoneInput({
 	id,
 }: PhoneInputProps) {
 	return (
-		<div className={cn('flex overflow-hidden rounded-xl bg-muted', className)}>
+		<div
+			className={cn(
+				'flex overflow-hidden rounded-xl bg-muted',
+				className
+			)}
+		>
 			<div className='flex shrink-0 items-center gap-2 border-r border-border/60 px-3 py-2.5 text-sm text-muted-foreground'>
 				<span className='text-base leading-none' aria-hidden>
 					🇲🇿
