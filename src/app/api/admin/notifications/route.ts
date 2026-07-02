@@ -11,13 +11,50 @@ export async function GET() {
 		.from('notifications')
 		.select('*')
 		.order('created_at', { ascending: false })
-		.limit(50)
+		.limit(1000)
 
 	if (error) {
 		return NextResponse.json({ notifications: [] })
 	}
 
-	return NextResponse.json({ notifications: data ?? [] })
+	const grouped = new Map<
+		string,
+		{
+			id: string
+			title: string
+			body: string
+			type: string
+			created_at: string
+			recipientCount: number
+			readCount: number
+		}
+	>()
+
+	for (const n of data ?? []) {
+		const key = n.batch_id ?? n.id
+		const existing = grouped.get(key)
+
+		if (existing) {
+			existing.recipientCount += 1
+			if (n.read_at) existing.readCount += 1
+		} else {
+			grouped.set(key, {
+				id: key,
+				title: n.title,
+				body: n.body,
+				type: n.type,
+				created_at: n.created_at,
+				recipientCount: 1,
+				readCount: n.read_at ? 1 : 0,
+			})
+		}
+	}
+
+	const notifications = Array.from(grouped.values())
+		.sort((a, b) => b.created_at.localeCompare(a.created_at))
+		.slice(0, 50)
+
+	return NextResponse.json({ notifications })
 }
 
 export async function POST(req: Request) {
@@ -84,7 +121,10 @@ export async function POST(req: Request) {
 
 	const rows = userIds.map((userId) => ({
 		id: uuidv7(),
+		batch_id: notificationId,
 		user_id: userId,
+		sender_user_id: null, // ou o admin.id se fizer sentido
+		sender_store_id: null, // preenche quando a origem for uma loja/seller
 		title,
 		body,
 		type: 'system' as const,

@@ -7,6 +7,7 @@ export interface Notification {
 	link: string | null
 	readAt: string | null
 	createdAt: string
+	sender: NotificationSender | null
 }
 
 export type NotificationType =
@@ -18,14 +19,27 @@ export type NotificationType =
 	| 'system'
 	| 'promotion'
 
+export type NotificationSender = {
+	type: 'user' | 'store'
+	id: string
+	name: string
+	avatarUrl: string | null
+}
+
 export interface NotificationRow {
 	id: string
 	user_id: string
+	type: NotificationType
 	title: string
 	body: string
-	type: NotificationType
 	link: string | null
 	read_at: string | null
 	created_at: string
-	deleted_at: string | null
+	sender_user: {
+		id: string
+		first_name: string
+		last_name: string
+		avatar_url: string | null
+	} | null
+	sender_store: { id: string; name: string; logo_url: string | null } | null
 }

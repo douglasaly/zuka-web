@@ -10,6 +10,7 @@ const protectedPrefixes = [
 	'/perfil',
 	'/mensagens',
 	'/admin',
+	'/notificacoes',
 ]
 
 export function proxy(request: NextRequest) {
@@ -46,5 +47,7 @@ export const config = {
 		'/mensagens/:path*',
 		'/admin',
 		'/admin/:path*',
+		'/notificacoes',
+		'/notificacoes/:path*',
 	],
 }

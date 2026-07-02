@@ -37,12 +37,14 @@ export function useUserProfile() {
 	const resolvedProfile = (profile ?? null) as UserProfile | null
 	const hasValidSession = Boolean(resolvedProfile)
 
-	const { data: followedData } = useQuery({
-		queryKey: ['followed-stores', { limit: 8, cursor: undefined }],
-		queryFn: getFollowedStores,
-		staleTime: 1000 * 60 * 5,
-		enabled: authReady && Boolean(firebaseUser) && hasValidSession,
-	})
+	const { data: followedData, isLoading: isFollowedStoresLoading } = useQuery(
+		{
+			queryKey: ['followed-stores', { limit: 8, cursor: undefined }],
+			queryFn: getFollowedStores,
+			staleTime: 1000 * 60 * 5,
+			enabled: authReady && Boolean(firebaseUser) && hasValidSession,
+		}
+	)
 
 	const followedStores = followedData?.data ?? []
 	const followedCount = followedData?.metaData?.total ?? 0
@@ -58,5 +60,6 @@ export function useUserProfile() {
 		isBuyer: Boolean(resolvedProfile?.roles.includes('buyer')),
 		followedStores,
 		followedCount,
+		isFollowedStoresLoading,
 	}
 }

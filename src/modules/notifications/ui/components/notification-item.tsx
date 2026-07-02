@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import type { Notification } from '@/types/notifications'
 import { NOTIFICATION_META } from '../../constants'
+import { NotificationAvatar } from './notification-avatar'
 
 interface NotificationItemProps {
 	notification: Notification
@@ -22,7 +23,6 @@ export function NotificationItem({
 }: NotificationItemProps) {
 	const isUnread = !notification.readAt
 	const meta = NOTIFICATION_META[notification.type]
-	const Icon = meta.icon
 
 	const content = (
 		<div
@@ -31,13 +31,8 @@ export function NotificationItem({
 				variant === 'dropdown' ? 'px-4 py-3' : 'px-5 py-4'
 			)}
 		>
-			<div
-				className={cn(
-					'mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-full',
-					meta.bg
-				)}
-			>
-				<Icon className={cn('size-4', meta.fg)} />
+			<div className='mt-0.5'>
+				<NotificationAvatar notification={notification} />
 			</div>
 
 			<div className='min-w-0 flex-1'>
@@ -50,7 +45,9 @@ export function NotificationItem({
 								: 'font-medium text-muted-foreground'
 						)}
 					>
-						{notification.title}
+						{notification.sender?.name
+							? `${notification.sender.name} `
+							: `${notification.title}`}
 					</p>
 					{isUnread && (
 						<span className='mt-1 size-2 shrink-0 rounded-full bg-secondary' />

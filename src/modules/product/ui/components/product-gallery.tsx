@@ -19,6 +19,7 @@ type ProductGalleryProps = {
 	isSaved: boolean
 	onToggleSave: () => void
 	onShare: () => void
+	isPending?: boolean
 }
 
 export const ProductGallery = ({
@@ -27,6 +28,7 @@ export const ProductGallery = ({
 	isSaved,
 	onToggleSave,
 	onShare,
+	isPending,
 }: ProductGalleryProps) => {
 	const router = useRouter()
 	const [api, setApi] = useState<CarouselApi>()
@@ -91,6 +93,7 @@ export const ProductGallery = ({
 									? 'Remover dos guardados'
 									: 'Guardar produto'
 							}
+							disabled={isPending}
 							onClick={onToggleSave}
 							className='group rounded-full border border-border/60 bg-background/90 backdrop-blur-sm'
 						>

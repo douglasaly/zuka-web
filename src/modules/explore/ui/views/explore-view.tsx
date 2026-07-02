@@ -1,11 +1,12 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import { useSearchParams } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useMemo, useState } from 'react'
 import { SegmentedControl } from '@/components/segmented-control'
 import { type ViewMode, ViewModeToggle } from '@/components/view-mode-toggle'
 import { useDebouncedValue } from '@/hooks/use-debounced-value'
+import { getCategories } from '@/lib/api/categories'
 import { fetchProducts, fetchStores } from '@/lib/api/marketplace'
 import {
 	CategoryFilter,
@@ -21,6 +22,7 @@ import { ExploreStoresSkeleton } from '../components/explore-stores-skeleton'
 interface Category {
 	id: string
 	name: string
+	slug: string
 }
 
 const TAB_OPTIONS = [
@@ -29,41 +31,63 @@ const TAB_OPTIONS = [
 ]
 
 export const ExploreView = () => {
+	const router = useRouter()
+	const pathname = usePathname()
 	const searchParams = useSearchParams()
-	const initialTab =
-		searchParams.get('tab') === 'stores' ? 'stores' : 'products'
 
-	const [tab, setTab] = useState(initialTab)
-	const [category, setCategory] = useState('all')
+	const tab = searchParams.get('tab') === 'stores' ? 'stores' : 'products'
+	const categorySlug = searchParams.get('categoria') ?? 'all'
+
 	const [search, setSearch] = useState('')
 	const [viewMode, setViewMode] = useState<ViewMode>('grid')
 	const debouncedSearch = useDebouncedValue(search, 350)
 
-	useEffect(() => {
-		const tabParam = searchParams.get('tab')
-		if (tabParam === 'stores' || tabParam === 'products') {
-			setTab(tabParam)
+	const updateParams = (updates: Record<string, string | null>) => {
+		const params = new URLSearchParams(searchParams.toString())
+
+		for (const [key, value] of Object.entries(updates)) {
+			if (value === null) {
+				params.delete(key)
+			} else {
+				params.set(key, value)
+			}
 		}
-	}, [searchParams])
+
+		const query = params.toString()
+		router.push(query ? `${pathname}?${query}` : pathname, {
+			scroll: false,
+		})
+	}
+
+	const handleTabChange = (value: string) => {
+		updateParams({ tab: value === 'products' ? null : value })
+	}
+
+	const handleCategoryChange = (slug: string) => {
+		updateParams({ categoria: slug === 'all' ? null : slug })
+	}
 
 	const { data: categories = [] } = useQuery<Category[]>({
 		queryKey: ['categories'],
-		queryFn: async () => {
-			const res = await fetch('/api/categories')
-			if (!res.ok) throw new Error('Failed to load categories')
-			return res.json()
-		},
+		queryFn: getCategories,
 	})
 
+	const categoryId = useMemo(() => {
+		if (categorySlug === 'all') return undefined
+		return categories.find((c) => c.slug === categorySlug)?.id
+	}, [categories, categorySlug])
+
 	const { data: products = [], isLoading: productsLoading } = useQuery({
-		queryKey: ['explore-products', category, debouncedSearch],
+		queryKey: ['explore-products', categoryId, debouncedSearch],
 		queryFn: () =>
 			fetchProducts({
-				category: category === 'all' ? undefined : category,
+				category: categoryId,
 				search: debouncedSearch || undefined,
 				limit: 50,
 			}),
-		enabled: tab === 'products',
+		enabled:
+			tab === 'products' &&
+			(categorySlug === 'all' || (categories.length > 0 && !!categoryId)),
 	})
 
 	const { data: stores = [], isLoading: storesLoading } = useQuery({
@@ -75,7 +99,7 @@ export const ExploreView = () => {
 	const categoryOptions = useMemo<CategoryOption[]>(
 		() => [
 			{ value: 'all', label: 'Todos' },
-			...categories.map((c) => ({ value: c.id, label: c.name })),
+			...categories.map((c) => ({ value: c.slug, label: c.name })),
 		],
 		[categories]
 	)
@@ -96,15 +120,15 @@ export const ExploreView = () => {
 				<SegmentedControl
 					options={TAB_OPTIONS}
 					value={tab}
-					onChange={setTab}
+					onChange={handleTabChange}
 				/>
 
 				{tab === 'products' && (
 					<>
 						<CategoryFilter
 							options={categoryOptions}
-							value={category}
-							onChange={setCategory}
+							value={categorySlug}
+							onChange={handleCategoryChange}
 						/>
 
 						<div className='flex items-center justify-between'>

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { FilterCarousel } from '@/components/filter-carousel'
+import { getCategories } from '@/lib/api/categories'
 
 interface Props {
 	categoryId?: string
@@ -23,17 +24,7 @@ export interface Categories {
 export const CategoriesSectionSuspense = ({ categoryId }: Props) => {
 	const { data: categories = [] } = useQuery<Categories[]>({
 		queryKey: ['categories'],
-		queryFn: async () => {
-			const response = await fetch('/api/categories', {
-				method: 'GET',
-			})
-
-			if (!response.ok) {
-				throw new Error('Fetch error')
-			}
-
-			return response.json() as Promise<Categories[]>
-		},
+		queryFn: getCategories,
 	})
 
 	const router = useRouter()
@@ -44,15 +35,17 @@ export const CategoriesSectionSuspense = ({ categoryId }: Props) => {
 	}))
 
 	const onSelect = (value: string | null) => {
-		const url = new URL(location.href)
+		const url = new URL('/feed/explorar', location.origin)
 
-		if (value) {
-			url.searchParams.set('categoryId', value)
-		} else {
-			url.searchParams.delete('categoryId')
+		const categorySlug = value
+			? categories.find((c) => c.id === value)?.slug
+			: undefined
+
+		if (categorySlug) {
+			url.searchParams.set('categoria', categorySlug)
 		}
 
-		router.push(url.toString())
+		router.push(`${url.pathname}${url.search}`)
 	}
 
 	return (

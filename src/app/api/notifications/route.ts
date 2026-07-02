@@ -29,15 +29,17 @@ export async function GET(req: Request) {
 				supabase
 					.from('notifications')
 					.select(`
-					id,
-					user_id,
-					type,
-					title,
-					body,
-					link,
-					read_at,
-					created_at
-				`)
+				id,
+				user_id,
+				type,
+				title,
+				body,
+				link,
+				read_at,
+				created_at,
+				sender_user:users!sender_user_id ( id, first_name, last_name, avatar_url ),
+				sender_store:stores!sender_store_id ( id, name, logo_url )
+			`)
 					.eq('user_id', user.id)
 					.is('deleted_at', null)
 					.order('created_at', { ascending: false })
@@ -59,16 +61,35 @@ export async function GET(req: Request) {
 
 		const rows = (data ?? []) as NotificationRow[]
 
-		const notifications = rows.map((row) => ({
-			id: row.id,
-			userId: row.user_id,
-			type: row.type,
-			title: row.title,
-			body: row.body,
-			link: row.link,
-			readAt: row.read_at,
-			createdAt: row.created_at,
-		}))
+		const notifications = rows.map((row) => {
+			const sender = row.sender_store
+				? {
+						type: 'store' as const,
+						id: row.sender_store.id,
+						name: row.sender_store.name,
+						avatarUrl: row.sender_store.logo_url,
+					}
+				: row.sender_user
+					? {
+							type: 'user' as const,
+							id: row.sender_user.id,
+							name: `${row.sender_user.first_name} ${row.sender_user.last_name}`,
+							avatarUrl: row.sender_user.avatar_url,
+						}
+					: null
+
+			return {
+				id: row.id,
+				userId: row.user_id,
+				type: row.type,
+				title: row.title,
+				body: row.body,
+				link: row.link,
+				readAt: row.read_at,
+				createdAt: row.created_at,
+				sender,
+			}
+		})
 
 		return NextResponse.json({
 			success: true,

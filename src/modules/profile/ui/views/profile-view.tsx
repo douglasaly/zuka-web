@@ -12,8 +12,8 @@ import {
 	Store,
 } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { UserAvatar } from '@/components/user-avatar'
 import { useSavedItems } from '@/hooks/use-saved-items'
@@ -21,10 +21,12 @@ import { useUserProfile } from '@/hooks/use-user-profile'
 import { normalizeStore } from '@/types/stores'
 import { EmptyState } from '../components/empty-state'
 import { FollowedStoreCard } from '../components/followed-store-card'
+import { FollowedStoreCardSkeleton } from '../components/followed-store-card-skeleton'
 import { ProfileActionLink } from '../components/product-action-link'
 import { ProfileSkeleton } from '../components/profile-skeleton'
 import { ProfileStats } from '../components/profile-stats'
 import { SavedItemCard } from '../components/saved-item-card'
+import { SavedItemCardSkeleton } from '../components/saved-item-card-skeleton'
 import { SegmentedTabs } from '../components/segmented-tabs'
 
 const TABS = [
@@ -35,6 +37,17 @@ const TABS = [
 export const ProfileView = () => {
 	const [tab, setTab] = useState('Guardados')
 	const router = useRouter()
+	const pathname = usePathname()
+	const searchParams = useSearchParams()
+
+	useEffect(() => {
+		const initialTab = searchParams.get('tab')
+
+		if (initialTab && TABS.some((t) => t.title === initialTab)) {
+			setTab(initialTab)
+		}
+	}, [searchParams])
+
 	const {
 		profile,
 		isAuthenticated,
@@ -42,6 +55,7 @@ export const ProfileView = () => {
 		isSeller,
 		followedCount,
 		followedStores,
+		isFollowedStoresLoading,
 	} = useUserProfile()
 
 	const { savedItems, toggleSavedItem, isRemoving, isSavedItemsLoading } =
@@ -90,6 +104,18 @@ export const ProfileView = () => {
 
 	const normalizedStores = followedStores.map(normalizeStore) ?? []
 
+	const handleSetTab = (newTab: string) => {
+		const params = new URLSearchParams(searchParams.toString())
+
+		params.set('tab', newTab)
+
+		router.replace(`${pathname}?${params.toString()}`, {
+			scroll: false,
+		})
+
+		setTab(newTab)
+	}
+
 	return (
 		<div className='mx-auto max-w-4xl px-4 py-8 md:py-12'>
 			<h1 className='mb-6 font-heading text-2xl font-bold md:text-3xl'>
@@ -132,11 +158,21 @@ export const ProfileView = () => {
 
 				{/* TABS */}
 				<div className='flex flex-col w-full gap-4'>
-					<SegmentedTabs tabs={TABS} value={tab} onChange={setTab} />
+					<SegmentedTabs
+						tabs={TABS}
+						value={tab}
+						onChange={handleSetTab}
+					/>
 
 					{tab === 'Guardados' && (
 						<div className='flex flex-wrap gap-3'>
-							{savedItems.length === 0 ? (
+							{isSavedItemsLoading ? (
+								<div className='flex flex-wrap gap-3'>
+									{Array.from({ length: 6 }).map((_, i) => (
+										<SavedItemCardSkeleton key={i} />
+									))}
+								</div>
+							) : savedItems.length === 0 ? (
 								<div className='w-full'>
 									<EmptyState
 										icon={Heart}
@@ -161,7 +197,17 @@ export const ProfileView = () => {
 
 					{tab === 'Lojas seguidas' && (
 						<div className='flex flex-col gap-3'>
-							{followedStores.length === 0 ? (
+							{isFollowedStoresLoading ? (
+								<div className='space-y-3'>
+									{Array.from({ length: 3 }).map(
+										(_, index) => (
+											<FollowedStoreCardSkeleton
+												key={index}
+											/>
+										)
+									)}
+								</div>
+							) : followedStores.length === 0 ? (
 								<EmptyState
 									icon={Store}
 									title='Ainda não segue nenhuma loja'

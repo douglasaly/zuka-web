@@ -1,9 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-	followStore,
-	getFollowedStores,
-	isFollowing,
-	unfollowStore,
+	followStore, isFollowing,
+	unfollowStore
 } from '@/lib/api/stores'
 
 export function useFollowStore(storeSlug: string) {

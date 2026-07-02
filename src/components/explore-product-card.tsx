@@ -72,19 +72,14 @@ export const ProductCard = ({
 					className={cn(
 						'font-semibold leading-snug text-foreground transition-colors group-hover:text-secondary',
 						isCompact
-							? 'line-clamp-1 text-xs'
+							? 'line-clamp-1 text-sm'
 							: 'line-clamp-2 text-sm'
 					)}
 				>
 					{product.name}
 				</h3>
 				<div className='flex flex-wrap items-baseline gap-1.5'>
-					<span
-						className={cn(
-							'font-bold text-foreground',
-							isCompact ? 'text-xs' : 'text-sm'
-						)}
-					>
+					<span className={cn('font-bold text-foreground')}>
 						{formatPrice(product.price, product.currency)}
 					</span>
 					{product.negotiable && !isCompact && (

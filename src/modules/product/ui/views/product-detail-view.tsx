@@ -3,9 +3,10 @@
 import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import { useSavedItems } from '@/hooks/use-saved-items'
 import {
 	fetchProduct,
 	fetchProducts,
@@ -26,7 +27,14 @@ interface ProductDetailViewProps {
 
 export const ProductDetailView = ({ id }: ProductDetailViewProps) => {
 	const router = useRouter()
-	const [isSaved, setIsSaved] = useState(false)
+	const {
+		isSaved: isProductSaved,
+		isSaving,
+		isRemoving,
+		toggleSavedItem,
+	} = useSavedItems()
+
+	const isSaved = isProductSaved(id)
 
 	const { data, isLoading } = useQuery({
 		queryKey: ['product', id],
@@ -68,8 +76,7 @@ export const ProductDetailView = ({ id }: ProductDetailViewProps) => {
 		images.length > 0 ? images : [product.image ?? PRODUCT_PLACEHOLDER]
 
 	const handleToggleSave = () => {
-		setIsSaved((prev) => !prev)
-		// TODO: chamar API para guardar/remover dos guardados
+		toggleSavedItem(product.id)
 	}
 
 	const handleShare = async () => {
@@ -104,6 +111,7 @@ export const ProductDetailView = ({ id }: ProductDetailViewProps) => {
 				isSaved={isSaved}
 				onToggleSave={handleToggleSave}
 				onShare={handleShare}
+				isPending={isSaving || isRemoving}
 			/>
 
 			<div className='space-y-5 px-4 pt-5 md:px-0'>

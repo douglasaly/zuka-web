@@ -1,5 +1,5 @@
-import { getSessionUser } from '@/lib/auth/session'
 import { getUserRoles, hasAdminAccess } from '@/lib/auth/roles'
+import { getSessionUser } from '@/lib/auth/session'
 
 export async function getAdminUser() {
 	const user = await getSessionUser()

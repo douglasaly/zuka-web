@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import type { Notification } from '@/types/notifications'
 import { NOTIFICATION_META } from '../../constants'
+import { NotificationAvatar } from './notification-avatar'
 
 type NotificationCardProps = {
 	notification: Notification
@@ -19,6 +20,7 @@ export const NotificationCard = ({
 	const isUnread = !notification.readAt
 	const meta = NOTIFICATION_META[notification.type]
 	const Icon = meta.icon
+	const sender = notification.sender
 
 	const timeAgo = formatDistanceToNow(new Date(notification.createdAt), {
 		addSuffix: true,
@@ -32,13 +34,8 @@ export const NotificationCard = ({
 				isUnread ? meta.border : 'border-l-transparent'
 			)}
 		>
-			<div
-				className={cn(
-					'mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full transition-transform duration-200 group-hover:scale-105',
-					meta.bg
-				)}
-			>
-				<Icon className={cn('size-5', meta.fg)} />
+			<div className='mt-0.5'>
+				<NotificationAvatar notification={notification} size='md' />
 			</div>
 
 			<div className='min-w-0 flex-1'>
@@ -51,6 +48,14 @@ export const NotificationCard = ({
 								: 'font-medium text-secondary-600'
 						)}
 					>
+						{sender && (
+							<>
+								<span className='font-bold text-foreground'>
+									{sender.name}
+								</span>
+								{' — '}
+							</>
+						)}
 						{notification.title}
 					</p>
 

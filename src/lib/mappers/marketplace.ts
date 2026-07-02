@@ -83,7 +83,7 @@ export function mapProductRow(row: DbProduct): Product {
 		storeSlug: store?.slug ?? '',
 		storeLocation: storeLocation(store),
 		storeVerified: Boolean(store?.verified_at),
-		storeAvatar: sanitizeUrl(store?.logo_url),
+		storeAvatar: store?.logo_url ?? sanitizeUrl(store?.logo_url),
 		storePhone: store?.phone ?? null,
 		description: row.description ?? '',
 		categoryId: row.category_id,
@@ -119,8 +119,8 @@ export function mapStoreRow(
 		reviewCount: 0,
 		followers: store.follower_count ?? 0,
 		productCount: store.product_count ?? 0,
-		bannerUrl: sanitizeUrl(store.banner_url),
-		logoUrl: sanitizeUrl(store.logo_url),
+		bannerUrl: store.banner_url ?? sanitizeUrl(store.banner_url),
+		logoUrl: store.logo_url ?? sanitizeUrl(store.logo_url),
 		whatsapp: store.whatsapp ?? store.phone ?? null,
 		phone: store.phone ?? null,
 		about: store.description ?? '',
@@ -152,7 +152,8 @@ export function mapOrderRow(order: {
 	return {
 		id: order.id,
 		storeName: order.stores?.name ?? 'Loja',
-		storeAvatar: sanitizeUrl(order.stores?.logo_url),
+		storeAvatar:
+			order.stores?.logo_url ?? sanitizeUrl(order.stores?.logo_url),
 		date: new Date(order.created_at).toLocaleDateString('pt-PT', {
 			day: 'numeric',
 			month: 'short',

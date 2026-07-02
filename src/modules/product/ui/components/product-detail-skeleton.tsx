@@ -1,7 +1,7 @@
 import { Skeleton } from '@/components/ui/skeleton'
 
 export const ProductDetailSkeleton = () => (
-	<div className='mx-auto max-w-4xl pb-10'>
+	<div className='mx-auto max-w-4xl pb-10 pt-2'>
 		<Skeleton className='mx-auto aspect-square w-full max-w-xl md:rounded-2xl' />
 
 		<div className='mx-auto mt-4 flex max-w-2xl gap-3 px-4 md:px-0'>
