@@ -1,5 +1,6 @@
 'use client'
 
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
 import {
 	CheckCircle2,
 	Clock,
@@ -14,7 +15,6 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'

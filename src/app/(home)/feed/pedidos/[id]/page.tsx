@@ -1,5 +1,5 @@
-import { OrderDetailView } from '@/modules/orders/ui/views/order-detail-view'
 import { requireSessionPage } from '@/lib/auth/require-session-page'
+import { OrderDetailView } from '@/modules/orders/ui/views/order-detail-view'
 
 interface OrderDetailPageProps {
 	params: Promise<{ id: string }>

@@ -87,11 +87,10 @@ export async function POST(req: Request) {
 		user_id: userId,
 		title,
 		body,
-		type: 'admin',
+		type: 'system' as const,
 		link: null,
 		read_at: null,
 		created_at: now,
-		updated_at: now,
 	}))
 
 	const { error } = await supabase.from('notifications').insert(rows)

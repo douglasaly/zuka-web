@@ -1,49 +1,95 @@
 import { NextResponse } from 'next/server'
+
 import { getSessionUser } from '@/lib/auth/session'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
+
 import type { NotificationRow } from '@/types/notifications'
 
 export async function GET(req: Request) {
 	try {
 		const user = await getSessionUser()
+
 		if (!user) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 		}
 
 		const { searchParams } = new URL(req.url)
-		const limit = Math.min(Number(searchParams.get('limit') ?? 20), 100)
+
+		const limit = Math.min(
+			Math.max(Number(searchParams.get('limit') ?? 20), 1),
+			100
+		)
+
+		const offset = Math.max(Number(searchParams.get('offset') ?? 0), 0)
 
 		const supabase = createSupabaseAdmin()
-		const { data, error } = await supabase
-			.from('notifications')
-			.select('*')
-			.eq('user_id', user.id as string)
-			.is('deleted_at', null)
-			.order('created_at', { ascending: false })
-			.limit(limit)
+
+		const [{ data, error }, { count: unreadCount, error: unreadError }] =
+			await Promise.all([
+				supabase
+					.from('notifications')
+					.select(`
+					id,
+					user_id,
+					type,
+					title,
+					body,
+					link,
+					read_at,
+					created_at
+				`)
+					.eq('user_id', user.id)
+					.is('deleted_at', null)
+					.order('created_at', { ascending: false })
+					.range(offset, offset + limit - 1),
+
+				supabase
+					.from('notifications')
+					.select('id', {
+						head: true,
+						count: 'exact',
+					})
+					.eq('user_id', user.id)
+					.is('deleted_at', null)
+					.is('read_at', null),
+			])
 
 		if (error) throw error
+		if (unreadError) throw unreadError
 
 		const rows = (data ?? []) as NotificationRow[]
-		const notifications = rows.map((r) => ({
-			id: r.id,
-			userId: r.user_id,
-			title: r.title,
-			body: r.body,
-			type: r.type,
-			link: r.link,
-			readAt: r.read_at,
-			createdAt: r.created_at,
+
+		const notifications = rows.map((row) => ({
+			id: row.id,
+			userId: row.user_id,
+			type: row.type,
+			title: row.title,
+			body: row.body,
+			link: row.link,
+			readAt: row.read_at,
+			createdAt: row.created_at,
 		}))
 
-		const unreadCount = notifications.filter((n) => !n.readAt).length
-
-		return NextResponse.json({ success: true, notifications, unreadCount })
+		return NextResponse.json({
+			success: true,
+			notifications,
+			unreadCount: unreadCount ?? 0,
+			pagination: {
+				limit,
+				offset,
+				hasMore: notifications.length === limit,
+			},
+		})
 	} catch (error) {
 		console.error(error)
+
 		return NextResponse.json(
-			{ error: 'Erro ao buscar notificações' },
-			{ status: 500 }
+			{
+				error: 'Erro ao buscar notificações',
+			},
+			{
+				status: 500,
+			}
 		)
 	}
 }
@@ -51,6 +97,7 @@ export async function GET(req: Request) {
 export async function PATCH(req: Request) {
 	try {
 		const user = await getSessionUser()
+
 		if (!user) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 		}
@@ -59,27 +106,42 @@ export async function PATCH(req: Request) {
 
 		if (!Array.isArray(ids) || ids.length === 0) {
 			return NextResponse.json(
-				{ error: 'ids é obrigatório' },
-				{ status: 400 }
+				{
+					error: 'O campo ids é obrigatório.',
+				},
+				{
+					status: 400,
+				}
 			)
 		}
 
 		const supabase = createSupabaseAdmin()
+
 		const { error } = await supabase
 			.from('notifications')
-			.update({ read_at: new Date().toISOString() })
-			.eq('user_id', user.id as string)
+			.update({
+				read_at: new Date().toISOString(),
+			})
+			.eq('user_id', user.id)
 			.in('id', ids)
 			.is('deleted_at', null)
+			.is('read_at', null)
 
 		if (error) throw error
 
-		return NextResponse.json({ success: true })
+		return NextResponse.json({
+			success: true,
+		})
 	} catch (error) {
 		console.error(error)
+
 		return NextResponse.json(
-			{ error: 'Erro ao marcar notificações como lidas' },
-			{ status: 500 }
+			{
+				error: 'Erro ao marcar notificações como lidas.',
+			},
+			{
+				status: 500,
+			}
 		)
 	}
 }
