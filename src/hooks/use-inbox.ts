@@ -5,7 +5,11 @@ import type { InboxItem } from '@/types/messages'
 import { useUserProfile } from './use-user-profile'
 
 export const useInbox = () => {
-	const { isAuthenticated, profile } = useUserProfile()
+	const {
+		isAuthenticated,
+		isLoading: isAuthLoading,
+		profile,
+	} = useUserProfile()
 
 	const { data, isLoading } = useQuery({
 		queryKey: ['inbox', profile?.id],
@@ -30,5 +34,10 @@ export const useInbox = () => {
 		0
 	)
 
-	return { conversations, isLoading, unreadTotal, hasMore }
+	return {
+		conversations,
+		isLoading: isAuthLoading || isLoading,
+		unreadTotal,
+		hasMore,
+	}
 }

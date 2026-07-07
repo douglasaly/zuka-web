@@ -1,6 +1,7 @@
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
-import { Avatar, AvatarImage } from './ui/avatar'
+import { getInitials } from '@/utils/get-initials'
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 
 const avatarVariants = cva('', {
 	variants: {
@@ -31,6 +32,8 @@ export const StoreAvatar = ({
 	onClick,
 	size,
 }: UserAvatarProps) => {
+	const nameFallback = getInitials(name)
+
 	return (
 		<Avatar
 			className={cn(
@@ -42,6 +45,10 @@ export const StoreAvatar = ({
 			onClick={onClick}
 		>
 			<AvatarImage src={imageUrl} alt={name} />
+
+			<AvatarFallback className='font-bold text-xl'>
+				{nameFallback}
+			</AvatarFallback>
 		</Avatar>
 	)
 }

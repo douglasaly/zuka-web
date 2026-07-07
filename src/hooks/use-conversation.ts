@@ -75,6 +75,7 @@ export const useConversation = ({ conversationId }: UseConversationProps) => {
 		messages,
 		isLoading,
 		isSending: sendMessage.isPending,
+		sendError: sendMessage.error,
 		sendMessage: (text: string) => sendMessage.mutate(text),
 		markRead: () => markRead.mutate(),
 	}

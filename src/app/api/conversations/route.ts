@@ -86,18 +86,34 @@ export async function GET(request: NextRequest) {
 		// que o utilizador ainda não leu (criadas após last_read_at)
 		const { data: unreadData } = await supabase
 			.from('messages')
-			.select('conversation_id')
+			.select('conversation_id, created_at')
 			.in('conversation_id', conversationIds)
 			.not('store_id', 'is', null) // enviadas pela loja
 			.is('deleted_at', null)
 
-		const unreadMap = (unreadData ?? []).reduce<Record<string, number>>(
-			(acc, msg) => {
+		const lastReadAtByConversation = pageItems.reduce<
+			Record<string, string | null>
+		>((acc, c) => {
+			const participant = Array.isArray(c.conversation_participants)
+				? c.conversation_participants[0]
+				: c.conversation_participants
+
+			acc[c.id] = participant?.last_read_at ?? null
+			return acc
+		}, {})
+
+		const unreadMap = (unreadData ?? [])
+			.filter((msg) => {
+				const lastReadAt = lastReadAtByConversation[msg.conversation_id]
+				return (
+					msg.created_at != null &&
+					(lastReadAt ? msg.created_at > lastReadAt : true)
+				)
+			})
+			.reduce<Record<string, number>>((acc, msg) => {
 				acc[msg.conversation_id] = (acc[msg.conversation_id] ?? 0) + 1
 				return acc
-			},
-			{}
-		)
+			}, {})
 
 		// Montar inbox (caixa de mensagens) para o utilizador
 		const inbox =
