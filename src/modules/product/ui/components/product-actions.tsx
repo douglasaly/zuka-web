@@ -6,12 +6,14 @@ type ProductActionsProps = {
 	whatsappHref: string
 	phoneHref: string
 	onChat: () => void
+	isChatting?: boolean
 }
 
 export const ProductActions = ({
 	whatsappHref,
 	phoneHref,
 	onChat,
+	isChatting,
 }: ProductActionsProps) => (
 	<div className='flex gap-2'>
 		<Button
@@ -41,9 +43,10 @@ export const ProductActions = ({
 			size='lg'
 			className='rounded-xl'
 			onClick={onChat}
+			disabled={isChatting}
 		>
 			<MessageCircle className='size-4' />
-			Chat
+			{isChatting ? 'A abrir...' : 'Chat'}
 		</Button>
 	</div>
 )

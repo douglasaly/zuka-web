@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server'
+import { uuidv7 } from 'uuidv7'
 import { getSessionUser } from '@/lib/auth/session'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 
@@ -141,6 +142,153 @@ export async function GET(request: NextRequest) {
 		return NextResponse.json({ data: inbox, hasMore })
 	} catch (err) {
 		console.error('[GET /api/conversations]', err)
+		return NextResponse.json(
+			{ error: 'Internal server error' },
+			{ status: 500 }
+		)
+	}
+}
+
+export async function POST(request: NextRequest) {
+	try {
+		const user = await getSessionUser()
+
+		if (!user) {
+			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+		}
+
+		const { productId, content } = await request.json()
+
+		if (!productId) {
+			return NextResponse.json(
+				{ error: 'productId is required' },
+				{ status: 400 }
+			)
+		}
+
+		const supabase = createSupabaseAdmin()
+
+		// Buscar o produto para obter a loja
+		const { data: product } = await supabase
+			.from('products')
+			.select('store_id')
+			.eq('id', productId)
+			.is('deleted_at', null)
+			.single()
+
+		if (!product) {
+			return NextResponse.json(
+				{ error: 'Product not found' },
+				{ status: 404 }
+			)
+		}
+
+		const storeId = product.store_id
+
+		// Buscar o dono da loja
+		const { data: store } = await supabase
+			.from('stores')
+			.select('owner_id')
+			.eq('id', storeId)
+			.single()
+
+		if (!store) {
+			return NextResponse.json(
+				{ error: 'Store not found' },
+				{ status: 404 }
+			)
+		}
+
+		// Verificar se já existe uma conversa entre o comprador e a loja
+		const { data: userParticipations } = await supabase
+			.from('conversation_participants')
+			.select('conversation_id')
+			.eq('user_id', user.id)
+
+		const userConvIds =
+			(userParticipations ?? []).map((p) => p.conversation_id) ?? []
+
+		let conversationId: string | null = null
+
+		if (userConvIds.length > 0) {
+			const { data: shared } = await supabase
+				.from('conversation_participants')
+				.select('conversation_id')
+				.eq('user_id', store.owner_id)
+				.in('conversation_id', userConvIds)
+				.limit(1)
+
+			const sharedId = shared?.[0]?.conversation_id
+
+			if (sharedId) {
+				// Confirmar que a conversa não foi eliminada
+				const { data: conv } = await supabase
+					.from('conversations')
+					.select('id')
+					.eq('id', sharedId)
+					.is('deleted_at', null)
+					.single()
+
+				if (conv) conversationId = conv.id
+			}
+		}
+
+		if (!conversationId) {
+			// Criar nova conversa
+			conversationId = uuidv7()
+
+			const { error: convError } = await supabase
+				.from('conversations')
+				.insert({
+					id: conversationId,
+					product_id: productId,
+					store_id: storeId,
+				})
+
+			if (convError) throw convError
+
+			// Adicionar participantes (comprador + loja)
+			const { error: partError } = await supabase
+				.from('conversation_participants')
+				.insert([
+					{ conversation_id: conversationId, user_id: user.id },
+					{
+						conversation_id: conversationId,
+						user_id: store.owner_id,
+					},
+				])
+
+			if (partError) throw partError
+		}
+
+		// Enviar mensagem inicial apenas se houver conteúdo
+		if (content?.trim()) {
+			const messageId = uuidv7()
+			const { error: msgError } = await supabase.from('messages').insert({
+				id: messageId,
+				conversation_id: conversationId,
+				user_id: user.id,
+				store_id: null,
+				content: content.trim(),
+			})
+
+			if (msgError) throw msgError
+
+			// Actualizar last_message_at e last_message_id na conversa
+			const { error: updateError } = await supabase
+				.from('conversations')
+				.update({
+					last_message_at: new Date().toISOString(),
+					last_message_id: messageId,
+				})
+				.eq('id', conversationId)
+
+			if (updateError) throw updateError
+		}
+
+		return NextResponse.json({ data: { conversationId } }, { status: 201 })
+	} catch (err) {
+		console.error('[POST /api/conversations]', err)
 		return NextResponse.json(
 			{ error: 'Internal server error' },
 			{ status: 500 }

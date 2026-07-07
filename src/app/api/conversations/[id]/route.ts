@@ -6,21 +6,6 @@ interface Params {
 	params: Promise<{ id: string }>
 }
 
-type StoreRow = {
-	id: string
-	name: string
-	logo_url: string | null
-	slug: string
-	state: string | null
-	provinces: { name: string } | null
-}
-
-type ConversationRow = {
-	id: string
-	product_id: string | null
-	stores: StoreRow | null
-}
-
 export async function GET(_req: Request, { params }: Params) {
 	try {
 		const { id: conversationId } = await params
@@ -40,8 +25,14 @@ export async function GET(_req: Request, { params }: Params) {
 			.single()
 
 		if (participantError && participantError.code !== 'PGRST116') {
-			console.error('[GET /api/conversations/:id] participant lookup failed', participantError)
-			return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+			console.error(
+				'[GET /api/conversations/:id] participant lookup failed',
+				participantError
+			)
+			return NextResponse.json(
+				{ error: 'Internal server error' },
+				{ status: 500 }
+			)
 		}
 
 		if (!participant) {
@@ -60,9 +51,7 @@ export async function GET(_req: Request, { params }: Params) {
 					logo_url,
 					slug,
 					state,
-					provinces (
-						name
-					)
+					provinces ( name )
 				)
 			`
 			)
@@ -72,23 +61,21 @@ export async function GET(_req: Request, { params }: Params) {
 
 		if (error) throw error
 
-		const row = data as unknown as ConversationRow
-
-		const store = row.stores
+		const store = (data as any).stores
 			? {
-					id: row.stores.id,
-					name: row.stores.name,
-					logoUrl: row.stores.logo_url,
-					slug: row.stores.slug,
-					state: row.stores.state,
-					provinceName: row.stores.provinces?.name ?? null,
+					id: (data as any).stores.id,
+					name: (data as any).stores.name,
+					logoUrl: (data as any).stores.logo_url,
+					slug: (data as any).stores.slug,
+					state: (data as any).stores.state,
+					provinceName: (data as any).stores.provinces?.name ?? null,
 				}
 			: null
 
 		return NextResponse.json({
 			data: {
-				conversationId: row.id,
-				productId: row.product_id,
+				conversationId: (data as any).id,
+				productId: (data as any).product_id,
 				store,
 			},
 		})

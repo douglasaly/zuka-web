@@ -302,3 +302,15 @@ export function toProductCard(product: Product) {
 		hasDelivery: product.hasDelivery ?? false,
 	}
 }
+
+export async function startConversation(productId: string) {
+	const res = await fetch('/api/conversations', {
+		method: 'POST',
+		credentials: 'include',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ productId }),
+	})
+	if (!res.ok) throw new Error('Failed to start conversation')
+	const { data } = await res.json()
+	return data as { conversationId: string }
+}
