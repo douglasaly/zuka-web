@@ -17,7 +17,10 @@ export const HomeSidebar = () => {
 			<SidebarHeader className='border-b border-sidebar-border p-4 py-3.5'>
 				<div className='flex items-center gap-2.5'>
 					<div className='flex min-w-0 flex-col group-data-[collapsible=icon]:hidden'>
-						<Link href='/' className='truncate font-heading text-3xl font-extrabold tracking-tight'>
+						<Link
+							href='/'
+							className='truncate font-heading text-3xl font-extrabold tracking-tight'
+						>
 							Zuka
 						</Link>
 						<span className='truncate text-xs text-muted-foreground'>

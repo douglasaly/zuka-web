@@ -16,8 +16,10 @@ function formatTimeAgo(date: string): string {
 	if (diffMin < 60) return `há ${diffMin} min`
 	if (diffMin < 120) return `há ${Math.floor(diffMin / 60)} hora`
 	if (diffMin < 1440) return d.format('HH:mm')
-	if (diffMin < 43200) return `há ${Math.floor(diffMin / 1440)} dia${Math.floor(diffMin / 1440) > 1 ? 's' : ''}`
-	if (diffMin < 525600) return `há ${Math.floor(diffMin / 43200)} mês${Math.floor(diffMin / 43200) > 1 ? 'es' : ''}`
+	if (diffMin < 43200)
+		return `há ${Math.floor(diffMin / 1440)} dia${Math.floor(diffMin / 1440) > 1 ? 's' : ''}`
+	if (diffMin < 525600)
+		return `há ${Math.floor(diffMin / 43200)} mês${Math.floor(diffMin / 43200) > 1 ? 'es' : ''}`
 
 	return `há ${Math.floor(diffMin / 525600)} ano${Math.floor(diffMin / 525600) > 1 ? 's' : ''}`
 }

@@ -1,9 +1,9 @@
-import { Button } from "@/components/ui/button"
-import { X } from "lucide-react"
-import Image from "next/image"
-import { useEffect } from "react"
+import { Button } from '@/components/ui/button'
+import { X } from 'lucide-react'
+import Image from 'next/image'
+import { useEffect } from 'react'
 
-export const  ImageLightbox=({
+export const ImageLightbox = ({
 	src,
 	alt,
 	onClose,
@@ -11,7 +11,7 @@ export const  ImageLightbox=({
 	src: string
 	alt: string
 	onClose: () => void
-}) =>{
+}) => {
 	useEffect(() => {
 		const handler = (e: KeyboardEvent) => {
 			if (e.key === 'Escape') onClose()
@@ -42,9 +42,7 @@ export const  ImageLightbox=({
 				<X className='size-6' />
 			</Button>
 
-			<div
-				className='relative h-full w-full max-h-full max-w-full p-4 pointer-events-none'
-			>
+			<div className='relative h-full w-full max-h-full max-w-full p-4 pointer-events-none'>
 				<Image
 					src={src}
 					alt={alt}

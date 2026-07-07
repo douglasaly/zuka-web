@@ -158,9 +158,7 @@ export const useConversation = ({ conversationId }: UseConversationProps) => {
 				MESSAGES_KEY(conversationId),
 				(prev = []) =>
 					prev?.map((m) =>
-						m.id === context?.tempId
-							? newMessage
-							: m
+						m.id === context?.tempId ? newMessage : m
 					) ?? []
 			)
 			queryClient.invalidateQueries({ queryKey: ['inbox'] })

@@ -14,10 +14,16 @@ interface MessageViewProps {
 }
 
 export const MessageView = ({ messageId }: MessageViewProps) => {
-	const { messages, isLoading, conversation, sendMessage, sendError, markRead } =
-		useConversation({
-			conversationId: messageId,
-		})
+	const {
+		messages,
+		isLoading,
+		conversation,
+		sendMessage,
+		sendError,
+		markRead,
+	} = useConversation({
+		conversationId: messageId,
+	})
 
 	useEffect(() => {
 		markRead()
@@ -36,12 +42,15 @@ export const MessageView = ({ messageId }: MessageViewProps) => {
 			) : (
 				<ChatHeader
 					storeName={conversation.store.name}
-					storeAvatarUrl={conversation.store.logoUrl ?? '/placeholder.jpg'}
-					storeLocation={
-						[conversation.store.provinceName, conversation.store.state]
-							.filter(Boolean)
-							.join(' • ')
+					storeAvatarUrl={
+						conversation.store.logoUrl ?? '/placeholder.jpg'
 					}
+					storeLocation={[
+						conversation.store.provinceName,
+						conversation.store.state,
+					]
+						.filter(Boolean)
+						.join(' • ')}
 					storeSlug={conversation.store.slug}
 				/>
 			)}

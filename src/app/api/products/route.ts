@@ -56,14 +56,40 @@ export async function GET(req: Request) {
 	try {
 		const { searchParams } = new URL(req.url)
 
-		const category = searchParams.get('category')
+		const categorySlug = searchParams.get('categoria')
 		const search = searchParams.get('search')
+		const provinceSlug = searchParams.get('provincia')
+		const minPrice = searchParams.get('preco_min')
+		const maxPrice = searchParams.get('preco_max')
+		const isNew = searchParams.get('recente')
+		const sort = searchParams.get('ordenar')
 
 		const page = Number(searchParams.get('page') ?? 1)
 		const limit = Math.min(Number(searchParams.get('limit') ?? 50), 100)
 		const offset = (page - 1) * limit
 
 		const supabase = createSupabaseAdmin()
+
+		const [catLookup, provLookup] = await Promise.all([
+			categorySlug && categorySlug !== 'all'
+				? supabase
+						.from('categories')
+						.select('id')
+						.eq('slug', categorySlug)
+						.maybeSingle()
+				: Promise.resolve({ data: null }),
+			provinceSlug && provinceSlug !== 'all'
+				? supabase
+						.from('provinces')
+						.select('id')
+						.eq('slug', provinceSlug)
+						.maybeSingle()
+				: Promise.resolve({ data: null }),
+		])
+
+		const categoryId = catLookup?.data?.id
+		const provinceId = provLookup?.data?.id
+
 		let query = supabase
 			.from('products')
 			.select('*, stores!inner(*), categories(*), product_images(*)')
@@ -73,12 +99,39 @@ export async function GET(req: Request) {
 			.is('stores.deleted_at', null)
 			.range(offset, offset + limit - 1)
 
-		if (category) {
-			query = query.eq('category_id', category)
+		if (categoryId) {
+			query = query.eq('category_id', categoryId)
+		}
+
+		if (provinceId) {
+			query = query.eq('stores.province_id', provinceId)
 		}
 
 		if (search) {
 			query = query.ilike('name', `%${search}%`)
+		}
+
+		if (minPrice) {
+			query = query.gte('price', Number(minPrice))
+		}
+
+		if (maxPrice) {
+			query = query.lte('price', Number(maxPrice))
+		}
+
+		if (isNew === 'true') {
+			const fourteenDaysAgo = new Date(
+				Date.now() - 14 * 24 * 60 * 60 * 1000
+			).toISOString()
+			query = query.gte('created_at', fourteenDaysAgo)
+		}
+
+		if (sort === 'price_asc') {
+			query = query.order('price', { ascending: true })
+		} else if (sort === 'price_desc') {
+			query = query.order('price', { ascending: false })
+		} else if (sort === 'newest') {
+			query = query.order('created_at', { ascending: false })
 		}
 
 		const { data, error } = await query
