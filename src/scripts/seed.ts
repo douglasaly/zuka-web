@@ -144,32 +144,30 @@ async function seed() {
 		const perm = Object.fromEntries(permissions.map((p) => [p.key, p.id]))
 		const role = Object.fromEntries(roles.map((r) => [r.name, r.id]))
 
-		await supabase
-			.from('role_permissions')
-			.insert([
-				...permissions.map((p) => ({
-					role_id: role.admin,
-					permission_id: p.id,
-				})),
-				...permissions.map((p) => ({
-					role_id: role.super_admin,
-					permission_id: p.id,
-				})),
-				{ role_id: role.seller, permission_id: perm['product.create'] },
-				{ role_id: role.seller, permission_id: perm['product.update'] },
-				{ role_id: role.seller, permission_id: perm['product.delete'] },
-				{ role_id: role.seller, permission_id: perm['product.read'] },
-				{ role_id: role.seller, permission_id: perm['order.read'] },
-				{ role_id: role.buyer, permission_id: perm['order.create'] },
-				{ role_id: role.buyer, permission_id: perm['order.read'] },
-				{ role_id: role.buyer, permission_id: perm['product.read'] },
-				{ role_id: role.support, permission_id: perm['order.read'] },
-				{ role_id: role.support, permission_id: perm['user.read'] },
-				{
-					role_id: role.support,
-					permission_id: perm['dispute.manage'],
-				},
-			])
+		await supabase.from('role_permissions').insert([
+			...permissions.map((p) => ({
+				role_id: role.admin,
+				permission_id: p.id,
+			})),
+			...permissions.map((p) => ({
+				role_id: role.super_admin,
+				permission_id: p.id,
+			})),
+			{ role_id: role.seller, permission_id: perm['product.create'] },
+			{ role_id: role.seller, permission_id: perm['product.update'] },
+			{ role_id: role.seller, permission_id: perm['product.delete'] },
+			{ role_id: role.seller, permission_id: perm['product.read'] },
+			{ role_id: role.seller, permission_id: perm['order.read'] },
+			{ role_id: role.buyer, permission_id: perm['order.create'] },
+			{ role_id: role.buyer, permission_id: perm['order.read'] },
+			{ role_id: role.buyer, permission_id: perm['product.read'] },
+			{ role_id: role.support, permission_id: perm['order.read'] },
+			{ role_id: role.support, permission_id: perm['user.read'] },
+			{
+				role_id: role.support,
+				permission_id: perm['dispute.manage'],
+			},
+		])
 
 		const users = [
 			{
@@ -467,32 +465,28 @@ async function seed() {
 			}))
 		)
 
-		await supabase
-			.from('product_variants')
-			.insert([
-				{
-					id: uuidv7(),
-					store_id: stores[0].id,
-					product_id: products[0].id,
-					sku: 'SGS24-BLK',
-					price: 1200000,
-					stock: 20,
-					attributes: { color: 'Black', storage: '256GB' },
-				},
-			])
+		await supabase.from('product_variants').insert([
+			{
+				id: uuidv7(),
+				store_id: stores[0].id,
+				product_id: products[0].id,
+				sku: 'SGS24-BLK',
+				price: 1200000,
+				stock: 20,
+				attributes: { color: 'Black', storage: '256GB' },
+			},
+		])
 
-		await supabase
-			.from('product_images')
-			.insert([
-				{
-					id: uuidv7(),
-					product_id: products[0].id,
-					url: 'https://via.placeholder.com/500',
-					position: 0,
-					is_primary: true,
-					alt: 'Galaxy S24',
-				},
-			])
+		await supabase.from('product_images').insert([
+			{
+				id: uuidv7(),
+				product_id: products[0].id,
+				url: 'https://via.placeholder.com/500',
+				position: 0,
+				is_primary: true,
+				alt: 'Galaxy S24',
+			},
+		])
 
 		const conversationId = uuidv7()
 		await supabase.from('conversations').insert({ id: conversationId })

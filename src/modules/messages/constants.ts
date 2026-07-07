@@ -60,14 +60,22 @@ export const MOCK_CONVERSATIONS: Conversation[] = [
 
 // CHAT
 
+export type MessageStatus = 'sent' | 'delivered' | 'read'
+
 export type ChatMessage = {
-	id: number
-	sender: 'user' | 'seller'
-	text: string
-	time: string
+	id: string
+	conversationId: string
+	userId: string | null // quem enviou (comprador)
+	storeId: string | null // quem enviou (loja)
+	content: string
+	status: MessageStatus
+	createdAt: string
+	updatedAt: string
+	deletedAt: string | null
 }
 
-export const MOCK_MESSAGES: ChatMessage[] = [
+// MOCK DATA
+export const MOCK_MESSAGES = [
 	{
 		id: 2,
 		sender: 'user',

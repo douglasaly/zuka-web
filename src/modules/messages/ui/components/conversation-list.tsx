@@ -1,10 +1,10 @@
 import { MessageSquare } from 'lucide-react'
 import { EmptyState } from '@/modules/profile/ui/components/empty-state'
-import type { Conversation } from '../../constants'
+import type { InboxItem } from '@/types/messages'
 import { ConversationItem } from './converstion-item'
 
 type ConversationsListProps = {
-	conversations: Conversation[]
+	conversations: InboxItem[]
 }
 
 export const ConversationsList = ({
@@ -24,7 +24,7 @@ export const ConversationsList = ({
 		<div className='flex flex-col space-y-4'>
 			{conversations.map((conversation) => (
 				<ConversationItem
-					key={conversation.id}
+					key={conversation.conversationId}
 					conversation={conversation}
 				/>
 			))}

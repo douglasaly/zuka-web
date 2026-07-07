@@ -17,7 +17,11 @@ export const StoreProductsGrid = ({ products }: StoreProductsGridProps) => {
 	return (
 		<div className='grid grid-cols-2 gap-3 sm:gap-4'>
 			{products.map((product) => (
-				<ProductCard key={product.id} product={product} variant='compact'/>
+				<ProductCard
+					key={product.id}
+					product={product}
+					variant='compact'
+				/>
 			))}
 		</div>
 	)

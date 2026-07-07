@@ -1,8 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import {
-	followStore, isFollowing,
-	unfollowStore
-} from '@/lib/api/stores'
+import { followStore, isFollowing, unfollowStore } from '@/lib/api/stores'
 
 export function useFollowStore(storeSlug: string) {
 	const queryClient = useQueryClient()
