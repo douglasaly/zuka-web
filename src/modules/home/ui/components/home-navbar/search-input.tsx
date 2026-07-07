@@ -5,38 +5,67 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import {
+	SearchFiltersSheet,
+	type FilterValues,
+} from '@/modules/search/ui/components/search-filters-sheet'
 import { cn } from '@/lib/utils'
 
 export const SearchInput = () => {
 	const searchParams = useSearchParams()
 	const router = useRouter()
 
-	const query = searchParams.get('query') || ''
-	const categoryId = searchParams.get('categoryId') || ''
+	const query = searchParams.get('q') || ''
+	const category = searchParams.get('categoria') || ''
+	const province = searchParams.get('provincia') || ''
+	const minPrice = searchParams.get('preco_min') || ''
+	const maxPrice = searchParams.get('preco_max') || ''
+	const isNew = searchParams.get('recente') || ''
+	const sort = searchParams.get('ordenar') || 'relevance'
 	const [value, setValue] = useState(query)
 
 	const handleSearch = (event: React.SubmitEvent<HTMLFormElement>) => {
 		event.preventDefault()
-
-		const url = new URL(
-			'/search',
-			`${process.env.VERCEL_URL || 'http://localhost:3000'}`
-		)
-
+		const params = new URLSearchParams()
 		const newQuery = value.trim()
+		if (newQuery) params.set('q', newQuery)
+		if (category) params.set('categoria', category)
+		if (province) params.set('provincia', province)
+		if (minPrice) params.set('preco_min', minPrice)
+		if (maxPrice) params.set('preco_max', maxPrice)
+		if (isNew === 'true') params.set('recente', 'true')
+		if (sort && sort !== 'relevance') params.set('ordenar', sort)
+		router.push(`/pesquisa?${params.toString()}`)
+	}
 
-		url.searchParams.set('query', encodeURIComponent(newQuery))
+	const handleApplyFilters = (values: FilterValues) => {
+		const params = new URLSearchParams()
+		if (value.trim()) params.set('q', value.trim())
+		if (values.category && values.category !== 'all')
+			params.set('categoria', values.category)
+		if (values.province && values.province !== 'all')
+			params.set('provincia', values.province)
+		if (values.minPrice) params.set('preco_min', values.minPrice)
+		if (values.maxPrice) params.set('preco_max', values.maxPrice)
+		if (values.isNew === 'true') params.set('recente', 'true')
+		if (values.sort && values.sort !== 'relevance')
+			params.set('ordenar', values.sort)
+		router.push(`/pesquisa?${params.toString()}`)
+	}
 
-		if (categoryId) {
-			url.searchParams.set('categoryId', categoryId)
-		}
+	const handleClearFilters = () => {
+		const params = new URLSearchParams()
+		if (value.trim()) params.set('q', value.trim())
+		router.push(`/pesquisa?${params.toString()}`)
+	}
 
-		if (newQuery === '') {
-			url.searchParams.delete('query')
-		}
-
-		setValue(newQuery)
-		router.push(url.toString())
+	const filterValues: FilterValues = {
+		category,
+		province,
+		minPrice,
+		maxPrice,
+		isNew,
+		sort,
 	}
 
 	return (
@@ -66,15 +95,22 @@ export const SearchInput = () => {
 						<XIcon className='size-3.5' />
 					</Button>
 				)}
-				<Button
-					type='button'
-					variant='ghost'
-					size='icon-xs'
-					className='rounded-full text-muted-foreground'
-					aria-label='Filtros'
-				>
-					<SlidersHorizontal className='size-3.5' />
-				</Button>
+				<SearchFiltersSheet
+					values={filterValues}
+					onApply={handleApplyFilters}
+					onClear={handleClearFilters}
+					trigger={
+						<Button
+							type='button'
+							variant='ghost'
+							size='icon-xs'
+							className='rounded-full text-muted-foreground'
+							aria-label='Filtros'
+						>
+							<SlidersHorizontal className='size-3.5' />
+						</Button>
+					}
+				/>
 				<Button type='submit' size='sm' className='rounded-full px-3.5'>
 					Buscar
 				</Button>

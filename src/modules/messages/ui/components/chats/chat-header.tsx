@@ -5,17 +5,20 @@ import { useRouter } from 'next/navigation'
 import { StoreAvatar } from '@/components/store-avatar'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import Link from 'next/link'
 
 type ChatHeaderProps = {
 	storeName: string
 	storeAvatarUrl: string
 	storeLocation: string
+	storeSlug: string
 }
 
 export const ChatHeader = ({
 	storeName,
 	storeAvatarUrl,
 	storeLocation,
+	storeSlug,
 }: ChatHeaderProps) => {
 	const router = useRouter()
 
@@ -41,9 +44,13 @@ export const ChatHeader = ({
 				/>
 
 				<div className='flex flex-col justify-center space-y-1'>
-					<h3 className='text-md font-semibold leading-tight'>
+					<Link
+						href={`/lojas/${storeSlug}`}
+						prefetch
+						className='text-md font-semibold leading-tight hover:underline'
+					>
 						{storeName}
-					</h3>
+					</Link>
 					<div className='line-clamp-1 text-xs leading-tight text-muted-foreground'>
 						{storeLocation}
 					</div>

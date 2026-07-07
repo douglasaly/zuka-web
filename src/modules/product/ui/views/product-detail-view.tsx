@@ -1,6 +1,6 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
@@ -11,6 +11,7 @@ import {
 	fetchProduct,
 	fetchProducts,
 	PRODUCT_PLACEHOLDER,
+	startConversation,
 } from '@/lib/api/marketplace'
 import { ProductActions } from '../components/product-actions'
 import { ProductDescription } from '../components/product-description'
@@ -52,6 +53,16 @@ export const ProductDetailView = ({ id }: ProductDetailViewProps) => {
 		() => related.filter((p) => p.id !== id).slice(0, 4),
 		[related, id]
 	)
+
+	const chatMutation = useMutation({
+		mutationFn: () => startConversation(data?.product.id ?? ''),
+		onSuccess: (result) => {
+			router.push(`/mensagens/${result.conversationId}`)
+		},
+		onError: () => {
+			toast.error('Falha ao iniciar conversa. Tenta novamente.')
+		},
+	})
 
 	if (isLoading) {
 		return <ProductDetailSkeleton />
@@ -95,10 +106,6 @@ export const ProductDetailView = ({ id }: ProductDetailViewProps) => {
 		toast.success('Link copiado')
 	}
 
-	const handleChat = () => {
-		router.push(`/mensagens?product=${product.id}`)
-	}
-
 	const whatsappMessage = encodeURIComponent(
 		`Olá! Tenho interesse em "${product.name}"`
 	)
@@ -139,7 +146,8 @@ export const ProductDetailView = ({ id }: ProductDetailViewProps) => {
 				<ProductActions
 					whatsappHref={`https://wa.me/${product.storePhone}?text=${whatsappMessage}`}
 					phoneHref={`tel:${product.storePhone}`}
-					onChat={handleChat}
+					onChat={() => chatMutation.mutate()}
+					isChatting={chatMutation.isPending}
 				/>
 
 				<RelatedProducts products={relatedProducts} />

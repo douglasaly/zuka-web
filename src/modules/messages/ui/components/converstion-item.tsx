@@ -1,8 +1,28 @@
-import { formatDistanceToNow } from 'date-fns'
-import { pt } from 'date-fns/locale'
+import dayjs from 'dayjs'
+import 'dayjs/locale/pt'
+import relativeTime from 'dayjs/plugin/relativeTime'
 import Link from 'next/link'
 import { StoreAvatar } from '@/components/store-avatar'
 import type { InboxItem } from '@/types/messages'
+
+dayjs.extend(relativeTime)
+dayjs.locale('pt')
+
+function formatTimeAgo(date: string): string {
+	const d = dayjs(date)
+	const diffMin = dayjs().diff(d, 'minute')
+
+	if (diffMin < 1) return `há ${dayjs().diff(d, 'second')} seg`
+	if (diffMin < 60) return `há ${diffMin} min`
+	if (diffMin < 120) return `há ${Math.floor(diffMin / 60)} hora`
+	if (diffMin < 1440) return d.format('HH:mm')
+	if (diffMin < 43200)
+		return `há ${Math.floor(diffMin / 1440)} dia${Math.floor(diffMin / 1440) > 1 ? 's' : ''}`
+	if (diffMin < 525600)
+		return `há ${Math.floor(diffMin / 43200)} mês${Math.floor(diffMin / 43200) > 1 ? 'es' : ''}`
+
+	return `há ${Math.floor(diffMin / 525600)} ano${Math.floor(diffMin / 525600) > 1 ? 's' : ''}`
+}
 
 type ConversationItemProps = {
 	conversation: InboxItem
@@ -12,10 +32,7 @@ export const ConversationItem = ({ conversation }: ConversationItemProps) => {
 	const isUnread = conversation.unreadCount > 0
 
 	const timeAgo = conversation.lastMessageAt
-		? formatDistanceToNow(new Date(conversation.lastMessageAt), {
-				addSuffix: false,
-				locale: pt,
-			})
+		? formatTimeAgo(conversation.lastMessageAt)
 		: null
 
 	const lastMessageText = conversation.lastMessage
@@ -45,7 +62,7 @@ export const ConversationItem = ({ conversation }: ConversationItemProps) => {
 
 			<div className='ml-3 flex min-w-0 flex-1 flex-col justify-center space-y-1'>
 				<h3
-					className={`text-md leading-tight ${
+					className={`truncate text-md leading-tight ${
 						isUnread ? 'font-bold' : 'font-semibold'
 					}`}
 				>
@@ -66,7 +83,7 @@ export const ConversationItem = ({ conversation }: ConversationItemProps) => {
 			</div>
 
 			{timeAgo && (
-				<div className='shrink-0 text-xs text-muted-foreground'>
+				<div className='max-w-[120px] shrink-0 truncate text-right text-xs text-muted-foreground'>
 					{timeAgo}
 				</div>
 			)}

@@ -499,7 +499,7 @@ async function seed() {
 		await supabase.from('messages').insert({
 			id: messageId,
 			conversation_id: conversationId,
-			sender_id: users[1].id,
+			user_id: users[1].id,
 			content: 'Olá, ainda tens stock?',
 		})
 

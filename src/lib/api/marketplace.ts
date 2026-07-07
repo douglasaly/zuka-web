@@ -23,14 +23,24 @@ type GroupedProduct = {
 export async function fetchProducts(params?: {
 	category?: string
 	search?: string
+	province?: string
+	minPrice?: string
+	maxPrice?: string
+	isNew?: string
+	sort?: string
 	limit?: number
 }) {
 	const url = new URL(
 		'/api/products',
 		typeof window !== 'undefined' ? window.location.origin : ''
 	)
-	if (params?.category) url.searchParams.set('category', params.category)
+	if (params?.category) url.searchParams.set('categoria', params.category)
 	if (params?.search) url.searchParams.set('search', params.search)
+	if (params?.province) url.searchParams.set('provincia', params.province)
+	if (params?.minPrice) url.searchParams.set('preco_min', params.minPrice)
+	if (params?.maxPrice) url.searchParams.set('preco_max', params.maxPrice)
+	if (params?.isNew === 'true') url.searchParams.set('recente', 'true')
+	if (params?.sort) url.searchParams.set('ordenar', params.sort)
 	if (params?.limit) url.searchParams.set('limit', String(params.limit))
 
 	const res = await fetch(url.toString())
@@ -301,4 +311,16 @@ export function toProductCard(product: Product) {
 		image: product.image ?? PRODUCT_PLACEHOLDER,
 		hasDelivery: product.hasDelivery ?? false,
 	}
+}
+
+export async function startConversation(productId: string) {
+	const res = await fetch('/api/conversations', {
+		method: 'POST',
+		credentials: 'include',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ productId }),
+	})
+	if (!res.ok) throw new Error('Failed to start conversation')
+	const { data } = await res.json()
+	return data as { conversationId: string }
 }
