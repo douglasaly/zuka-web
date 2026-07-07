@@ -1,8 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import { type ChatMessage, MOCK_MESSAGES } from '../../constants'
+import { useEffect } from 'react'
+import { toast } from 'sonner'
+import { useConversation } from '@/hooks/use-conversation'
 import { ChatHeader } from '../components/chats/chat-header'
+import { ChatHeaderSkeleton } from '../components/chats/chat-header-skeleton'
 import { ChatInput } from '../components/chats/chat-input'
 import { ChatMessagesList } from '../components/chats/chat-list'
 import { ChatSkeleton } from '../components/chats/chat-skeleton'
@@ -12,31 +14,37 @@ interface MessageViewProps {
 }
 
 export const MessageView = ({ messageId }: MessageViewProps) => {
-	const [messages, setMessages] = useState<ChatMessage[]>(MOCK_MESSAGES)
-	const [isLoading] = useState(false)
+	const { messages, isLoading, conversation, sendMessage, sendError, markRead } =
+		useConversation({
+			conversationId: messageId,
+		})
 
-	const handleSend = (text: string) => {
-		const newMessage: ChatMessage = {
-			id: Date.now(),
-			sender: 'user',
-			text,
-			time: new Date().toLocaleTimeString('pt-PT', {
-				hour: '2-digit',
-				minute: '2-digit',
-			}),
+	useEffect(() => {
+		markRead()
+	}, [markRead])
+
+	useEffect(() => {
+		if (sendError) {
+			toast.error('Falha ao enviar mensagem. Tenta novamente.')
 		}
-
-		setMessages((prev) => [...prev, newMessage])
-		// TODO: enviar mensagem para a API usando messageId
-	}
+	}, [sendError])
 
 	return (
 		<div className='w-full min-w-0'>
-			<ChatHeader
-				storeName='Loja da Fátima'
-				storeAvatarUrl='/placeholder.jpg'
-				storeLocation='Maputo • Sommerchild'
-			/>
+			{!conversation ? (
+				<ChatHeaderSkeleton />
+			) : (
+				<ChatHeader
+					storeName={conversation?.store?.name ?? 'Loja'}
+					storeAvatarUrl={conversation?.store?.logoUrl ?? '/placeholder.jpg'}
+					storeLocation={
+						[conversation?.store?.provinceName, conversation?.store?.state]
+							.filter(Boolean)
+							.join(' • ')
+					}
+					storeSlug={conversation?.store?.slug!}
+				/>
+			)}
 
 			<div className='flex h-screen flex-col'>
 				{isLoading ? (
@@ -45,7 +53,7 @@ export const MessageView = ({ messageId }: MessageViewProps) => {
 					<ChatMessagesList messages={messages} />
 				)}
 
-				<ChatInput onSend={handleSend} />
+				<ChatInput onSend={sendMessage} />
 			</div>
 		</div>
 	)

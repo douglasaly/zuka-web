@@ -2,7 +2,19 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 export const StoreSkeleton = () => (
 	<div className='pb-10'>
-		<Skeleton className='h-48 w-full rounded-none md:h-56' />
+		<div className='relative h-48 md:h-56'>
+			<Skeleton className='h-full w-full rounded-none' />
+
+			<div className='absolute left-4 right-4 top-4 flex items-center justify-between'>
+				<Skeleton className='size-9 rounded-full' />
+				<div className='flex gap-2'>
+					<Skeleton className='size-9 rounded-full' />
+					<Skeleton className='size-9 rounded-full' />
+				</div>
+			</div>
+
+			<Skeleton className='absolute bottom-3 right-3 size-9 rounded-full' />
+		</div>
 
 		<div className='mx-auto max-w-4xl px-4 md:px-6'>
 			<div className='relative -mt-16 rounded-2xl border border-border/60 bg-card p-5'>
