@@ -32,12 +32,17 @@ export async function GET(_req: Request, { params }: Params) {
 
 		const supabase = createSupabaseAdmin()
 
-		const { data: participant } = await supabase
+		const { data: participant, error: participantError } = await supabase
 			.from('conversation_participants')
 			.select('user_id')
 			.eq('conversation_id', conversationId)
 			.eq('user_id', user.id)
 			.single()
+
+		if (participantError && participantError.code !== 'PGRST116') {
+			console.error('[GET /api/conversations/:id] participant lookup failed', participantError)
+			return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+		}
 
 		if (!participant) {
 			return NextResponse.json({ error: 'Forbidden' }, { status: 403 })

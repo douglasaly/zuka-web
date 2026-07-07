@@ -31,18 +31,18 @@ export const MessageView = ({ messageId }: MessageViewProps) => {
 
 	return (
 		<div className='w-full min-w-0'>
-			{!conversation ? (
+			{!conversation?.store ? (
 				<ChatHeaderSkeleton />
 			) : (
 				<ChatHeader
-					storeName={conversation?.store?.name ?? 'Loja'}
-					storeAvatarUrl={conversation?.store?.logoUrl ?? '/placeholder.jpg'}
+					storeName={conversation.store.name}
+					storeAvatarUrl={conversation.store.logoUrl ?? '/placeholder.jpg'}
 					storeLocation={
-						[conversation?.store?.provinceName, conversation?.store?.state]
+						[conversation.store.provinceName, conversation.store.state]
 							.filter(Boolean)
 							.join(' • ')
 					}
-					storeSlug={conversation?.store?.slug!}
+					storeSlug={conversation.store.slug}
 				/>
 			)}
 

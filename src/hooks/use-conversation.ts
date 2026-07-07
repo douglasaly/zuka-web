@@ -159,7 +159,7 @@ export const useConversation = ({ conversationId }: UseConversationProps) => {
 				(prev = []) =>
 					prev?.map((m) =>
 						m.id === context?.tempId
-							? { ...newMessage, status: 'delivered' as const }
+							? newMessage
 							: m
 					) ?? []
 			)
