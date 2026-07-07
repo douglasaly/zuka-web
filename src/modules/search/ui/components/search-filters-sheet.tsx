@@ -188,7 +188,10 @@ function FiltersContent({
 						</span>
 					)}
 				</div>
-				<Select value={category} onValueChange={(v) => setCategory(v ?? 'all')}>
+				<Select
+					value={category}
+					onValueChange={(v) => setCategory(v ?? 'all')}
+				>
 					<SelectTrigger>
 						<SelectValue placeholder='Todas as categorias' />
 					</SelectTrigger>
@@ -218,19 +221,26 @@ function FiltersContent({
 						</span>
 					)}
 				</div>
-				<Select value={province} onValueChange={(v) => setProvince(v ?? 'all')}>
+				<Select
+					value={province}
+					onValueChange={(v) => setProvince(v ?? 'all')}
+				>
 					<SelectTrigger>
 						<SelectValue placeholder='Todas as províncias' />
 					</SelectTrigger>
 					<SelectContent>
 						<SelectItem value='all'>Todas as províncias</SelectItem>
-						{(provinces as Array<{ id: string; name: string; slug: string }>).map(
-							(p) => (
-								<SelectItem key={p.id} value={p.slug}>
-									{p.name}
-								</SelectItem>
-							)
-						)}
+						{(
+							provinces as Array<{
+								id: string
+								name: string
+								slug: string
+							}>
+						).map((p) => (
+							<SelectItem key={p.id} value={p.slug}>
+								{p.name}
+							</SelectItem>
+						))}
 					</SelectContent>
 				</Select>
 			</div>
@@ -309,7 +319,10 @@ function FiltersContent({
 						</span>
 					)}
 				</div>
-				<Select value={sort} onValueChange={(v) => setSort(v ?? 'relevance')}>
+				<Select
+					value={sort}
+					onValueChange={(v) => setSort(v ?? 'relevance')}
+				>
 					<SelectTrigger>
 						<SelectValue />
 					</SelectTrigger>

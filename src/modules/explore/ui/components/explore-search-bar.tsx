@@ -1,13 +1,16 @@
 import { Search, SlidersHorizontal } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { FilterValues, SearchFiltersSheet } from '@/modules/search/ui/components/search-filters-sheet'
+import {
+	FilterValues,
+	SearchFiltersSheet,
+} from '@/modules/search/ui/components/search-filters-sheet'
 
 type ExploreSearchBarProps = {
 	value: string
 	onChange: (value: string) => void
 	filterValues: FilterValues
-	handleApplyFilters:(values: FilterValues) => void
+	handleApplyFilters: (values: FilterValues) => void
 	handleClearFilters: () => void
 }
 
@@ -16,7 +19,7 @@ export const ExploreSearchBar = ({
 	onChange,
 	filterValues,
 	handleApplyFilters,
-	handleClearFilters
+	handleClearFilters,
 }: ExploreSearchBarProps) => (
 	<div className='flex gap-2'>
 		<div className='relative flex-1'>
@@ -29,19 +32,19 @@ export const ExploreSearchBar = ({
 			/>
 		</div>
 		<SearchFiltersSheet
-							values={filterValues}
-							onApply={handleApplyFilters}
-							onClear={handleClearFilters}
-							trigger={
-								<Button
-									variant='outline'
-									size='icon'
-									className='hidden size-12 shrink-0 rounded-xl md:flex'
-									aria-label='Filtros'
-								>
-									<SlidersHorizontal className='size-4' />
-								</Button>
-							}
-						/>
+			values={filterValues}
+			onApply={handleApplyFilters}
+			onClear={handleClearFilters}
+			trigger={
+				<Button
+					variant='outline'
+					size='icon'
+					className='hidden size-12 shrink-0 rounded-xl md:flex'
+					aria-label='Filtros'
+				>
+					<SlidersHorizontal className='size-4' />
+				</Button>
+			}
+		/>
 	</div>
 )

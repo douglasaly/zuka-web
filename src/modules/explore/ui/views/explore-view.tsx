@@ -8,9 +8,7 @@ import { type ViewMode, ViewModeToggle } from '@/components/view-mode-toggle'
 import { useDebouncedValue } from '@/hooks/use-debounced-value'
 import { getCategories } from '@/lib/api/categories'
 import { fetchProducts, fetchStores } from '@/lib/api/marketplace'
-import {
-	type FilterValues
-} from '@/modules/search/ui/components/search-filters-sheet'
+import { type FilterValues } from '@/modules/search/ui/components/search-filters-sheet'
 import {
 	CategoryFilter,
 	type CategoryOption,
