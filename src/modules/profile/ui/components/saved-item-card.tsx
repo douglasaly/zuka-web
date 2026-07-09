@@ -4,6 +4,7 @@ import { Heart } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { PRODUCT_PLACEHOLDER } from '@/lib/api/marketplace'
 import type { SavedItem } from '@/types/saved-items'
 import { formatPrice } from '@/utils/format-price'
 
@@ -41,7 +42,7 @@ export const SavedItemCard = ({
 			<Link href={`/product/${item.id}`} className='block'>
 				<div className='relative aspect-square w-full overflow-hidden bg-muted/40'>
 					<Image
-						src={item.imageUrl ?? '/placeholder.png'}
+						src={item.imageUrl ?? PRODUCT_PLACEHOLDER}
 						alt={item.name}
 						fill
 						sizes='(max-width: 640px) 50vw, 33vw'

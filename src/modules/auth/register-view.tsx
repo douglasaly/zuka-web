@@ -9,6 +9,7 @@ import {
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { GoogleIcon } from '@/components/google-icon'
 import { Button } from '@/components/ui/button'
 import {
 	Card,
@@ -21,8 +22,8 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
-import { auth } from '@/lib/firebase/firebase-client'
 import { createAppSession } from '@/lib/firebase/create-session'
+import { auth } from '@/lib/firebase/firebase-client'
 import { syncUserToBackend } from '@/lib/firebase/sync-user-to-backend'
 
 export const RegisterView = () => {
@@ -175,6 +176,7 @@ export const RegisterView = () => {
 							disabled={loading}
 							className='w-full rounded-full'
 						>
+							<GoogleIcon className='size-5' />
 							Continuar com Google
 						</Button>
 

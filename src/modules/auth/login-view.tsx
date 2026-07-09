@@ -8,6 +8,7 @@ import {
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useState } from 'react'
+import { GoogleIcon } from '@/components/google-icon'
 import { Button } from '@/components/ui/button'
 import {
 	Card,
@@ -228,6 +229,7 @@ function LoginForm() {
 							disabled={loading}
 							className='w-full rounded-full'
 						>
+							<GoogleIcon className='size-5' />
 							Continuar com Google
 						</Button>
 

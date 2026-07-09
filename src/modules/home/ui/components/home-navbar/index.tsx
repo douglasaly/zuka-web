@@ -70,16 +70,16 @@ function NavbarAuth() {
 		<Button
 			render={<Link href='/perfil' />}
 			size='sm'
-			variant='outline'
-			className='ml-1 max-w-40 rounded-full px-3'
+			variant='ghost'
+			className='ml-1 max-w-40 rounded-full px-3 sm:border-border'
 		>
 			<UserAvatar
 				imageUrl={profile?.avatarUrl}
 				name={name}
 				size='sm'
-				className='-ml-1'
+				className='sm:-ml-1'
 			/>
-			<span className='truncate'>{name}</span>
+			<span className='hidden truncate sm:inline'>{name}</span>
 		</Button>
 	)
 }
