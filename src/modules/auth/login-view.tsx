@@ -7,7 +7,8 @@ import {
 } from 'firebase/auth'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Suspense, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
+import { toast } from 'sonner'
 import { GoogleIcon } from '@/components/google-icon'
 import { Button } from '@/components/ui/button'
 import {
@@ -47,10 +48,20 @@ function LoginForm() {
 	const searchParams = useSearchParams()
 	const next = searchParams.get('next')
 
+	const resetSuccess = searchParams.get('reset') === 'success'
+
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
+
+	useEffect(() => {
+		if (resetSuccess) {
+			toast.success(
+				'Palavra-passe redefinida com sucesso. Já pode entrar com a sua nova senha.'
+			)
+		}
+	}, [resetSuccess])
 
 	async function createSession(idToken: string) {
 		logLogin('createSession:start')
@@ -191,7 +202,15 @@ function LoginForm() {
 							</div>
 
 							<div className='space-y-2'>
-								<Label htmlFor='password'>Senha</Label>
+								<div className='flex items-center justify-between'>
+									<Label htmlFor='password'>Senha</Label>
+									<Link
+										href='/auth/recuperar'
+										className='text-xs text-secondary hover:underline'
+									>
+										Esqueceu-se da palavra-passe?
+									</Link>
+								</div>
 								<Input
 									id='password'
 									type='password'

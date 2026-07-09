@@ -16,6 +16,7 @@ export function useNotifications() {
 		queryKey: ['notifications', 'recent'],
 		queryFn: () => getNotifications(),
 		enabled: isAuthenticated,
+		refetchInterval: 60000 * 3, // refetch a cada 3 Minutos
 	})
 
 	const markRead = useMutation({

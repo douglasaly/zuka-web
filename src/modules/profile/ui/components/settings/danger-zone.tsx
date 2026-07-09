@@ -1,6 +1,9 @@
 'use client'
 
+import { signOut } from 'firebase/auth'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import {
 	Dialog,
@@ -11,9 +14,41 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog'
+import { auth } from '@/lib/firebase/firebase-client'
 
 export const DangerZone = () => {
+	const router = useRouter()
 	const [open, setOpen] = useState(false)
+	const [deleting, setDeleting] = useState(false)
+
+	async function handleDelete() {
+		setDeleting(true)
+
+		try {
+			const res = await fetch('/api/auth/delete-account', {
+				method: 'POST',
+				credentials: 'include',
+			})
+
+			if (!res.ok) {
+				const body = await res.json().catch(() => ({}))
+				throw new Error(body.error || 'Erro ao eliminar conta')
+			}
+
+			await signOut(auth)
+			router.push('/')
+			toast.success('Conta eliminada com sucesso.')
+		} catch (err) {
+			toast.error(
+				err instanceof Error
+					? err.message
+					: 'Erro ao eliminar conta. Tente novamente.'
+			)
+		} finally {
+			setDeleting(false)
+			setOpen(false)
+		}
+	}
 
 	return (
 		<section className='space-y-3'>
@@ -48,17 +83,18 @@ export const DangerZone = () => {
 							<Button
 								variant='outline'
 								onClick={() => setOpen(false)}
+								disabled={deleting}
 							>
 								Cancelar
 							</Button>
 							<Button
 								variant='destructive'
-								onClick={() => {
-									// TODO: chamar API para eliminar conta
-									setOpen(false)
-								}}
+								disabled={deleting}
+								onClick={handleDelete}
 							>
-								Sim, eliminar
+								{deleting
+									? 'A eliminar...'
+									: 'Sim, eliminar'}
 							</Button>
 						</DialogFooter>
 					</DialogContent>
