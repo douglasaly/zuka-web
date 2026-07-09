@@ -75,5 +75,13 @@ export async function syncFirebaseUser(decodedToken: DecodedIdToken) {
 
 	await assignUserRole(newUser.id as string, 'buyer')
 
+	await supabase.from('notifications').insert({
+		user_id: newUser.id,
+		type: 'system',
+		title: 'Bem-vindo(a) à Zuka!',
+		body: 'Estamos muito felizes por ter-te connosco. Explora os produtos, segue as tuas lojas favoritas e começa a comprar.',
+		link: '/',
+	})
+
 	return newUser
 }

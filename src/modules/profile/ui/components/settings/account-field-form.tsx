@@ -1,6 +1,8 @@
 'use client'
 
+import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -8,13 +10,10 @@ import type { SettingField } from '../../../constants'
 
 type AccountFieldsFormProps = {
 	fields: SettingField[]
-	userId?: string
 }
 
-export const AccountFieldsForm = ({
-	fields,
-	userId,
-}: AccountFieldsFormProps) => {
+export const AccountFieldsForm = ({ fields }: AccountFieldsFormProps) => {
+	const queryClient = useQueryClient()
 	const [values, setValues] = useState<Record<string, string>>({})
 	const [isSaving, setIsSaving] = useState(false)
 
@@ -27,18 +26,31 @@ export const AccountFieldsForm = ({
 	}
 
 	const handleSave = async () => {
-		if (!userId) return
-
 		setIsSaving(true)
 		try {
-			await fetch(`/api/users/${userId}`, {
+			const res = await fetch('/api/me/profile', {
 				method: 'PATCH',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(values),
+				body: JSON.stringify({
+					firstName: values.firstName,
+					lastName: values.lastName,
+					phoneNumber: values.phone,
+				}),
 			})
-			// TODO: mostrar toast de sucesso / invalidar cache do useUserProfile
-		} catch {
-			// TODO: mostrar toast de erro
+
+			if (!res.ok) {
+				const err = await res.json().catch(() => ({}))
+				throw new Error(err.error ?? 'Erro ao guardar')
+			}
+
+			await queryClient.invalidateQueries({ queryKey: ['user-profile'] })
+			toast.success('Perfil atualizado com sucesso')
+		} catch (err) {
+			toast.error(
+				err instanceof Error
+					? err.message
+					: 'Erro ao guardar alterações'
+			)
 		} finally {
 			setIsSaving(false)
 		}
@@ -69,6 +81,7 @@ export const AccountFieldsForm = ({
 							id={field.id}
 							type={field.type}
 							value={values[field.id] ?? ''}
+							disabled={field.id === 'email'}
 							onChange={(e) =>
 								handleChange(field.id, e.target.value)
 							}

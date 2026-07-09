@@ -14,6 +14,7 @@ const ALLOWED_PURPOSES = new Set<UploadPurpose>([
 	'product-image',
 	'verification-id',
 	'verification-selfie',
+	'avatar',
 ])
 
 export async function POST(request: Request) {

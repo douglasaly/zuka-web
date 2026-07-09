@@ -66,6 +66,8 @@ export function buildObjectKey(
 			return `verification/${userId}/id-card-${id}.${extension}`
 		case 'verification-selfie':
 			return `verification/${userId}/selfie-${id}.${extension}`
+		case 'avatar':
+			return `avatars/${userId}/${id}.${extension}`
 		default:
 			return `uploads/${userId}/${id}.${extension}`
 	}

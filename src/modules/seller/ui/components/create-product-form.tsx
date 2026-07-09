@@ -1,8 +1,9 @@
 'use client'
 
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
 import { useState } from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -43,6 +44,7 @@ export function CreateProductForm({
 				queryKey: ['seller-products', storeId],
 			})
 			queryClient.invalidateQueries({ queryKey: ['user-profile'] })
+			toast.success('Produto publicado com sucesso')
 			setForm({
 				name: '',
 				description: '',
@@ -53,6 +55,11 @@ export function CreateProductForm({
 				imageUrl: '',
 			})
 			setOpen(false)
+		},
+		onError: (err) => {
+			toast.error(
+				err instanceof Error ? err.message : 'Erro ao publicar produto'
+			)
 		},
 	})
 

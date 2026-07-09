@@ -4,3 +4,4 @@ export type UploadPurpose =
 	| 'product-image'
 	| 'verification-id'
 	| 'verification-selfie'
+	| 'avatar'

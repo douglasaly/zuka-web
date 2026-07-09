@@ -78,6 +78,7 @@ function NavbarAuth() {
 				name={name}
 				size='sm'
 				className='sm:-ml-1'
+				fClassName='text-xs'
 			/>
 			<span className='hidden truncate sm:inline'>{name}</span>
 		</Button>

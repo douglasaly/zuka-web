@@ -1,10 +1,11 @@
 'use client'
 
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { CheckCircle2, Clock } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
@@ -141,7 +142,13 @@ export const SellerOnboardingView = () => {
 		mutationFn: createStore,
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['user-profile'] })
+			toast.success('Loja criada com sucesso')
 			setStep(2)
+		},
+		onError: (err) => {
+			toast.error(
+				err instanceof Error ? err.message : 'Erro ao criar loja'
+			)
 		},
 	})
 
@@ -149,7 +156,15 @@ export const SellerOnboardingView = () => {
 		mutationFn: updateSellerStore,
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['user-profile'] })
+			toast.success('Perfil da loja atualizado')
 			setStep(3)
+		},
+		onError: (err) => {
+			toast.error(
+				err instanceof Error
+					? err.message
+					: 'Erro ao atualizar perfil da loja'
+			)
 		},
 	})
 
@@ -157,7 +172,13 @@ export const SellerOnboardingView = () => {
 		mutationFn: submitVerification,
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['user-profile'] })
+			toast.success('Documentos enviados para revisão')
 			setStep(4)
+		},
+		onError: (err) => {
+			toast.error(
+				err instanceof Error ? err.message : 'Erro ao enviar documentos'
+			)
 		},
 	})
 

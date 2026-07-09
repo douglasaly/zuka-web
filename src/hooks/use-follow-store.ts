@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { followStore, isFollowing, unfollowStore } from '@/lib/api/stores'
 
 export function useFollowStore(storeSlug: string) {
@@ -29,11 +30,16 @@ export function useFollowStore(storeSlug: string) {
 			return { previous }
 		},
 
+		onSuccess: () => {
+			toast.success('Loja seguida com sucesso')
+		},
+
 		onError: (_err, _vars, context) => {
 			queryClient.setQueryData(
 				['store-follow', storeSlug],
 				context?.previous
 			)
+			toast.error('Erro ao seguir loja')
 		},
 
 		onSettled: () => {
@@ -65,11 +71,16 @@ export function useFollowStore(storeSlug: string) {
 			return { previous }
 		},
 
+		onSuccess: () => {
+			toast.success('Loja deixou de ser seguida')
+		},
+
 		onError: (_err, _vars, context) => {
 			queryClient.setQueryData(
 				['store-follow', storeSlug],
 				context?.previous
 			)
+			toast.error('Erro ao deixar de seguir loja')
 		},
 
 		onSettled: () => {

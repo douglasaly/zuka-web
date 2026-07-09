@@ -100,10 +100,7 @@ export const SettingsView = () => {
 			</div>
 
 			<SettingsSection title='Conta' description='Os seus dados pessoais'>
-				<AccountFieldsForm
-					fields={accountFields}
-					userId={profile?.id}
-				/>
+				<AccountFieldsForm fields={accountFields} />
 			</SettingsSection>
 
 			<SettingsSection title='Geral'>

@@ -13,10 +13,14 @@ import { useUserProfile } from './use-user-profile'
 export function useSavedItems() {
 	const queryClient = useQueryClient()
 
-	const { isAuthenticated, isLoading: isAuthLoading } = useUserProfile()
+	const {
+		isAuthenticated,
+		isLoading: isAuthLoading,
+		profile,
+	} = useUserProfile()
 
 	const { data: savedItems = [], isLoading: isSavedItemsLoading } = useQuery({
-		queryKey: ['saved-items'],
+		queryKey: ['saved-items', profile?.id],
 		queryFn: FetchSavedItems,
 		enabled: isAuthenticated && !isAuthLoading,
 		staleTime: 1000 * 60 * 5,

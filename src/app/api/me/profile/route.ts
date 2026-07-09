@@ -4,6 +4,62 @@ import { getSessionUser } from '@/lib/auth/session'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import type { UserProfile } from '@/types/marketplace'
 
+export async function PATCH(request: Request) {
+	try {
+		const user = await getSessionUser()
+		if (!user) {
+			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+		}
+
+		const body = await request.json()
+		const { firstName, lastName, phoneNumber, avatarUrl } = body
+
+		const supabase = createSupabaseAdmin()
+
+		const updates: Record<string, unknown> = {}
+
+		if (typeof firstName === 'string') updates.first_name = firstName
+		if (typeof lastName === 'string') updates.last_name = lastName
+		if (typeof phoneNumber === 'string') updates.phone_number = phoneNumber
+		if (typeof avatarUrl === 'string') updates.avatar_url = avatarUrl
+
+		updates.updated_at = new Date().toISOString()
+
+		const { data: updatedUser, error } = await supabase
+			.from('users')
+			.update(updates)
+			.eq('id', user.id as string)
+			.select('*')
+			.single()
+
+		if (error) {
+			console.error('[PATCH /api/me/profile]', error)
+			return NextResponse.json(
+				{ error: 'Failed to update profile' },
+				{ status: 500 }
+			)
+		}
+
+		return NextResponse.json({
+			success: true,
+			profile: {
+				id: updatedUser.id as string,
+				email: updatedUser.email as string | null,
+				firstName: updatedUser.first_name as string | null,
+				lastName: updatedUser.last_name as string | null,
+				avatarUrl: updatedUser.avatar_url as string | null,
+				phoneNumber: updatedUser.phone_number,
+			},
+		})
+	} catch (error) {
+		console.error('[PATCH /api/me/profile]', error)
+		return NextResponse.json(
+			{ error: 'Failed to update profile' },
+			{ status: 500 }
+		)
+	}
+}
+
 export async function GET() {
 	try {
 		const user = await getSessionUser()
