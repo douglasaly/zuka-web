@@ -44,6 +44,7 @@ export const ExploreProductCard = ({
 				<Image
 					src={product.image ?? PRODUCT_PLACEHOLDER}
 					alt={product.name}
+					loading='eager'
 					fill
 					sizes={
 						isCompact ? '128px' : '(max-width: 640px) 50vw, 25vw'

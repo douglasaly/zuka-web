@@ -83,8 +83,16 @@ export const ProfileView = () => {
 		'Utilizador'
 
 	const stats = [
-		{ label: 'Guardados', value: savedItems.length },
-		{ label: 'A seguir', value: followedCount },
+		{
+			label: 'Guardados',
+			value: savedItems.length,
+			isLoading: isSavedItemsLoading,
+		},
+		{
+			label: 'A seguir',
+			value: followedCount,
+			isLoading: isFollowedStoresLoading,
+		},
 		{ label: 'Pedidos', value: 5 }, // TODO: ligar à API de pedidos
 	]
 

@@ -44,6 +44,7 @@ export const SavedItemCard = ({
 					<Image
 						src={item.imageUrl ?? PRODUCT_PLACEHOLDER}
 						alt={item.name}
+						loading='eager'
 						fill
 						sizes='(max-width: 640px) 50vw, 33vw'
 						className='object-cover transition-transform duration-200 group-hover:scale-105'

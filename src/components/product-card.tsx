@@ -65,7 +65,7 @@ export const ProductCard = ({
 					)}
 				>
 					<Image
-						loading='lazy'
+						loading='eager'
 						src={product.image ?? PRODUCT_PLACEHOLDER}
 						alt={product.name}
 						fill

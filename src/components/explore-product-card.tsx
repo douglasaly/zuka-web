@@ -39,6 +39,7 @@ export const ProductCard = ({
 				<Image
 					src={product.image ?? PRODUCT_PLACEHOLDER}
 					alt={product.name}
+					loading='eager'
 					fill
 					sizes={
 						isCompact

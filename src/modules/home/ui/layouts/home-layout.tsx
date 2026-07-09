@@ -11,7 +11,7 @@ interface HomeLayoutProps {
 
 export const HomeLayout = ({ children }: HomeLayoutProps) => {
 	return (
-		<div className='flex min-h-screen w-full bg-background'>
+		<div className='flex min-h-screen w-full overflow-x-hidden bg-background'>
 			<SidebarProvider defaultOpen>
 				<HomeSidebar />
 				<div className='flex min-h-screen min-w-0 flex-1 flex-col'>

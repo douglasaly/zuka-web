@@ -16,6 +16,7 @@ import {
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
+	SidebarMenuSkeleton,
 } from '@/components/ui/sidebar'
 import { useUserProfile } from '@/hooks/use-user-profile'
 
@@ -42,6 +43,15 @@ export const MainSection = () => {
 				<SidebarGroupLabel className='text-xs font-semibold uppercase tracking-wider text-muted-foreground/70'>
 					Comprar
 				</SidebarGroupLabel>
+				<SidebarGroupContent>
+					<SidebarMenu>
+						{Array.from({ length: 5 }).map((_, i) => (
+							<SidebarMenuItem key={i}>
+								<SidebarMenuSkeleton showIcon />
+							</SidebarMenuItem>
+						))}
+					</SidebarMenu>
+				</SidebarGroupContent>
 			</SidebarGroup>
 		)
 	}

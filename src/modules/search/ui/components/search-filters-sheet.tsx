@@ -119,7 +119,7 @@ export function SearchFiltersSheet(props: SearchFiltersSheetProps) {
 						Refina os resultados da pesquisa
 					</SheetDescription>
 				</SheetHeader>
-				<div className='mt-4 max-h-[70vh] overflow-y-auto'>
+				<div className='mt-4 max-h-[70vh] overflow-y-auto px-4 pb-6'>
 					<FiltersContent
 						values={props.values}
 						onApply={handleApply}

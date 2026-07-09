@@ -10,6 +10,7 @@ import {
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
+	SidebarMenuSkeleton,
 } from '@/components/ui/sidebar'
 import { useUserProfile } from '@/hooks/use-user-profile'
 
@@ -17,7 +18,24 @@ export const DashboardSection = () => {
 	const pathname = usePathname()
 	const { isAuthenticated, isSeller, isLoading } = useUserProfile()
 
-	if (isLoading) return null
+	if (isLoading) {
+		return (
+			<SidebarGroup>
+				<SidebarGroupLabel className='text-xs font-semibold uppercase tracking-wider text-muted-foreground/70'>
+					Conta
+				</SidebarGroupLabel>
+				<SidebarGroupContent>
+					<SidebarMenu>
+						{Array.from({ length: 3 }).map((_, i) => (
+							<SidebarMenuItem key={i}>
+								<SidebarMenuSkeleton showIcon />
+							</SidebarMenuItem>
+						))}
+					</SidebarMenu>
+				</SidebarGroupContent>
+			</SidebarGroup>
+		)
+	}
 
 	return (
 		<SidebarGroup>
