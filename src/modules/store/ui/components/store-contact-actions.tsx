@@ -47,7 +47,7 @@ export const StoreContactActions = ({
 		)}
 		<Button
 			variant={isFollowing ? 'secondary' : 'outline'}
-			className='rounded-xl sm:px-6'
+			className='flex-1 rounded-xl sm:px-6'
 			onClick={onToggleFollow}
 			disabled={isFollowDisabled}
 		>

@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { PRODUCT_PLACEHOLDER } from '@/lib/api/marketplace'
+import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 import { cn } from '@/lib/utils'
 import type { Product } from '@/types/marketplace'
 import { formatPrice } from '@/utils/format-price'
@@ -44,8 +45,9 @@ export const ExploreProductCard = ({
 				<Image
 					src={product.image ?? PRODUCT_PLACEHOLDER}
 					alt={product.name}
-					loading='eager'
 					fill
+					placeholder='blur'
+					blurDataURL={BLUR_PLACEHOLDER}
 					sizes={
 						isCompact ? '128px' : '(max-width: 640px) 50vw, 25vw'
 					}

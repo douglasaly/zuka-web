@@ -5,6 +5,11 @@ import { useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 const THEMES = [
 	{
@@ -39,9 +44,19 @@ export const AppearanceView = () => {
 	return (
 		<div className='mx-auto max-w-2xl px-4 py-8 md:py-12'>
 			<div className='mb-8 flex items-center gap-2'>
-				<Button variant='ghost' onClick={() => router.back()}>
-					<ArrowLeft className='size-4' />
-				</Button>
+				<Tooltip>
+					<TooltipTrigger
+						render={
+							<Button
+								variant='ghost'
+								onClick={() => router.back()}
+							>
+								<ArrowLeft className='size-4' />
+							</Button>
+						}
+					/>
+					<TooltipContent>Voltar</TooltipContent>
+				</Tooltip>
 				<div>
 					<h1 className='font-heading text-2xl font-bold md:text-3xl'>
 						Aparência

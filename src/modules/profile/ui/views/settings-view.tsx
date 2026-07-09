@@ -5,6 +5,11 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { useUserProfile } from '@/hooks/use-user-profile'
 import {
 	MOCK_NOTIFICATIONS,
@@ -13,6 +18,7 @@ import {
 } from '../../constants'
 import { AccountFieldsForm } from '../components/settings/account-field-form'
 import { DangerZone } from '../components/settings/danger-zone'
+import { EmailVerificationStatus } from '../components/settings/email-verification-status'
 import { SettingsLinkRow } from '../components/settings/settings-link-row'
 import { SettingsSkeleton } from '../components/settings/settings-skeleton'
 import { SettingsToggleRow } from '../components/settings/settings-toggle-row'
@@ -90,9 +96,19 @@ export const SettingsView = () => {
 	return (
 		<div className='mx-auto max-w-4xl space-y-8 px-4 py-8 md:py-12'>
 			<div className='flex gap-1 items-center'>
-				<Button variant='ghost' onClick={() => router.back()}>
-					<ArrowLeft className='size-4' />
-				</Button>
+				<Tooltip>
+					<TooltipTrigger
+						render={
+							<Button
+								variant='ghost'
+								onClick={() => router.back()}
+							>
+								<ArrowLeft className='size-4' />
+							</Button>
+						}
+					/>
+					<TooltipContent>Voltar</TooltipContent>
+				</Tooltip>
 
 				<h1 className='font-heading text-2xl font-bold md:text-3xl'>
 					Definições
@@ -101,6 +117,7 @@ export const SettingsView = () => {
 
 			<SettingsSection title='Conta' description='Os seus dados pessoais'>
 				<AccountFieldsForm fields={accountFields} />
+				<EmailVerificationStatus />
 			</SettingsSection>
 
 			<SettingsSection title='Geral'>

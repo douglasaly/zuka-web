@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { useSavedItems } from '@/hooks/use-saved-items'
 import { PRODUCT_PLACEHOLDER } from '@/lib/api/marketplace'
 import type { Product } from '@/lib/api/Product'
+import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 import { cn } from '@/lib/utils'
 import { formatPrice } from '@/utils/format-price'
 
@@ -65,10 +66,11 @@ export const ProductCard = ({
 					)}
 				>
 					<Image
-						loading='eager'
 						src={product.image ?? PRODUCT_PLACEHOLDER}
 						alt={product.name}
 						fill
+						placeholder='blur'
+						blurDataURL={BLUR_PLACEHOLDER}
 						sizes={
 							isHorizontal
 								? '128px'

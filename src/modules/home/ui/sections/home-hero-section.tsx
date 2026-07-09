@@ -6,9 +6,11 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { fetchStores } from '@/lib/api/marketplace'
+import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
+import { cn } from '@/lib/utils'
 
 export const HomeHeroSection = () => {
-	const { data: stores = [] } = useQuery({
+	const { data: stores = [], isLoading } = useQuery({
 		queryKey: ['hero-store'],
 		queryFn: () => fetchStores({ limit: 1 }),
 	})
@@ -18,14 +20,20 @@ export const HomeHeroSection = () => {
 	return (
 		<section className='relative overflow-hidden rounded-2xl md:rounded-3xl'>
 			<div className='relative aspect-16/7 min-h-55 w-full sm:aspect-16/6 sm:min-h-70'>
-				<Image
-					src={featured?.bannerUrl ?? '/featured-placeholder.jpg'}
-					alt={featured?.name ?? 'Destaque Zuka'}
-					fill
-					sizes='(max-width: 768px) 100vw, 1280px'
-					className='object-cover'
-					priority
-				/>
+				{isLoading ? (
+					<div className='absolute inset-0 animate-pulse bg-muted' />
+				) : (
+					<Image
+						src={featured?.bannerUrl ?? '/featured-placeholder.jpg'}
+						alt={featured?.name ?? 'Destaque Zuka'}
+						fill
+						placeholder='blur'
+						blurDataURL={BLUR_PLACEHOLDER}
+						sizes='(max-width: 768px) 100vw, 1280px'
+						className='object-cover'
+						priority
+					/>
+				)}
 				<div className='absolute inset-0 bg-linear-to-r from-black/70 via-black/40 to-transparent' />
 				<div className='absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent' />
 
@@ -37,46 +45,62 @@ export const HomeHeroSection = () => {
 
 					<div className='max-w-lg space-y-4'>
 						<div className='space-y-2'>
-							<h1 className='font-heading text-2xl font-bold leading-tight text-white sm:text-4xl'>
-								{featured?.name ?? 'Descubra o Zuka'}
+							<h1
+								className={cn(
+									'font-heading text-2xl font-bold leading-tight text-white sm:text-4xl',
+									isLoading &&
+										'h-8 w-3/4 animate-pulse rounded-md bg-white/20 sm:h-10'
+								)}
+							>
+								{!isLoading &&
+									(featured?.name ?? 'Descubra o Zuka')}
 							</h1>
-							<p className='text-sm text-white/85 sm:text-base'>
-								{featured
-									? `Compre em ${featured.location} · ${featured.neighborhood}`
-									: 'O marketplace local de Moçambique'}
+							<p
+								className={cn(
+									'text-sm text-white/85 sm:text-base',
+									isLoading &&
+										'mt-2 h-4 w-1/2 animate-pulse rounded-md bg-white/20'
+								)}
+							>
+								{!isLoading &&
+									(featured
+										? `Compre em ${featured.location} · ${featured.neighborhood}`
+										: 'O marketplace local de Moçambique')}
 							</p>
 						</div>
 
-						<div className='flex flex-wrap items-center gap-3'>
-							{featured ? (
-								<>
+						{!isLoading && (
+							<div className='flex flex-wrap items-center gap-3'>
+								{featured ? (
+									<>
+										<Button
+											render={
+												<Link
+													href={`/lojas/${featured.slug}`}
+												/>
+											}
+											size='lg'
+											className='rounded-full bg-white font-semibold text-foreground hover:bg-white/90'
+										>
+											Visitar loja
+											<ArrowRight className='size-4' />
+										</Button>
+										<span className='rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-sm font-medium text-white backdrop-blur-sm'>
+											{featured.name}
+										</span>
+									</>
+								) : (
 									<Button
-										render={
-											<Link
-												href={`/lojas/${featured.slug}`}
-											/>
-										}
+										render={<Link href='/feed/explorar' />}
 										size='lg'
 										className='rounded-full bg-white font-semibold text-foreground hover:bg-white/90'
 									>
-										Visitar loja
+										Explorar
 										<ArrowRight className='size-4' />
 									</Button>
-									<span className='rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-sm font-medium text-white backdrop-blur-sm'>
-										{featured.name}
-									</span>
-								</>
-							) : (
-								<Button
-									render={<Link href='/feed/explorar' />}
-									size='lg'
-									className='rounded-full bg-white font-semibold text-foreground hover:bg-white/90'
-								>
-									Explorar
-									<ArrowRight className='size-4' />
-								</Button>
-							)}
-						</div>
+								)}
+							</div>
+						)}
 					</div>
 				</div>
 			</div>

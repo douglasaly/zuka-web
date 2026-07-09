@@ -29,19 +29,24 @@ export async function PATCH(
 		}
 
 		const updates: Record<string, unknown> = {}
-		if (body.label !== undefined) updates.label = body.label
-		if (body.street !== undefined) updates.street = body.street
-		if (body.neighborhood !== undefined)
-			updates.neighborhood = body.neighborhood
-		if (body.city !== undefined) updates.city = body.city
-		if (body.provinceSlug !== undefined) {
-			const { data: province } = await supabase
-				.from('provinces')
-				.select('id')
-				.eq('slug', body.provinceSlug)
-				.maybeSingle()
 
-			updates.province_id = province?.id ?? null
+		if (body.label !== undefined) updates.label = body.label.trim()
+		if (body.street !== undefined) updates.street = body.street.trim()
+		if (body.neighborhood !== undefined)
+			updates.neighborhood = body.neighborhood.trim()
+		if (body.city !== undefined) updates.city = body.city.trim()
+		if (body.provinceSlug !== undefined) {
+			if (body.provinceSlug) {
+				const { data: province } = await supabase
+					.from('provinces')
+					.select('name')
+					.eq('slug', body.provinceSlug)
+					.maybeSingle()
+
+				updates.province = province?.name ?? ''
+			} else {
+				updates.province = ''
+			}
 		}
 		if (body.isDefault !== undefined) {
 			updates.is_default = body.isDefault
@@ -58,35 +63,49 @@ export async function PATCH(
 
 		const { data, error } = await supabase
 			.from('addresses')
-			.update(updates)
+			.update(updates as never)
 			.eq('id', id)
-			.select('*, provinces(name)')
+			.select('*')
 			.single()
 
 		if (error) throw error
 
-		const address = {
-			id: data.id,
-			userId: data.user_id,
-			label: data.label,
-			street: data.street,
-			neighborhood: data.neighborhood,
-			city: data.city,
-			provinceId: data.province_id,
-			provinceName: data.provinces?.name ?? null,
-			isDefault: data.is_default,
-			createdAt: data.created_at,
-			updatedAt: data.updated_at,
+		const row = data as unknown as {
+			id: string
+			user_id: string
+			label: string
+			street: string
+			neighborhood: string
+			city: string
+			province: string
+			phone: string
+			recipient_name: string
+			is_default: boolean
+			created_at: string
+			updated_at: string
 		}
 
-		return NextResponse.json({ address, success: true })
+		return NextResponse.json({
+			address: {
+				id: row.id,
+				userId: row.user_id,
+				label: row.label,
+				street: row.street,
+				neighborhood: row.neighborhood,
+				city: row.city,
+				provinceName: row.province,
+				phone: row.phone,
+				recipientName: row.recipient_name,
+				isDefault: row.is_default,
+				createdAt: row.created_at,
+				updatedAt: row.updated_at,
+			},
+			success: true,
+		})
 	} catch (error) {
 		if (error instanceof Response) return error
 		return NextResponse.json(
-			{
-				success: false,
-				message: 'Erro ao atualizar endereço',
-			},
+			{ success: false, message: 'Erro ao atualizar endereço' },
 			{ status: 500 }
 		)
 	}
@@ -127,10 +146,7 @@ export async function DELETE(
 	} catch (error) {
 		if (error instanceof Response) return error
 		return NextResponse.json(
-			{
-				success: false,
-				message: 'Erro ao remover endereço',
-			},
+			{ success: false, message: 'Erro ao remover endereço' },
 			{ status: 500 }
 		)
 	}

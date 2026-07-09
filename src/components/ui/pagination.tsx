@@ -1,18 +1,16 @@
-import * as React from 'react'
-
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
 import {
 	ChevronLeftIcon,
 	ChevronRightIcon,
 	MoreHorizontalIcon,
 } from 'lucide-react'
+import type * as React from 'react'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 function Pagination({ className, ...props }: React.ComponentProps<'nav'>) {
 	return (
 		<nav
-			role='navigation'
-			aria-label='pagination'
+			aria-label='Paginação'
 			data-slot='pagination'
 			className={cn('mx-auto flex w-full justify-center', className)}
 			{...props}
@@ -68,12 +66,12 @@ function PaginationLink({
 
 function PaginationPrevious({
 	className,
-	text = 'Previous',
+	text = 'Anterior',
 	...props
 }: React.ComponentProps<typeof PaginationLink> & { text?: string }) {
 	return (
 		<PaginationLink
-			aria-label='Go to previous page'
+			aria-label='Ir para página anterior'
 			size='default'
 			className={cn('pl-2!', className)}
 			{...props}
@@ -86,12 +84,12 @@ function PaginationPrevious({
 
 function PaginationNext({
 	className,
-	text = 'Next',
+	text = 'Seguinte',
 	...props
 }: React.ComponentProps<typeof PaginationLink> & { text?: string }) {
 	return (
 		<PaginationLink
-			aria-label='Go to next page'
+			aria-label='Ir para página seguinte'
 			size='default'
 			className={cn('pr-2!', className)}
 			{...props}

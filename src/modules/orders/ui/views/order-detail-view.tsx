@@ -1,14 +1,16 @@
 'use client'
 
-import { ArrowLeft } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
+import { ArrowLeft, PackageSearch } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useQuery } from '@tanstack/react-query'
 import { OrderStatusBadge } from '@/components/order-status-badge'
 import { Button } from '@/components/ui/button'
 import { fetchOrder, STORE_PLACEHOLDER } from '@/lib/api/marketplace'
+import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 import { formatPrice } from '@/utils/format-price'
+import { OrderDetailSkeleton } from '../components/order-detail-skeleton'
 
 interface OrderDetailViewProps {
 	id: string
@@ -23,17 +25,21 @@ export const OrderDetailView = ({ id }: OrderDetailViewProps) => {
 	})
 
 	if (isLoading) {
-		return (
-			<div className='mx-auto max-w-2xl px-4 py-12 text-center text-muted-foreground'>
-				A carregar pedido...
-			</div>
-		)
+		return <OrderDetailSkeleton />
 	}
 
 	if (!data) {
 		return (
 			<div className='mx-auto flex min-h-[50vh] max-w-lg flex-col items-center justify-center gap-4 px-4'>
-				<p className='text-muted-foreground'>Pedido não encontrado.</p>
+				<div className='flex size-14 items-center justify-center rounded-full bg-muted'>
+					<PackageSearch className='size-7 text-muted-foreground' />
+				</div>
+				<div className='text-center'>
+					<p className='text-lg font-medium'>Pedido não encontrado</p>
+					<p className='mt-1 text-sm text-muted-foreground'>
+						O pedido que procura não existe ou foi removido.
+					</p>
+				</div>
 				<Button
 					render={<Link href='/feed/pedidos' />}
 					variant='outline'
@@ -66,6 +72,8 @@ export const OrderDetailView = ({ id }: OrderDetailViewProps) => {
 							src={order.storeAvatar ?? STORE_PLACEHOLDER}
 							alt={order.storeName}
 							fill
+							placeholder='blur'
+							blurDataURL={BLUR_PLACEHOLDER}
 							className='object-cover'
 						/>
 					</div>

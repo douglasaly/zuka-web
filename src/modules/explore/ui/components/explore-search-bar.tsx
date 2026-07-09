@@ -2,7 +2,7 @@ import { Search, SlidersHorizontal } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
-	FilterValues,
+	type FilterValues,
 	SearchFiltersSheet,
 } from '@/modules/search/ui/components/search-filters-sheet'
 

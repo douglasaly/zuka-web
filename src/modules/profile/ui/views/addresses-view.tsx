@@ -32,6 +32,11 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 const LABEL_ICONS: Record<string, typeof Home> = {
 	Casa: Home,
@@ -56,6 +61,8 @@ export const AddressesView = () => {
 		neighborhood: '',
 		city: '',
 		provinceSlug: '',
+		phone: '',
+		recipientName: '',
 		isDefault: false,
 	})
 
@@ -101,6 +108,8 @@ export const AddressesView = () => {
 				neighborhood: '',
 				city: '',
 				provinceSlug: '',
+				phone: '',
+				recipientName: '',
 				isDefault: false,
 			})
 			loadAddresses()
@@ -145,9 +154,19 @@ export const AddressesView = () => {
 		<div className='mx-auto max-w-2xl px-4 py-8 md:py-12'>
 			<div className='mb-8 flex items-center justify-between'>
 				<div className='flex items-center gap-2'>
-					<Button variant='ghost' onClick={() => router.back()}>
-						<ArrowLeft className='size-4' />
-					</Button>
+					<Tooltip>
+						<TooltipTrigger
+							render={
+								<Button
+									variant='ghost'
+									onClick={() => router.back()}
+								>
+									<ArrowLeft className='size-4' />
+								</Button>
+							}
+						/>
+						<TooltipContent>Voltar</TooltipContent>
+					</Tooltip>
 					<div>
 						<h1 className='font-heading text-2xl font-bold md:text-3xl'>
 							Endereços
@@ -315,6 +334,38 @@ export const AddressesView = () => {
 							</div>
 
 							<div className='space-y-2'>
+								<Label htmlFor='recipientName'>Nome do destinatário</Label>
+								<Input
+									id='recipientName'
+									placeholder='Nome completo'
+									value={form.recipientName}
+									onChange={(e) =>
+										setForm({
+											...form,
+											recipientName: e.target.value,
+										})
+									}
+									required
+								/>
+							</div>
+
+							<div className='space-y-2'>
+								<Label htmlFor='phone'>Telefone</Label>
+								<Input
+									id='phone'
+									placeholder='+258 84 123 4567'
+									value={form.phone}
+									onChange={(e) =>
+										setForm({
+											...form,
+											phone: e.target.value,
+										})
+									}
+									required
+								/>
+							</div>
+
+							<div className='space-y-2'>
 								<Label htmlFor='street'>Rua/Avenida</Label>
 								<Input
 									id='street'
@@ -369,7 +420,7 @@ export const AddressesView = () => {
 										onValueChange={(v) =>
 											setForm({
 												...form,
-												provinceSlug: v,
+												provinceSlug: v ?? undefined,
 											})
 										}
 									>

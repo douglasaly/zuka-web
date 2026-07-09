@@ -1,7 +1,8 @@
-import { Button } from '@/components/ui/button'
 import { X } from 'lucide-react'
 import Image from 'next/image'
 import { useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 
 export const ImageLightbox = ({
 	src,
@@ -47,6 +48,8 @@ export const ImageLightbox = ({
 					src={src}
 					alt={alt}
 					fill
+					placeholder='blur'
+					blurDataURL={BLUR_PLACEHOLDER}
 					className='object-contain pointer-events-none'
 				/>
 			</div>

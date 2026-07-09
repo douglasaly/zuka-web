@@ -2,6 +2,7 @@ import { BadgeCheck, Star } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { STORE_PLACEHOLDER } from '@/lib/api/marketplace'
+import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 import type { StoreProfile } from '@/types/marketplace'
 
 type ExploreStoreCardProps = {
@@ -18,6 +19,8 @@ export const ExploreStoreCard = ({ store }: ExploreStoreCardProps) => (
 				src={store.logoUrl ?? STORE_PLACEHOLDER}
 				alt={store.name}
 				fill
+				placeholder='blur'
+				blurDataURL={BLUR_PLACEHOLDER}
 				sizes='64px'
 				className='object-cover transition-transform duration-300 group-hover:scale-105'
 			/>

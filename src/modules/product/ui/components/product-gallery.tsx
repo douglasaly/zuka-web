@@ -11,6 +11,7 @@ import {
 	CarouselContent,
 	CarouselItem,
 } from '@/components/ui/carousel'
+import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 import { cn } from '@/lib/utils'
 
 type ProductGalleryProps = {
@@ -63,6 +64,8 @@ export const ProductGallery = ({
 										src={image}
 										alt={`${productName} - imagem ${index + 1}`}
 										fill
+										placeholder='blur'
+										blurDataURL={BLUR_PLACEHOLDER}
 										className='object-cover'
 										priority={index === 0}
 									/>
@@ -157,6 +160,8 @@ export const ProductGallery = ({
 								src={img}
 								alt={`${productName} ${index + 1}`}
 								fill
+								placeholder='blur'
+								blurDataURL={BLUR_PLACEHOLDER}
 								className='object-cover'
 							/>
 						</Button>

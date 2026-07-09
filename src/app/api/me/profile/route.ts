@@ -27,7 +27,7 @@ export async function PATCH(request: Request) {
 
 		const { data: updatedUser, error } = await supabase
 			.from('users')
-			.update(updates)
+			.update(updates as never)
 			.eq('id', user.id as string)
 			.select('*')
 			.single()

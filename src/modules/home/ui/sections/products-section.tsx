@@ -1,6 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
+import { PackageOpen } from 'lucide-react'
 import { useState } from 'react'
 import { fetchProducts } from '@/lib/api/marketplace'
 import { ProductsList } from '../components/products/product-list'
@@ -28,9 +29,14 @@ export const ProductsSection = () => {
 			{isLoading ? (
 				<ProductsSectionSkeleton viewMode={viewMode} />
 			) : products.length === 0 ? (
-				<p className='text-sm text-muted-foreground'>
-					Ainda não há produtos disponíveis.
-				</p>
+				<div className='flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border/60 px-4 py-12 text-center'>
+					<div className='flex size-12 items-center justify-center rounded-full bg-muted'>
+						<PackageOpen className='size-6 text-muted-foreground' />
+					</div>
+					<p className='text-sm text-muted-foreground'>
+						Ainda não há produtos disponíveis.
+					</p>
+				</div>
 			) : (
 				<ProductsList products={products} viewMode={viewMode} />
 			)}

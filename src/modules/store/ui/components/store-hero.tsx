@@ -1,10 +1,11 @@
 'use client'
 
-import { ArrowLeft, Expand, Heart, Share2, X } from 'lucide-react'
+import { ArrowLeft, Expand, Heart, Share2 } from 'lucide-react'
 import Image from 'next/image'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { STORE_PLACEHOLDER } from '@/lib/api/marketplace'
+import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 import { cn } from '@/lib/utils'
 import type { StoreProfile } from '@/types/marketplace'
 import { ImageLightbox } from './image-light-box'
@@ -35,6 +36,8 @@ export const StoreHero = ({
 					src={store.bannerUrl ?? STORE_PLACEHOLDER}
 					alt={store.name}
 					fill
+					placeholder='blur'
+					blurDataURL={BLUR_PLACEHOLDER}
 					className='object-cover'
 					priority
 				/>

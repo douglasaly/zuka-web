@@ -31,6 +31,7 @@ export function useUserProfile() {
 			return fetchUserProfile()
 		},
 		enabled: authReady && Boolean(firebaseUser),
+		staleTime: 1000 * 60 * 10,
 		retry: false,
 	})
 

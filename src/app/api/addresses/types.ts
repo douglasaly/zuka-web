@@ -5,8 +5,9 @@ export type Address = {
 	street: string
 	neighborhood: string
 	city: string
-	provinceId: string
-	provinceName?: string
+	provinceName: string | null
+	phone: string
+	recipientName: string
 	isDefault: boolean
 	createdAt: string
 	updatedAt: string
@@ -17,7 +18,9 @@ export type CreateAddressInput = {
 	street: string
 	neighborhood: string
 	city: string
-	provinceSlug: string
+	provinceSlug?: string
+	phone: string
+	recipientName: string
 	isDefault?: boolean
 }
 

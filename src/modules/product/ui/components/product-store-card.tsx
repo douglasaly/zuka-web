@@ -2,6 +2,7 @@ import { BadgeCheck, ChevronRight, Star } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { STORE_PLACEHOLDER } from '@/lib/api/marketplace'
+import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 
 type ProductStoreCardProps = {
 	storeSlug: string
@@ -29,10 +30,11 @@ export const ProductStoreCard = ({
 		>
 			<div className='relative size-12 shrink-0 overflow-hidden rounded-full'>
 				<Image
-					loading='lazy'
 					src={storeAvatar ?? STORE_PLACEHOLDER}
 					alt={storeName}
 					fill
+					placeholder='blur'
+					blurDataURL={BLUR_PLACEHOLDER}
 					className='object-cover'
 				/>
 			</div>

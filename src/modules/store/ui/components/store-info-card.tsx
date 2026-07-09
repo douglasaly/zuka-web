@@ -4,6 +4,7 @@ import { MapPin } from 'lucide-react'
 import Image from 'next/image'
 import { useFollowStore } from '@/hooks/use-follow-store'
 import { STORE_PLACEHOLDER } from '@/lib/api/marketplace'
+import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 import type { StoreProfile } from '@/types/marketplace'
 import { StoreVerifiedBadge } from './store-badge'
 import { StoreContactActions } from './store-contact-actions'
@@ -21,11 +22,13 @@ export const StoreInfoCard = ({ store }: StoreInfoCardProps) => {
 	return (
 		<div className='relative -mt-16 rounded-2xl border border-border/60 bg-card p-5'>
 			<div className='flex gap-4'>
-				<div className='relative size-20 shrink-0 overflow-hidden rounded-xl border-2 border-background'>
+			<div className='relative size-20 shrink-0 overflow-hidden rounded-xl border-2 border-background'>
 					<Image
 						src={store.logoUrl ?? STORE_PLACEHOLDER}
 						alt={store.name}
 						fill
+						placeholder='blur'
+						blurDataURL={BLUR_PLACEHOLDER}
 						className='object-cover'
 					/>
 				</div>

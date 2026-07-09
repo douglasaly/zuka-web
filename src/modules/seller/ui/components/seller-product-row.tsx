@@ -1,6 +1,7 @@
 import { Pencil, Trash2 } from 'lucide-react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
+import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 import type { SellerProduct } from '../../constants'
 
 type SellerProductRowProps = {
@@ -20,6 +21,8 @@ export const SellerProductRow = ({
 				src={product.imageUrl}
 				alt={product.name}
 				fill
+				placeholder='blur'
+				blurDataURL={BLUR_PLACEHOLDER}
 				sizes='64px'
 				className='object-cover'
 			/>

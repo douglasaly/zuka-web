@@ -1,15 +1,17 @@
 'use client'
 
-import { ArrowRight } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
+import { ArrowRight, PackageOpen, XCircle } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
 import { OrderStatusBadge } from '@/components/order-status-badge'
 import { fetchOrders, STORE_PLACEHOLDER } from '@/lib/api/marketplace'
+import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
+import { cn } from '@/lib/utils'
 import type { OrderSummary } from '@/types/marketplace'
 import { formatPrice } from '@/utils/format-price'
-import { cn } from '@/lib/utils'
+import { OrderSkeleton } from '../components/order-skeleton'
 
 const tabs = [
 	{
@@ -38,6 +40,8 @@ function OrderCard({ order }: { order: OrderSummary }) {
 						src={order.storeAvatar ?? STORE_PLACEHOLDER}
 						alt={order.storeName}
 						fill
+						placeholder='blur'
+						blurDataURL={BLUR_PLACEHOLDER}
 						className='object-cover'
 					/>
 				</div>
@@ -112,13 +116,34 @@ export const OrdersView = () => {
 
 			<div className='space-y-3'>
 				{isLoading ? (
-					<p className='py-12 text-center text-sm text-muted-foreground'>
-						A carregar pedidos...
-					</p>
+					<OrderSkeleton />
 				) : filtered.length === 0 ? (
-					<p className='py-12 text-center text-sm text-muted-foreground'>
-						Nenhum pedido.
-					</p>
+					<div className='flex flex-col items-center gap-4 rounded-2xl border border-dashed border-border/60 px-4 py-16 text-center'>
+						<div className='flex size-14 items-center justify-center rounded-full bg-muted'>
+							{activeTab === 'cancelled' ? (
+								<XCircle className='size-7 text-muted-foreground' />
+							) : (
+								<PackageOpen className='size-7 text-muted-foreground' />
+							)}
+						</div>
+						<div>
+							<p className='text-lg font-medium'>
+								Nenhum pedido{' '}
+								{activeTab === 'active'
+									? 'ativo'
+									: activeTab === 'completed'
+										? 'concluído'
+										: 'cancelado'}
+							</p>
+							<p className='mt-1 text-sm text-muted-foreground'>
+								{activeTab === 'active'
+									? 'Os seus pedidos em andamento aparecerão aqui.'
+									: activeTab === 'completed'
+										? 'Os pedidos concluídos aparecerão aqui.'
+										: 'Nenhum pedido foi cancelado.'}
+							</p>
+						</div>
+					</div>
 				) : (
 					filtered.map((order) => (
 						<OrderCard key={order.id} order={order} />

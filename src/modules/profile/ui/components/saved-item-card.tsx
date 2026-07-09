@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { PRODUCT_PLACEHOLDER } from '@/lib/api/marketplace'
+import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 import type { SavedItem } from '@/types/saved-items'
 import { formatPrice } from '@/utils/format-price'
 
@@ -44,8 +45,9 @@ export const SavedItemCard = ({
 					<Image
 						src={item.imageUrl ?? PRODUCT_PLACEHOLDER}
 						alt={item.name}
-						loading='eager'
 						fill
+						placeholder='blur'
+						blurDataURL={BLUR_PLACEHOLDER}
 						sizes='(max-width: 640px) 50vw, 33vw'
 						className='object-cover transition-transform duration-200 group-hover:scale-105'
 					/>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
+import { AlertCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
@@ -63,9 +64,14 @@ export const CategoriesSection = ({ categoryId }: Props) => {
 		<Suspense fallback={<CategorySkeleton />}>
 			<ErrorBoundary
 				fallback={
-					<p className='text-sm text-muted-foreground'>
-						Não foi possível carregar as categorias.
-					</p>
+					<div className='flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border/60 px-4 py-12 text-center'>
+						<div className='flex size-12 items-center justify-center rounded-full bg-muted'>
+							<AlertCircle className='size-6 text-muted-foreground' />
+						</div>
+						<p className='text-sm text-muted-foreground'>
+							Não foi possível carregar as categorias.
+						</p>
+					</div>
 				}
 			>
 				<CategoriesSectionSuspense categoryId={categoryId} />
