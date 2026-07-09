@@ -33,6 +33,9 @@ export async function GET(req: Request) {
 		const isNew = searchParams.get('recente')
 		const sort = searchParams.get('ordenar') || 'relevance'
 
+		const normalizedMinPrice = minPrice ? Number(minPrice) * 100 : undefined
+		const normalizedMaxPrice = maxPrice ? Number(maxPrice) * 100 : undefined
+
 		if (!q) {
 			return NextResponse.json({
 				products: [],
@@ -43,7 +46,6 @@ export async function GET(req: Request) {
 
 		const supabase = createSupabaseAdmin()
 		const term = `%${q}%`
-
 		const [catLookup, provLookup] = await Promise.all([
 			categorySlug && categorySlug !== 'all'
 				? supabase
@@ -81,16 +83,23 @@ export async function GET(req: Request) {
 
 		if (categoryId)
 			productQuery = productQuery.eq('category_id', categoryId)
+
 		if (provinceId)
 			productQuery = productQuery.eq('stores.province_id', provinceId)
-		if (minPrice) productQuery = productQuery.gte('price', Number(minPrice))
-		if (maxPrice) productQuery = productQuery.lte('price', Number(maxPrice))
+
+		if (minPrice)
+			productQuery = productQuery.gte('price', normalizedMinPrice)
+
+		if (maxPrice)
+			productQuery = productQuery.lte('price', normalizedMaxPrice)
+
 		if (isNew === 'true') {
 			const fourteenDaysAgo = new Date(
 				Date.now() - 14 * 24 * 60 * 60 * 1000
 			).toISOString()
 			productQuery = productQuery.gte('created_at', fourteenDaysAgo)
 		}
+
 		if (sort === 'price_asc')
 			productQuery = productQuery.order('price', { ascending: true })
 		else if (sort === 'price_desc')

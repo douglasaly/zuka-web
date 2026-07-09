@@ -29,12 +29,12 @@ export const MOCK_SELLER_PRODUCTS: SellerProduct[] = [
 		id: '1',
 		name: 'Kit Cuidado Cabelo Natural',
 		price: 'MZN 2,300',
-		imageUrl: '/placeholder.jpg',
+		imageUrl: '/placeholder.png',
 	},
 	{
 		id: '2',
 		name: 'Perfume Africana Femme 50ml',
 		price: 'MZN 1,800',
-		imageUrl: '/placeholder.jpg',
+		imageUrl: '/placeholder.png',
 	},
 ]

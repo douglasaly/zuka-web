@@ -25,7 +25,7 @@ export const FollowedStoreCard = ({ store }: FollowedStoreCardProps) => {
 		>
 			<div className='relative shrink-0'>
 				<StoreAvatar
-					imageUrl={store.imageUrl ?? '/placeholder.jpg'}
+					imageUrl={store.imageUrl ?? '/placeholder.png'}
 					name={store.name}
 					size='lg'
 				/>

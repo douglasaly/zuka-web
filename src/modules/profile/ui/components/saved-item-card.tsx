@@ -41,7 +41,7 @@ export const SavedItemCard = ({
 			<Link href={`/product/${item.id}`} className='block'>
 				<div className='relative aspect-square w-full overflow-hidden bg-muted/40'>
 					<Image
-						src={item.imageUrl ?? '/placeholder.jpg'}
+						src={item.imageUrl ?? '/placeholder.png'}
 						alt={item.name}
 						fill
 						sizes='(max-width: 640px) 50vw, 33vw'

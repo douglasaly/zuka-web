@@ -2,20 +2,19 @@
 
 import { ChevronRight, SearchIcon, SlidersHorizontal, Tag } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { Button } from '@/components/ui/button'
+import { useSearchParams } from 'next/navigation'
 import { ProductCard } from '@/components/product-card'
+import { Button } from '@/components/ui/button'
 import { ExploreStoreCard } from '@/modules/explore/ui/components/explore-store-card'
 import { useSearch } from '../../hooks/use-search'
 import { SearchEmpty } from '../components/search-empty'
 import {
-	SearchFiltersSheet,
 	type FilterValues,
+	SearchFiltersSheet,
 } from '../components/search-filters-sheet'
 import { SearchSkeleton } from '../components/search-skeleton'
 
 export function SearchView() {
-	const router = useRouter()
 	const searchParams = useSearchParams()
 
 	const q = searchParams.get('q') ?? ''
@@ -62,13 +61,13 @@ export function SearchView() {
 		if (values.isNew === 'true') params.set('recente', 'true')
 		if (values.sort && values.sort !== 'relevance')
 			params.set('ordenar', values.sort)
-		router.push(`/pesquisa?${params.toString()}`)
+		window.history.pushState(null, '', `/pesquisa?${params.toString()}`)
 	}
 
 	const handleClearFilters = () => {
 		const params = new URLSearchParams()
 		if (q) params.set('q', q)
-		router.push(`/pesquisa?${params.toString()}`)
+		window.history.pushState(null, '', `/pesquisa?${params.toString()}`)
 	}
 
 	const filterValues: FilterValues = {
@@ -140,7 +139,7 @@ export function SearchView() {
 									<ChevronRight className='size-3.5' />
 								</Link>
 							</div>
-							<div className='grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6'>
+							<div className='grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6'>
 								{data?.products.map((product) => (
 									<ProductCard
 										key={product.id}

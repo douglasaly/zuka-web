@@ -11,7 +11,7 @@ export const MOCK_CONVERSATIONS: Conversation[] = [
 	{
 		id: '1',
 		storeName: 'Loja da Fátima',
-		storeAvatarUrl: '/placeholder.jpg',
+		storeAvatarUrl: '/placeholder.png',
 		lastMessage: 'O seu pedido já foi enviado, deve chegar amanhã.',
 		timestamp: 'Ontem',
 		unreadCount: 2,
@@ -19,7 +19,7 @@ export const MOCK_CONVERSATIONS: Conversation[] = [
 	{
 		id: '2',
 		storeName: 'Artesanato Maputo',
-		storeAvatarUrl: '/placeholder.jpg',
+		storeAvatarUrl: '/placeholder.png',
 		lastMessage: 'Obrigada pela compra! Qualquer dúvida estamos aqui.',
 		timestamp: 'Ontem',
 		unreadCount: 0,
@@ -27,7 +27,7 @@ export const MOCK_CONVERSATIONS: Conversation[] = [
 	{
 		id: '3',
 		storeName: 'Cestos & Cia',
-		storeAvatarUrl: '/placeholder.jpg',
+		storeAvatarUrl: '/placeholder.png',
 		lastMessage: 'Temos esse modelo em mais 3 cores, quer ver?',
 		timestamp: '2 dias',
 		unreadCount: 1,
@@ -35,7 +35,7 @@ export const MOCK_CONVERSATIONS: Conversation[] = [
 	{
 		id: '4',
 		storeName: 'Arte Local MZ',
-		storeAvatarUrl: '/placeholder.jpg',
+		storeAvatarUrl: '/placeholder.png',
 		lastMessage: 'Pode confirmar o endereço de entrega, por favor?',
 		timestamp: '3 dias',
 		unreadCount: 0,
@@ -43,7 +43,7 @@ export const MOCK_CONVERSATIONS: Conversation[] = [
 	{
 		id: '5',
 		storeName: 'Beleza da Ana',
-		storeAvatarUrl: '/placeholder.jpg',
+		storeAvatarUrl: '/placeholder.png',
 		lastMessage: 'O kit já está disponível para reserva.',
 		timestamp: '5 dias',
 		unreadCount: 0,
@@ -51,7 +51,7 @@ export const MOCK_CONVERSATIONS: Conversation[] = [
 	{
 		id: '6',
 		storeName: 'Capulanas & Cia',
-		storeAvatarUrl: '/placeholder.jpg',
+		storeAvatarUrl: '/placeholder.png',
 		lastMessage: 'Estamos com uma promoção esta semana, aproveite!',
 		timestamp: '1 semana',
 		unreadCount: 0,

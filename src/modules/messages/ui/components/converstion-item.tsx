@@ -48,7 +48,7 @@ export const ConversationItem = ({ conversation }: ConversationItemProps) => {
 		>
 			<div className='relative shrink-0'>
 				<StoreAvatar
-					imageUrl={conversation.store.logoUrl ?? '/placeholder.jpg'}
+					imageUrl={conversation.store.logoUrl ?? '/placeholder.png'}
 					name={conversation.store.name}
 					size='lg'
 				/>

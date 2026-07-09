@@ -1,8 +1,8 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import { useDebouncedValue } from '@/hooks/use-debounced-value'
 import type { SearchResults } from '@/app/api/search/route'
+import { useDebouncedValue } from '@/hooks/use-debounced-value'
 
 type UseSearchProps = {
 	query: string

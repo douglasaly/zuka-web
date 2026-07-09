@@ -1,11 +1,12 @@
 'use client'
 
-import { Heart, Menu, ShoppingBag, User } from 'lucide-react'
+import { Heart, Menu, ShoppingBag } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Suspense } from 'react'
 import { Button } from '@/components/ui/button'
 import { SidebarTrigger } from '@/components/ui/sidebar'
+import { UserAvatar } from '@/components/user-avatar'
 import { useUserProfile } from '@/hooks/use-user-profile'
 import { NotificationDropdown } from '@/modules/notifications/ui/components/notification-dropdown'
 import { SearchInput } from './search-input'
@@ -72,7 +73,12 @@ function NavbarAuth() {
 			variant='outline'
 			className='ml-1 max-w-40 rounded-full px-3'
 		>
-			<User className='size-4 shrink-0' />
+			<UserAvatar
+				imageUrl={profile?.avatarUrl}
+				name={name}
+				size='sm'
+				className='-ml-1'
+			/>
 			<span className='truncate'>{name}</span>
 		</Button>
 	)

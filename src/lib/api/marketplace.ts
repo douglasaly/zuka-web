@@ -11,7 +11,7 @@ import type {
 } from '@/types/marketplace'
 
 export const PRODUCT_PLACEHOLDER = '/product-placeholder.jpg'
-export const STORE_PLACEHOLDER = '/placeholder.jpg'
+export const STORE_PLACEHOLDER = '/placeholder.png'
 
 type GroupedProduct = {
 	product: Record<string, unknown>

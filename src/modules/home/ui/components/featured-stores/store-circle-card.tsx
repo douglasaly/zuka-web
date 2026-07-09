@@ -29,7 +29,7 @@ export const StoreCircleCard = ({
 				)}
 			>
 				<StoreAvatar
-					imageUrl={store.logoUrl ?? '/placeholder.jpg'}
+					imageUrl={store.logoUrl ?? '/placeholder.png'}
 					name={store.name}
 					size='xl'
 					className='size-16 transition-transform duration-300 group-hover:scale-105 sm:size-18'

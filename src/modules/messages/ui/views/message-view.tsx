@@ -43,7 +43,7 @@ export const MessageView = ({ messageId }: MessageViewProps) => {
 				<ChatHeader
 					storeName={conversation.store.name}
 					storeAvatarUrl={
-						conversation.store.logoUrl ?? '/placeholder.jpg'
+						conversation.store.logoUrl ?? '/placeholder.png'
 					}
 					storeLocation={[
 						conversation.store.provinceName,

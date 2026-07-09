@@ -24,6 +24,15 @@ export const SearchInput = () => {
 	const sort = searchParams.get('ordenar') || 'relevance'
 	const [value, setValue] = useState(query)
 
+	const navigateToSearch = (params: URLSearchParams) => {
+		const url = `/pesquisa?${params.toString()}`
+		if (window.location.pathname === '/pesquisa') {
+			window.history.pushState(null, '', url)
+		} else {
+			router.push(url)
+		}
+	}
+
 	const handleSearch = (event: React.SubmitEvent<HTMLFormElement>) => {
 		event.preventDefault()
 		const params = new URLSearchParams()
@@ -35,7 +44,7 @@ export const SearchInput = () => {
 		if (maxPrice) params.set('preco_max', maxPrice)
 		if (isNew === 'true') params.set('recente', 'true')
 		if (sort && sort !== 'relevance') params.set('ordenar', sort)
-		router.push(`/pesquisa?${params.toString()}`)
+		navigateToSearch(params)
 	}
 
 	const handleApplyFilters = (values: FilterValues) => {
@@ -50,13 +59,13 @@ export const SearchInput = () => {
 		if (values.isNew === 'true') params.set('recente', 'true')
 		if (values.sort && values.sort !== 'relevance')
 			params.set('ordenar', values.sort)
-		router.push(`/pesquisa?${params.toString()}`)
+		navigateToSearch(params)
 	}
 
 	const handleClearFilters = () => {
 		const params = new URLSearchParams()
 		if (value.trim()) params.set('q', value.trim())
-		router.push(`/pesquisa?${params.toString()}`)
+		navigateToSearch(params)
 	}
 
 	const filterValues: FilterValues = {
