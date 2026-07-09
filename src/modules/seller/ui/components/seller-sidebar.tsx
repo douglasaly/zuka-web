@@ -1,6 +1,16 @@
 'use client'
 
-import { LayoutGrid, LogOut, MessageSquare, Search, Store } from 'lucide-react'
+import {
+	BarChart3,
+	LayoutGrid,
+	LogOut,
+	MessageSquare,
+	Package,
+	Settings,
+	ShoppingBag,
+	Star,
+	Store,
+} from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
@@ -9,21 +19,74 @@ import {
 	SidebarFooter,
 	SidebarGroup,
 	SidebarGroupContent,
+	SidebarGroupLabel,
 	SidebarHeader,
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from '@/components/ui/sidebar'
 
-const NAV_ITEMS = [
-	{ title: 'Dashboard', icon: LayoutGrid, href: '/dashboard/seller' },
+const GROUPS = [
 	{
-		title: 'Mensagens',
-		icon: MessageSquare,
-		href: '/dashboard/seller/mensagens',
+		label: 'Principal',
+		items: [
+			{
+				title: 'Dashboard',
+				icon: LayoutGrid,
+				href: '/dashboard/seller',
+			},
+			{
+				title: 'Pedidos',
+				icon: ShoppingBag,
+				href: '/dashboard/seller/pedidos',
+			},
+			{
+				title: 'Mensagens',
+				icon: MessageSquare,
+				href: '/dashboard/seller/mensagens',
+			},
+		],
 	},
-	{ title: 'Minha Loja', icon: Store, href: '/dashboard/seller/loja' },
-	{ title: 'Explorar', icon: Search, href: '/dashboard/seller/explorar' },
+	{
+		label: 'Loja',
+		items: [
+			{
+				title: 'Produtos',
+				icon: Package,
+				href: '/dashboard/seller/produtos',
+			},
+			{
+				title: 'Minha Loja',
+				icon: Store,
+				href: '/dashboard/seller/loja',
+			},
+			{
+				title: 'Avaliações',
+				icon: Star,
+				href: '/dashboard/seller/avaliacoes',
+			},
+		],
+	},
+	{
+		label: 'Análises',
+		items: [
+			{
+				title: 'Analytics',
+				icon: BarChart3,
+				href: '/dashboard/seller/analytics',
+			},
+		],
+	},
+	{
+		label: 'Configurações',
+		items: [
+			{
+				title: 'Configurações',
+				icon: Settings,
+				href: '/dashboard/seller/configuracoes',
+			},
+		],
+	},
 ]
 
 const FOOTER_ITEMS = [
@@ -53,31 +116,38 @@ export const SellerSidebar = () => {
 			</SidebarHeader>
 
 			<SidebarContent className='px-2 py-3'>
-				<SidebarGroup>
-					<SidebarGroupContent>
-						<SidebarMenu>
-							{NAV_ITEMS.map((item) => {
-								const Icon = item.icon
-								const isActive = pathname === item.href
+				{GROUPS.map((group) => (
+					<SidebarGroup key={group.label}>
+						<SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+						<SidebarGroupContent>
+							<SidebarMenu>
+								{group.items.map((item) => {
+									const Icon = item.icon
+									const isActive =
+										pathname === item.href ||
+										pathname.startsWith(`${item.href}/`)
 
-								return (
-									<SidebarMenuItem key={item.title}>
-										<SidebarMenuButton
-											isActive={isActive}
-											tooltip={item.title}
-											render={
-												<Link href={item.href}>
-													<Icon className='size-4' />
-													<span>{item.title}</span>
-												</Link>
-											}
-										/>
-									</SidebarMenuItem>
-								)
-							})}
-						</SidebarMenu>
-					</SidebarGroupContent>
-				</SidebarGroup>
+									return (
+										<SidebarMenuItem key={item.title}>
+											<SidebarMenuButton
+												isActive={isActive}
+												tooltip={item.title}
+												render={
+													<Link href={item.href}>
+														<Icon className='size-4' />
+														<span>
+															{item.title}
+														</span>
+													</Link>
+												}
+											/>
+										</SidebarMenuItem>
+									)
+								})}
+							</SidebarMenu>
+						</SidebarGroupContent>
+					</SidebarGroup>
+				))}
 			</SidebarContent>
 
 			<SidebarFooter className='border-t border-sidebar-border p-2'>

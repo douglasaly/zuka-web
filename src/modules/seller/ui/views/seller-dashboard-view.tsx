@@ -25,35 +25,33 @@ export const SellerDashboardView = () => {
 	}
 
 	return (
-		<div className='flex min-h-screen bg-neutral-50'>
-			<main className='flex-1 space-y-6 p-8'>
-				<SellerWelcomeBanner storeName='Auto Style MZ' />
+		<div className='space-y-6'>
+			<SellerWelcomeBanner storeName='Auto Style MZ' />
 
-				<SellerStatsGrid stats={MOCK_SELLER_STATS} />
+			<SellerStatsGrid stats={MOCK_SELLER_STATS} />
 
-				<SellerTabs value={tab} onChange={setTab} />
+			<SellerTabs value={tab} onChange={setTab} />
 
-				{tab === 'Resumo' && (
-					<div className='rounded-2xl border bg-white p-8 text-center text-muted-foreground'>
-						Resumo em breve
-					</div>
-				)}
+			{tab === 'Resumo' && (
+				<div className='rounded-2xl border bg-card p-8 text-center text-muted-foreground'>
+					Resumo em breve
+				</div>
+			)}
 
-				{tab === 'Produtos' && (
-					<SellerProductsSection
-						products={products}
-						onAdd={handleAddProduct}
-						onEdit={handleEditProduct}
-						onDelete={handleDeleteProduct}
-					/>
-				)}
+			{tab === 'Produtos' && (
+				<SellerProductsSection
+					products={products}
+					onAdd={handleAddProduct}
+					onEdit={handleEditProduct}
+					onDelete={handleDeleteProduct}
+				/>
+			)}
 
-				{tab === 'Pedidos' && (
-					<div className='rounded-2xl border bg-white p-8 text-center text-muted-foreground'>
-						Pedidos em breve
-					</div>
-				)}
-			</main>
+			{tab === 'Pedidos' && (
+				<div className='rounded-2xl border bg-card p-8 text-center text-muted-foreground'>
+					Pedidos em breve
+				</div>
+			)}
 		</div>
 	)
 }
