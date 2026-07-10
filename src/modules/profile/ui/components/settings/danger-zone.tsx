@@ -92,9 +92,7 @@ export const DangerZone = () => {
 								disabled={deleting}
 								onClick={handleDelete}
 							>
-								{deleting
-									? 'A eliminar...'
-									: 'Sim, eliminar'}
+								{deleting ? 'A eliminar...' : 'Sim, eliminar'}
 							</Button>
 						</DialogFooter>
 					</DialogContent>

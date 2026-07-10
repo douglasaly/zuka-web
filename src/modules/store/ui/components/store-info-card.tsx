@@ -22,7 +22,7 @@ export const StoreInfoCard = ({ store }: StoreInfoCardProps) => {
 	return (
 		<div className='relative -mt-16 rounded-2xl border border-border/60 bg-card p-5'>
 			<div className='flex gap-4'>
-			<div className='relative size-20 shrink-0 overflow-hidden rounded-xl border-2 border-background'>
+				<div className='relative size-20 shrink-0 overflow-hidden rounded-xl border-2 border-background'>
 					<Image
 						src={store.logoUrl ?? STORE_PLACEHOLDER}
 						alt={store.name}

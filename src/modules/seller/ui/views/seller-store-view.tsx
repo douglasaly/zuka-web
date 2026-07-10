@@ -43,9 +43,12 @@ export const SellerStoreView = () => {
 				<p className='mt-1 max-w-sm text-sm text-muted-foreground'>
 					Complete o registo de vendedor para criar a sua loja.
 				</p>
-				<Button className='mt-6 rounded-full' asChild>
-					<Link href='/onboarding/seller'>Ir para o registo</Link>
-				</Button>
+				<Button
+					className='mt-6 rounded-full'
+					render={
+						<Link href='/onboarding/seller'>Ir para o registo</Link>
+					}
+				/>
 			</div>
 		)
 	}

@@ -79,8 +79,7 @@ function ResetForm() {
 					: ''
 
 			const messages: Record<string, string> = {
-				'auth/expired-action-code':
-					'O link expirou. Solicite um novo.',
+				'auth/expired-action-code': 'O link expirou. Solicite um novo.',
 				'auth/invalid-action-code':
 					'O link é inválido. Solicite um novo.',
 				'auth/weak-password':
@@ -176,10 +175,7 @@ function ResetForm() {
 					</CardHeader>
 
 					<CardContent>
-						<form
-							onSubmit={handleSubmit}
-							className='space-y-4'
-						>
+						<form onSubmit={handleSubmit} className='space-y-4'>
 							<div className='space-y-2'>
 								<Label htmlFor='new-password'>
 									Nova palavra-passe

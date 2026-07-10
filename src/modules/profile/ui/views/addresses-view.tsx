@@ -334,7 +334,9 @@ export const AddressesView = () => {
 							</div>
 
 							<div className='space-y-2'>
-								<Label htmlFor='recipientName'>Nome do destinatário</Label>
+								<Label htmlFor='recipientName'>
+									Nome do destinatário
+								</Label>
 								<Input
 									id='recipientName'
 									placeholder='Nome completo'

@@ -70,7 +70,9 @@ function ConfirmationContent() {
 							className='w-full rounded-full'
 						/>
 						<Button
-							render={<Link href='/auth/login'>Voltar ao login</Link>}
+							render={
+								<Link href='/auth/login'>Voltar ao login</Link>
+							}
 							className='w-full rounded-full'
 						/>
 					</CardFooter>

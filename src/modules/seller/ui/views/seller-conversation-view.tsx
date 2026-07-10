@@ -86,12 +86,12 @@ export const SellerConversationView = ({ id }: SellerConversationViewProps) => {
 					variant='ghost'
 					size='icon'
 					className='shrink-0'
-					asChild
-				>
-					<Link href='/dashboard/seller/mensagens'>
-						<ArrowLeft className='size-4' />
-					</Link>
-				</Button>
+					render={
+						<Link href='/dashboard/seller/mensagens'>
+							<ArrowLeft className='size-4' />
+						</Link>
+					}
+				/>
 				<MessageSquare className='size-4 text-muted-foreground' />
 				<p className='font-medium'>Conversa</p>
 			</div>

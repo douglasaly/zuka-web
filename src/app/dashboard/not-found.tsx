@@ -15,12 +15,17 @@ export default function DashboardNotFound() {
 				A página que procura não existe no painel de vendedor.
 			</p>
 			<div className='mt-8 flex gap-3'>
-				<Button variant='outline' className='rounded-full' asChild>
-					<Link href='/'>Voltar ao início</Link>
-				</Button>
-				<Button className='rounded-full' asChild>
-					<Link href='/dashboard/seller'>Ir para o painel</Link>
-				</Button>
+				<Button
+					variant='outline'
+					className='rounded-full'
+					render={<Link href='/'>Voltar ao início</Link>}
+				/>
+				<Button
+					className='rounded-full'
+					render={
+						<Link href='/dashboard/seller'>Ir para o painel</Link>
+					}
+				/>
 			</div>
 		</div>
 	)
