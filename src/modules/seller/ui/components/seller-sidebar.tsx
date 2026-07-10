@@ -25,6 +25,8 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from '@/components/ui/sidebar'
+import { useUnreadCounts } from '@/hooks/use-unread-counts'
+import { cn } from '@/lib/utils'
 
 const GROUPS = [
 	{
@@ -39,11 +41,13 @@ const GROUPS = [
 				title: 'Pedidos',
 				icon: ShoppingBag,
 				href: '/dashboard/seller/pedidos',
+				badgeKey: 'pendingOrders' as const,
 			},
 			{
 				title: 'Mensagens',
 				icon: MessageSquare,
 				href: '/dashboard/seller/mensagens',
+				badgeKey: 'unreadMessages' as const,
 			},
 		],
 	},
@@ -85,6 +89,11 @@ const GROUPS = [
 				icon: Settings,
 				href: '/dashboard/seller/configuracoes',
 			},
+			{
+				title: 'Membros',
+				icon: Store,
+				href: '/dashboard/seller/loja/membros',
+			},
 		],
 	},
 ]
@@ -96,6 +105,7 @@ const FOOTER_ITEMS = [
 
 export const SellerSidebar = () => {
 	const pathname = usePathname()
+	const { data: unread } = useUnreadCounts()
 
 	return (
 		<Sidebar
@@ -127,6 +137,11 @@ export const SellerSidebar = () => {
 										pathname === item.href ||
 										pathname.startsWith(`${item.href}/`)
 
+									const badgeCount =
+										item.badgeKey && unread
+											? unread[item.badgeKey]
+											: 0
+
 									return (
 										<SidebarMenuItem key={item.title}>
 											<SidebarMenuButton
@@ -141,6 +156,18 @@ export const SellerSidebar = () => {
 													</Link>
 												}
 											/>
+											{badgeCount > 0 && (
+												<span
+													className={cn(
+														'absolute right-2 top-1/2 -translate-y-1/2 flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground',
+														'group-data-[collapsible=icon]:relative group-data-[collapsible=icon]:right-auto group-data-[collapsible=icon]:top-auto group-data-[collapsible=icon]:translate-y-0 group-data-[collapsible=icon]:mt-1'
+													)}
+												>
+													{badgeCount > 99
+														? '99+'
+														: badgeCount}
+												</span>
+											)}
 										</SidebarMenuItem>
 									)
 								})}

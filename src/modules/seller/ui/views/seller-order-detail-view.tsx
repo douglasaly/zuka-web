@@ -51,12 +51,16 @@ export const SellerOrderDetailView = ({ id }: SellerOrderDetailViewProps) => {
 						O pedido que procura não existe ou foi removido.
 					</p>
 				</div>
-				<Button variant='outline' className='rounded-full' asChild>
-					<Link href='/dashboard/seller/pedidos'>
-						<ArrowLeft className='mr-1 size-4' />
-						Voltar aos pedidos
-					</Link>
-				</Button>
+				<Button
+					variant='outline'
+					className='rounded-full'
+					render={
+						<Link href='/dashboard/seller/pedidos'>
+							<ArrowLeft className='mr-1 size-4' />
+							Voltar aos pedidos
+						</Link>
+					}
+				/>
 			</div>
 		)
 	}
@@ -68,12 +72,12 @@ export const SellerOrderDetailView = ({ id }: SellerOrderDetailViewProps) => {
 					variant='ghost'
 					size='icon'
 					className='shrink-0'
-					asChild
-				>
-					<Link href='/dashboard/seller/pedidos'>
-						<ArrowLeft className='size-4' />
-					</Link>
-				</Button>
+					render={
+						<Link href='/dashboard/seller/pedidos'>
+							<ArrowLeft className='size-4' />
+						</Link>
+					}
+				/>
 				<div>
 					<p className='text-sm text-muted-foreground'>
 						Pedido #{data.id.slice(0, 8)}
@@ -82,7 +86,10 @@ export const SellerOrderDetailView = ({ id }: SellerOrderDetailViewProps) => {
 						Detalhes do pedido
 					</h1>
 				</div>
-				<OrderStatusBadge status={data.status} />
+				<OrderStatusBadge
+					label={data.statusLabel}
+					status={data.status}
+				/>
 			</div>
 
 			<div className='grid gap-4 md:grid-cols-2'>

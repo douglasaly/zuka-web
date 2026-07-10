@@ -34,7 +34,9 @@ export const ResetPasswordView = () => {
 				handleCodeInApp: true,
 			})
 
-			router.push(`/auth/recuperar/confirmacao?email=${encodeURIComponent(email)}`)
+			router.push(
+				`/auth/recuperar/confirmacao?email=${encodeURIComponent(email)}`
+			)
 		} catch (err: unknown) {
 			const firebaseCode =
 				err && typeof err === 'object' && 'code' in err
@@ -42,10 +44,8 @@ export const ResetPasswordView = () => {
 					: ''
 
 			const messages: Record<string, string> = {
-				'auth/user-not-found':
-					'Não existe conta com este email.',
-				'auth/invalid-email':
-					'Email inválido. Verifique o endereço.',
+				'auth/user-not-found': 'Não existe conta com este email.',
+				'auth/invalid-email': 'Email inválido. Verifique o endereço.',
 				'auth/too-many-requests':
 					'Muitas tentativas. Aguarde alguns minutos e tente novamente.',
 			}
@@ -85,10 +85,7 @@ export const ResetPasswordView = () => {
 					</CardHeader>
 
 					<CardContent>
-						<form
-							onSubmit={handleSubmit}
-							className='space-y-4'
-						>
+						<form onSubmit={handleSubmit} className='space-y-4'>
 							<div className='space-y-2'>
 								<Label htmlFor='reset-email'>Email</Label>
 								<Input
@@ -96,9 +93,7 @@ export const ResetPasswordView = () => {
 									type='email'
 									placeholder='seu@email.com'
 									value={email}
-									onChange={(e) =>
-										setEmail(e.target.value)
-									}
+									onChange={(e) => setEmail(e.target.value)}
 									autoComplete='email'
 									required
 								/>

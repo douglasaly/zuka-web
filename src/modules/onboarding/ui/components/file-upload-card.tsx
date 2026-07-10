@@ -3,8 +3,8 @@
 import { Camera, Loader2, Upload, User, X } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { uploadImageToR2 } from '@/lib/api/uploads'
-import type { UploadPurpose } from '@/types/uploads'
 import { cn } from '@/lib/utils'
+import type { UploadPurpose } from '@/types/uploads'
 
 interface FileUploadCardProps {
 	label: string
