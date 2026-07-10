@@ -1799,6 +1799,10 @@ export const getApiDocs = async () => {
 					url: 'http://localhost:3000',
 					description: 'Desenvolvimento',
 				},
+				{
+					url: 'https://zuka-web.vercel.app/api',
+					description: 'Produção',
+				},
 			],
 			components: {
 				securitySchemes: {
