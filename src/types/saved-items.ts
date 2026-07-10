@@ -4,4 +4,6 @@ export type SavedItem = {
 	name: string
 	storeName: string
 	price: number
+	storeImage: string | null
+	storeSlug: string
 }

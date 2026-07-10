@@ -1,7 +1,8 @@
 export const formatPrice = (value: number, currency = 'MZN') => {
-	return new Intl.NumberFormat('pt-pt', {
-		style: 'currency',
-		currency,
+	const formatted = new Intl.NumberFormat('pt-pt', {
 		maximumFractionDigits: 0,
-	}).format(value / 100)
+	})
+		.format(value)
+		.replace(/\u00A0/g, '.')
+	return `${formatted} ${currency}`
 }

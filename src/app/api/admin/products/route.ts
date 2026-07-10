@@ -33,5 +33,12 @@ export async function GET(req: Request) {
 	if (error)
 		return NextResponse.json({ error: error.message }, { status: 500 })
 
-	return NextResponse.json({ products: data ?? [] })
+	const products = (data ?? []).map((row: any) => ({
+		...row,
+		price: row.price / 100,
+		discount_price:
+			row.discount_price != null ? row.discount_price / 100 : null,
+	}))
+
+	return NextResponse.json({ products })
 }

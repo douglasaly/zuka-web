@@ -47,9 +47,13 @@ export async function PATCH(req: Request, { params }: Params) {
 		if (body.description !== undefined)
 			updates.description = body.description
 		if (body.categoryId !== undefined) updates.category_id = body.categoryId
-		if (body.price !== undefined) updates.price = body.price
+		if (body.price !== undefined)
+			updates.price = Math.round(Number(body.price) * 100)
 		if (body.discountPrice !== undefined)
-			updates.discount_price = body.discountPrice
+			updates.discount_price =
+				body.discountPrice != null
+					? Math.round(Number(body.discountPrice) * 100)
+					: null
 		if (body.quantity !== undefined) updates.quantity = body.quantity
 		if (body.status !== undefined) updates.status = body.status
 		if (body.isVisible !== undefined) updates.is_visible = body.isVisible

@@ -57,7 +57,7 @@ export async function GET(
 				return {
 					id: row.id as string,
 					quantity: row.quantity as number,
-					unitPrice: row.unit_price as number,
+					unitPrice: (row.unit_price as number) / 100,
 					currency: row.currency as string,
 					productName: product?.name ?? 'Produto',
 					productSlug: product?.slug ?? null,

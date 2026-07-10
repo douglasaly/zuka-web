@@ -70,8 +70,9 @@ export function mapProductRow(row: DbProduct): Product {
 	return {
 		id: row.id,
 		name: row.name,
-		price: row.price,
-		discountPrice: row.discount_price,
+		price: row.price / 100,
+		discountPrice:
+			row.discount_price != null ? row.discount_price / 100 : null,
 		currency: row.currency ?? 'MZN',
 		image: pickPrimaryImage(row.product_images),
 		slug: row.slug ?? null,
@@ -160,7 +161,7 @@ export function mapOrderRow(order: {
 			year: 'numeric',
 		}),
 		itemCount: order.item_count,
-		total: order.total,
+		total: order.total / 100,
 		currency: order.currency,
 		status: mapped.status,
 		statusLabel: mapped.label,

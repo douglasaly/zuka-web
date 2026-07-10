@@ -23,6 +23,7 @@ export const SellerTopBar = () => {
 		<header className='sticky top-0 z-30 flex items-center justify-between border-b border-border/60 bg-background/95 px-6 py-4.5 backdrop-blur-sm'>
 			<div className='flex items-center gap-3'>
 				<SidebarTrigger
+					nativeButton
 					className='md:hidden'
 					render={
 						<Button

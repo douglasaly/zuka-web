@@ -30,8 +30,11 @@ export async function GET() {
 			return {
 				id: record.id as string,
 				name: record.name as string,
-				price: record.price as number,
-				discountPrice: record.discount_price as number | null,
+				price: (record.price as number) / 100,
+				discountPrice:
+					record.discount_price != null
+						? (record.discount_price as number) / 100
+						: null,
 				currency: record.currency as string,
 				status: record.status as string,
 				isVisible: record.is_visible as boolean,

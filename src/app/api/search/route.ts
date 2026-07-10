@@ -136,8 +136,9 @@ export async function GET(req: Request) {
 				id: p.id,
 				name: p.name,
 				slug: p.slug,
-				price: p.price,
-				discountPrice: p.discount_price,
+				price: p.price / 100,
+				discountPrice:
+					p.discount_price != null ? p.discount_price / 100 : null,
 				currency: p.currency ?? 'MZN',
 				image:
 					p.product_images?.find((i: any) => i.is_primary)?.url ??

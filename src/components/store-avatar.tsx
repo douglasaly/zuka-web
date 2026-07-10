@@ -22,6 +22,7 @@ interface UserAvatarProps extends VariantProps<typeof avatarVariants> {
 	imageUrl: string
 	name: string
 	className?: string
+	fClassName?: string
 	onClick?: () => void
 }
 
@@ -29,6 +30,7 @@ export const StoreAvatar = ({
 	imageUrl,
 	name,
 	className,
+	fClassName,
 	onClick,
 	size,
 }: UserAvatarProps) => {
@@ -46,7 +48,7 @@ export const StoreAvatar = ({
 		>
 			<AvatarImage src={imageUrl} alt={name} />
 
-			<AvatarFallback className='font-bold text-xl'>
+			<AvatarFallback className={cn('font-bold text-xl', fClassName)}>
 				{nameFallback}
 			</AvatarFallback>
 		</Avatar>

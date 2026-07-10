@@ -3,9 +3,10 @@
 import { Truck } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { StoreAvatar } from '@/components/store-avatar'
 import { Badge } from '@/components/ui/badge'
 import { PRODUCT_PLACEHOLDER } from '@/lib/api/marketplace'
-import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
+import { BLUR_PLACEHOLDER, STORE_PLACEHOLDER } from '@/lib/constants/images'
 import { cn } from '@/lib/utils'
 import type { Product } from '@/types/marketplace'
 import { formatPrice } from '@/utils/format-price'
@@ -24,16 +25,21 @@ export const ExploreProductCard = ({
 	const isCompact = variant === 'compact'
 
 	return (
-		<Link
-			href={`/product/${product.id}`}
+		<div
 			className={cn(
-				'group overflow-hidden rounded-2xl border border-border/60 bg-card transition-all duration-300 hover:border-border',
+				'group relative overflow-hidden rounded-2xl border border-border/60 bg-card transition-all duration-300 hover:border-border',
 				isCompact
 					? 'flex flex-row items-stretch hover:translate-y-0'
 					: 'flex flex-col hover:-translate-y-0.5',
 				className
 			)}
 		>
+			<Link
+				href={`/product/${product.id}`}
+				className='absolute inset-0 z-10'
+				aria-label={product.name}
+			/>
+
 			<div
 				className={cn(
 					'relative overflow-hidden bg-muted',
@@ -80,6 +86,21 @@ export const ExploreProductCard = ({
 					{product.name}
 				</h3>
 
+				<Link
+					href={`/lojas/${product.storeSlug}`}
+					className='relative z-20 flex gap-1 items-center hover:underline w-fit'
+				>
+					<StoreAvatar
+						name={product.storeName}
+						imageUrl={product.storeAvatar ?? STORE_PLACEHOLDER}
+						size='xs'
+						fClassName='text-[8px]'
+					/>
+					<p className='text-xs text-muted-foreground line-clamp-1'>
+						{product.storeName}
+					</p>
+				</Link>
+
 				<div className='flex flex-wrap items-baseline gap-1.5'>
 					<span
 						className={cn(
@@ -103,6 +124,6 @@ export const ExploreProductCard = ({
 					</span>
 				)}
 			</div>
-		</Link>
+		</div>
 	)
 }

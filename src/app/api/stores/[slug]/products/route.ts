@@ -101,7 +101,7 @@ export async function GET(req: Request, { params }: GetStoreProductsProps) {
 				id: product.id,
 				name: product.name,
 				slug: product.slug,
-				price: product.price,
+				price: product.price / 100,
 				currency: product.currency,
 				image: images?.[0]?.url ?? null,
 				category,

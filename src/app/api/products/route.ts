@@ -112,11 +112,11 @@ export async function GET(req: Request) {
 		}
 
 		if (minPrice) {
-			query = query.gte('price', Number(minPrice))
+			query = query.gte('price', Number(minPrice) * 100)
 		}
 
 		if (maxPrice) {
-			query = query.lte('price', Number(maxPrice))
+			query = query.lte('price', Number(maxPrice) * 100)
 		}
 
 		if (isNew === 'true') {
@@ -244,9 +244,11 @@ export async function POST(request: Request) {
 				description: description ?? null,
 				is_visible: true,
 				status: 'ACTIVE',
-				price: Number(price),
+				price: Math.round(Number(price) * 100),
 				discount_price:
-					discountPrice != null ? Number(discountPrice) : null,
+					discountPrice != null
+						? Math.round(Number(discountPrice) * 100)
+						: null,
 				currency,
 			})
 			.select('*')

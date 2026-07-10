@@ -3,8 +3,9 @@
 import { Heart } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { StoreAvatar } from '@/components/store-avatar'
 import { Button } from '@/components/ui/button'
-import { PRODUCT_PLACEHOLDER } from '@/lib/api/marketplace'
+import { PRODUCT_PLACEHOLDER, STORE_PLACEHOLDER } from '@/lib/api/marketplace'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 import type { SavedItem } from '@/types/saved-items'
 import { formatPrice } from '@/utils/format-price'
@@ -40,7 +41,13 @@ export const SavedItemCard = ({
 				<Heart className='size-4 fill-red-500 text-red-500' />
 			</Button>
 
-			<Link href={`/product/${item.id}`} className='block'>
+			<div className='block relative group'>
+				<Link
+					href={`/product/${item.id}`}
+					className='absolute inset-0 z-10'
+					aria-label={item.name}
+				/>
+
 				<div className='relative aspect-square w-full overflow-hidden bg-muted/40'>
 					<Image
 						src={item.imageUrl ?? PRODUCT_PLACEHOLDER}
@@ -57,14 +64,27 @@ export const SavedItemCard = ({
 					<h3 className='text-sm font-semibold leading-tight line-clamp-1'>
 						{item.name}
 					</h3>
-					<p className='text-xs text-muted-foreground line-clamp-1'>
-						{item.storeName}
-					</p>
+
+					<Link
+						href={`/lojas/${item.storeSlug}`}
+						className='relative z-20 flex gap-1 items-center hover:underline w-fit'
+					>
+						<StoreAvatar
+							name={item.storeName}
+							imageUrl={item.storeImage ?? STORE_PLACEHOLDER}
+							size='xs'
+							fClassName='text-[8px]'
+						/>
+						<p className='text-xs text-muted-foreground line-clamp-1'>
+							{item.storeName}
+						</p>
+					</Link>
+
 					<p className='pt-1 text-sm font-bold text-secondary'>
 						{formatPrice(item.price)}
 					</p>
 				</div>
-			</Link>
+			</div>
 		</div>
 	)
 }

@@ -27,7 +27,9 @@ export async function GET() {
 							is_primary
 						),
 						store:stores (
-							name
+							name,
+							slug,
+							logo_url
 						)
 					)
 				`)
@@ -48,7 +50,9 @@ export async function GET() {
 
 				name: product.name,
 				storeName: product.store.name,
-				price: product.price,
+				price: product.price / 100,
+				storeImage: product.store.logo_url,
+				storeSlug: product.store.slug,
 			})) ?? []
 
 		return NextResponse.json({ items })

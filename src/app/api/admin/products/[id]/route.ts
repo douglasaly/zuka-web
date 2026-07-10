@@ -10,6 +10,11 @@ export async function PATCH(req: Request, { params }: Params) {
 	const body = await req.json()
 	const supabase = createSupabaseAdmin()
 
+	if (body.price !== undefined)
+		body.price = Math.round(Number(body.price) * 100)
+	if (body.discount_price !== undefined && body.discount_price != null)
+		body.discount_price = Math.round(Number(body.discount_price) * 100)
+
 	const { error } = await supabase
 		.from('products')
 		.update({ ...body, updated_at: new Date().toISOString() })
