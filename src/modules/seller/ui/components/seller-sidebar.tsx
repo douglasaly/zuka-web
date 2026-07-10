@@ -112,7 +112,7 @@ export const SellerSidebar = () => {
 			className='border-r border-sidebar-border bg-sidebar'
 			collapsible='icon'
 		>
-			<SidebarHeader className='border-b border-sidebar-border p-4 py-5'>
+			<SidebarHeader className='border-b border-sidebar-border p-4 py-4.5'>
 				<div className='flex items-center gap-2.5'>
 					<div className='flex min-w-0 group-data-[collapsible=icon]:hidden gap-1 items-center'>
 						<h1 className='truncate font-heading text-3xl font-extrabold tracking-tight'>

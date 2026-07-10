@@ -55,13 +55,21 @@ export const SellerProductsView = () => {
 	const [selected, setSelected] = useState<Set<string>>(new Set())
 	const queryClient = useQueryClient()
 
+	const queryParams = new URLSearchParams()
+	if (statusFilter !== 'all') queryParams.set('status', statusFilter)
+	if (categoryFilter !== 'all') queryParams.set('category', categoryFilter)
+	if (search) queryParams.set('search', search)
+
 	const { data, isLoading } = useQuery<{ products: Product[] }>({
-		queryKey: ['seller-products'],
+		queryKey: ['seller-products', statusFilter, categoryFilter, search],
 		queryFn: async () => {
-			const res = await fetch('/api/seller/products')
+			const qs = queryParams.toString()
+			const url = `/api/seller/products${qs ? `?${qs}` : ''}`
+			const res = await fetch(url)
 			if (!res.ok) throw new Error('Failed to load products')
 			return res.json()
 		},
+		placeholderData: (prev) => prev,
 	})
 
 	const { data: categories } = useQuery<{ id: string; name: string }[]>({
@@ -106,22 +114,8 @@ export const SellerProductsView = () => {
 	const products = data?.products ?? []
 
 	const filtered = useMemo(() => {
-		return products.filter((p) => {
-			if (search) {
-				const q = search.toLowerCase()
-				if (
-					!p.name.toLowerCase().includes(q) &&
-					!p.categoryName?.toLowerCase().includes(q)
-				)
-					return false
-			}
-			if (statusFilter !== 'all' && p.status !== statusFilter)
-				return false
-			if (categoryFilter !== 'all' && p.categoryName !== categoryFilter)
-				return false
-			return true
-		})
-	}, [products, search, statusFilter, categoryFilter])
+		return products
+	}, [products])
 
 	const allFilteredSelected =
 		filtered.length > 0 && selected.size === filtered.length

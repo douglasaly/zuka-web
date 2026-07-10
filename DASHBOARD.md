@@ -89,16 +89,20 @@ _Expandir navegação e criar páginas._
 
 _Endpoints reais para substituir mocks._
 
-- [ ] `GET /api/seller/stats` — KPIs com comparativo
-- [ ] `GET /api/seller/stats/analytics` — dados temporais para gráficos
+- [x] `GET /api/seller/stats` — KPIs com comparativo (sales, orders, followers, products; range 7d/30d/90d)
+- [x] `GET /api/seller/stats/analytics` — dados temporais para gráficos (6 KPI cards)
 - [ ] `GET /api/seller/reviews` — avaliações da loja
 - [x] `POST /api/seller/products/bulk` — bulk delete/activate/deactivate
-- [ ] `GET /api/seller/notifications` — notificações do seller
-- [ ] `PATCH /api/seller/notifications` — marcar como lida
+- [x] `GET /api/seller/notifications` — notificações do seller (paginação, sender user/store)
+- [x] `PATCH /api/seller/notifications` — marcar como lida (batch por ids)
 - [x] `GET /api/seller/unread-counts` — contagens tempo real (sidebar badges)
 - [x] `GET /api/seller/members` + `POST` — listar/convidar membros da loja
-- [ ] Estender `GET /api/seller/orders` com filtros (status, data, paginação)
-- [ ] Estender `GET /api/seller/products` com filtros (categoria, status, search, paginação)
+- [x] Estender `GET /api/seller/orders` com filtros (status, date, page, limit) — server-side
+- [x] Estender `GET /api/seller/products` com filtros (search, status, category, page, limit) — server-side
+- [x] `GET /api/stores/conversations` — inbox da loja (comprador, última msg, não lida)
+- [x] `GET /api/stores/conversations/[id]/messages` — mensagens da conversa
+- [x] `POST /api/stores/conversations/[id]/messages` — enviar mensagem como loja (com `store_id`)
+- [x] `PATCH /api/stores/conversations/[id]/read` — marcar conversa como lida
 
 ---
 
@@ -223,7 +227,7 @@ _Tornar tudo espectacular._
 ```
 Fase 0:  Fundação        ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~2 dias ✅
 Fase 1:  Sidebar + Rotas ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~3 dias ✅
-Fase 2:  API Layer       ⬛⬛⬛⬛⬛⬛⬛⬜⬜⬜⬜⬜  ~3 dias (3/9 endpoints)
+Fase 2:  API Layer       ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~3 dias (14/14 endpoints)
 Fase 3:  Dashboard       ⬛⬛⬛⬛⬛⬛⬛⬜⬜⬜⬜⬜  ~3 dias
 Fase 4:  Pedidos         ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬜⬜  ~2 dias (notif push done)
 Fase 5:  Produtos        ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬜  ~3 dias (bulk done)

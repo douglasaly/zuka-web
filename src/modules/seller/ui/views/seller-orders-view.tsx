@@ -47,10 +47,15 @@ export const SellerOrdersView = () => {
 	const [statusFilter, setStatusFilter] = useState('all')
 	const [dateFilter, setDateFilter] = useState('all')
 
+	const queryParams = new URLSearchParams()
+	if (statusFilter !== 'all') queryParams.set('status', statusFilter)
+	if (dateFilter !== 'all') queryParams.set('date', dateFilter)
+
 	const { data, isLoading } = useQuery<{ orders: SellerOrder[] }>({
-		queryKey: ['seller-orders'],
+		queryKey: ['seller-orders', statusFilter, dateFilter],
 		queryFn: async () => {
-			const res = await fetch('/api/seller/orders')
+			const url = `/api/seller/orders?${queryParams.toString()}`
+			const res = await fetch(url)
 			if (!res.ok) throw new Error('Failed to load orders')
 			return res.json()
 		},
@@ -58,27 +63,14 @@ export const SellerOrdersView = () => {
 
 	const filtered = useMemo(() => {
 		const orders = data?.orders ?? []
-		return orders.filter((o) => {
-			if (search) {
-				const q = search.toLowerCase()
-				if (
-					!o.id.toLowerCase().includes(q) &&
-					!o.storeName.toLowerCase().includes(q)
-				)
-					return false
-			}
-			if (statusFilter !== 'all' && o.status !== statusFilter)
-				return false
-			if (dateFilter !== 'all') {
-				const now = Date.now()
-				const orderDate = new Date(o.date).getTime()
-				const days = Number.parseInt(dateFilter, 10) || 0
-				const cutoff = now - days * 24 * 60 * 60 * 1000
-				if (orderDate < cutoff) return false
-			}
-			return true
-		})
-	}, [data, search, statusFilter, dateFilter])
+		if (!search) return orders
+		const q = search.toLowerCase()
+		return orders.filter(
+			(o) =>
+				o.id.toLowerCase().includes(q) ||
+				o.storeName.toLowerCase().includes(q)
+		)
+	}, [data, search])
 
 	if (isLoading) {
 		return (

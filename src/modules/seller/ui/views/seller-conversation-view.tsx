@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft, MessageSquare, Send } from 'lucide-react'
 import Link from 'next/link'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -27,9 +27,9 @@ export const SellerConversationView = ({ id }: SellerConversationViewProps) => {
 	const queryClient = useQueryClient()
 
 	const { data, isLoading } = useQuery<{ data: Message[] }>({
-		queryKey: ['conversation-messages', id],
+		queryKey: ['seller-conversation-messages', id],
 		queryFn: async () => {
-			const res = await fetch(`/api/conversations/${id}/messages`)
+			const res = await fetch(`/api/stores/conversations/${id}/messages`)
 			if (!res.ok) throw new Error('Failed to load messages')
 			return res.json()
 		},
@@ -37,7 +37,7 @@ export const SellerConversationView = ({ id }: SellerConversationViewProps) => {
 
 	const sendMutation = useMutation({
 		mutationFn: async (content: string) => {
-			const res = await fetch(`/api/conversations/${id}/messages`, {
+			const res = await fetch(`/api/stores/conversations/${id}/messages`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ content }),
@@ -47,11 +47,36 @@ export const SellerConversationView = ({ id }: SellerConversationViewProps) => {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({
-				queryKey: ['conversation-messages', id],
+				queryKey: ['seller-conversation-messages', id],
 			})
 			setInput('')
 		},
 	})
+
+	// Marcar como lida ao entrar na conversa
+	const { mutate: markAsRead } = useMutation({
+		mutationFn: async () => {
+			const res = await fetch(`/api/stores/conversations/${id}/read`, {
+				method: 'PATCH',
+			})
+			if (!res.ok) throw new Error('Failed to mark as read')
+			return res.json()
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ['seller-conversations'],
+			})
+		},
+	})
+
+	useEffect(() => {
+		if (id) markAsRead()
+	}, [id, markAsRead])
+
+	// Scroll ao fim quando mensagens carregam ou são enviadas
+	useEffect(() => {
+		bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+	}, [data])
 
 	const handleSend = () => {
 		if (!input.trim() || sendMutation.isPending) return

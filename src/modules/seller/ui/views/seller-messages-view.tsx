@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Inbox, MessageSquare } from 'lucide-react'
 import Link from 'next/link'
 import { Skeleton } from '@/components/ui/skeleton'
+import { UserAvatar } from '@/components/user-avatar'
 
 type Conversation = {
 	id: string
@@ -15,10 +16,10 @@ type Conversation = {
 }
 
 export const SellerMessagesView = () => {
-	const { data, isLoading } = useQuery<{ conversations: Conversation[] }>({
+	const { data, isLoading } = useQuery<{ data: Conversation[] }>({
 		queryKey: ['seller-conversations'],
 		queryFn: async () => {
-			const res = await fetch('/api/conversations')
+			const res = await fetch('/api/stores/conversations')
 			if (!res.ok) throw new Error('Failed to load conversations')
 			return res.json()
 		},
@@ -43,7 +44,7 @@ export const SellerMessagesView = () => {
 		)
 	}
 
-	const conversations = data?.conversations ?? []
+	const conversations = data?.data ?? []
 
 	if (conversations.length === 0) {
 		return (
@@ -70,7 +71,12 @@ export const SellerMessagesView = () => {
 					className='flex items-center gap-3 rounded-xl border border-border/60 bg-card p-4 transition-colors hover:bg-accent'
 				>
 					<div className='flex size-10 shrink-0 items-center justify-center rounded-full bg-muted'>
-						<MessageSquare className='size-4 text-muted-foreground' />
+						<UserAvatar
+							name={conv.otherUserName}
+							fClassName=''
+							imageUrl={conv.otherUserAvatar}
+							size='lg'
+						/>
 					</div>
 					<div className='flex-1 min-w-0'>
 						<div className='flex items-center gap-2'>

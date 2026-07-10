@@ -124,6 +124,17 @@ const schemas = {
 			},
 		},
 	},
+	StoreConversation: {
+		type: 'object',
+		properties: {
+			id: { type: 'string' },
+			otherUserName: { type: 'string' },
+			otherUserAvatar: { type: 'string', nullable: true },
+			lastMessage: { type: 'string', nullable: true },
+			lastMessageAt: { type: 'string', nullable: true, format: 'date-time' },
+			unread: { type: 'boolean' },
+		},
+	},
 	Message: {
 		type: 'object',
 		properties: {
@@ -207,6 +218,30 @@ const schemas = {
 		properties: {
 			pendingOrders: { type: 'integer' },
 			unreadMessages: { type: 'integer' },
+		},
+	},
+	SellerStats: {
+		type: 'object',
+		properties: {
+			totalSales: { type: 'integer' },
+			totalSalesPrev: { type: 'integer' },
+			totalSalesPct: { type: 'number' },
+			totalOrders: { type: 'integer' },
+			totalOrdersPrev: { type: 'integer' },
+			totalOrdersPct: { type: 'number' },
+			totalFollowers: { type: 'integer' },
+			productCount: { type: 'integer' },
+		},
+	},
+	SellerAnalytics: {
+		type: 'object',
+		properties: {
+			totalSales: { type: 'integer' },
+			totalOrders: { type: 'integer' },
+			totalViews: { type: 'integer' },
+			totalFollowers: { type: 'integer' },
+			averageTicket: { type: 'integer' },
+			productCount: { type: 'integer' },
 		},
 	},
 	Category: {
@@ -844,6 +879,129 @@ const paths: Record<string, any> = {
 		},
 	},
 
+	'/api/stores/conversations': {
+		get: {
+			tags: ['Stores'],
+			summary: 'List store conversations (seller inbox)',
+			security: [{ CookieAuth: [] }],
+			responses: {
+				'200': {
+					description: 'Conversation list',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									data: {
+										type: 'array',
+										items: {
+											$ref: '#/components/schemas/StoreConversation',
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+				'403': { description: 'Not a seller' },
+			},
+		},
+	},
+	'/api/stores/conversations/{id}/messages': {
+		get: {
+			tags: ['Stores'],
+			summary: 'Get messages for a store conversation',
+			security: [{ CookieAuth: [] }],
+			parameters: [
+				{
+					name: 'id',
+					in: 'path',
+					required: true,
+					schema: { type: 'string' },
+				},
+			],
+			responses: {
+				'200': {
+					description: 'Message list',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									data: {
+										type: 'array',
+										items: { $ref: '#/components/schemas/Message' },
+									},
+								},
+							},
+						},
+					},
+				},
+				'404': { description: 'Conversation not found' },
+			},
+		},
+		post: {
+			tags: ['Stores'],
+			summary: 'Send a message as the store',
+			security: [{ CookieAuth: [] }],
+			parameters: [
+				{
+					name: 'id',
+					in: 'path',
+					required: true,
+					schema: { type: 'string' },
+				},
+			],
+			requestBody: {
+				content: {
+					'application/json': {
+						schema: {
+							type: 'object',
+							required: ['content'],
+							properties: { content: { type: 'string' } },
+						},
+					},
+				},
+			},
+			responses: {
+				'201': {
+					description: 'Message sent',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									data: { $ref: '#/components/schemas/Message' },
+								},
+							},
+						},
+					},
+				},
+				'404': { description: 'Conversation not found' },
+			},
+		},
+	},
+	'/api/stores/conversations/{id}/read': {
+		patch: {
+			tags: ['Stores'],
+			summary: 'Mark a store conversation as read',
+			security: [{ CookieAuth: [] }],
+			parameters: [
+				{
+					name: 'id',
+					in: 'path',
+					required: true,
+					schema: { type: 'string' },
+				},
+			],
+			responses: {
+				'200': { description: 'Marked as read' },
+				'404': { description: 'Conversation not found' },
+			},
+		},
+	},
+
 	'/api/saved-items': {
 		get: {
 			tags: ['Saved Items'],
@@ -1246,6 +1404,40 @@ const paths: Record<string, any> = {
 			tags: ['Seller'],
 			summary: 'List seller products',
 			security: [{ CookieAuth: [] }],
+			parameters: [
+				{
+					name: 'search',
+					in: 'query',
+					required: false,
+					schema: { type: 'string' },
+					description: 'Search by product name',
+				},
+				{
+					name: 'status',
+					in: 'query',
+					required: false,
+					schema: { type: 'string', enum: ['all', 'draft', 'active', 'inactive'] },
+				},
+				{
+					name: 'category',
+					in: 'query',
+					required: false,
+					schema: { type: 'string' },
+					description: 'Filter by category name',
+				},
+				{
+					name: 'page',
+					in: 'query',
+					required: false,
+					schema: { type: 'integer', default: 1 },
+				},
+				{
+					name: 'limit',
+					in: 'query',
+					required: false,
+					schema: { type: 'integer', default: 20, maximum: 100 },
+				},
+			],
 			responses: {
 				'200': {
 					description: 'Product list',
@@ -1260,6 +1452,8 @@ const paths: Record<string, any> = {
 											$ref: '#/components/schemas/Product',
 										},
 									},
+									hasMore: { type: 'boolean' },
+									total: { type: 'integer' },
 								},
 							},
 						},
@@ -1351,6 +1545,33 @@ const paths: Record<string, any> = {
 			tags: ['Seller'],
 			summary: 'List seller orders',
 			security: [{ CookieAuth: [] }],
+			parameters: [
+				{
+					name: 'status',
+					in: 'query',
+					required: false,
+					schema: { type: 'string', enum: ['all', 'pending', 'shipping', 'completed', 'cancelled'] },
+				},
+				{
+					name: 'date',
+					in: 'query',
+					required: false,
+					schema: { type: 'string' },
+					description: 'Number of days to look back (e.g. "7", "30", "90")',
+				},
+				{
+					name: 'page',
+					in: 'query',
+					required: false,
+					schema: { type: 'integer', default: 1 },
+				},
+				{
+					name: 'limit',
+					in: 'query',
+					required: false,
+					schema: { type: 'integer', default: 20, maximum: 100 },
+				},
+			],
 			responses: {
 				'200': {
 					description: 'Order list',
@@ -1365,6 +1586,8 @@ const paths: Record<string, any> = {
 											$ref: '#/components/schemas/Order',
 										},
 									},
+									hasMore: { type: 'boolean' },
+									total: { type: 'integer' },
 								},
 							},
 						},
@@ -1437,6 +1660,134 @@ const paths: Record<string, any> = {
 					},
 				},
 			},
+		},
+	},
+
+	'/api/seller/stats': {
+		get: {
+			tags: ['Seller'],
+			summary: 'Store KPIs with period comparison',
+			security: [{ CookieAuth: [] }],
+			parameters: [
+				{
+					name: 'range',
+					in: 'query',
+					schema: { type: 'integer', default: 30 },
+					description: 'Days to look back (7, 30, 90)',
+				},
+			],
+			responses: {
+				'200': {
+					description: 'KPI data',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									data: {
+										$ref: '#/components/schemas/SellerStats',
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	},
+	'/api/seller/stats/analytics': {
+		get: {
+			tags: ['Seller'],
+			summary: 'Analytics data for dashboard charts',
+			security: [{ CookieAuth: [] }],
+			parameters: [
+				{
+					name: 'range',
+					in: 'query',
+					schema: { type: 'integer', default: 30 },
+					description: 'Days to look back (7, 30, 90)',
+				},
+			],
+			responses: {
+				'200': {
+					description: 'Analytics data',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									data: {
+										$ref: '#/components/schemas/SellerAnalytics',
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	},
+	'/api/seller/notifications': {
+		get: {
+			tags: ['Seller'],
+			summary: 'List seller notifications',
+			security: [{ CookieAuth: [] }],
+			parameters: [
+				{
+					name: 'limit',
+					in: 'query',
+					schema: { type: 'integer', default: 20, maximum: 100 },
+				},
+				{
+					name: 'offset',
+					in: 'query',
+					schema: { type: 'integer', default: 0 },
+				},
+			],
+			responses: {
+				'200': {
+					description: 'Notification list',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean' },
+									notifications: {
+										type: 'array',
+										items: {
+											$ref: '#/components/schemas/Notification',
+										},
+									},
+									unreadCount: { type: 'integer' },
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		patch: {
+			tags: ['Seller'],
+			summary: 'Mark seller notifications as read',
+			security: [{ CookieAuth: [] }],
+			requestBody: {
+				content: {
+					'application/json': {
+						schema: {
+							type: 'object',
+							required: ['ids'],
+							properties: {
+								ids: {
+									type: 'array',
+									items: { type: 'string' },
+								},
+							},
+						},
+					},
+				},
+			},
+			responses: { '200': { description: 'Marked as read' } },
 		},
 	},
 

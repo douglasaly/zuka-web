@@ -1,10 +1,11 @@
 'use client'
 
-import { Bell, ExternalLink, Menu } from 'lucide-react'
+import { ExternalLink, Menu } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { SidebarTrigger } from '@/components/ui/sidebar'
+import { NotificationDropdown } from '@/modules/notifications/ui/components/notification-dropdown'
 
 function formatSegment(segment: string) {
 	return segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' ')
@@ -20,7 +21,7 @@ export const SellerTopBar = () => {
 	const breadcrumbs = ['Dashboard', ...segments.map(formatSegment)]
 
 	return (
-		<header className='sticky top-0 z-30 flex items-center justify-between border-b border-border/60 bg-background/95 px-6 py-4.5 backdrop-blur-sm'>
+		<header className='sticky top-0 z-30 flex items-center justify-between border-b border-border/60 bg-background/95 px-6 py-4.25 backdrop-blur-sm'>
 			<div className='flex items-center gap-3'>
 				<SidebarTrigger
 					nativeButton
@@ -55,16 +56,7 @@ export const SellerTopBar = () => {
 					</p>
 				</div>
 
-				<Button
-					variant='ghost'
-					size='icon'
-					className='relative'
-					render={
-						<Link href='/dashboard/seller/mensagens'>
-							<Bell className='size-4' />
-						</Link>
-					}
-				/>
+				<NotificationDropdown />
 
 				<Link
 					href='/feed/explorar'
