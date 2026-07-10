@@ -1,7 +1,7 @@
 import dynamic from 'next/dynamic'
 import { SidebarProvider } from '@/components/ui/sidebar'
-import { SellerLayoutClient } from './seller-layout-client'
 import { SellerSidebarSkeleton } from '../components/seller-sidebar-skeleton'
+import { SellerLayoutClient } from './seller-layout-client'
 import { SellerTopBar } from './seller-top-bar'
 
 const SellerSidebar = dynamic(
