@@ -1,14 +1,8 @@
-import { cookies } from 'next/headers'
+import { getFirebaseUidFromRequest } from '@/lib/auth/firebase-token'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
-import { adminAuth } from '@/lib/firebase/firebase-admin'
-import { SESSION_COOKIE } from '@/utils/constants'
 
 export async function getSessionFirebaseUid() {
-	const session = (await cookies()).get(SESSION_COOKIE)?.value
-	if (!session) return null
-
-	const decoded = await adminAuth.verifySessionCookie(session, true)
-	return decoded.uid
+	return getFirebaseUidFromRequest()
 }
 
 export async function getSessionUser() {

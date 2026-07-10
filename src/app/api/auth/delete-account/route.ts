@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { deleteSession } from '@/lib/auth/session-cookie'
 import { getSessionUser } from '@/lib/auth/session'
 import { adminAuth } from '@/lib/firebase/firebase-admin'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
@@ -25,18 +26,9 @@ export async function POST() {
 		}
 
 		await adminAuth.deleteUser(user.firebase_uid)
+		await deleteSession()
 
-		const response = NextResponse.json({ success: true })
-
-		response.cookies.set('session', '', {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === 'production',
-			sameSite: 'lax',
-			path: '/',
-			maxAge: 0,
-		})
-
-		return response
+		return NextResponse.json({ success: true })
 	} catch (err) {
 		console.error('[DELETE ACCOUNT]', err)
 		return NextResponse.json(

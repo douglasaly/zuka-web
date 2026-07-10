@@ -278,13 +278,15 @@ const paths: Record<string, any> = {
 		post: {
 			tags: ['Auth'],
 			summary: 'Register or upsert user from Firebase token',
+			description:
+				'Accepts a Firebase ID token in the JSON body or via Authorization: Bearer header (mobile).',
+			security: [{ BearerAuth: [] }],
 			requestBody: {
-				required: true,
+				required: false,
 				content: {
 					'application/json': {
 						schema: {
 							type: 'object',
-							required: ['token'],
 							properties: {
 								token: {
 									type: 'string',
@@ -374,7 +376,7 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Profile'],
 			summary: 'Get full user profile with roles, stores, seller info',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			responses: {
 				'200': {
 					description: 'User profile',
@@ -398,7 +400,7 @@ const paths: Record<string, any> = {
 		patch: {
 			tags: ['Profile'],
 			summary: 'Update user profile fields',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			requestBody: {
 				content: {
 					'application/json': {
@@ -526,7 +528,7 @@ const paths: Record<string, any> = {
 		post: {
 			tags: ['Public'],
 			summary: 'Create a new product (seller only)',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			requestBody: {
 				content: {
 					'application/json': {
@@ -639,13 +641,13 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Addresses'],
 			summary: 'List user addresses',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			responses: { '200': { description: 'Address list' } },
 		},
 		post: {
 			tags: ['Addresses'],
 			summary: 'Create a new address',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			requestBody: {
 				content: {
 					'application/json': {
@@ -680,7 +682,7 @@ const paths: Record<string, any> = {
 		patch: {
 			tags: ['Addresses'],
 			summary: 'Update an address',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'id',
@@ -697,7 +699,7 @@ const paths: Record<string, any> = {
 		delete: {
 			tags: ['Addresses'],
 			summary: 'Soft-delete an address',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'id',
@@ -746,7 +748,7 @@ const paths: Record<string, any> = {
 		post: {
 			tags: ['Stores'],
 			summary: 'Create a store (seller only)',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			requestBody: {
 				content: {
 					'application/json': {
@@ -821,7 +823,7 @@ const paths: Record<string, any> = {
 		post: {
 			tags: ['Stores'],
 			summary: 'Follow a store',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'slug',
@@ -835,7 +837,7 @@ const paths: Record<string, any> = {
 		delete: {
 			tags: ['Stores'],
 			summary: 'Unfollow a store',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'slug',
@@ -866,7 +868,7 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Stores'],
 			summary: 'List followed stores',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{ name: 'cursor', in: 'query', schema: { type: 'string' } },
 				{
@@ -883,7 +885,7 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Stores'],
 			summary: 'List store conversations (seller inbox)',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			responses: {
 				'200': {
 					description: 'Conversation list',
@@ -912,7 +914,7 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Stores'],
 			summary: 'Get messages for a store conversation',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'id',
@@ -944,7 +946,7 @@ const paths: Record<string, any> = {
 		post: {
 			tags: ['Stores'],
 			summary: 'Send a message as the store',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'id',
@@ -986,7 +988,7 @@ const paths: Record<string, any> = {
 		patch: {
 			tags: ['Stores'],
 			summary: 'Mark a store conversation as read',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'id',
@@ -1006,7 +1008,7 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Saved Items'],
 			summary: 'List saved items',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			responses: {
 				'200': {
 					description: 'Saved items',
@@ -1033,7 +1035,7 @@ const paths: Record<string, any> = {
 		post: {
 			tags: ['Saved Items'],
 			summary: 'Save a product',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'id',
@@ -1050,7 +1052,7 @@ const paths: Record<string, any> = {
 		delete: {
 			tags: ['Saved Items'],
 			summary: 'Remove a saved item',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'id',
@@ -1067,7 +1069,7 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Conversations'],
 			summary: 'List conversations for current user',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'page',
@@ -1099,7 +1101,7 @@ const paths: Record<string, any> = {
 		post: {
 			tags: ['Conversations'],
 			summary: 'Create a new conversation',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			requestBody: {
 				content: {
 					'application/json': {
@@ -1121,7 +1123,7 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Conversations'],
 			summary: 'Get conversation details',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'id',
@@ -1140,7 +1142,7 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Messages'],
 			summary: 'Get conversation messages',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'id',
@@ -1166,7 +1168,7 @@ const paths: Record<string, any> = {
 		post: {
 			tags: ['Messages'],
 			summary: 'Send a message',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'id',
@@ -1202,7 +1204,7 @@ const paths: Record<string, any> = {
 		patch: {
 			tags: ['Messages'],
 			summary: 'Mark conversation as read',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'id',
@@ -1219,7 +1221,7 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Notifications'],
 			summary: 'List user notifications',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'limit',
@@ -1257,7 +1259,7 @@ const paths: Record<string, any> = {
 		patch: {
 			tags: ['Notifications'],
 			summary: 'Mark notifications as read',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			requestBody: {
 				content: {
 					'application/json': {
@@ -1282,7 +1284,7 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Orders'],
 			summary: 'List user orders',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			responses: {
 				'200': {
 					description: 'Order list',
@@ -1309,7 +1311,7 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Orders'],
 			summary: 'Get order details',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'id',
@@ -1326,7 +1328,7 @@ const paths: Record<string, any> = {
 		post: {
 			tags: ['Uploads'],
 			summary: 'Get presigned upload URL for Cloudflare R2',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			requestBody: {
 				content: {
 					'application/json': {
@@ -1377,7 +1379,7 @@ const paths: Record<string, any> = {
 		patch: {
 			tags: ['Seller'],
 			summary: 'Update store settings',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			requestBody: {
 				content: {
 					'application/json': {
@@ -1403,7 +1405,7 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Seller'],
 			summary: 'List seller products',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'search',
@@ -1466,7 +1468,7 @@ const paths: Record<string, any> = {
 		patch: {
 			tags: ['Seller'],
 			summary: 'Update a product',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'id',
@@ -1500,7 +1502,7 @@ const paths: Record<string, any> = {
 		delete: {
 			tags: ['Seller'],
 			summary: 'Soft-delete a product',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'id',
@@ -1516,7 +1518,7 @@ const paths: Record<string, any> = {
 		post: {
 			tags: ['Seller'],
 			summary: 'Bulk action on products',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			requestBody: {
 				content: {
 					'application/json': {
@@ -1544,7 +1546,7 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Seller'],
 			summary: 'List seller orders',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'status',
@@ -1600,7 +1602,7 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Seller'],
 			summary: 'List store members',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			responses: {
 				'200': {
 					description: 'Member list',
@@ -1625,7 +1627,7 @@ const paths: Record<string, any> = {
 		post: {
 			tags: ['Seller'],
 			summary: 'Invite a member to the store',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			requestBody: {
 				content: {
 					'application/json': {
@@ -1647,7 +1649,7 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Seller'],
 			summary: 'Get unread counts for sidebar badges',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			responses: {
 				'200': {
 					description: 'Counts',
@@ -1667,7 +1669,7 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Seller'],
 			summary: 'Store KPIs with period comparison',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'range',
@@ -1699,7 +1701,7 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Seller'],
 			summary: 'Analytics data for dashboard charts',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'range',
@@ -1731,7 +1733,7 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Seller'],
 			summary: 'List seller notifications',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'limit',
@@ -1770,7 +1772,7 @@ const paths: Record<string, any> = {
 		patch: {
 			tags: ['Seller'],
 			summary: 'Mark seller notifications as read',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			requestBody: {
 				content: {
 					'application/json': {
@@ -1795,7 +1797,7 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Admin'],
 			summary: 'Get admin dashboard stats',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			responses: {
 				'200': {
 					description: 'Admin stats',
@@ -1812,7 +1814,7 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Admin'],
 			summary: 'Get analytics data (signups, products, stores)',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'days',
@@ -1827,7 +1829,7 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Admin'],
 			summary: 'List users with search and pagination',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{ name: 'search', in: 'query', schema: { type: 'string' } },
 				{ name: 'status', in: 'query', schema: { type: 'string' } },
@@ -1849,7 +1851,7 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Admin'],
 			summary: 'Get user details',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'id',
@@ -1863,7 +1865,7 @@ const paths: Record<string, any> = {
 		patch: {
 			tags: ['Admin'],
 			summary: 'Update user (make admin, change status)',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'id',
@@ -1891,7 +1893,7 @@ const paths: Record<string, any> = {
 		delete: {
 			tags: ['Admin'],
 			summary: 'Soft-delete a user',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'id',
@@ -1907,7 +1909,7 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Admin'],
 			summary: 'List stores with filters',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{ name: 'status', in: 'query', schema: { type: 'string' } },
 				{ name: 'search', in: 'query', schema: { type: 'string' } },
@@ -1929,7 +1931,7 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Admin'],
 			summary: 'Get store details with docs and products',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'id',
@@ -1945,7 +1947,7 @@ const paths: Record<string, any> = {
 		patch: {
 			tags: ['Admin'],
 			summary: 'Approve/reject store, update fields',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'id',
@@ -1969,7 +1971,7 @@ const paths: Record<string, any> = {
 		delete: {
 			tags: ['Admin'],
 			summary: 'Soft-delete a store',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'id',
@@ -1985,7 +1987,7 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Admin'],
 			summary: 'List products with filters',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{ name: 'search', in: 'query', schema: { type: 'string' } },
 				{ name: 'category', in: 'query', schema: { type: 'string' } },
@@ -2008,7 +2010,7 @@ const paths: Record<string, any> = {
 		patch: {
 			tags: ['Admin'],
 			summary: 'Update a product',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'id',
@@ -2022,7 +2024,7 @@ const paths: Record<string, any> = {
 		delete: {
 			tags: ['Admin'],
 			summary: 'Soft-delete a product',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'id',
@@ -2038,13 +2040,13 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Admin'],
 			summary: 'List all categories',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			responses: { '200': { description: 'Category list' } },
 		},
 		post: {
 			tags: ['Admin'],
 			summary: 'Create a category',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			requestBody: {
 				content: {
 					'application/json': {
@@ -2064,7 +2066,7 @@ const paths: Record<string, any> = {
 		patch: {
 			tags: ['Admin'],
 			summary: 'Update a category',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			requestBody: {
 				content: {
 					'application/json': {
@@ -2085,7 +2087,7 @@ const paths: Record<string, any> = {
 		delete: {
 			tags: ['Admin'],
 			summary: 'Hard-delete a category',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			requestBody: {
 				content: {
 					'application/json': {
@@ -2104,13 +2106,13 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Admin'],
 			summary: 'List sent notifications',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			responses: { '200': { description: 'Notification list' } },
 		},
 		post: {
 			tags: ['Admin'],
 			summary: 'Send notification to users',
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			requestBody: {
 				content: {
 					'application/json': {
@@ -2162,12 +2164,19 @@ export const getApiDocs = async () => {
 						in: 'cookie',
 						name: 'zuka_session',
 						description:
-							'Session cookie set via POST /api/auth/session',
+							'Session cookie set via POST /api/auth/session (web)',
+					},
+					BearerAuth: {
+						type: 'http',
+						scheme: 'bearer',
+						bearerFormat: 'JWT',
+						description:
+							'Firebase ID token from user.getIdToken() (mobile)',
 					},
 				},
 				schemas,
 			},
-			security: [{ CookieAuth: [] }],
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			paths,
 		},
 	})
