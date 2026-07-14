@@ -1,11 +1,16 @@
 import { NextResponse } from 'next/server'
+import { resolveFirebaseIdToken } from '@/lib/auth/firebase-token'
 import { createSession } from '@/lib/auth/session-cookie'
 
 export const runtime = 'nodejs'
 
 export async function POST(request: Request) {
-	const { token } = await request.json()
+	const token = await resolveFirebaseIdToken(request)
 	console.log('[auth/session] POST received', { hasToken: Boolean(token) })
+
+	if (!token) {
+		return NextResponse.json({ error: 'Missing token' }, { status: 401 })
+	}
 
 	try {
 		await createSession(token)
