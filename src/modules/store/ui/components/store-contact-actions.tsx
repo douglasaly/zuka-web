@@ -39,7 +39,7 @@ export const StoreContactActions = ({
 			<Button
 				variant='outline'
 				className='flex-1 rounded-xl'
-				render={<Link href={`tel:${phone}  sm:p-6`} />}
+				render={<Link href={`tel:${phone}`} />}
 			>
 				<Phone className='size-4' />
 				Ligar

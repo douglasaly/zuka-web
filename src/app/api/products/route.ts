@@ -181,7 +181,7 @@ export const GET = withErrorHandling(async (request) => {
 
 	const final: typeof result = []
 	for (const storeId in groupedByStore) {
-		final.push(...shuffle(groupedByStore[storeId]).slice(0, 2))
+		final.push(...shuffle(groupedByStore[storeId]).slice(0, 4))
 	}
 	result = shuffle(final)
 

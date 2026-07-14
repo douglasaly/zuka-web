@@ -2811,6 +2811,89 @@ const paths: Record<string, any> = {
 			},
 		},
 	},
+	'/api/seller/stats/daily': {
+		get: {
+			tags: ['Seller'],
+			summary: 'Daily sales for the last N days (chart data)',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			parameters: [
+				{
+					name: 'days',
+					in: 'query',
+					schema: { type: 'integer', default: 7, minimum: 7, maximum: 30 },
+					description: 'Number of days to return',
+				},
+			],
+			responses: {
+				'200': {
+					description: 'Daily sales array',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									data: {
+										type: 'array',
+										items: {
+											type: 'object',
+											properties: {
+												date: { type: 'string', format: 'date' },
+												sales: { type: 'number' },
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+			},
+		},
+	},
+	'/api/seller/stats/top-products': {
+		get: {
+			tags: ['Seller'],
+			summary: 'Top selling products (last 30 days)',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			parameters: [
+				{
+					name: 'limit',
+					in: 'query',
+					schema: { type: 'integer', default: 5, minimum: 1, maximum: 10 },
+					description: 'Number of products to return',
+				},
+			],
+			responses: {
+				'200': {
+					description: 'Top products list',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									data: {
+										type: 'array',
+										items: {
+											type: 'object',
+											properties: {
+												id: { type: 'string' },
+												name: { type: 'string' },
+												quantity: { type: 'integer' },
+												revenue: { type: 'number' },
+												currency: { type: 'string' },
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+			},
+		},
+	},
 	'/api/seller/notifications': {
 		get: {
 			tags: ['Seller'],

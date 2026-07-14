@@ -1,5 +1,12 @@
 import { Eye, Package, TrendingUp, Users } from 'lucide-react'
-import type { SellerStat } from '../../constants'
+
+export type SellerStatData = {
+	id: string
+	icon: 'trending' | 'package' | 'users' | 'eye'
+	value: string
+	label: string
+	change?: number
+}
 
 const ICONS = {
 	trending: { Icon: TrendingUp, bg: 'bg-rose-100', fg: 'text-rose-500' },
@@ -9,11 +16,12 @@ const ICONS = {
 } as const
 
 type SellerStatCardProps = {
-	stat: SellerStat
+	stat: SellerStatData
 }
 
 export const SellerStatCard = ({ stat }: SellerStatCardProps) => {
 	const { Icon, bg, fg } = ICONS[stat.icon]
+	const isPositive = (stat.change ?? 0) >= 0
 
 	return (
 		<div className='rounded-2xl border bg-white p-5'>
@@ -24,7 +32,17 @@ export const SellerStatCard = ({ stat }: SellerStatCardProps) => {
 			</div>
 
 			<p className='text-2xl font-bold'>{stat.value}</p>
-			<p className='text-sm text-muted-foreground'>{stat.label}</p>
+			<div className='flex items-center gap-2'>
+				<p className='text-sm text-muted-foreground'>{stat.label}</p>
+				{stat.change !== undefined && (
+					<span
+						className={`text-xs font-medium ${isPositive ? 'text-emerald-600' : 'text-red-500'}`}
+					>
+						{isPositive ? '+' : ''}
+						{stat.change}%
+					</span>
+				)}
+			</div>
 		</div>
 	)
 }

@@ -1,8 +1,7 @@
-import type { SellerStat } from '../../constants'
-import { SellerStatCard } from './seller-stat-card'
+import { SellerStatCard, type SellerStatData } from './seller-stat-card'
 
 type SellerStatsGridProps = {
-	stats: SellerStat[]
+	stats: SellerStatData[]
 }
 
 export const SellerStatsGrid = ({ stats }: SellerStatsGridProps) => (

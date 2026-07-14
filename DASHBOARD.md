@@ -110,15 +110,15 @@ _Endpoints reais para substituir mocks._
 
 _Transformar a página inicial do seller._
 
-- [ ] Welcome banner real (nome da loja da BD)
-- [ ] KPI cards ligados à API (remover `MOCK_SELLER_STATS`)
+- [x] Welcome banner real (nome da loja da BD)
+- [x] KPI cards ligados à API (remover `MOCK_SELLER_STATS`)
 - [ ] Adicionar KPIs extra: taxa de conversão, produtos activos
-- [ ] Quick actions row: "Novo produto", "Ver pedidos", "Partilhar loja", "Editar loja"
-- [ ] Tab "Resumo" com: últimos 5 pedidos, top 5 produtos, gráfico vendas 7d, feed actividade
-- [ ] Tab "Produtos" ligada à API real
-- [ ] Tab "Pedidos" funcional (tabela + filtros + acções)
-- [ ] Loading skeletons em cada tab
-- [ ] Empty states com ilustração e CTA
+- [x] Quick actions row: "Novo produto", "Ver pedidos", "Partilhar loja", "Editar loja"
+- [x] Tab "Resumo" com: últimos 5 pedidos, top 5 produtos, gráfico vendas 7d, feed actividade
+- [x] Tab "Produtos" ligada à API real
+- [x] Tab "Pedidos" funcional (tabela + filtros + acções)
+- [x] Loading skeletons em cada tab
+- [x] Empty states com ilustração e CTA
 
 ---
 
@@ -215,7 +215,7 @@ _Tornar tudo espectacular._
 - [ ] Micro-interacções: hover, focus, transições suaves
 - [ ] Modo escuro consistente
 - [ ] Mobile responsive: bottom nav ou drawer
-- [ ] Animações de loading (spinners, pulsing skeletons)
+- [x] Animações de loading (spinners, pulsing skeletons)
 - [ ] Toasts de sucesso/erro em todas as acções
 - [x] Keyboard shortcuts: `N` novo produto, `P` pedidos, `O` pedidos, `M` mensagens, `A` analytics
 - [x] Badges em tempo real no sidebar (pedidos pendentes + mensagens não lidas, polling 30s)
