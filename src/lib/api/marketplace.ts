@@ -47,7 +47,8 @@ export async function fetchProducts(params?: {
 	if (!res.ok) throw new Error('Failed to load products')
 
 	const json = await res.json()
-	const items = (json.products ?? []) as GroupedProduct[]
+	// Suporta formato novo { success, data } e antigo { products }
+	const items = (json.data ?? json.products ?? []) as GroupedProduct[]
 	return items.map((item) =>
 		mapGroupedProduct({
 			product: item.product,
@@ -56,6 +57,104 @@ export async function fetchProducts(params?: {
 			images: item.images,
 		})
 	)
+}
+
+export type InfiniteProductsResponse = {
+	data: Product[]
+	pagination: { hasMore: boolean; nextCursor: string | null; limit: number }
+}
+
+export async function fetchProductsInfinite(params: {
+	pageParam: string | null
+	category?: string
+	search?: string
+	province?: string
+	minPrice?: string
+	maxPrice?: string
+	isNew?: string
+	sort?: string
+	limit?: number
+}): Promise<InfiniteProductsResponse> {
+	const url = new URL(
+		'/api/products',
+		typeof window !== 'undefined' ? window.location.origin : ''
+	)
+	if (params.category) url.searchParams.set('categoria', params.category)
+	if (params.search) url.searchParams.set('search', params.search)
+	if (params.province) url.searchParams.set('provincia', params.province)
+	if (params.minPrice) url.searchParams.set('preco_min', params.minPrice)
+	if (params.maxPrice) url.searchParams.set('preco_max', params.maxPrice)
+	if (params.isNew === 'true') url.searchParams.set('recente', 'true')
+	if (params.sort) url.searchParams.set('ordenar', params.sort)
+	url.searchParams.set('limit', String(params.limit ?? 50))
+	if (params.pageParam) url.searchParams.set('cursor', params.pageParam)
+
+	const res = await fetch(url.toString())
+	if (!res.ok) throw new Error('Failed to load products')
+
+	const json = await res.json()
+	const items = (json.data ?? []) as GroupedProduct[]
+	const mapped = items.map((item) =>
+		mapGroupedProduct({
+			product: item.product,
+			store: item.store ?? null,
+			category: item.category ?? null,
+			images: item.images,
+		})
+	)
+	return {
+		data: mapped,
+		pagination: json.pagination ?? {
+			hasMore: false,
+			nextCursor: null,
+			limit: params.limit ?? 50,
+		},
+	}
+}
+
+export type InfiniteStoresResponse = {
+	data: StoreProfile[]
+	pagination: {
+		hasMore: boolean
+		nextCursor: string | null
+		limit: number
+		total: number
+		offset: number
+	}
+}
+
+export async function fetchStoresInfinite(params: {
+	pageParam: string | null
+	search?: string
+	status?: string
+	limit?: number
+}): Promise<InfiniteStoresResponse> {
+	const url = new URL(
+		'/api/stores',
+		typeof window !== 'undefined' ? window.location.origin : ''
+	)
+	if (params.search) url.searchParams.set('search', params.search)
+	if (params.status) url.searchParams.set('status', params.status)
+	url.searchParams.set('limit', String(params.limit ?? 50))
+	if (params.pageParam) url.searchParams.set('offset', params.pageParam)
+
+	const res = await fetch(url.toString())
+	if (!res.ok) throw new Error('Failed to load stores')
+
+	const json = await res.json()
+	// A API já retorna StoreProfile[] via mapStoreRow
+	const stores = (json.data?.stores ?? json.stores ?? []) as StoreProfile[]
+	return {
+		data: stores,
+		pagination: json.data?.pagination ??
+			json.pagination ?? {
+				hasMore: false,
+				nextCursor: null,
+				limit: params.limit ?? 50,
+				total: 0,
+				offset: 0,
+			},
+	}
 }
 
 export async function fetchProduct(id: string) {
@@ -95,7 +194,9 @@ export async function fetchStores(params?: {
 	if (!res.ok) throw new Error('Failed to load stores')
 
 	const json = await res.json()
-	return (json.stores ?? []) as StoreProfile[]
+	// A API já retorna StoreProfile[] via mapStoreRow — não re-mapear
+	const stores = json.data?.stores ?? json.stores ?? []
+	return stores as StoreProfile[]
 }
 
 export async function fetchStoreBySlug(slug: string) {
@@ -218,7 +319,7 @@ export async function createProduct(input: {
 		throw new Error(json.error ?? 'Failed to create product')
 	}
 
-	return json.product as Record<string, unknown>
+	return (json.data?.product ?? json.product) as Record<string, unknown>
 }
 
 export async function setOnboardingRole(role: 'buyer' | 'seller') {
@@ -257,7 +358,7 @@ export async function createStore(input: {
 		throw new Error(json.error ?? 'Failed to create store')
 	}
 
-	return json.store as Record<string, unknown>
+	return (json.data?.store ?? json.store) as Record<string, unknown>
 }
 
 export async function updateSellerStore(input: {

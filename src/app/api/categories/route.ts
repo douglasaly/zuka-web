@@ -1,41 +1,17 @@
-import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import { apiSuccess, withErrorHandling } from '@/lib/api-response'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
-import type { Category } from './types'
 
-export async function GET() {
-	try {
-		const supabase = createSupabaseAdmin()
-		const { data, error } = await supabase
-			.from('categories')
-			.select('*')
-			.is('deleted_at', null)
-			.order('name')
+export const GET = withErrorHandling(async (_request: NextRequest) => {
+	const supabase = createSupabaseAdmin()
 
-		if (error) {
-			throw error
-		}
+	const { data, error } = await supabase
+		.from('categories')
+		.select('id, parent_id, name, slug, created_at, updated_at')
+		.is('deleted_at', null)
+		.order('name')
 
-		const mapped: Category[] = (data ?? []).map((category) => ({
-			id: String(category.id),
-			parentId: category.parent_id ? String(category.parent_id) : null,
-			name: String(category.name),
-			slug: String(category.slug),
-			createdAt: category.created_at ? String(category.created_at) : null,
-			updatedAt: category.updated_at ? String(category.updated_at) : null,
-			deletedAt: category.deleted_at ? String(category.deleted_at) : null,
-		}))
+	if (error) throw error
 
-		return NextResponse.json<Category[]>(mapped)
-	} catch (error) {
-		return NextResponse.json(
-			{
-				error,
-				success: false,
-				message: 'Erro ao buscar categorias',
-			},
-			{ status: 500 }
-		)
-	}
-}
-
-export async function POST() {}
+	return apiSuccess(data)
+})

@@ -1,14 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { followStore, isFollowing, unfollowStore } from '@/lib/api/stores'
+import { useUserProfile } from './use-user-profile'
 
 export function useFollowStore(storeSlug: string) {
 	const queryClient = useQueryClient()
+	const { isAuthenticated, profile } = useUserProfile()
 
 	const { data: isFollowingState, isLoading: initialLoading } = useQuery({
-		queryKey: ['store-follow', storeSlug],
+		queryKey: ['store-follow', storeSlug, profile?.id],
 		queryFn: () => isFollowing(storeSlug),
-		enabled: !!storeSlug,
+		enabled: !!storeSlug && isAuthenticated,
 		staleTime: 1000 * 60 * 5,
 	})
 

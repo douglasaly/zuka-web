@@ -1,13 +1,22 @@
 import { Store } from 'lucide-react'
+import { InfiniteScrollTrigger } from '@/components/infinite-scroll-trigger'
 import { EmptyState } from '@/modules/profile/ui/components/empty-state'
 import type { StoreProfile } from '@/types/marketplace'
 import { ExploreStoreCard } from './explore-store-card'
 
 type ExploreStoresGridProps = {
 	stores: StoreProfile[]
+	fetchNextPage: () => void
+	hasNextPage: boolean
+	isFetchingNextPage: boolean
 }
 
-export const ExploreStoresGrid = ({ stores }: ExploreStoresGridProps) => {
+export const ExploreStoresGrid = ({
+	stores,
+	fetchNextPage,
+	hasNextPage,
+	isFetchingNextPage,
+}: ExploreStoresGridProps) => {
 	if (stores.length === 0) {
 		return (
 			<EmptyState
@@ -19,10 +28,18 @@ export const ExploreStoresGrid = ({ stores }: ExploreStoresGridProps) => {
 	}
 
 	return (
-		<div className='grid gap-3 sm:grid-cols-2 lg:grid-cols-3'>
-			{stores.map((store) => (
-				<ExploreStoreCard key={store.id} store={store} />
-			))}
-		</div>
+		<>
+			<div className='grid gap-3 sm:grid-cols-2 lg:grid-cols-3'>
+				{stores.map((store) => (
+					<ExploreStoreCard key={store.id} store={store} />
+				))}
+			</div>
+
+			<InfiniteScrollTrigger
+				onLoadMore={fetchNextPage}
+				isLoading={isFetchingNextPage}
+				hasMore={hasNextPage}
+			/>
+		</>
 	)
 }

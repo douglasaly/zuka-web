@@ -1,105 +1,99 @@
-import { NextResponse } from 'next/server'
-import { getSessionUser } from '@/lib/auth/session'
+import {
+	apiCursorList,
+	apiError,
+	apiSuccess,
+	ErrorCode,
+	withErrorHandling,
+} from '@/lib/api-response'
+import { requireConversationParticipant } from '@/lib/auth'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
+import { CursorPaginationSchema, SendMessageSchema } from '@/lib/validations'
 
-interface Params {
-	params: Promise<{ id: string }>
-}
+// ─── GET /api/conversations/[id]/messages ────────────────
+// Mensagens de uma conversa com cursor-based pagination.
 
-export async function GET(_req: Request, { params }: Params) {
-	try {
-		const { id: conversationId } = await params
-		const user = await getSessionUser()
+export const GET = withErrorHandling(async (request, { params }) => {
+	const { id: conversationId } = await params
+	await requireConversationParticipant(conversationId)
 
-		if (!user) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-		}
+	const { searchParams } = new URL(request.url)
+	const { limit, cursor } = CursorPaginationSchema.parse({
+		limit: searchParams.get('limit') ?? undefined,
+		cursor: searchParams.get('cursor') ?? undefined,
+	})
 
-		const supabase = createSupabaseAdmin()
+	const supabase = createSupabaseAdmin()
 
-		const { data: participant } = await supabase
-			.from('conversation_participants')
-			.select('user_id')
-			.eq('conversation_id', conversationId)
-			.eq('user_id', user.id)
-			.single()
+	// Cursor-based: messagens mais antigas primeiro, filtra por created_at > cursor
+	let query = supabase
+		.from('messages')
+		.select(
+			'id, conversation_id, user_id, store_id, content, status, created_at, updated_at, deleted_at'
+		)
+		.eq('conversation_id', conversationId)
+		.is('deleted_at', null)
+		.order('created_at', { ascending: true })
+		.limit(limit + 1)
 
-		if (!participant) {
-			return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-		}
+	if (cursor) {
+		query = query.gt('created_at', cursor)
+	}
 
-		const { data, error } = await supabase
-			.from('messages')
-			.select(
-				'id, conversation_id, user_id, store_id, content, status, created_at'
-			)
-			.eq('conversation_id', conversationId)
-			.is('deleted_at', null)
-			.order('created_at', { ascending: true })
+	const { data, error } = await query
+	if (error) throw error
 
-		if (error) throw error
+	const hasMore = (data?.length ?? 0) > limit
+	const messages = hasMore ? data?.slice(0, limit) : (data ?? [])
 
-		return NextResponse.json({ data })
-	} catch (err) {
-		console.error('[GET /api/conversations/:id/messages]', err)
-		return NextResponse.json(
-			{ error: 'Internal server error' },
-			{ status: 500 }
+	// Para infinite scroll reverso: o cursor é o created_at da primeira mensagem
+	const nextCursor = hasMore
+		? (messages[messages.length - 1]?.created_at ?? null)
+		: null
+
+	return apiCursorList(messages, { hasMore, nextCursor, limit })
+})
+
+// ─── POST /api/conversations/[id]/messages ───────────────
+// Enviar mensagem numa conversa.
+
+export const POST = withErrorHandling(async (request, { params }) => {
+	const { id: conversationId } = await params
+	const auth = await requireConversationParticipant(conversationId)
+
+	const body = await request.json()
+	const parsed = SendMessageSchema.safeParse(body)
+
+	if (!parsed.success) {
+		return apiError(
+			ErrorCode.VALIDATION_ERROR,
+			parsed.error.issues[0].message
 		)
 	}
-}
 
-export async function POST(req: Request, { params }: Params) {
-	try {
-		const { id: conversationId } = await params
-		const user = await getSessionUser()
+	const { content } = parsed.data
+	const supabase = createSupabaseAdmin()
 
-		if (!user) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-		}
-
-		const supabase = createSupabaseAdmin()
-
-		const { data: participant } = await supabase
-			.from('conversation_participants')
-			.select('user_id')
-			.eq('conversation_id', conversationId)
-			.eq('user_id', user.id)
-			.single()
-
-		if (!participant) {
-			return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-		}
-
-		const { content } = await req.json()
-
-		if (!content?.trim()) {
-			return NextResponse.json(
-				{ error: 'Content is required' },
-				{ status: 400 }
-			)
-		}
-
-		const { data, error } = await supabase
-			.from('messages')
-			.insert({
-				id: crypto.randomUUID(),
-				conversation_id: conversationId,
-				user_id: user.id, // comprador envia → user_id preenchido
-				store_id: null, // store_id sempre null quando é o comprador
-				content: content.trim(),
-			})
-			.select()
-			.single()
-
-		if (error) throw error
-
-		return NextResponse.json({ data }, { status: 201 })
-	} catch (err) {
-		console.error('[POST /api/conversations/:id/messages]', err)
-		return NextResponse.json(
-			{ error: 'Internal server error' },
-			{ status: 500 }
+	const { data: message, error } = await supabase
+		.from('messages')
+		.insert({
+			id: crypto.randomUUID(),
+			conversation_id: conversationId,
+			user_id: auth.user.id,
+			store_id: null,
+			content,
+		})
+		.select(
+			'id, conversation_id, user_id, store_id, content, status, created_at, updated_at, deleted_at'
 		)
-	}
-}
+		.single()
+
+	if (error) throw error
+
+	// Actualizar last_message_at na conversa
+	await supabase
+		.from('conversations')
+		.update({ last_message_at: new Date().toISOString() })
+		.eq('id', conversationId)
+
+	return apiSuccess(message, 201)
+})

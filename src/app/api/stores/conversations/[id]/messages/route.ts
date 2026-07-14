@@ -98,7 +98,9 @@ export async function POST(request: Request, { params }: Params) {
 				store_id: store.id,
 				content: content.trim(),
 			})
-			.select('id, conversation_id, user_id, store_id, content, status, created_at')
+			.select(
+				'id, conversation_id, user_id, store_id, content, status, created_at'
+			)
 			.single()
 
 		if (msgError) throw msgError

@@ -50,35 +50,37 @@ export async function GET(request: NextRequest) {
 		const pageItems = (data ?? []).slice(0, limit)
 		const hasMore = (data?.length ?? 0) > limit
 
-		const products = pageItems.map((row) => {
-			const record = row as Record<string, unknown>
-			const images = record.product_images as Array<{
-				url: string
-				is_primary?: boolean
-			}> | null
-			const primary =
-				images?.find((img) => img.is_primary) ?? images?.[0]
+		const products = pageItems
+			.map((row) => {
+				const record = row as Record<string, unknown>
+				const images = record.product_images as Array<{
+					url: string
+					is_primary?: boolean
+				}> | null
+				const primary =
+					images?.find((img) => img.is_primary) ?? images?.[0]
 
-			// Filtrar por categoria nome (server-side)
-			const catName =
-				(record.categories as { name: string } | null)?.name ?? null
-			if (category !== 'all' && catName !== category) return null
+				// Filtrar por categoria nome (server-side)
+				const catName =
+					(record.categories as { name: string } | null)?.name ?? null
+				if (category !== 'all' && catName !== category) return null
 
-			return {
-				id: record.id as string,
-				name: record.name as string,
-				price: (record.price as number) / 100,
-				discountPrice:
-					record.discount_price != null
-						? (record.discount_price as number) / 100
-						: null,
-				currency: record.currency as string,
-				status: record.status as string,
-				isVisible: record.is_visible as boolean,
-				categoryName: catName,
-				image: primary?.url ?? null,
-			}
-		}).filter(Boolean)
+				return {
+					id: record.id as string,
+					name: record.name as string,
+					price: (record.price as number) / 100,
+					discountPrice:
+						record.discount_price != null
+							? (record.discount_price as number) / 100
+							: null,
+					currency: record.currency as string,
+					status: record.status as string,
+					isVisible: record.is_visible as boolean,
+					categoryName: catName,
+					image: primary?.url ?? null,
+				}
+			})
+			.filter(Boolean)
 
 		return NextResponse.json({
 			success: true,

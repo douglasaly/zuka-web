@@ -63,41 +63,51 @@ export async function GET(request: NextRequest) {
 			.is('read_at', null)
 			.is('deleted_at', null)
 
-		const result = (notifications ?? []).map((n: Record<string, unknown>) => {
-			const senderUser = n.sender_user as Record<string, unknown> | null
-			const senderStore = n.sender_store as Record<string, unknown> | null
+		const result = (notifications ?? []).map(
+			(n: Record<string, unknown>) => {
+				const senderUser = n.sender_user as Record<
+					string,
+					unknown
+				> | null
+				const senderStore = n.sender_store as Record<
+					string,
+					unknown
+				> | null
 
-			let sender = null
-			if (senderStore) {
-				sender = {
-					type: 'store',
-					id: senderStore.id,
-					name: senderStore.name,
-					avatarUrl: senderStore.logo_url ?? null,
+				let sender = null
+				if (senderStore) {
+					sender = {
+						type: 'store',
+						id: senderStore.id,
+						name: senderStore.name,
+						avatarUrl: senderStore.logo_url ?? null,
+					}
+				} else if (senderUser) {
+					const firstName = senderUser.first_name ?? ''
+					const lastName = senderUser.last_name ?? ''
+					sender = {
+						type: 'user',
+						id: senderUser.id,
+						name:
+							[firstName, lastName].filter(Boolean).join(' ') ||
+							'Utilizador',
+						avatarUrl: senderUser.avatar_url ?? null,
+					}
 				}
-			} else if (senderUser) {
-				const firstName = senderUser.first_name ?? ''
-				const lastName = senderUser.last_name ?? ''
-				sender = {
-					type: 'user',
-					id: senderUser.id,
-					name: [firstName, lastName].filter(Boolean).join(' ') || 'Utilizador',
-					avatarUrl: senderUser.avatar_url ?? null,
+
+				return {
+					id: n.id,
+					userId: n.user_id,
+					type: n.type,
+					title: n.title,
+					body: n.body,
+					link: n.link ?? null,
+					readAt: n.read_at ?? null,
+					createdAt: n.created_at,
+					sender,
 				}
 			}
-
-			return {
-				id: n.id,
-				userId: n.user_id,
-				type: n.type,
-				title: n.title,
-				body: n.body,
-				link: n.link ?? null,
-				readAt: n.read_at ?? null,
-				createdAt: n.created_at,
-				sender,
-			}
-		})
+		)
 
 		const hasMore = (notifications?.length ?? 0) > limit
 

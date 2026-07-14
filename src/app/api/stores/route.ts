@@ -1,148 +1,171 @@
-import { NextResponse } from 'next/server'
 import { uuidv7 } from 'uuidv7'
+import {
+	apiError,
+	apiSuccess,
+	ErrorCode,
+	withErrorHandling,
+} from '@/lib/api-response'
+import { requireAuth } from '@/lib/auth'
 import { ensureSellerProfile, getUserRoles } from '@/lib/auth/roles'
-import { getSessionUser } from '@/lib/auth/session'
 import { mapStoreRow } from '@/lib/mappers/marketplace'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
+import { CreateStoreSchema, StoreFiltersSchema } from '@/lib/validations'
 import { Slug } from '@/utils/slug'
 
-export async function GET(req: Request) {
-	try {
-		const { searchParams } = new URL(req.url)
-		const search = searchParams.get('search')
-		const limit = Math.min(Number(searchParams.get('limit') ?? 50), 100)
+// ─── GET /api/stores ────────────────────────────────────
+// Lista lojas públicas. fix N+1 com subqueries inline.
 
-		const supabase = createSupabaseAdmin()
-		let query = supabase
-			.from('stores')
-			.select('*, provinces(name)')
-			.is('deleted_at', null)
-			.order('created_at', { ascending: false })
-			.limit(limit)
+export const GET = withErrorHandling(async (request) => {
+	const { searchParams } = new URL(request.url)
+	const params = StoreFiltersSchema.parse({
+		search: searchParams.get('search') ?? undefined,
+		status: searchParams.get('status') ?? undefined,
+	})
 
-		if (search) {
-			query = query.ilike('name', `%${search}%`)
-		}
+	const limit = Math.min(Number(searchParams.get('limit') ?? 50), 100)
+	const offset = Math.min(Number(searchParams.get('offset') ?? 0), 1000)
 
-		const { data, error } = await query
-		if (error) throw error
+	const supabase = createSupabaseAdmin()
 
-		const rows = (data ?? []) as Array<Record<string, unknown>>
-
-		const stores = await Promise.all(
-			rows.map(async (store) => {
-				const storeId = String(store.id)
-				const { count: productCount } = await supabase
-					.from('products')
-					.select('*', { count: 'exact', head: true })
-					.eq('store_id', storeId)
-					.is('deleted_at', null)
-
-				const { count: followerCount } = await supabase
-					.from('store_followers')
-					.select('*', { count: 'exact', head: true })
-					.eq('store_id', storeId)
-
-				return mapStoreRow({
-					...(store as Parameters<typeof mapStoreRow>[0]),
-					product_count: productCount ?? 0,
-					follower_count: followerCount ?? 0,
-				})
-			})
+	let query = supabase
+		.from('stores')
+		.select(
+			`
+			id, name, slug, description, state, status,
+			logo_url, banner_url, phone, whatsapp, email, verified_at,
+			created_at, updated_at,
+			provinces ( name, slug ),
+			product_count:products ( count ),
+			follower_count:store_followers ( count )
+		`,
+			{ count: 'exact' }
 		)
+		.is('deleted_at', null)
+		.order('created_at', { ascending: false })
+		.range(offset, offset + limit - 1)
 
-		return NextResponse.json({ success: true, stores })
-	} catch (error) {
-		console.error(error)
-		return NextResponse.json(
-			{ error: 'Failed to load stores' },
-			{ status: 500 }
+	if (params.search) {
+		query = query.ilike('name', `%${params.search}%`)
+	}
+
+	if (params.status) {
+		query = query.eq('status', params.status)
+	}
+
+	const { data, error, count } = await query
+	if (error) throw error
+
+	// Supabase relational count returns [{ count: N }], extrair o número
+	const stores = (data ?? []).map((row) => {
+		const productCount = Array.isArray(row.product_count)
+			? (row.product_count[0]?.count ?? 0)
+			: 0
+		const followerCount = Array.isArray(row.follower_count)
+			? (row.follower_count[0]?.count ?? 0)
+			: 0
+
+		return mapStoreRow({
+			...row,
+			product_count: productCount,
+			follower_count: followerCount,
+		})
+	})
+
+	const total = count ?? 0
+	const hasMore = offset + limit < total
+
+	return apiSuccess({
+		stores,
+		pagination: {
+			total,
+			limit,
+			offset,
+			hasMore,
+			nextCursor: hasMore ? String(offset + limit) : null,
+		},
+	})
+})
+
+// ─── POST /api/stores ───────────────────────────────────
+// Criar nova loja (vendedor autenticado).
+
+export const POST = withErrorHandling(async (request) => {
+	const auth = await requireAuth()
+
+	const roles = await getUserRoles(auth.user.id)
+	if (!roles.includes('seller')) {
+		return apiError(
+			ErrorCode.FORBIDDEN,
+			'Apenas vendedores podem criar lojas'
 		)
 	}
-}
 
-export async function POST(request: Request) {
-	try {
-		const user = await getSessionUser()
-		if (!user) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-		}
+	const body = await request.json()
+	const parsed = CreateStoreSchema.safeParse(body)
 
-		const roles = await getUserRoles(user.id as string)
-		if (!roles.includes('seller')) {
-			return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-		}
+	if (!parsed.success) {
+		return apiError(
+			ErrorCode.VALIDATION_ERROR,
+			parsed.error.issues[0].message
+		)
+	}
 
-		const body = await request.json()
-		const {
+	const {
+		name,
+		description,
+		provinceId,
+		categoryId,
+		neighborhood,
+		email,
+		phone,
+		whatsapp,
+	} = parsed.data
+
+	const sellerProfile = await ensureSellerProfile(auth.user.id)
+	const supabase = createSupabaseAdmin()
+
+	// Gerar slug único
+	let slug = Slug(name)
+	const { data: slugConflict } = await supabase
+		.from('stores')
+		.select('id')
+		.eq('slug', slug)
+		.maybeSingle()
+
+	if (slugConflict) {
+		slug = `${slug}-${uuidv7().slice(0, 6)}`
+	}
+
+	const { data: store, error } = await supabase
+		.from('stores')
+		.insert({
+			id: uuidv7(),
+			owner_id: auth.user.id,
+			seller_profile_id: sellerProfile.id,
 			name,
-			description,
-			provinceId,
-			categoryId,
-			neighborhood,
-			email,
-			phone,
-			whatsapp,
-		} = body
+			slug,
+			description: description ?? null,
+			province_id: provinceId,
+			main_store_category_id: categoryId ?? null,
+			state: neighborhood,
+			email: email ?? auth.user.email,
+			phone: phone ?? auth.user.phone_number,
+			whatsapp: whatsapp ?? phone ?? auth.user.phone_number,
+			status: 'PENDING',
+		})
+		.select('*')
+		.single()
 
-		if (!name || !provinceId || !neighborhood) {
-			return NextResponse.json(
-				{ error: 'Missing required fields' },
-				{ status: 400 }
-			)
-		}
+	if (error) throw error
 
-		const sellerProfile = await ensureSellerProfile(user.id as string)
-		const supabase = createSupabaseAdmin()
+	await supabase
+		.from('seller_onboarding')
+		.update({
+			current_step: 'STORE_PROFILE',
+			status: 'DRAFT',
+			updated_at: new Date().toISOString(),
+		})
+		.eq('seller_profile_id', sellerProfile.id)
 
-		let slug = Slug(name)
-		const { data: slugConflict } = await supabase
-			.from('stores')
-			.select('id')
-			.eq('slug', slug)
-			.maybeSingle()
-
-		if (slugConflict) {
-			slug = `${slug}-${uuidv7().slice(0, 6)}`
-		}
-
-		const { data: store, error } = await supabase
-			.from('stores')
-			.insert({
-				id: uuidv7(),
-				owner_id: user.id as string,
-				seller_profile_id: sellerProfile.id as string,
-				name,
-				slug,
-				description: description ?? null,
-				province_id: provinceId,
-				main_store_category_id: categoryId ?? null,
-				state: neighborhood,
-				email: email ?? user.email,
-				phone: phone ?? user.phone_number,
-				whatsapp: whatsapp ?? phone ?? user.phone_number,
-				status: 'PENDING',
-			})
-			.select('*')
-			.single()
-
-		if (error) throw error
-
-		await supabase
-			.from('seller_onboarding')
-			.update({
-				current_step: 'STORE_PROFILE',
-				status: 'DRAFT',
-				updated_at: new Date().toISOString(),
-			})
-			.eq('seller_profile_id', sellerProfile.id as string)
-
-		return NextResponse.json({ success: true, store })
-	} catch (error) {
-		console.error(error)
-		return NextResponse.json(
-			{ error: 'Failed to create store' },
-			{ status: 500 }
-		)
-	}
-}
+	return apiSuccess({ store }, 201)
+})

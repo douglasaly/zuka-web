@@ -95,12 +95,13 @@ export const SellerOnboardingView = () => {
 		queryFn: async () => {
 			const res = await fetch('/api/categories')
 			if (!res.ok) throw new Error('Failed to load categories')
-			return res.json()
+			const json = await res.json()
+			return json.data ?? json
 		},
 		enabled: Boolean(profile?.roles.includes('seller')),
 	})
 
-	const initialStep = useMemo(() => resolveStep(profile ?? null), [profile])
+	const _initialStep = useMemo(() => resolveStep(profile ?? null), [profile])
 	const [step, setStep] = useState<SellerStep>(1)
 
 	useEffect(() => {

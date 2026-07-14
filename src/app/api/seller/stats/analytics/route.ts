@@ -32,7 +32,8 @@ export async function GET(request: NextRequest) {
 			0
 		)
 		const totalOrders = orders?.length ?? 0
-		const averageTicket = totalOrders > 0 ? Math.round(totalSales / totalOrders) : 0
+		const averageTicket =
+			totalOrders > 0 ? Math.round(totalSales / totalOrders) : 0
 
 		// --- Seguidores ---
 		const { count: totalFollowers } = await supabase

@@ -4,9 +4,32 @@ const schemas = {
 	ErrorResponse: {
 		type: 'object',
 		properties: {
-			error: { type: 'string' },
-			success: { type: 'boolean', nullable: true },
-			message: { type: 'string', nullable: true },
+			success: { type: 'boolean', enum: [false] },
+			error: {
+				type: 'object',
+				properties: {
+					code: { type: 'string' },
+					message: { type: 'string' },
+				},
+			},
+		},
+	},
+	CursorPagination: {
+		type: 'object',
+		properties: {
+			hasMore: { type: 'boolean' },
+			nextCursor: { type: 'string', nullable: true },
+			limit: { type: 'integer' },
+		},
+	},
+	OffsetPagination: {
+		type: 'object',
+		properties: {
+			total: { type: 'integer' },
+			limit: { type: 'integer' },
+			offset: { type: 'integer' },
+			hasMore: { type: 'boolean' },
+			nextCursor: { type: 'string', nullable: true },
 		},
 	},
 	UserProfile: {
@@ -77,11 +100,21 @@ const schemas = {
 			logoUrl: { type: 'string', nullable: true },
 			bannerUrl: { type: 'string', nullable: true },
 			state: { type: 'string' },
+			location: {
+				type: 'string',
+				description: 'Province name · neighborhood',
+			},
+			neighborhood: {
+				type: 'string',
+				description: 'Bairro / state field',
+			},
+			about: { type: 'string' },
 			email: { type: 'string', nullable: true },
 			phone: { type: 'string', nullable: true },
 			whatsapp: { type: 'string', nullable: true },
 			verified: { type: 'boolean' },
 			rating: { type: 'number', format: 'float' },
+			reviewCount: { type: 'integer' },
 			followers: { type: 'integer' },
 			productCount: { type: 'integer' },
 		},
@@ -131,7 +164,11 @@ const schemas = {
 			otherUserName: { type: 'string' },
 			otherUserAvatar: { type: 'string', nullable: true },
 			lastMessage: { type: 'string', nullable: true },
-			lastMessageAt: { type: 'string', nullable: true, format: 'date-time' },
+			lastMessageAt: {
+				type: 'string',
+				nullable: true,
+				format: 'date-time',
+			},
 			unread: { type: 'boolean' },
 		},
 	},
@@ -145,6 +182,8 @@ const schemas = {
 			content: { type: 'string' },
 			status: { type: 'string' },
 			created_at: { type: 'string', format: 'date-time' },
+			updated_at: { type: 'string', nullable: true, format: 'date-time' },
+			deleted_at: { type: 'string', nullable: true, format: 'date-time' },
 		},
 	},
 	Notification: {
@@ -362,11 +401,146 @@ const paths: Record<string, any> = {
 						'application/json': {
 							schema: {
 								type: 'object',
-								properties: { success: { type: 'boolean' } },
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+								},
 							},
 						},
 					},
 				},
+			},
+		},
+	},
+	'/api/auth/delete-account': {
+		post: {
+			tags: ['Auth'],
+			summary: 'Soft-delete current user account',
+			security: [{ CookieAuth: [] }],
+			responses: {
+				'200': {
+					description: 'Account deleted',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+				'500': {
+					description: 'Deletion failed',
+					content: {
+						'application/json': {
+							schema: {
+								$ref: '#/components/schemas/ErrorResponse',
+							},
+						},
+					},
+				},
+			},
+		},
+	},
+	'/api/onboarding/role': {
+		post: {
+			tags: ['Onboarding'],
+			summary: 'Set user role during onboarding',
+			security: [{ CookieAuth: [] }],
+			requestBody: {
+				required: true,
+				content: {
+					'application/json': {
+						schema: {
+							type: 'object',
+							required: ['role'],
+							properties: {
+								role: {
+									type: 'string',
+									enum: ['buyer', 'seller'],
+								},
+							},
+						},
+					},
+				},
+			},
+			responses: {
+				'200': {
+					description: 'Role assigned',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									role: { type: 'string' },
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+			},
+		},
+	},
+	'/api/onboarding/verification': {
+		post: {
+			tags: ['Onboarding'],
+			summary: 'Submit identity verification documents',
+			security: [{ CookieAuth: [] }],
+			requestBody: {
+				required: true,
+				content: {
+					'application/json': {
+						schema: {
+							type: 'object',
+							required: ['idCardUrl', 'selfieUrl'],
+							properties: {
+								idCardUrl: {
+									type: 'string',
+									format: 'uri',
+									description:
+										'R2 public URL of ID card image',
+								},
+								selfieUrl: {
+									type: 'string',
+									format: 'uri',
+									description:
+										'R2 public URL of selfie image',
+								},
+							},
+						},
+					},
+				},
+			},
+			responses: {
+				'200': {
+					description: 'Verification submitted',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+								},
+							},
+						},
+					},
+				},
+				'400': {
+					description: 'Validation error',
+					content: {
+						'application/json': {
+							schema: {
+								$ref: '#/components/schemas/ErrorResponse',
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+				'403': { description: 'Not a seller' },
 			},
 		},
 	},
@@ -441,9 +615,15 @@ const paths: Record<string, any> = {
 					content: {
 						'application/json': {
 							schema: {
-								type: 'array',
-								items: {
-									$ref: '#/components/schemas/Category',
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									data: {
+										type: 'array',
+										items: {
+											$ref: '#/components/schemas/Category',
+										},
+									},
 								},
 							},
 						},
@@ -457,14 +637,39 @@ const paths: Record<string, any> = {
 			tags: ['Public'],
 			summary: 'List all provinces',
 			responses: {
-				'200': { description: 'Province list' },
+				'200': {
+					description: 'Province list',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'array',
+								items: {
+									type: 'object',
+									properties: {
+										id: { type: 'string' },
+										name: { type: 'string' },
+										slug: { type: 'string' },
+										created_at: {
+											type: 'string',
+											format: 'date-time',
+										},
+										updated_at: {
+											type: 'string',
+											format: 'date-time',
+										},
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 		},
 	},
 	'/api/products': {
 		get: {
 			tags: ['Public'],
-			summary: 'Search and filter products',
+			summary: 'Search and filter products (cursor-based)',
 			parameters: [
 				{
 					name: 'categoria',
@@ -511,9 +716,10 @@ const paths: Record<string, any> = {
 					},
 				},
 				{
-					name: 'page',
+					name: 'cursor',
 					in: 'query',
-					schema: { type: 'integer', default: 1 },
+					schema: { type: 'string' },
+					description: 'Cursor for next page (created_at value)',
 				},
 				{
 					name: 'limit',
@@ -521,7 +727,28 @@ const paths: Record<string, any> = {
 					schema: { type: 'integer', default: 50, maximum: 100 },
 				},
 			],
-			responses: { '200': { description: 'Paginated product list' } },
+			responses: {
+				'200': {
+					description: 'Cursor-paginated product list',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									data: {
+										type: 'array',
+										items: { type: 'object' },
+									},
+									pagination: {
+										$ref: '#/components/schemas/CursorPagination',
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 		post: {
 			tags: ['Public'],
@@ -537,8 +764,8 @@ const paths: Record<string, any> = {
 								name: { type: 'string' },
 								description: { type: 'string' },
 								categoryId: { type: 'string' },
-								price: { type: 'integer' },
-								discountPrice: { type: 'integer' },
+								price: { type: 'number' },
+								discountPrice: { type: 'number' },
 								currency: { type: 'string', default: 'MZN' },
 								quantity: { type: 'integer', default: 1 },
 								imageUrl: { type: 'string' },
@@ -547,7 +774,37 @@ const paths: Record<string, any> = {
 					},
 				},
 			},
-			responses: { '200': { description: 'Product created' } },
+			responses: {
+				'201': {
+					description: 'Product created',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									data: {
+										type: 'object',
+										properties: {
+											product: { type: 'object' },
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'400': {
+					description: 'Validation error',
+					content: {
+						'application/json': {
+							schema: {
+								$ref: '#/components/schemas/ErrorResponse',
+							},
+						},
+					},
+				},
+			},
 		},
 	},
 	'/api/products/{id}': {
@@ -563,8 +820,69 @@ const paths: Record<string, any> = {
 				},
 			],
 			responses: {
-				'200': { description: 'Product with store, category, images' },
-				'404': { description: 'Not found' },
+				'200': {
+					description: 'Product with store, category, images',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									data: {
+										type: 'object',
+										properties: {
+											product: { type: 'object' },
+											store: {
+												type: 'object',
+												nullable: true,
+												properties: {
+													id: { type: 'string' },
+													name: { type: 'string' },
+													slug: { type: 'string' },
+												},
+											},
+											category: {
+												type: 'object',
+												nullable: true,
+												properties: {
+													id: { type: 'string' },
+													name: { type: 'string' },
+													slug: { type: 'string' },
+												},
+											},
+											images: {
+												type: 'array',
+												items: {
+													type: 'object',
+													properties: {
+														id: { type: 'string' },
+														url: { type: 'string' },
+														is_primary: {
+															type: 'boolean',
+														},
+														sort_order: {
+															type: 'integer',
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'404': {
+					description: 'Not found',
+					content: {
+						'application/json': {
+							schema: {
+								$ref: '#/components/schemas/ErrorResponse',
+							},
+						},
+					},
+				},
 			},
 		},
 	},
@@ -640,7 +958,49 @@ const paths: Record<string, any> = {
 			tags: ['Addresses'],
 			summary: 'List user addresses',
 			security: [{ CookieAuth: [] }],
-			responses: { '200': { description: 'Address list' } },
+			responses: {
+				'200': {
+					description: 'Address list',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									addresses: {
+										type: 'array',
+										items: {
+											type: 'object',
+											properties: {
+												id: { type: 'string' },
+												userId: { type: 'string' },
+												label: { type: 'string' },
+												street: { type: 'string' },
+												neighborhood: {
+													type: 'string',
+												},
+												city: { type: 'string' },
+												provinceName: {
+													type: 'string',
+													nullable: true,
+												},
+												phone: { type: 'string' },
+												recipientName: {
+													type: 'string',
+												},
+												isDefault: { type: 'boolean' },
+												createdAt: { type: 'string' },
+												updatedAt: { type: 'string' },
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+			},
 		},
 		post: {
 			tags: ['Addresses'],
@@ -673,7 +1033,49 @@ const paths: Record<string, any> = {
 					},
 				},
 			},
-			responses: { '201': { description: 'Address created' } },
+			responses: {
+				'201': {
+					description: 'Address created',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									address: {
+										type: 'object',
+										properties: {
+											id: { type: 'string' },
+											label: { type: 'string' },
+											street: { type: 'string' },
+											neighborhood: { type: 'string' },
+											city: { type: 'string' },
+											provinceName: {
+												type: 'string',
+												nullable: true,
+											},
+											phone: { type: 'string' },
+											recipientName: { type: 'string' },
+											isDefault: { type: 'boolean' },
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'400': {
+					description: 'Validation error',
+					content: {
+						'application/json': {
+							schema: {
+								$ref: '#/components/schemas/ErrorResponse',
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+			},
 		},
 	},
 	'/api/addresses/{id}': {
@@ -690,9 +1092,40 @@ const paths: Record<string, any> = {
 				},
 			],
 			requestBody: {
-				content: { 'application/json': { schema: { type: 'object' } } },
+				content: {
+					'application/json': {
+						schema: {
+							type: 'object',
+							properties: {
+								label: { type: 'string' },
+								street: { type: 'string' },
+								neighborhood: { type: 'string' },
+								city: { type: 'string' },
+								provinceSlug: { type: 'string' },
+								isDefault: { type: 'boolean' },
+							},
+						},
+					},
+				},
 			},
-			responses: { '200': { description: 'Address updated' } },
+			responses: {
+				'200': {
+					description: 'Address updated',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									address: { type: 'object' },
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+				'404': { description: 'Address not found' },
+			},
 		},
 		delete: {
 			tags: ['Addresses'],
@@ -706,16 +1139,46 @@ const paths: Record<string, any> = {
 					schema: { type: 'string' },
 				},
 			],
-			responses: { '200': { description: 'Address deleted' } },
+			responses: {
+				'200': {
+					description: 'Address deleted',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+				'404': { description: 'Address not found' },
+			},
 		},
 	},
 
 	'/api/stores': {
 		get: {
 			tags: ['Stores'],
-			summary: 'List stores with search',
+			summary: 'List stores with search and offset pagination',
 			parameters: [
 				{ name: 'search', in: 'query', schema: { type: 'string' } },
+				{
+					name: 'status',
+					in: 'query',
+					schema: {
+						type: 'string',
+						enum: ['ACTIVE', 'PENDING', 'REJECTED'],
+					},
+					description: 'Filter by store status',
+				},
+				{
+					name: 'offset',
+					in: 'query',
+					schema: { type: 'integer', default: 0 },
+				},
 				{
 					name: 'limit',
 					in: 'query',
@@ -724,16 +1187,25 @@ const paths: Record<string, any> = {
 			],
 			responses: {
 				'200': {
-					description: 'Store list',
+					description: 'Store list with pagination',
 					content: {
 						'application/json': {
 							schema: {
 								type: 'object',
 								properties: {
-									stores: {
-										type: 'array',
-										items: {
-											$ref: '#/components/schemas/Store',
+									success: { type: 'boolean', enum: [true] },
+									data: {
+										type: 'object',
+										properties: {
+											stores: {
+												type: 'array',
+												items: {
+													$ref: '#/components/schemas/Store',
+												},
+											},
+											pagination: {
+												$ref: '#/components/schemas/OffsetPagination',
+											},
 										},
 									},
 								},
@@ -767,7 +1239,37 @@ const paths: Record<string, any> = {
 					},
 				},
 			},
-			responses: { '200': { description: 'Store created' } },
+			responses: {
+				'201': {
+					description: 'Store created',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									data: {
+										type: 'object',
+										properties: {
+											store: { type: 'object' },
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'400': {
+					description: 'Validation error',
+					content: {
+						'application/json': {
+							schema: {
+								$ref: '#/components/schemas/ErrorResponse',
+							},
+						},
+					},
+				},
+			},
 		},
 	},
 	'/api/stores/{slug}': {
@@ -793,7 +1295,91 @@ const paths: Record<string, any> = {
 				},
 				{ name: 'category', in: 'query', schema: { type: 'string' } },
 			],
-			responses: { '200': { description: 'Store with products' } },
+			responses: {
+				'200': {
+					description: 'Store with products',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									data: {
+										type: 'object',
+										properties: {
+											store: {
+												type: 'object',
+												properties: {
+													id: { type: 'string' },
+													name: { type: 'string' },
+													slug: { type: 'string' },
+													description: {
+														type: 'string',
+														nullable: true,
+													},
+													state: { type: 'string' },
+													status: {
+														type: 'string',
+														nullable: true,
+													},
+													logo_url: {
+														type: 'string',
+														nullable: true,
+													},
+													banner_url: {
+														type: 'string',
+														nullable: true,
+													},
+													phone: {
+														type: 'string',
+														nullable: true,
+													},
+													whatsapp: {
+														type: 'string',
+														nullable: true,
+													},
+													email: {
+														type: 'string',
+														nullable: true,
+													},
+													verified_at: {
+														type: 'string',
+														nullable: true,
+													},
+													created_at: {
+														type: 'string',
+													},
+													provinces: {
+														type: 'object',
+														properties: {
+															name: {
+																type: 'string',
+															},
+														},
+													},
+													product_count: {
+														type: 'integer',
+													},
+													follower_count: {
+														type: 'integer',
+													},
+												},
+											},
+											products: {
+												type: 'array',
+												items: { type: 'object' },
+											},
+											page: { type: 'integer' },
+											limit: { type: 'integer' },
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'404': { description: 'Store not found' },
+			},
 		},
 	},
 	'/api/stores/{slug}/products': {
@@ -814,7 +1400,80 @@ const paths: Record<string, any> = {
 					schema: { type: 'integer', default: 10, maximum: 20 },
 				},
 			],
-			responses: { '200': { description: 'Paginated products' } },
+			responses: {
+				'200': {
+					description: 'Paginated products',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									data: {
+										type: 'object',
+										properties: {
+											store: {
+												type: 'object',
+												properties: {
+													id: { type: 'string' },
+													name: { type: 'string' },
+													slug: { type: 'string' },
+												},
+											},
+											products: {
+												type: 'array',
+												items: {
+													type: 'object',
+													properties: {
+														id: { type: 'string' },
+														name: {
+															type: 'string',
+														},
+														slug: {
+															type: 'string',
+														},
+														price: {
+															type: 'integer',
+														},
+														currency: {
+															type: 'string',
+														},
+														image: {
+															type: 'string',
+															nullable: true,
+														},
+														category: {
+															type: 'object',
+															nullable: true,
+															properties: {
+																id: {
+																	type: 'string',
+																},
+																name: {
+																	type: 'string',
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									metadata: {
+										type: 'object',
+										properties: {
+											productCount: { type: 'integer' },
+										},
+									},
+									pagination: {
+										$ref: '#/components/schemas/CursorPagination',
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 	},
 	'/api/stores/{slug}/follow': {
@@ -830,7 +1489,27 @@ const paths: Record<string, any> = {
 					schema: { type: 'string' },
 				},
 			],
-			responses: { '200': { description: 'Followed' } },
+			responses: {
+				'200': {
+					description: 'Followed',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									action: {
+										type: 'string',
+										enum: ['followed'],
+									},
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+				'404': { description: 'Store not found' },
+			},
 		},
 		delete: {
 			tags: ['Stores'],
@@ -844,7 +1523,27 @@ const paths: Record<string, any> = {
 					schema: { type: 'string' },
 				},
 			],
-			responses: { '200': { description: 'Unfollowed' } },
+			responses: {
+				'200': {
+					description: 'Unfollowed',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									action: {
+										type: 'string',
+										enum: ['unfollowed'],
+									},
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+				'404': { description: 'Store not found' },
+			},
 		},
 	},
 	'/api/stores/{slug}/is-following': {
@@ -859,7 +1558,21 @@ const paths: Record<string, any> = {
 					schema: { type: 'string' },
 				},
 			],
-			responses: { '200': { description: 'Following status' } },
+			responses: {
+				'200': {
+					description: 'Following status',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									isFollowing: { type: 'boolean' },
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 	},
 	'/api/stores/followed': {
@@ -875,7 +1588,75 @@ const paths: Record<string, any> = {
 					schema: { type: 'integer', default: 8 },
 				},
 			],
-			responses: { '200': { description: 'Followed stores' } },
+			responses: {
+				'200': {
+					description: 'Followed stores',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									data: {
+										type: 'array',
+										items: {
+											type: 'object',
+											properties: {
+												followed_at: {
+													type: 'string',
+													nullable: true,
+												},
+												store: {
+													type: 'object',
+													properties: {
+														id: { type: 'string' },
+														name: {
+															type: 'string',
+														},
+														logo_url: {
+															type: 'string',
+															nullable: true,
+														},
+														slug: {
+															type: 'string',
+														},
+														state: {
+															type: 'string',
+														},
+														verified_at: {
+															type: 'string',
+															nullable: true,
+														},
+														province: {
+															type: 'object',
+															properties: {
+																name: {
+																	type: 'string',
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									metaData: {
+										type: 'object',
+										properties: {
+											total: { type: 'integer' },
+											limit: { type: 'integer' },
+											nextCursor: {
+												type: 'string',
+												nullable: true,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+			},
 		},
 	},
 
@@ -931,7 +1712,9 @@ const paths: Record<string, any> = {
 								properties: {
 									data: {
 										type: 'array',
-										items: { $ref: '#/components/schemas/Message' },
+										items: {
+											$ref: '#/components/schemas/Message',
+										},
 									},
 								},
 							},
@@ -972,7 +1755,9 @@ const paths: Record<string, any> = {
 							schema: {
 								type: 'object',
 								properties: {
-									data: { $ref: '#/components/schemas/Message' },
+									data: {
+										$ref: '#/components/schemas/Message',
+									},
 								},
 							},
 						},
@@ -1066,18 +1851,19 @@ const paths: Record<string, any> = {
 	'/api/conversations': {
 		get: {
 			tags: ['Conversations'],
-			summary: 'List conversations for current user',
+			summary: 'List conversations for current user (cursor-based)',
 			security: [{ CookieAuth: [] }],
 			parameters: [
 				{
-					name: 'page',
+					name: 'cursor',
 					in: 'query',
-					schema: { type: 'integer', default: 1 },
+					schema: { type: 'string' },
+					description: 'Cursor for next page (last_message_at value)',
 				},
 				{
 					name: 'limit',
 					in: 'query',
-					schema: { type: 'integer', default: 10, maximum: 100 },
+					schema: { type: 'integer', default: 20, maximum: 100 },
 				},
 			],
 			responses: {
@@ -1086,19 +1872,29 @@ const paths: Record<string, any> = {
 					content: {
 						'application/json': {
 							schema: {
-								type: 'array',
-								items: {
-									$ref: '#/components/schemas/Conversation',
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									data: {
+										type: 'array',
+										items: {
+											$ref: '#/components/schemas/Conversation',
+										},
+									},
+									pagination: {
+										$ref: '#/components/schemas/CursorPagination',
+									},
 								},
 							},
 						},
 					},
 				},
+				'401': { description: 'Unauthorized' },
 			},
 		},
 		post: {
 			tags: ['Conversations'],
-			summary: 'Create a new conversation',
+			summary: 'Create or reuse a conversation with a store',
 			security: [{ CookieAuth: [] }],
 			requestBody: {
 				content: {
@@ -1108,13 +1904,42 @@ const paths: Record<string, any> = {
 							required: ['productId'],
 							properties: {
 								productId: { type: 'string' },
-								content: { type: 'string' },
 							},
 						},
 					},
 				},
 			},
-			responses: { '201': { description: 'Conversation created' } },
+			responses: {
+				'201': {
+					description: 'Conversation created or reused',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									data: {
+										type: 'object',
+										properties: {
+											conversationId: { type: 'string' },
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'400': {
+					description: 'Validation error',
+					content: {
+						'application/json': {
+							schema: {
+								$ref: '#/components/schemas/ErrorResponse',
+							},
+						},
+					},
+				},
+			},
 		},
 	},
 	'/api/conversations/{id}': {
@@ -1131,15 +1956,54 @@ const paths: Record<string, any> = {
 				},
 			],
 			responses: {
-				'200': { description: 'Conversation with store info' },
+				'200': {
+					description: 'Conversation with store info',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									data: {
+										type: 'object',
+										properties: {
+											conversationId: { type: 'string' },
+											productId: {
+												type: 'string',
+												nullable: true,
+											},
+											store: {
+												type: 'object',
+												properties: {
+													id: { type: 'string' },
+													name: { type: 'string' },
+													logoUrl: {
+														type: 'string',
+														nullable: true,
+													},
+													slug: { type: 'string' },
+													state: { type: 'string' },
+													provinceName: {
+														type: 'string',
+														nullable: true,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
 				'403': { description: 'Forbidden' },
+				'404': { description: 'Not found' },
 			},
 		},
 	},
 	'/api/conversations/{id}/messages': {
 		get: {
 			tags: ['Messages'],
-			summary: 'Get conversation messages',
+			summary: 'Get conversation messages (cursor-based)',
 			security: [{ CookieAuth: [] }],
 			parameters: [
 				{
@@ -1148,6 +2012,17 @@ const paths: Record<string, any> = {
 					required: true,
 					schema: { type: 'string' },
 				},
+				{
+					name: 'cursor',
+					in: 'query',
+					schema: { type: 'string' },
+					description: 'Cursor for next page (created_at value)',
+				},
+				{
+					name: 'limit',
+					in: 'query',
+					schema: { type: 'integer', default: 50, maximum: 100 },
+				},
 			],
 			responses: {
 				'200': {
@@ -1155,12 +2030,25 @@ const paths: Record<string, any> = {
 					content: {
 						'application/json': {
 							schema: {
-								type: 'array',
-								items: { $ref: '#/components/schemas/Message' },
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									data: {
+										type: 'array',
+										items: {
+											$ref: '#/components/schemas/Message',
+										},
+									},
+									pagination: {
+										$ref: '#/components/schemas/CursorPagination',
+									},
+								},
 							},
 						},
 					},
 				},
+				'403': { description: 'Not a conversation participant' },
+				'404': { description: 'Conversation not found' },
 			},
 		},
 		post: {
@@ -1191,10 +2079,29 @@ const paths: Record<string, any> = {
 					description: 'Message sent',
 					content: {
 						'application/json': {
-							schema: { $ref: '#/components/schemas/Message' },
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									data: {
+										$ref: '#/components/schemas/Message',
+									},
+								},
+							},
 						},
 					},
 				},
+				'400': {
+					description: 'Validation error',
+					content: {
+						'application/json': {
+							schema: {
+								$ref: '#/components/schemas/ErrorResponse',
+							},
+						},
+					},
+				},
+				'403': { description: 'Not a conversation participant' },
 			},
 		},
 	},
@@ -1211,7 +2118,22 @@ const paths: Record<string, any> = {
 					schema: { type: 'string' },
 				},
 			],
-			responses: { '200': { description: 'Marked as read' } },
+			responses: {
+				'200': {
+					description: 'Marked as read',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+			},
 		},
 	},
 
@@ -1318,7 +2240,44 @@ const paths: Record<string, any> = {
 					schema: { type: 'string' },
 				},
 			],
-			responses: { '200': { description: 'Order with items' } },
+			responses: {
+				'200': {
+					description: 'Order with items',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									order: {
+										$ref: '#/components/schemas/Order',
+									},
+									storeSlug: {
+										type: 'string',
+										nullable: true,
+									},
+									items: {
+										type: 'array',
+										items: {
+											type: 'object',
+											properties: {
+												id: { type: 'string' },
+												quantity: { type: 'integer' },
+												unitPrice: { type: 'integer' },
+												currency: { type: 'string' },
+												productName: { type: 'string' },
+												productSlug: { type: 'string' },
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+				'404': { description: 'Order not found' },
+			},
 		},
 	},
 
@@ -1396,7 +2355,52 @@ const paths: Record<string, any> = {
 					},
 				},
 			},
-			responses: { '200': { description: 'Store updated' } },
+			responses: {
+				'200': {
+					description: 'Store updated',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									store: {
+										type: 'object',
+										properties: {
+											id: { type: 'string' },
+											name: { type: 'string' },
+											slug: { type: 'string' },
+											logo_url: {
+												type: 'string',
+												nullable: true,
+											},
+											banner_url: {
+												type: 'string',
+												nullable: true,
+											},
+											description: {
+												type: 'string',
+												nullable: true,
+											},
+											phone: {
+												type: 'string',
+												nullable: true,
+											},
+											whatsapp: {
+												type: 'string',
+												nullable: true,
+											},
+											status: { type: 'string' },
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+				'403': { description: 'Not a seller' },
+			},
 		},
 	},
 	'/api/seller/products': {
@@ -1416,7 +2420,10 @@ const paths: Record<string, any> = {
 					name: 'status',
 					in: 'query',
 					required: false,
-					schema: { type: 'string', enum: ['all', 'draft', 'active', 'inactive'] },
+					schema: {
+						type: 'string',
+						enum: ['all', 'draft', 'active', 'inactive'],
+					},
 				},
 				{
 					name: 'category',
@@ -1495,7 +2502,23 @@ const paths: Record<string, any> = {
 					},
 				},
 			},
-			responses: { '200': { description: 'Product updated' } },
+			responses: {
+				'200': {
+					description: 'Product updated',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+				'404': { description: 'Product not found' },
+			},
 		},
 		delete: {
 			tags: ['Seller'],
@@ -1509,7 +2532,22 @@ const paths: Record<string, any> = {
 					schema: { type: 'string' },
 				},
 			],
-			responses: { '200': { description: 'Product deleted' } },
+			responses: {
+				'200': {
+					description: 'Product deleted',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+			},
 		},
 	},
 	'/api/seller/products/bulk': {
@@ -1537,7 +2575,23 @@ const paths: Record<string, any> = {
 					},
 				},
 			},
-			responses: { '200': { description: 'Bulk action completed' } },
+			responses: {
+				'200': {
+					description: 'Bulk action completed',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									affected: { type: 'integer' },
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+			},
 		},
 	},
 	'/api/seller/orders': {
@@ -1550,14 +2604,24 @@ const paths: Record<string, any> = {
 					name: 'status',
 					in: 'query',
 					required: false,
-					schema: { type: 'string', enum: ['all', 'pending', 'shipping', 'completed', 'cancelled'] },
+					schema: {
+						type: 'string',
+						enum: [
+							'all',
+							'pending',
+							'shipping',
+							'completed',
+							'cancelled',
+						],
+					},
 				},
 				{
 					name: 'date',
 					in: 'query',
 					required: false,
 					schema: { type: 'string' },
-					description: 'Number of days to look back (e.g. "7", "30", "90")',
+					description:
+						'Number of days to look back (e.g. "7", "30", "90")',
 				},
 				{
 					name: 'page',
@@ -1640,7 +2704,25 @@ const paths: Record<string, any> = {
 					},
 				},
 			},
-			responses: { '200': { description: 'Member invited' } },
+			responses: {
+				'200': {
+					description: 'Member invited',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+								},
+							},
+						},
+					},
+				},
+				'400': { description: 'Validation error' },
+				'401': { description: 'Unauthorized' },
+				'404': { description: 'User not found' },
+				'409': { description: 'Already a member' },
+			},
 		},
 	},
 	'/api/seller/unread-counts': {
@@ -1787,7 +2869,22 @@ const paths: Record<string, any> = {
 					},
 				},
 			},
-			responses: { '200': { description: 'Marked as read' } },
+			responses: {
+				'200': {
+					description: 'Marked as read',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+			},
 		},
 	},
 
@@ -1820,7 +2917,66 @@ const paths: Record<string, any> = {
 					schema: { type: 'integer', default: 30 },
 				},
 			],
-			responses: { '200': { description: 'Analytics data' } },
+			responses: {
+				'200': {
+					description: 'Analytics data',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									signupsByDay: {
+										type: 'array',
+										items: {
+											type: 'object',
+											properties: {
+												date: { type: 'string' },
+												count: { type: 'integer' },
+											},
+										},
+									},
+									productsByDay: {
+										type: 'array',
+										items: {
+											type: 'object',
+											properties: {
+												date: { type: 'string' },
+												count: { type: 'integer' },
+											},
+										},
+									},
+									storesByDay: {
+										type: 'array',
+										items: {
+											type: 'object',
+											properties: {
+												date: { type: 'string' },
+												count: { type: 'integer' },
+											},
+										},
+									},
+									approvalRate: { type: 'number' },
+									topStores: {
+										type: 'array',
+										items: {
+											type: 'object',
+											properties: {
+												id: { type: 'string' },
+												name: { type: 'string' },
+												slug: { type: 'string' },
+												created_at: { type: 'string' },
+												products: { type: 'integer' },
+												followers: { type: 'integer' },
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+			},
 		},
 	},
 	'/api/admin/users': {
@@ -1842,7 +2998,72 @@ const paths: Record<string, any> = {
 					schema: { type: 'integer', default: 50, maximum: 100 },
 				},
 			],
-			responses: { '200': { description: 'User list' } },
+			responses: {
+				'200': {
+					description: 'User list',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									users: {
+										type: 'array',
+										items: {
+											type: 'object',
+											properties: {
+												id: { type: 'string' },
+												first_name: {
+													type: 'string',
+													nullable: true,
+												},
+												last_name: {
+													type: 'string',
+													nullable: true,
+												},
+												email: {
+													type: 'string',
+													nullable: true,
+												},
+												phone_number: {
+													type: 'string',
+													nullable: true,
+												},
+												avatar_url: {
+													type: 'string',
+													nullable: true,
+												},
+												status: { type: 'string' },
+												created_at: { type: 'string' },
+												roles: {
+													type: 'array',
+													items: { type: 'string' },
+												},
+												store: {
+													type: 'object',
+													nullable: true,
+													properties: {
+														id: { type: 'string' },
+														name: {
+															type: 'string',
+														},
+														slug: {
+															type: 'string',
+														},
+														status: {
+															type: 'string',
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+			},
 		},
 	},
 	'/api/admin/users/{id}': {
@@ -1858,7 +3079,94 @@ const paths: Record<string, any> = {
 					schema: { type: 'string' },
 				},
 			],
-			responses: { '200': { description: 'User details' } },
+			responses: {
+				'200': {
+					description: 'User details',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									user: {
+										type: 'object',
+										properties: {
+											id: { type: 'string' },
+											first_name: {
+												type: 'string',
+												nullable: true,
+											},
+											last_name: {
+												type: 'string',
+												nullable: true,
+											},
+											email: {
+												type: 'string',
+												nullable: true,
+											},
+											phone_number: {
+												type: 'string',
+												nullable: true,
+											},
+											avatar_url: {
+												type: 'string',
+												nullable: true,
+											},
+											status: { type: 'string' },
+											created_at: { type: 'string' },
+											roles: {
+												type: 'array',
+												items: { type: 'string' },
+											},
+										},
+									},
+									store: {
+										type: 'object',
+										nullable: true,
+										properties: {
+											id: { type: 'string' },
+											name: { type: 'string' },
+											slug: { type: 'string' },
+											status: { type: 'string' },
+											logo_url: {
+												type: 'string',
+												nullable: true,
+											},
+											banner_url: {
+												type: 'string',
+												nullable: true,
+											},
+											description: {
+												type: 'string',
+												nullable: true,
+											},
+											phone: {
+												type: 'string',
+												nullable: true,
+											},
+											whatsapp: {
+												type: 'string',
+												nullable: true,
+											},
+											email: {
+												type: 'string',
+												nullable: true,
+											},
+											state: { type: 'string' },
+											created_at: { type: 'string' },
+											verified_at: {
+												type: 'string',
+												nullable: true,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+				'404': { description: 'User not found' },
+			},
 		},
 		patch: {
 			tags: ['Admin'],
@@ -1886,7 +3194,22 @@ const paths: Record<string, any> = {
 					},
 				},
 			},
-			responses: { '200': { description: 'User updated' } },
+			responses: {
+				'200': {
+					description: 'User updated',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+			},
 		},
 		delete: {
 			tags: ['Admin'],
@@ -1900,7 +3223,22 @@ const paths: Record<string, any> = {
 					schema: { type: 'string' },
 				},
 			],
-			responses: { '200': { description: 'User deleted' } },
+			responses: {
+				'200': {
+					description: 'User deleted',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+			},
 		},
 	},
 	'/api/admin/stores': {
@@ -1922,7 +3260,108 @@ const paths: Record<string, any> = {
 					schema: { type: 'integer', default: 50, maximum: 100 },
 				},
 			],
-			responses: { '200': { description: 'Store list' } },
+			responses: {
+				'200': {
+					description: 'Store list',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									stores: {
+										type: 'array',
+										items: {
+											type: 'object',
+											properties: {
+												id: { type: 'string' },
+												name: { type: 'string' },
+												slug: { type: 'string' },
+												status: { type: 'string' },
+												description: {
+													type: 'string',
+													nullable: true,
+												},
+												logo_url: {
+													type: 'string',
+													nullable: true,
+												},
+												banner_url: {
+													type: 'string',
+													nullable: true,
+												},
+												phone: {
+													type: 'string',
+													nullable: true,
+												},
+												whatsapp: {
+													type: 'string',
+													nullable: true,
+												},
+												email: {
+													type: 'string',
+													nullable: true,
+												},
+												state: { type: 'string' },
+												created_at: { type: 'string' },
+												provinces: {
+													type: 'object',
+													properties: {
+														name: {
+															type: 'string',
+														},
+													},
+												},
+												categories: {
+													type: 'object',
+													properties: {
+														id: { type: 'string' },
+														name: {
+															type: 'string',
+														},
+													},
+												},
+												users: {
+													type: 'object',
+													nullable: true,
+													properties: {
+														id: { type: 'string' },
+														first_name: {
+															type: 'string',
+															nullable: true,
+														},
+														last_name: {
+															type: 'string',
+															nullable: true,
+														},
+														email: {
+															type: 'string',
+															nullable: true,
+														},
+														phone_number: {
+															type: 'string',
+															nullable: true,
+														},
+														created_at: {
+															type: 'string',
+														},
+													},
+												},
+												productCount: {
+													type: 'integer',
+												},
+												followerCount: {
+													type: 'integer',
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+			},
 		},
 	},
 	'/api/admin/stores/{id}': {
@@ -1939,7 +3378,38 @@ const paths: Record<string, any> = {
 				},
 			],
 			responses: {
-				'200': { description: 'Store with docs and products' },
+				'200': {
+					description: 'Store with docs and products',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									store: { type: 'object' },
+									docs: {
+										type: 'array',
+										items: {
+											type: 'object',
+											properties: {
+												id: { type: 'string' },
+												type: { type: 'string' },
+												file_url: { type: 'string' },
+												status: { type: 'string' },
+												created_at: { type: 'string' },
+											},
+										},
+									},
+									products: {
+										type: 'array',
+										items: { type: 'object' },
+									},
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+				'404': { description: 'Store not found' },
 			},
 		},
 		patch: {
@@ -1959,12 +3429,49 @@ const paths: Record<string, any> = {
 					'application/json': {
 						schema: {
 							type: 'object',
-							properties: { status: { type: 'string' } },
+							properties: {
+								status: {
+									type: 'string',
+									enum: [
+										'ACTIVE',
+										'REJECTED',
+										'PENDING',
+										'INACTIVE',
+										'SUSPENDED',
+										'BANNED',
+									],
+								},
+								rejectionReason: { type: 'string' },
+								name: { type: 'string' },
+								description: { type: 'string' },
+								logo_url: { type: 'string' },
+								banner_url: { type: 'string' },
+								phone: { type: 'string' },
+								whatsapp: { type: 'string' },
+								email: { type: 'string' },
+								state: { type: 'string' },
+							},
 						},
 					},
 				},
 			},
-			responses: { '200': { description: 'Store updated' } },
+			responses: {
+				'200': {
+					description: 'Store updated',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									store: { type: 'object' },
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+				'404': { description: 'Store not found' },
+			},
 		},
 		delete: {
 			tags: ['Admin'],
@@ -1978,7 +3485,22 @@ const paths: Record<string, any> = {
 					schema: { type: 'string' },
 				},
 			],
-			responses: { '200': { description: 'Store deleted' } },
+			responses: {
+				'200': {
+					description: 'Store deleted',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+			},
 		},
 	},
 	'/api/admin/products': {
@@ -2001,7 +3523,86 @@ const paths: Record<string, any> = {
 					schema: { type: 'integer', default: 50, maximum: 100 },
 				},
 			],
-			responses: { '200': { description: 'Product list' } },
+			responses: {
+				'200': {
+					description: 'Product list',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									products: {
+										type: 'array',
+										items: {
+											type: 'object',
+											properties: {
+												id: { type: 'string' },
+												name: { type: 'string' },
+												description: {
+													type: 'string',
+													nullable: true,
+												},
+												price: { type: 'integer' },
+												discount_price: {
+													type: 'integer',
+													nullable: true,
+												},
+												currency: { type: 'string' },
+												status: { type: 'string' },
+												is_visible: { type: 'boolean' },
+												created_at: { type: 'string' },
+												store_id: { type: 'string' },
+												category_id: {
+													type: 'string',
+													nullable: true,
+												},
+												stores: {
+													type: 'object',
+													nullable: true,
+													properties: {
+														id: { type: 'string' },
+														name: {
+															type: 'string',
+														},
+														slug: {
+															type: 'string',
+														},
+													},
+												},
+												categories: {
+													type: 'object',
+													nullable: true,
+													properties: {
+														id: { type: 'string' },
+														name: {
+															type: 'string',
+														},
+													},
+												},
+												product_images: {
+													type: 'array',
+													items: {
+														type: 'object',
+														properties: {
+															url: {
+																type: 'string',
+															},
+															is_primary: {
+																type: 'boolean',
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+			},
 		},
 	},
 	'/api/admin/products/{id}': {
@@ -2017,7 +3618,41 @@ const paths: Record<string, any> = {
 					schema: { type: 'string' },
 				},
 			],
-			responses: { '200': { description: 'Product updated' } },
+			requestBody: {
+				content: {
+					'application/json': {
+						schema: {
+							type: 'object',
+							properties: {
+								name: { type: 'string' },
+								description: { type: 'string' },
+								price: { type: 'number' },
+								discount_price: { type: 'number' },
+								currency: { type: 'string' },
+								status: { type: 'string' },
+								is_visible: { type: 'boolean' },
+								category_id: { type: 'string' },
+							},
+						},
+					},
+				},
+			},
+			responses: {
+				'200': {
+					description: 'Product updated',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+			},
 		},
 		delete: {
 			tags: ['Admin'],
@@ -2031,7 +3666,22 @@ const paths: Record<string, any> = {
 					schema: { type: 'string' },
 				},
 			],
-			responses: { '200': { description: 'Product deleted' } },
+			responses: {
+				'200': {
+					description: 'Product deleted',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+			},
 		},
 	},
 	'/api/admin/categories': {
@@ -2039,7 +3689,27 @@ const paths: Record<string, any> = {
 			tags: ['Admin'],
 			summary: 'List all categories',
 			security: [{ CookieAuth: [] }],
-			responses: { '200': { description: 'Category list' } },
+			responses: {
+				'200': {
+					description: 'Category list',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									categories: {
+										type: 'array',
+										items: {
+											$ref: '#/components/schemas/Category',
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+			},
 		},
 		post: {
 			tags: ['Admin'],
@@ -2059,7 +3729,24 @@ const paths: Record<string, any> = {
 					},
 				},
 			},
-			responses: { '200': { description: 'Category created' } },
+			responses: {
+				'200': {
+					description: 'Category created',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									category: {
+										$ref: '#/components/schemas/Category',
+									},
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+			},
 		},
 		patch: {
 			tags: ['Admin'],
@@ -2080,7 +3767,22 @@ const paths: Record<string, any> = {
 					},
 				},
 			},
-			responses: { '200': { description: 'Category updated' } },
+			responses: {
+				'200': {
+					description: 'Category updated',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+			},
 		},
 		delete: {
 			tags: ['Admin'],
@@ -2097,7 +3799,22 @@ const paths: Record<string, any> = {
 					},
 				},
 			},
-			responses: { '200': { description: 'Category deleted' } },
+			responses: {
+				'200': {
+					description: 'Category deleted',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+			},
 		},
 	},
 	'/api/admin/notifications': {
@@ -2105,7 +3822,38 @@ const paths: Record<string, any> = {
 			tags: ['Admin'],
 			summary: 'List sent notifications',
 			security: [{ CookieAuth: [] }],
-			responses: { '200': { description: 'Notification list' } },
+			responses: {
+				'200': {
+					description: 'Notification list',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									notifications: {
+										type: 'array',
+										items: {
+											type: 'object',
+											properties: {
+												id: { type: 'string' },
+												title: { type: 'string' },
+												body: { type: 'string' },
+												type: { type: 'string' },
+												created_at: { type: 'string' },
+												recipientCount: {
+													type: 'integer',
+												},
+												readCount: { type: 'integer' },
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+			},
 		},
 		post: {
 			tags: ['Admin'],
@@ -2129,7 +3877,34 @@ const paths: Record<string, any> = {
 					},
 				},
 			},
-			responses: { '200': { description: 'Notification sent' } },
+			responses: {
+				'200': {
+					description: 'Notification sent',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									notification: {
+										type: 'object',
+										properties: {
+											id: { type: 'string' },
+											target: { type: 'string' },
+											title: { type: 'string' },
+											body: { type: 'string' },
+											sentAt: { type: 'string' },
+											sentBy: { type: 'string' },
+										},
+									},
+									recipientCount: { type: 'integer' },
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+			},
 		},
 	},
 }

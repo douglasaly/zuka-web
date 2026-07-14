@@ -1,0 +1,176 @@
+========================================
+FLUXO: CRIAÇÃO DE LOJA NO PRIMEIRO REGISTO
+========================================
+
+ENTRY POINT: /signup → seller path (signup-view.tsx)
+
+PASSO 1 — Utilizador preenche formulário (seller step 1)
+  Campos: nome, província, bairro, email, password, categoria, telemóvel
+  Ao clicar "Continuar" → handleSellerStep1() (linha 214)
+
+  Executa 5 chamadas sequenciais:
+    1. createUserWithEmailAndPassword(auth, email, password)
+    2. syncUserToBackend()
+    3. createAppSession()
+    4. setOnboardingRole('seller')
+    5. createStore({name, neighborhood, provinceId, categoryId, email, phone})
+
+────────────────────────────────────────
+PASSO 2 — createUserWithEmailAndPassword
+  Ficheiro: signup-view.tsx:218
+  API: Firebase Auth (externo)
+  Tabelas: nenhuma (Firebase manage)
+  Resultado: UserCredential com Firebase UID
+
+────────────────────────────────────────
+PASSO 3 — syncUserToBackend()
+  Ficheiro: src/lib/firebase/sync-user-to-backend.ts:12
+  API: POST /api/auth/register { token }
+
+  Server-side (src/app/api/auth/register/route.ts):
+    1. adminAuth.verifyIdToken(token) — verifica token Firebase
+    2. syncFirebaseUser(decodedToken) (src/lib/auth/sync-firebase-user.ts)
+       → Verifica se user existe por firebase_uid
+       → Se novo: INSERT INTO users (id, firebase_uid, email, first_name, ...)
+       → Se existente: UPDATE users
+       → assignUserRole(userId, 'buyer') — todaaaaaaaaaaaaaaas as roles são buyer por default
+       → INSERT INTO notifications (welcome)
+
+  Tabelas: users, user_roles, notifications
+
+────────────────────────────────────────
+PASSO 4 — createAppSession()
+  Ficheiro: src/lib/firebase/create-session.ts:7
+  API: POST /api/auth/session { token }
+
+  Server-side (src/app/api/auth/session/route.ts):
+    1. adminAuth.createSessionCookie(token, { expiresIn: 7d })
+    2. Set cookie SESSION_COOKIE (httpOnly, secure, sameSite=strict)
+
+  Tabelas: nenhuma (cookie apenas)
+  Resultado: cookie httpOnly definido → todas as rotas seguintes autenticadas
+
+────────────────────────────────────────
+PASSO 5 — setOnboardingRole('seller')
+  Ficheiro: src/lib/api/marketplace.ts:325
+  API: POST /api/onboarding/role { role: 'seller' }
+
+  Server-side (src/app/api/onboarding/role/route.ts):
+    1. getSessionUser() — lê cookie, valida Firebase, busca user por firebase_uid
+    2. assignUserRole(userId, 'seller')
+       → INSERT INTO user_roles (user_id, role_id) ON CONFLICT DO NOTHING
+       → User fica com role 'buyer' (passo 3) + 'seller' (agora)
+    3. ensureSellerProfile(userId) (src/lib/auth/roles.ts:60)
+       → Verifica se seller_profiles existe para o user
+       → Se não: INSERT INTO seller_profiles (id, user_id, status='PENDING')
+       → INSERT INTO seller_onboarding (id, seller_profile_id, status='DRAFT', current_step='STORE_INFO')
+
+  Tabelas: user_roles, seller_profiles, seller_onboarding
+
+────────────────────────────────────────
+PASSO 6 — createStore()
+  Ficheiro: src/lib/api/marketplace.ts:339
+  API: POST /api/stores { name, neighborhood, provinceId, categoryId, email, phone }
+
+  Server-side (src/app/api/stores/route.ts):
+    1. requireAuth() — valida sessão Firebase
+    2. getUserRoles(userId) — verifica se tem role 'seller'
+       → Se não: retorna 403 "Apenas vendedores podem criar lojas"
+    3. CreateStoreSchema.safeParse(body) — valida dados
+    4. ensureSellerProfile(userId) — retorna profile existente
+    5. Gera slug único do nome
+       → Se slug conflita: slug = `${slug}-${uuidv7().slice(0,6)}`
+    6. INSERT INTO stores:
+       - id: uuidv7()
+       - owner_id: userId
+       - seller_profile_id: profile.id
+       - name, slug, province_id, main_store_category_id, state (neighborhood)
+       - email: body.email ?? user.email
+       - phone: body.phone ?? user.phone_number
+       - whatsapp: body.whatsapp ?? phone ?? user.phone_number
+       - status: 'PENDING'
+    7. UPDATE seller_onboarding:
+       - current_step: 'STORE_PROFILE'
+       - status: 'DRAFT'
+
+  Tabelas: stores, seller_onboarding
+  Resposta: 201 { success: true, data: { store: {...} } }
+
+────────────────────────────────────────
+PASSO 7 — Utilizador preenche perfil da loja (seller step 2)
+  Campos: logo (upload R2), banner (upload R2), descrição, hasDelivery, WhatsApp, telefone
+  Ficheiro: signup-view.tsx:802
+  Ao clicar "Continuar" → handleSellerStep2() (linha 238)
+
+  API: PATCH /api/seller/store { logoUrl, bannerUrl, description, whatsapp, phone, hasDelivery, currentStep }
+
+  Server-side (src/app/api/seller/store/route.ts):
+    1. getSessionUser() + getUserRoles() — valida seller
+    2. Busca seller_profiles por user_id
+    3. Busca stores por seller_profile_id
+    4. Valida que URLs são do R2 (upload válido)
+    5. UPDATE stores: logo_url, banner_url, description, phone, whatsapp
+    6. UPDATE seller_onboarding: current_step → 'VERIFICATION'
+    7. INSERT seller_onboarding_steps: step='STORE_PROFILE', data={hasDelivery}
+
+  Tabelas: stores, seller_onboarding, seller_onboarding_steps
+
+────────────────────────────────────────
+PASSO 8 — Verificação de identidade (seller step 3)
+  Campos: bilhete de identidade (upload R2), selfie (upload R2)
+  Ficheiro: signup-view.tsx:904
+  Ao clicar "Submeter" → handleSellerStep3() (linha 259)
+
+  API: POST /api/onboarding/verification { idCardUrl, selfieUrl }
+
+  Server-side (src/app/api/onboarding/verification/route.ts):
+    1. Autenticação + role seller
+    2. Valida URLs R2
+    3. Busca seller_profiles → stores
+    4. INSERT INTO verification_documents × 2:
+       - { type: 'ID_CARD', file_url: idCardUrl, status: 'PENDING' }
+       - { type: 'OTHER', file_url: selfieUrl, metadata: '{"kind":"selfie_with_document"}', status: 'PENDING' }
+    5. UPDATE seller_onboarding:
+       - status: 'SUBMITTED'
+       - current_step: null
+       - submitted_at: now()
+    6. INSERT seller_onboarding_steps: step='VERIFICATION'
+
+  Tabelas: verification_documents, seller_onboarding, seller_onboarding_steps
+
+────────────────────────────────────────
+PASSO 9 — Tela de confirmação (seller step 4)
+  Ficheiro: signup-view.tsx:965
+  Mensagem: "A tua loja está em revisão!"
+  Link: volta para homepage
+
+  Loja fica PENDING até admin aprovar
+  O que muda quando admin aprova:
+    → stores.status → 'ACTIVE' / 'APPROVED'
+    → seller_profiles.status → 'APPROVED'
+    → seller_onboarding.status → 'APPROVED'
+
+────────────────────────────────────────
+
+RESUMO DE CHAMADAS API (em ordem):
+  1. Firebase Auth: createUserWithEmailAndPassword()
+  2. POST /api/auth/register        → users, user_roles (buyer), notifications
+  3. POST /api/auth/session          → cookie httpOnly
+  4. POST /api/onboarding/role       → user_roles (seller), seller_profiles, seller_onboarding
+  5. POST /api/stores               → stores, seller_onboarding (current_step → STORE_PROFILE)
+  6. PATCH /api/seller/store         → stores (logo, banner...), seller_onboarding, seller_onboarding_steps
+  7. POST /api/onboarding/verification → verification_documents ×2, seller_onboarding (→ SUBMITTED), seller_onboarding_steps
+
+TABELAS ENVOLVIDAS:
+  users, roles, user_roles, seller_profiles, seller_onboarding,
+  seller_onboarding_steps, stores, verification_documents, notifications
+
+ENTIDADES READ-ONLY (dropdown):
+  categories, provinces
+
+────────────────────────────────────────
+
+ENTRY POINT ALTERNATIVO: /onboarding (seller-onboarding-view.tsx)
+  Para utilizadores já registados que ainda não escolheram role.
+  Mesmo fluxo mas em 4 steps independentes com React Query mutations.
+  Resolve step atual consultando seller_onboarding.current_step na montagem.

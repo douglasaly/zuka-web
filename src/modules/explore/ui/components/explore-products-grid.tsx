@@ -1,4 +1,5 @@
 import { Package } from 'lucide-react'
+import { InfiniteScrollTrigger } from '@/components/infinite-scroll-trigger'
 import type { ViewMode } from '@/components/view-mode-toggle'
 import { cn } from '@/lib/utils'
 import { EmptyState } from '@/modules/profile/ui/components/empty-state'
@@ -8,11 +9,17 @@ import { ExploreProductCard } from './explore-products-card'
 type ExploreProductsGridProps = {
 	products: Product[]
 	viewMode: ViewMode
+	fetchNextPage: () => void
+	hasNextPage: boolean
+	isFetchingNextPage: boolean
 }
 
 export const ExploreProductsGrid = ({
 	products,
 	viewMode,
+	fetchNextPage,
+	hasNextPage,
+	isFetchingNextPage,
 }: ExploreProductsGridProps) => {
 	if (products.length === 0) {
 		return (
@@ -25,20 +32,28 @@ export const ExploreProductsGrid = ({
 	}
 
 	return (
-		<div
-			className={cn(
-				viewMode === 'grid'
-					? 'grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4'
-					: 'flex flex-col gap-3'
-			)}
-		>
-			{products.map((product) => (
-				<ExploreProductCard
-					key={product.id}
-					product={product}
-					variant={viewMode === 'list' ? 'compact' : 'default'}
-				/>
-			))}
-		</div>
+		<>
+			<div
+				className={cn(
+					viewMode === 'grid'
+						? 'grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4'
+						: 'flex flex-col gap-3'
+				)}
+			>
+				{products.map((product) => (
+					<ExploreProductCard
+						key={product.id}
+						product={product}
+						variant={viewMode === 'list' ? 'compact' : 'default'}
+					/>
+				))}
+			</div>
+
+			<InfiniteScrollTrigger
+				onLoadMore={fetchNextPage}
+				isLoading={isFetchingNextPage}
+				hasMore={hasNextPage}
+			/>
+		</>
 	)
 }

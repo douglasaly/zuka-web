@@ -80,11 +80,12 @@ export async function GET() {
 
 				if (messages) {
 					const unread = new Set<string>()
-					for (const msg of (messages as any[])) {
+					for (const msg of messages as any[]) {
 						const lastRead = readMap.get(msg.conversation_id)
 						if (
 							!lastRead ||
-							new Date(msg.created_at) > new Date(lastRead as string)
+							new Date(msg.created_at) >
+								new Date(lastRead as string)
 						) {
 							unread.add(msg.conversation_id)
 						}

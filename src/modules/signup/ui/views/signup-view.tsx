@@ -143,7 +143,11 @@ export function SignupView() {
 			.catch(() => {})
 		fetch('/api/categories')
 			.then((r) => r.json())
-			.then((d) => setCategories(Array.isArray(d) ? d : []))
+			.then((d) =>
+				setCategories(
+					Array.isArray(d?.data) ? d.data : Array.isArray(d) ? d : []
+				)
+			)
 			.catch(() => {})
 	}, [])
 

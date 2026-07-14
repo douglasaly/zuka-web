@@ -37,6 +37,7 @@ export default function RootLayout({
 			lang='pt'
 			className={cn(jakarta.variable, jakartaHeading.variable)}
 			suppressHydrationWarning
+			data-scroll-behavior='smooth'
 		>
 			<body
 				className={cn(

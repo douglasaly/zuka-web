@@ -17,7 +17,8 @@ export const SellerCategoriesView = () => {
 		queryFn: async () => {
 			const res = await fetch('/api/categories')
 			if (!res.ok) throw new Error('Failed to load categories')
-			return res.json()
+			const json = await res.json()
+			return json.data ?? json
 		},
 	})
 
