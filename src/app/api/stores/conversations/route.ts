@@ -41,13 +41,10 @@ export async function GET(_request: NextRequest) {
 			const allParts = (participants ?? []).filter(
 				(p) => p.conversation_id === conv.id
 			)
-			const ownerPart = allParts.find(
-				(p) => p.user_id === store.owner_id
-			)
-			const buyerPart = allParts.find(
-				(p) => p.user_id !== store.owner_id
-			)
-			if (ownerPart) storeOwnerLastRead.set(conv.id, ownerPart.last_read_at)
+			const ownerPart = allParts.find((p) => p.user_id === store.owner_id)
+			const buyerPart = allParts.find((p) => p.user_id !== store.owner_id)
+			if (ownerPart)
+				storeOwnerLastRead.set(conv.id, ownerPart.last_read_at)
 			if (buyerPart) buyerIds.push(buyerPart.user_id)
 		}
 
@@ -56,9 +53,7 @@ export async function GET(_request: NextRequest) {
 			.select('id, first_name, last_name, avatar_url')
 			.in('id', buyerIds)
 
-		const buyerMap = new Map(
-			(buyers ?? []).map((b) => [b.id, b])
-		)
+		const buyerMap = new Map((buyers ?? []).map((b) => [b.id, b]))
 
 		// --- última mensagem ---
 		const lastMessageIds = conversations
@@ -87,10 +82,7 @@ export async function GET(_request: NextRequest) {
 
 		for (const msg of buyerMessages ?? []) {
 			const lastRead = storeOwnerLastRead.get(msg.conversation_id)
-			if (
-				msg.created_at &&
-				(!lastRead || msg.created_at > lastRead)
-			) {
+			if (msg.created_at && (!lastRead || msg.created_at > lastRead)) {
 				unreadConvs.add(msg.conversation_id)
 			}
 		}
@@ -100,23 +92,20 @@ export async function GET(_request: NextRequest) {
 			const members = (participants ?? []).filter(
 				(p) => p.conversation_id === conv.id
 			)
-			const buyerPart = members.find(
-				(p) => p.user_id !== store.owner_id
-			)
-			const buyerUser = buyerPart
-				? buyerMap.get(buyerPart.user_id)
-				: null
+			const buyerPart = members.find((p) => p.user_id !== store.owner_id)
+			const buyerUser = buyerPart ? buyerMap.get(buyerPart.user_id) : null
 
 			const firstName = buyerUser?.first_name ?? ''
 			const lastName = buyerUser?.last_name ?? ''
-			const name = [firstName, lastName].filter(Boolean).join(' ') || 'Cliente'
+			const name =
+				[firstName, lastName].filter(Boolean).join(' ') || 'Cliente'
 
 			return {
 				id: conv.id,
 				otherUserName: name,
 				otherUserAvatar: buyerUser?.avatar_url ?? null,
 				lastMessage: conv.last_message_id
-					? lastMessageContentMap.get(conv.last_message_id) ?? null
+					? (lastMessageContentMap.get(conv.last_message_id) ?? null)
 					: null,
 				lastMessageAt: conv.last_message_at,
 				unread: unreadConvs.has(conv.id),

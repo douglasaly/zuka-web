@@ -37,11 +37,14 @@ export const SellerConversationView = ({ id }: SellerConversationViewProps) => {
 
 	const sendMutation = useMutation({
 		mutationFn: async (content: string) => {
-			const res = await fetch(`/api/stores/conversations/${id}/messages`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ content }),
-			})
+			const res = await fetch(
+				`/api/stores/conversations/${id}/messages`,
+				{
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ content }),
+				}
+			)
 			if (!res.ok) throw new Error('Failed to send message')
 			return res.json()
 		},

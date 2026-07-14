@@ -128,7 +128,9 @@ export const SellerSidebar = () => {
 			<SidebarContent className='px-2 py-3'>
 				{GROUPS.map((group) => (
 					<SidebarGroup key={group.label}>
-						<SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+						<SidebarGroupLabel>
+							{group.label.toUpperCase()}
+						</SidebarGroupLabel>
 						<SidebarGroupContent>
 							<SidebarMenu>
 								{group.items.map((item) => {

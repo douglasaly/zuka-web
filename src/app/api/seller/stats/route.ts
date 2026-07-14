@@ -17,9 +17,7 @@ export async function GET(request: NextRequest) {
 		const supabase = createSupabaseAdmin()
 		const now = new Date()
 		const currentStart = new Date(now.getTime() - range * 86400000)
-		const prevStart = new Date(
-			currentStart.getTime() - range * 86400000
-		)
+		const prevStart = new Date(currentStart.getTime() - range * 86400000)
 
 		// --- Vendas (total de pedidos COMPLETED + SHIPPING) ---
 		const { data: currentSales } = await supabase

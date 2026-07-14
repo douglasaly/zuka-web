@@ -35,7 +35,11 @@ export async function GET(request: NextRequest) {
 			.maybeSingle()
 
 		if (!sellerProfile) {
-			return NextResponse.json({ success: true, orders: [], hasMore: false })
+			return NextResponse.json({
+				success: true,
+				orders: [],
+				hasMore: false,
+			})
 		}
 
 		const { data: stores } = await supabase
@@ -46,7 +50,11 @@ export async function GET(request: NextRequest) {
 
 		const storeIds = (stores ?? []).map((s) => s.id as string)
 		if (storeIds.length === 0) {
-			return NextResponse.json({ success: true, orders: [], hasMore: false })
+			return NextResponse.json({
+				success: true,
+				orders: [],
+				hasMore: false,
+			})
 		}
 
 		let query = supabase
@@ -57,7 +65,11 @@ export async function GET(request: NextRequest) {
 		if (status !== 'all') {
 			query = query.eq(
 				'status',
-				status.toUpperCase() as 'PENDING' | 'SHIPPING' | 'COMPLETED' | 'CANCELLED'
+				status.toUpperCase() as
+					| 'PENDING'
+					| 'SHIPPING'
+					| 'COMPLETED'
+					| 'CANCELLED'
 			)
 		}
 

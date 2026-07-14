@@ -1,6 +1,6 @@
 import type { Categories } from '@/modules/home/ui/sections/categories-section'
 
-export async function getCategories() {
+export async function getCategories(): Promise<Categories[]> {
 	const response = await fetch('/api/categories', {
 		method: 'GET',
 	})
@@ -9,5 +9,6 @@ export async function getCategories() {
 		throw new Error('Fetch error')
 	}
 
-	return response.json() as Promise<Categories[]>
+	const json = await response.json()
+	return json.data ?? json
 }

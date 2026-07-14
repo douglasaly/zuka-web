@@ -1,297 +1,249 @@
-import { type NextRequest, NextResponse } from 'next/server'
 import { uuidv7 } from 'uuidv7'
-import { getSessionUser } from '@/lib/auth/session'
+import {
+	apiCursorList,
+	apiError,
+	apiSuccess,
+	ErrorCode,
+	withErrorHandling,
+} from '@/lib/api-response'
+import { requireAuth } from '@/lib/auth'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
+import {
+	CreateConversationSchema,
+	CursorPaginationSchema,
+} from '@/lib/validations'
 
-export async function GET(request: NextRequest) {
-	try {
-		const user = await getSessionUser()
+// ─── GET /api/conversations ──────────────────────────────
+// Lista conversas do utilizador autenticado. Cursor-based para infinite scroll.
 
-		if (!user) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-		}
+export const GET = withErrorHandling(async (request) => {
+	const auth = await requireAuth()
 
-		const supabase = createSupabaseAdmin()
+	const { searchParams } = new URL(request.url)
+	const { limit, cursor } = CursorPaginationSchema.parse({
+		limit: searchParams.get('limit') ?? undefined,
+		cursor: searchParams.get('cursor') ?? undefined,
+	})
 
-		const { searchParams } = new URL(request.url)
-		const page = Math.max(Number(searchParams.get('page')) || 1, 1)
-		const limit = Math.min(
-			Math.max(Number(searchParams.get('limit')) || 10, 1),
-			100
-		)
-		const from = (page - 1) * limit
-		// Trazer o limit+1 items para detectar se há `hasMore`(mais items para carregar)
-		const rangeEnd = from + limit // .range() é inclusivo, então não subtrair 1
+	const supabase = createSupabaseAdmin()
 
-		// buscar conversas através da tabela `conversations` e `conversation_participants`
-		const { data: conversations, error } = await supabase
-			.from('conversations')
-			.select(`
-				id,
-				last_message_at,
-				last_message_id,
-				product_id,
-				stores (
-					id,
-					name,
-					logo_url,
-					slug
-				),
-				conversation_participants!inner (
-					user_id,
-					last_read_at
-				)
-			`)
-			.eq('conversation_participants.user_id', user.id)
-			.is('deleted_at', null)
-			.order('last_message_at', { ascending: false })
-			.range(from, rangeEnd)
+	// Cursor-based: filtra por last_message_at < cursor
+	let query = supabase
+		.from('conversations')
+		.select(`
+			id,
+			last_message_at,
+			last_message_id,
+			product_id,
+			stores ( id, name, logo_url, slug ),
+			conversation_participants!inner ( user_id, last_read_at )
+		`)
+		.eq('conversation_participants.user_id', auth.user.id)
+		.is('deleted_at', null)
+		.order('last_message_at', { ascending: false })
+		.limit(limit + 1) // +1 para detectar hasMore
 
-		if (error) throw error
+	if (cursor) {
+		query = query.lt('last_message_at', cursor)
+	}
 
-		const pageItems = (conversations ?? []).slice(0, limit)
-		const hasMore = (conversations?.length ?? 0) > limit
+	const { data: conversations, error } = await query
+	if (error) throw error
 
-		const conversationIds = pageItems.map((c) => c.id) ?? []
-		const lastMessageIds = pageItems
-			.map((c) => c.last_message_id)
-			.filter(Boolean) as string[]
+	const hasMore = (conversations?.length ?? 0) > limit
+	const pageItems = hasMore
+		? (conversations?.slice(0, limit) ?? [])
+		: (conversations ?? [])
 
-		// buscar conteúdo da última mensagen
-		// Se user_id preenchido = enviada pelo comprador
-		// Se store_id preenchido = enviada pela loja
-		const { data: lastMessages } = await supabase
-			.from('messages')
-			.select('id, content, user_id, store_id')
-			.in('id', lastMessageIds)
+	// Batch fetch: last messages + unread counts
+	const lastMessageIds = pageItems
+		.map((c) => c.last_message_id)
+		.filter(Boolean) as string[]
+	const conversationIds = pageItems.map((c) => c.id)
 
-		const lastMessageMap = (lastMessages ?? []).reduce<
-			Record<
-				string,
-				{
-					content: string
-					user_id: string | null
-					store_id: string | null
-				}
-			>
-		>((acc, m) => {
-			acc[m.id] = {
-				content: m.content,
-				user_id: m.user_id,
-				store_id: m.store_id,
-			}
-			return acc
-		}, {})
+	const [lastMessagesResult, unreadResult] = await Promise.all([
+		lastMessageIds.length > 0
+			? supabase
+					.from('messages')
+					.select('id, content, user_id, store_id')
+					.in('id', lastMessageIds)
+			: Promise.resolve({ data: [] }),
+		conversationIds.length > 0
+			? supabase
+					.from('messages')
+					.select('conversation_id, created_at')
+					.in('conversation_id', conversationIds)
+					.not('store_id', 'is', null)
+					.is('deleted_at', null)
+			: Promise.resolve({ data: [] }),
+	])
 
-		// Unread count — mensagens enviadas pela loja (store_id IS NOT NULL)
-		// que o utilizador ainda não leu (criadas após last_read_at)
-		const { data: unreadData } = await supabase
-			.from('messages')
-			.select('conversation_id, created_at')
-			.in('conversation_id', conversationIds)
-			.not('store_id', 'is', null) // enviadas pela loja
-			.is('deleted_at', null)
+	// Mapas para lookup rápido
+	const lastMessageMap = new Map(
+		(lastMessagesResult.data ?? []).map((m) => [
+			m.id,
+			{ content: m.content, userId: m.user_id, storeId: m.store_id },
+		])
+	)
 
-		const lastReadAtByConversation = pageItems.reduce<
-			Record<string, string | null>
-		>((acc, c) => {
+	const lastReadAtMap = new Map(
+		pageItems.map((c) => {
 			const participant = Array.isArray(c.conversation_participants)
 				? c.conversation_participants[0]
 				: c.conversation_participants
+			return [c.id, participant?.last_read_at ?? null]
+		})
+	)
 
-			acc[c.id] = participant?.last_read_at ?? null
-			return acc
-		}, {})
+	// Calcular unread counts
+	const unreadMap = new Map<string, number>()
+	for (const msg of unreadResult.data ?? []) {
+		const lastReadAt = lastReadAtMap.get(msg.conversation_id)
+		if (msg.created_at && (!lastReadAt || msg.created_at > lastReadAt)) {
+			unreadMap.set(
+				msg.conversation_id,
+				(unreadMap.get(msg.conversation_id) ?? 0) + 1
+			)
+		}
+	}
 
-		const unreadMap = (unreadData ?? [])
-			.filter((msg) => {
-				const lastReadAt = lastReadAtByConversation[msg.conversation_id]
-				return (
-					msg.created_at != null &&
-					(lastReadAt ? msg.created_at > lastReadAt : true)
-				)
-			})
-			.reduce<Record<string, number>>((acc, msg) => {
-				acc[msg.conversation_id] = (acc[msg.conversation_id] ?? 0) + 1
-				return acc
-			}, {})
+	// Montar inbox
+	const inbox = pageItems.map((c) => {
+		const lastMsg = c.last_message_id
+			? (lastMessageMap.get(c.last_message_id) ?? null)
+			: null
 
-		// Montar inbox (caixa de mensagens) para o utilizador
-		const inbox =
-			pageItems.map((c) => {
-				const lastMsg = c.last_message_id
-					? lastMessageMap[c.last_message_id]
-					: null
+		return {
+			conversationId: c.id,
+			productId: c.product_id ?? null,
+			lastMessageAt: c.last_message_at,
+			lastMessage: lastMsg?.content ?? null,
+			isLastMessageMine: lastMsg?.userId === auth.user.id,
+			unreadCount: unreadMap.get(c.id) ?? 0,
+			store: {
+				id: c.stores?.id ?? null,
+				name: c.stores?.name ?? 'Loja',
+				logoUrl: c.stores?.logo_url ?? null,
+				slug: c.stores?.slug ?? null,
+			},
+		}
+	})
 
-				return {
-					conversationId: c.id,
-					productId: c.product_id ?? null,
-					lastMessageAt: c.last_message_at,
-					lastMessage: lastMsg?.content ?? null,
-					isLastMessageMine: lastMsg?.user_id === user.id,
-					unreadCount: unreadMap[c.id] ?? 0,
-					store: {
-						id: c.stores?.id ?? null,
-						name: c.stores?.name ?? 'Loja',
-						logoUrl: c.stores?.logo_url ?? null,
-						slug: c.stores?.slug ?? null,
-					},
-				}
-			}) ?? []
+	const nextCursor = hasMore
+		? (pageItems[pageItems.length - 1]?.last_message_at ?? null)
+		: null
 
-		return NextResponse.json({ data: inbox, hasMore })
-	} catch (err) {
-		console.error('[GET /api/conversations]', err)
-		return NextResponse.json(
-			{ error: 'Internal server error' },
-			{ status: 500 }
+	return apiCursorList(inbox, { hasMore, nextCursor, limit })
+})
+
+// ─── POST /api/conversations ─────────────────────────────
+// Criar ou reutilizar conversa com uma loja.
+
+export const POST = withErrorHandling(async (request) => {
+	const auth = await requireAuth()
+
+	const body = await request.json()
+	const parsed = CreateConversationSchema.safeParse(body)
+
+	if (!parsed.success) {
+		return apiError(
+			ErrorCode.VALIDATION_ERROR,
+			parsed.error.issues[0].message
 		)
 	}
-}
 
-export async function POST(request: NextRequest) {
-	try {
-		const user = await getSessionUser()
+	const { productId, content } = parsed.data
+	const supabase = createSupabaseAdmin()
 
-		if (!user) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-		}
+	// Buscar produto + loja numa query
+	const { data: product } = await supabase
+		.from('products')
+		.select('store_id, stores!inner(owner_id)')
+		.eq('id', productId)
+		.is('deleted_at', null)
+		.single()
 
-		const { productId, content } = await request.json()
+	if (!product) {
+		return apiError(ErrorCode.NOT_FOUND, 'Produto não encontrado')
+	}
 
-		if (!productId) {
-			return NextResponse.json(
-				{ error: 'productId is required' },
-				{ status: 400 }
-			)
-		}
+	const storeOwnerId = (product.stores as { owner_id: string }).owner_id
 
-		const supabase = createSupabaseAdmin()
+	// Verificar conversa existente
+	const { data: userParticipations } = await supabase
+		.from('conversation_participants')
+		.select('conversation_id')
+		.eq('user_id', auth.user.id)
 
-		// Buscar o produto para obter a loja
-		const { data: product } = await supabase
-			.from('products')
-			.select('store_id')
-			.eq('id', productId)
-			.is('deleted_at', null)
-			.single()
+	const userConvIds = (userParticipations ?? []).map((p) => p.conversation_id)
 
-		if (!product) {
-			return NextResponse.json(
-				{ error: 'Product not found' },
-				{ status: 404 }
-			)
-		}
+	let conversationId: string | null = null
 
-		const storeId = product.store_id
-
-		// Buscar o dono da loja
-		const { data: store } = await supabase
-			.from('stores')
-			.select('owner_id')
-			.eq('id', storeId)
-			.single()
-
-		if (!store) {
-			return NextResponse.json(
-				{ error: 'Store not found' },
-				{ status: 404 }
-			)
-		}
-
-		// Verificar se já existe uma conversa entre o comprador e a loja
-		const { data: userParticipations } = await supabase
+	if (userConvIds.length > 0) {
+		const { data: shared } = await supabase
 			.from('conversation_participants')
 			.select('conversation_id')
-			.eq('user_id', user.id)
+			.eq('user_id', storeOwnerId)
+			.in('conversation_id', userConvIds)
+			.limit(1)
 
-		const userConvIds =
-			(userParticipations ?? []).map((p) => p.conversation_id) ?? []
-
-		let conversationId: string | null = null
-
-		if (userConvIds.length > 0) {
-			const { data: shared } = await supabase
-				.from('conversation_participants')
-				.select('conversation_id')
-				.eq('user_id', store.owner_id)
-				.in('conversation_id', userConvIds)
-				.limit(1)
-
-			const sharedId = shared?.[0]?.conversation_id
-
-			if (sharedId) {
-				// Confirmar que a conversa não foi eliminada
-				const { data: conv } = await supabase
-					.from('conversations')
-					.select('id')
-					.eq('id', sharedId)
-					.is('deleted_at', null)
-					.single()
-
-				if (conv) conversationId = conv.id
-			}
-		}
-
-		if (!conversationId) {
-			// Criar nova conversa
-			conversationId = uuidv7()
-
-			const { error: convError } = await supabase
+		if (shared?.[0]?.conversation_id) {
+			const { data: conv } = await supabase
 				.from('conversations')
-				.insert({
-					id: conversationId,
-					product_id: productId,
-					store_id: storeId,
-				})
+				.select('id')
+				.eq('id', shared[0].conversation_id)
+				.is('deleted_at', null)
+				.single()
 
-			if (convError) throw convError
-
-			// Adicionar participantes (comprador + loja)
-			const { error: partError } = await supabase
-				.from('conversation_participants')
-				.insert([
-					{ conversation_id: conversationId, user_id: user.id },
-					{
-						conversation_id: conversationId,
-						user_id: store.owner_id,
-					},
-				])
-
-			if (partError) throw partError
+			if (conv) conversationId = conv.id
 		}
+	}
 
-		// Enviar mensagem inicial apenas se houver conteúdo
-		if (content?.trim()) {
-			const messageId = uuidv7()
-			const { error: msgError } = await supabase.from('messages').insert({
-				id: messageId,
-				conversation_id: conversationId,
-				user_id: user.id,
-				store_id: null,
-				content: content.trim(),
+	// Criar nova conversa se não existe
+	if (!conversationId) {
+		conversationId = uuidv7()
+
+		const { error: convError } = await supabase
+			.from('conversations')
+			.insert({
+				id: conversationId,
+				product_id: productId,
+				store_id: product.store_id,
 			})
 
-			if (msgError) throw msgError
+		if (convError) throw convError
 
-			// Actualizar last_message_at e last_message_id na conversa
-			const { error: updateError } = await supabase
-				.from('conversations')
-				.update({
-					last_message_at: new Date().toISOString(),
-					last_message_id: messageId,
-				})
-				.eq('id', conversationId)
+		const { error: partError } = await supabase
+			.from('conversation_participants')
+			.insert([
+				{ conversation_id: conversationId, user_id: auth.user.id },
+				{ conversation_id: conversationId, user_id: storeOwnerId },
+			])
 
-			if (updateError) throw updateError
-		}
-
-		return NextResponse.json({ data: { conversationId } }, { status: 201 })
-	} catch (err) {
-		console.error('[POST /api/conversations]', err)
-		return NextResponse.json(
-			{ error: 'Internal server error' },
-			{ status: 500 }
-		)
+		if (partError) throw partError
 	}
-}
+
+	// Enviar mensagem inicial se houver conteúdo
+	if (content?.trim()) {
+		const messageId = uuidv7()
+		const { error: msgError } = await supabase.from('messages').insert({
+			id: messageId,
+			conversation_id: conversationId,
+			user_id: auth.user.id,
+			store_id: null,
+			content: content.trim(),
+		})
+
+		if (msgError) throw msgError
+
+		await supabase
+			.from('conversations')
+			.update({
+				last_message_at: new Date().toISOString(),
+				last_message_id: messageId,
+			})
+			.eq('id', conversationId)
+	}
+
+	return apiSuccess({ conversationId }, 201)
+})

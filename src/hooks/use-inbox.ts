@@ -18,8 +18,10 @@ export const useInbox = () => {
 				credentials: 'include',
 			})
 			if (!res.ok) throw new Error('Failed to fetch inbox')
-			const json: { data: InboxItem[]; hasMore: boolean } =
-				await res.json()
+			const json: {
+				data: InboxItem[]
+				pagination?: { hasMore: boolean }
+			} = await res.json()
 			return json
 		},
 		refetchInterval: 5000,
@@ -27,7 +29,7 @@ export const useInbox = () => {
 	})
 
 	const conversations = data?.data ?? []
-	const hasMore = data?.hasMore ?? false
+	const hasMore = data?.pagination?.hasMore ?? false
 
 	const unreadTotal = conversations.reduce(
 		(acc, c) => acc + (c.unreadCount ?? 0),

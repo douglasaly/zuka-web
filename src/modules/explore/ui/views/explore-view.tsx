@@ -1,14 +1,17 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useMemo, useState } from 'react'
 import { SegmentedControl } from '@/components/segmented-control'
 import { type ViewMode, ViewModeToggle } from '@/components/view-mode-toggle'
 import { useDebouncedValue } from '@/hooks/use-debounced-value'
 import { getCategories } from '@/lib/api/categories'
-import { fetchProducts, fetchStores } from '@/lib/api/marketplace'
-import { type FilterValues } from '@/modules/search/ui/components/search-filters-sheet'
+import {
+	fetchProductsInfinite,
+	fetchStoresInfinite,
+} from '@/lib/api/marketplace'
+import type { FilterValues } from '@/modules/search/ui/components/search-filters-sheet'
 import {
 	CategoryFilter,
 	type CategoryOption,
@@ -107,7 +110,7 @@ export const ExploreView = () => {
 		queryFn: getCategories,
 	})
 
-	const { data: products = [], isLoading: productsLoading } = useQuery({
+	const productsQuery = useInfiniteQuery({
 		queryKey: [
 			'explore-products',
 			categorySlug,
@@ -118,25 +121,51 @@ export const ExploreView = () => {
 			isNew,
 			sort,
 		],
-		queryFn: () =>
-			fetchProducts({
+		queryFn: ({ pageParam }) =>
+			fetchProductsInfinite({
+				pageParam,
 				category: categorySlug === 'all' ? undefined : categorySlug,
 				search: debouncedSearch || undefined,
 				province: province || undefined,
 				minPrice: minPrice || undefined,
 				maxPrice: maxPrice || undefined,
 				isNew: isNew || undefined,
-				sort: sort || undefined,
+				sort: sort === 'relevance' ? undefined : sort || undefined,
 				limit: 50,
 			}),
+		getNextPageParam: (lastPage) =>
+			lastPage.pagination.hasMore
+				? lastPage.pagination.nextCursor
+				: undefined,
+		initialPageParam: null as string | null,
 		enabled: tab === 'products',
 	})
 
-	const { data: stores = [], isLoading: storesLoading } = useQuery({
+	const products = useMemo(
+		() => productsQuery.data?.pages.flatMap((p) => p.data) ?? [],
+		[productsQuery.data]
+	)
+
+	const storesQuery = useInfiniteQuery({
 		queryKey: ['explore-stores', debouncedSearch],
-		queryFn: () => fetchStores({ search: debouncedSearch || undefined }),
+		queryFn: ({ pageParam }) =>
+			fetchStoresInfinite({
+				pageParam,
+				search: debouncedSearch || undefined,
+				limit: 30,
+			}),
+		getNextPageParam: (lastPage) =>
+			lastPage.pagination.hasMore
+				? lastPage.pagination.nextCursor
+				: undefined,
+		initialPageParam: null as string | null,
 		enabled: tab === 'stores',
 	})
+
+	const stores = useMemo(
+		() => storesQuery.data?.pages.flatMap((p) => p.data) ?? [],
+		[storesQuery.data]
+	)
 
 	const categoryOptions = useMemo<CategoryOption[]>(
 		() => [
@@ -181,7 +210,7 @@ export const ExploreView = () => {
 						/>
 
 						<div className='flex items-center justify-between'>
-							{!productsLoading && (
+							{!productsQuery.isLoading && (
 								<ExploreResultsCount
 									count={products.length}
 									singular='produto'
@@ -194,12 +223,17 @@ export const ExploreView = () => {
 							/>
 						</div>
 
-						{productsLoading ? (
+						{productsQuery.isLoading ? (
 							<ExploreProductsSkeleton />
 						) : (
 							<ExploreProductsGrid
 								products={products}
 								viewMode={viewMode}
+								fetchNextPage={productsQuery.fetchNextPage}
+								hasNextPage={productsQuery.hasNextPage ?? false}
+								isFetchingNextPage={
+									productsQuery.isFetchingNextPage
+								}
 							/>
 						)}
 					</>
@@ -207,7 +241,7 @@ export const ExploreView = () => {
 
 				{tab === 'stores' && (
 					<>
-						{!storesLoading && (
+						{!storesQuery.isLoading && (
 							<ExploreResultsCount
 								count={stores.length}
 								singular='loja'
@@ -215,10 +249,17 @@ export const ExploreView = () => {
 							/>
 						)}
 
-						{storesLoading ? (
+						{storesQuery.isLoading ? (
 							<ExploreStoresSkeleton />
 						) : (
-							<ExploreStoresGrid stores={stores} />
+							<ExploreStoresGrid
+								stores={stores}
+								fetchNextPage={storesQuery.fetchNextPage}
+								hasNextPage={storesQuery.hasNextPage ?? false}
+								isFetchingNextPage={
+									storesQuery.isFetchingNextPage
+								}
+							/>
 						)}
 					</>
 				)}

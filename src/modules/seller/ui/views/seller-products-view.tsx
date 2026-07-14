@@ -78,7 +78,8 @@ export const SellerProductsView = () => {
 			const res = await fetch('/api/categories')
 			if (!res.ok) return []
 			const json = await res.json()
-			if (Array.isArray(json)) return json
+			const items = json.data ?? json
+			if (Array.isArray(items)) return items
 			return []
 		},
 	})

@@ -1,8 +1,19 @@
-import { NextResponse } from 'next/server'
 import { uuidv7 } from 'uuidv7'
-import { requireSellerStore } from '@/lib/auth/seller'
+import {
+	apiCursorList,
+	apiError,
+	apiSuccess,
+	ErrorCode,
+	withErrorHandling,
+} from '@/lib/api-response'
+import { requireSeller } from '@/lib/auth'
 import { isR2PublicUrl } from '@/lib/storage/r2'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
+import {
+	CreateProductSchema,
+	CursorPaginationSchema,
+	ProductFiltersSchema,
+} from '@/lib/validations'
 import { shuffle } from '@/utils/shuffle'
 import { Slug } from '@/utils/slug'
 
@@ -19,8 +30,6 @@ type ProductRow = {
 	discount_price: number | null
 	currency: string | null
 	created_at: string | null
-	updated_at: string | null
-	deleted_at: string | null
 	stores: Record<string, unknown> | null
 	categories: Record<string, unknown> | null
 	product_images: Array<Record<string, unknown>> | null
@@ -52,234 +61,223 @@ function groupProductsWithRelations(rows: ProductRow[]) {
 	return Array.from(map.values())
 }
 
-export async function GET(req: Request) {
-	try {
-		const { searchParams } = new URL(req.url)
+// ─── GET /api/products ──────────────────────────────────
+// Lista pública de produtos com filtros. Cursor-based.
 
-		const categorySlug = searchParams.get('categoria')
-		const search = searchParams.get('search')
-		const provinceSlug = searchParams.get('provincia')
-		const minPrice = searchParams.get('preco_min')
-		const maxPrice = searchParams.get('preco_max')
-		const isNew = searchParams.get('recente')
-		const sort = searchParams.get('ordenar')
+export const GET = withErrorHandling(async (request) => {
+	const { searchParams } = new URL(request.url)
 
-		const page = Number(searchParams.get('page') ?? 1)
-		const limit = Math.min(Number(searchParams.get('limit') ?? 50), 100)
-		const offset = (page - 1) * limit
+	// Parse filtros
+	const filters = ProductFiltersSchema.parse({
+		categoria: searchParams.get('categoria') ?? undefined,
+		search: searchParams.get('search') ?? undefined,
+		provincia: searchParams.get('provincia') ?? undefined,
+		preco_min: searchParams.get('preco_min') ?? undefined,
+		preco_max: searchParams.get('preco_max') ?? undefined,
+		recente: searchParams.get('recente') ?? undefined,
+		ordenar: searchParams.get('ordenar') ?? undefined,
+	})
 
-		const supabase = createSupabaseAdmin()
+	const { limit, cursor } = CursorPaginationSchema.parse({
+		limit: searchParams.get('limit') ?? undefined,
+		cursor: searchParams.get('cursor') ?? undefined,
+	})
 
-		const [catLookup, provLookup] = await Promise.all([
-			categorySlug && categorySlug !== 'all'
-				? supabase
-						.from('categories')
-						.select('id')
-						.eq('slug', categorySlug)
-						.maybeSingle()
-				: Promise.resolve({ data: null }),
-			provinceSlug && provinceSlug !== 'all'
-				? supabase
-						.from('provinces')
-						.select('id')
-						.eq('slug', provinceSlug)
-						.maybeSingle()
-				: Promise.resolve({ data: null }),
-		])
+	const supabase = createSupabaseAdmin()
 
-		const categoryId = catLookup?.data?.id
-		const provinceId = provLookup?.data?.id
+	// Lookup de category e province em paralelo
+	const [catLookup, provLookup] = await Promise.all([
+		filters.categoria && filters.categoria !== 'all'
+			? supabase
+					.from('categories')
+					.select('id')
+					.eq('slug', filters.categoria)
+					.maybeSingle()
+			: Promise.resolve({ data: null }),
+		filters.provincia && filters.provincia !== 'all'
+			? supabase
+					.from('provinces')
+					.select('id')
+					.eq('slug', filters.provincia)
+					.maybeSingle()
+			: Promise.resolve({ data: null }),
+	])
 
-		let query = supabase
-			.from('products')
-			.select('*, stores!inner(*), categories(*), product_images(*)')
-			.eq('is_visible', true)
-			.is('deleted_at', null)
-			.eq('stores.status', 'ACTIVE')
-			.is('stores.deleted_at', null)
-			.range(offset, offset + limit - 1)
+	const categoryId = catLookup?.data?.id
+	const provinceId = provLookup?.data?.id
 
-		if (categoryId) {
-			query = query.eq('category_id', categoryId)
-		}
+	// Construir query com filtros
+	let query = supabase
+		.from('products')
+		.select('*, stores!inner(*), categories(*), product_images(*)')
+		.eq('is_visible', true)
+		.is('deleted_at', null)
+		.eq('stores.status', 'ACTIVE')
+		.is('stores.deleted_at', null)
+		.limit(limit + 1)
 
-		if (provinceId) {
-			query = query.eq('stores.province_id', provinceId)
-		}
+	if (categoryId) {
+		query = query.eq('category_id', categoryId)
+	}
 
-		if (search) {
-			query = query.ilike('name', `%${search}%`)
-		}
+	if (provinceId) {
+		query = query.eq('stores.province_id', provinceId)
+	}
 
-		if (minPrice) {
-			query = query.gte('price', Number(minPrice) * 100)
-		}
+	if (filters.search) {
+		query = query.ilike('name', `%${filters.search}%`)
+	}
 
-		if (maxPrice) {
-			query = query.lte('price', Number(maxPrice) * 100)
-		}
+	if (filters.preco_min) {
+		query = query.gte('price', Math.round(filters.preco_min * 100))
+	}
 
-		if (isNew === 'true') {
-			const fourteenDaysAgo = new Date(
-				Date.now() - 14 * 24 * 60 * 60 * 1000
-			).toISOString()
-			query = query.gte('created_at', fourteenDaysAgo)
-		}
+	if (filters.preco_max) {
+		query = query.lte('price', Math.round(filters.preco_max * 100))
+	}
 
-		if (sort === 'price_asc') {
-			query = query.order('price', { ascending: true })
-		} else if (sort === 'price_desc') {
-			query = query.order('price', { ascending: false })
-		} else if (sort === 'newest') {
-			query = query.order('created_at', { ascending: false })
-		}
+	if (filters.recente === 'true') {
+		const fourteenDaysAgo = new Date(
+			Date.now() - 14 * 24 * 60 * 60 * 1000
+		).toISOString()
+		query = query.gte('created_at', fourteenDaysAgo)
+	}
 
-		const { data, error } = await query
+	// Cursor-based ordering
+	if (filters.ordenar === 'price_asc') {
+		query = query.order('price', { ascending: true })
+	} else if (filters.ordenar === 'price_desc') {
+		query = query.order('price', { ascending: false })
+	} else {
+		query = query.order('created_at', { ascending: false })
+	}
 
-		if (error) {
-			throw error
-		}
+	if (
+		cursor &&
+		filters.ordenar !== 'price_asc' &&
+		filters.ordenar !== 'price_desc'
+	) {
+		query = query.lt('created_at', cursor)
+	}
 
-		let result = groupProductsWithRelations((data ?? []) as ProductRow[])
+	const { data, error } = await query
+	if (error) throw error
 
-		const groupedByStore: Record<string, typeof result> = {}
+	const hasMore = (data?.length ?? 0) > limit
+	const rows = (
+		hasMore ? data?.slice(0, limit) : (data ?? [])
+	) as ProductRow[]
 
-		for (const item of result) {
-			const storeId = item.store?.id as string | undefined
-			if (!storeId) continue
+	// Agrupar e limitar a 2 produtos por loja (shuffle)
+	let result = groupProductsWithRelations(rows)
 
-			if (!groupedByStore[storeId]) {
-				groupedByStore[storeId] = []
-			}
+	const groupedByStore: Record<string, typeof result> = {}
+	for (const item of result) {
+		const storeId = item.store?.id as string | undefined
+		if (!storeId) continue
+		if (!groupedByStore[storeId]) groupedByStore[storeId] = []
+		groupedByStore[storeId].push(item)
+	}
 
-			groupedByStore[storeId].push(item)
-		}
+	const final: typeof result = []
+	for (const storeId in groupedByStore) {
+		final.push(...shuffle(groupedByStore[storeId]).slice(0, 2))
+	}
+	result = shuffle(final)
 
-		const final: typeof result = []
+	const lastRow = rows[rows.length - 1]
+	const nextCursor = hasMore ? (lastRow?.created_at ?? null) : null
 
-		for (const storeId in groupedByStore) {
-			const items = shuffle(groupedByStore[storeId]).slice(0, 2)
-			final.push(...items)
-		}
+	return apiCursorList(result, { hasMore, nextCursor, limit })
+})
 
-		result = shuffle(final)
+// ─── POST /api/products ─────────────────────────────────
+// Criar produto (vendedor autenticado).
 
-		return NextResponse.json({
-			success: true,
-			products: result,
-			metadata: {
-				page,
-				totalCount: result.length,
-				limit,
-			},
-		})
-	} catch (error) {
-		return NextResponse.json(
-			{
-				error,
-				success: false,
-				message: 'Erro ao buscar produtos',
-			},
-			{ status: 500 }
+export const POST = withErrorHandling(async (request) => {
+	const auth = await requireSeller()
+
+	const body = await request.json()
+	const parsed = CreateProductSchema.safeParse(body)
+
+	if (!parsed.success) {
+		return apiError(
+			ErrorCode.VALIDATION_ERROR,
+			parsed.error.issues[0].message
 		)
 	}
-}
 
-export async function POST(request: Request) {
-	try {
-		const auth = await requireSellerStore()
-		if ('error' in auth && auth.error) return auth.error
+	const {
+		name,
+		description,
+		categoryId,
+		price,
+		discountPrice,
+		currency,
+		quantity,
+		imageUrl,
+	} = parsed.data
 
-		const { store } = auth
-		const body = await request.json()
-		const {
+	if (imageUrl && !isR2PublicUrl(imageUrl)) {
+		return apiError(
+			ErrorCode.VALIDATION_ERROR,
+			'A imagem deve ser carregada para o armazenamento'
+		)
+	}
+
+	const supabase = createSupabaseAdmin()
+	const productId = uuidv7()
+	let slug = Slug(name)
+
+	// Slug único
+	const { data: slugConflict } = await supabase
+		.from('products')
+		.select('id')
+		.eq('slug', slug)
+		.maybeSingle()
+
+	if (slugConflict) {
+		slug = `${slug}-${uuidv7().slice(0, 6)}`
+	}
+
+	const { data: product, error: productError } = await supabase
+		.from('products')
+		.insert({
+			id: productId,
+			store_id: auth.store.id,
+			category_id: categoryId,
 			name,
-			description,
-			categoryId,
-			price,
-			discountPrice,
-			currency = 'MZN',
-			quantity = 1,
-			imageUrl,
-		} = body
+			slug,
+			description: description ?? null,
+			is_visible: true,
+			status: 'ACTIVE',
+			price: Math.round(price * 100),
+			discount_price:
+				discountPrice != null ? Math.round(discountPrice * 100) : null,
+			currency,
+		})
+		.select('*')
+		.single()
 
-		if (!name || !categoryId || price == null) {
-			return NextResponse.json(
-				{ error: 'Nome, categoria e preço são obrigatórios' },
-				{ status: 400 }
-			)
-		}
+	if (productError) throw productError
 
-		if (imageUrl && !isR2PublicUrl(imageUrl)) {
-			return NextResponse.json(
-				{
-					error: 'A imagem do produto deve ser carregada para o armazenamento',
-				},
-				{ status: 400 }
-			)
-		}
+	await supabase.from('product_stock').insert({
+		id: uuidv7(),
+		product_id: productId,
+		quantity: quantity,
+		reserved: 0,
+	})
 
-		const supabase = createSupabaseAdmin()
-		const productId = uuidv7()
-		let slug = Slug(name)
-
-		const { data: slugConflict } = await supabase
-			.from('products')
-			.select('id')
-			.eq('slug', slug)
-			.maybeSingle()
-
-		if (slugConflict) {
-			slug = `${slug}-${uuidv7().slice(0, 6)}`
-		}
-
-		const { data: product, error: productError } = await supabase
-			.from('products')
-			.insert({
-				id: productId,
-				store_id: store.id as string,
-				category_id: categoryId,
-				name,
-				slug,
-				description: description ?? null,
-				is_visible: true,
-				status: 'ACTIVE',
-				price: Math.round(Number(price) * 100),
-				discount_price:
-					discountPrice != null
-						? Math.round(Number(discountPrice) * 100)
-						: null,
-				currency,
-			})
-			.select('*')
-			.single()
-
-		if (productError) throw productError
-
-		await supabase.from('product_stock').insert({
+	if (imageUrl) {
+		await supabase.from('product_images').insert({
 			id: uuidv7(),
 			product_id: productId,
-			quantity: Number(quantity) || 1,
-			reserved: 0,
+			url: imageUrl,
+			position: 0,
+			is_primary: true,
+			alt: name,
 		})
-
-		if (imageUrl) {
-			await supabase.from('product_images').insert({
-				id: uuidv7(),
-				product_id: productId,
-				url: imageUrl,
-				position: 0,
-				is_primary: true,
-				alt: name,
-			})
-		}
-
-		return NextResponse.json({ success: true, product })
-	} catch (error) {
-		console.error(error)
-		return NextResponse.json(
-			{ error: 'Falha ao publicar produto' },
-			{ status: 500 }
-		)
 	}
-}
+
+	return apiSuccess({ product }, 201)
+})

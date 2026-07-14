@@ -1,6 +1,7 @@
 import { BadgeCheck, CheckCircle2Icon, MapPin } from 'lucide-react'
 import Link from 'next/link'
 import { StoreAvatar } from '@/components/store-avatar'
+import { STORE_PLACEHOLDER } from '@/lib/api/marketplace'
 import { cn } from '@/lib/utils'
 import type { StoreProfile } from '@/types/marketplace'
 
@@ -29,7 +30,7 @@ export const StoreCircleCard = ({
 				)}
 			>
 				<StoreAvatar
-					imageUrl={store.logoUrl ?? '/placeholder.png'}
+					imageUrl={store.logoUrl ?? STORE_PLACEHOLDER}
 					name={store.name}
 					size='xl'
 					className='size-16 transition-transform duration-300 group-hover:scale-105 sm:size-18'
