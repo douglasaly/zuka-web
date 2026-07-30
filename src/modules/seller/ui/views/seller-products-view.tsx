@@ -1,7 +1,16 @@
 'use client'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Eye, FolderTree, Package, Plus, Search, X } from 'lucide-react'
+import {
+	Eye,
+	FolderTree,
+	Package,
+	Pencil,
+	Plus,
+	Search,
+	Trash2,
+	X,
+} from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -23,6 +32,11 @@ import {
 	SheetTitle,
 } from '@/components/ui/sheet'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 import type { SellerProduct } from '@/lib/types/api/seller'
 import { cn } from '@/lib/utils'
@@ -415,38 +429,69 @@ export const SellerProductsView = () => {
 										product.status}
 								</span>
 
-								<div className='flex items-center gap-1'>
-									<Button
-										variant='ghost'
-										size='icon-sm'
-										className='rounded-full'
-										onClick={() => setPreview(product)}
-										aria-label='Pré-visualizar'
-									>
-										<Eye className='size-4' />
-									</Button>
-									<Button
-										variant='ghost'
-										size='sm'
-										className='rounded-full text-xs'
-										render={
-											<Link
-												href={`/dashboard/seller/produtos/${product.id}/editar`}
-											>
-												Editar
-											</Link>
-										}
-									/>
-									<Button
-										variant='ghost'
-										size='sm'
-										className='rounded-full text-xs text-destructive hover:text-destructive'
-										onClick={() =>
-											setDeletingId(product.id)
-										}
-									>
-										Eliminar
-									</Button>
+								<div className='flex items-center gap-0.5'>
+									<Tooltip>
+										<TooltipTrigger
+											render={
+												<Button
+													variant='ghost'
+													size='icon-sm'
+													className='rounded-full'
+													aria-label='Pré-visualizar'
+													onClick={() =>
+														setPreview(product)
+													}
+												>
+													<Eye className='size-4' />
+												</Button>
+											}
+										/>
+										<TooltipContent>
+											Pré-visualizar
+										</TooltipContent>
+									</Tooltip>
+									<Tooltip>
+										<TooltipTrigger
+											render={
+												<Button
+													variant='ghost'
+													size='icon-sm'
+													className='rounded-full'
+													aria-label='Editar'
+													render={
+														<Link
+															href={`/dashboard/seller/produtos/${product.id}/editar`}
+														/>
+													}
+												>
+													<Pencil className='size-4' />
+												</Button>
+											}
+										/>
+										<TooltipContent>Editar</TooltipContent>
+									</Tooltip>
+									<Tooltip>
+										<TooltipTrigger
+											render={
+												<Button
+													variant='ghost'
+													size='icon-sm'
+													className='rounded-full text-destructive hover:bg-destructive/10 hover:text-destructive'
+													aria-label='Eliminar'
+													onClick={() =>
+														setDeletingId(
+															product.id
+														)
+													}
+												>
+													<Trash2 className='size-4' />
+												</Button>
+											}
+										/>
+										<TooltipContent>
+											Eliminar
+										</TooltipContent>
+									</Tooltip>
 								</div>
 							</div>
 						)
@@ -557,6 +602,7 @@ export const SellerProductsView = () => {
 										<Link
 											href={`/dashboard/seller/produtos/${preview.id}/editar`}
 										>
+											<Pencil className='size-4' />
 											Editar produto
 										</Link>
 									}

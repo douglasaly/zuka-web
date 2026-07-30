@@ -21,6 +21,22 @@ const config: Record<string, { label: string; classes: string }> = {
 		label: 'Eliminada',
 		classes: 'bg-gray-100 text-gray-500 border-gray-200',
 	},
+	DRAFT: {
+		label: 'Rascunho',
+		classes: 'bg-muted text-muted-foreground border-border',
+	},
+	INACTIVE: {
+		label: 'Pausado',
+		classes: 'bg-amber-50 text-amber-700 border-amber-200',
+	},
+	PENDING_REVIEW: {
+		label: 'Em revisão',
+		classes: 'bg-blue-50 text-blue-700 border-blue-200',
+	},
+	ARCHIVED: {
+		label: 'Arquivado',
+		classes: 'bg-gray-100 text-gray-600 border-gray-200',
+	},
 	// User statuses
 	admin: {
 		label: 'Admin',
@@ -42,9 +58,11 @@ const config: Record<string, { label: string; classes: string }> = {
 
 export function StatusBadge({
 	status,
+	label,
 	className,
 }: {
 	status: string
+	label?: string
 	className?: string
 }) {
 	const cfg = config[status] ?? {
@@ -59,7 +77,7 @@ export function StatusBadge({
 				className
 			)}
 		>
-			{cfg.label}
+			{label ?? cfg.label}
 		</span>
 	)
 }

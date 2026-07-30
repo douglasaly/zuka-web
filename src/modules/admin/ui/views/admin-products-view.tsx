@@ -1,23 +1,37 @@
 'use client'
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { pt } from 'date-fns/locale'
-import Link from 'next/link'
 import {
+	Eye,
 	ExternalLink,
 	Image as ImageIcon,
 	Package,
+	Pause,
+	Play,
 	Search,
+	Trash2,
 	X,
 } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useDeferredValue, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
+import {
 	Sheet,
 	SheetContent,
+	SheetDescription,
+	SheetFooter,
 	SheetHeader,
 	SheetTitle,
 } from '@/components/ui/sheet'
@@ -29,17 +43,41 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table'
-import { EmptyState } from '../components/empty-state'
-import { TableSkeleton } from '../components/table-skeleton'
-import { StatusBadge } from '../components/status-badge'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
+import { cn } from '@/lib/utils'
+import { formatPrice } from '@/utils/format-price'
 import { ConfirmDialog } from '../components/confirm-dialog'
+import { EmptyState } from '../components/empty-state'
+import { StatusBadge } from '../components/status-badge'
+import { TableSkeleton } from '../components/table-skeleton'
 
 type Product = Record<string, unknown>
 
-async function fetchProducts(search: string, category: string) {
+const STATUS_FILTERS = [
+	{ value: 'all', label: 'Todos' },
+	{ value: 'ACTIVE', label: 'Activos' },
+	{ value: 'INACTIVE', label: 'Pausados' },
+	{ value: 'DRAFT', label: 'Rascunhos' },
+	{ value: 'PENDING_REVIEW', label: 'Em revisão' },
+] as const
+
+const PRODUCT_STATUS_LABELS: Record<string, string> = {
+	ACTIVE: 'Activo',
+	INACTIVE: 'Pausado',
+	DRAFT: 'Rascunho',
+	PENDING_REVIEW: 'Em revisão',
+	ARCHIVED: 'Arquivado',
+}
+
+async function fetchProducts(search: string, status: string) {
 	const params = new URLSearchParams()
 	if (search) params.set('search', search)
-	if (category) params.set('category', category)
+	if (status !== 'all') params.set('status', status)
 	const res = await fetch(`/api/admin/products?${params}`, {
 		credentials: 'include',
 	})
@@ -66,17 +104,70 @@ async function deleteProduct(id: string) {
 	if (!res.ok) throw new Error('Failed')
 }
 
+function getThumb(product: Product): string | undefined {
+	const imgs = product.product_images as
+		| Array<{ url?: string; is_primary?: boolean }>
+		| undefined
+	return (
+		imgs?.find((i) => i.is_primary)?.url ?? imgs?.[0]?.url ?? undefined
+	)
+}
+
+function productStatus(product: Product): string {
+	return (product.status as string) || (product.is_visible ? 'ACTIVE' : 'INACTIVE')
+}
+
+function IconAction({
+	label,
+	onClick,
+	className,
+	destructive,
+	children,
+}: {
+	label: string
+	onClick: () => void
+	className?: string
+	destructive?: boolean
+	children: React.ReactNode
+}) {
+	return (
+		<Tooltip>
+			<TooltipTrigger
+				render={
+					<Button
+						type='button'
+						variant='ghost'
+						size='icon-sm'
+						aria-label={label}
+						className={cn(
+							destructive &&
+								'text-destructive hover:bg-destructive/10 hover:text-destructive',
+							className
+						)}
+						onClick={onClick}
+					>
+						{children}
+					</Button>
+				}
+			/>
+			<TooltipContent>{label}</TooltipContent>
+		</Tooltip>
+	)
+}
+
 export function AdminProductsView() {
 	const [search, setSearch] = useState('')
-	const [category, setCategory] = useState('')
+	const [status, setStatus] = useState('all')
+	const deferredSearch = useDeferredValue(search.trim())
 	const [selected, setSelected] = useState<Set<string>>(new Set())
 	const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
+	const [confirmBulkDelete, setConfirmBulkDelete] = useState(false)
 	const [preview, setPreview] = useState<Product | null>(null)
 	const qc = useQueryClient()
 
-	const { data, isLoading } = useQuery({
-		queryKey: ['admin-products', search, category],
-		queryFn: () => fetchProducts(search, category),
+	const { data, isLoading, isFetching } = useQuery({
+		queryKey: ['admin-products', deferredSearch, status],
+		queryFn: () => fetchProducts(deferredSearch, status),
 	})
 
 	const patchMutation = useMutation({
@@ -94,162 +185,266 @@ export function AdminProductsView() {
 					: 'Produto reativado'
 			)
 			qc.invalidateQueries({ queryKey: ['admin-products'] })
+			if (preview?.id === vars.id) {
+				setPreview((prev) =>
+					prev
+						? {
+								...prev,
+								is_visible: vars.body.is_visible,
+								status:
+									vars.body.is_visible === false
+										? 'INACTIVE'
+										: 'ACTIVE',
+							}
+						: prev
+				)
+			}
 		},
 		onError: () => toast.error('Ocorreu um erro'),
 	})
 
 	const deleteMutation = useMutation({
-		mutationFn: (id: string) => deleteProduct(id),
-		onSuccess: () => {
-			toast.success('Produto eliminado')
+		mutationFn: async (ids: string[]) => {
+			await Promise.all(ids.map((id) => deleteProduct(id)))
+			return ids
+		},
+		onSuccess: (ids) => {
+			toast.success(
+				ids.length > 1
+					? `${ids.length} produtos eliminados`
+					: 'Produto eliminado'
+			)
 			setConfirmDelete(null)
+			setConfirmBulkDelete(false)
+			setSelected(new Set())
+			if (preview && ids.includes(preview.id as string)) {
+				setPreview(null)
+			}
 			qc.invalidateQueries({ queryKey: ['admin-products'] })
 		},
 		onError: () => toast.error('Ocorreu um erro'),
 	})
 
 	const products: Product[] = data?.products ?? []
+	const hasFilters = Boolean(deferredSearch) || status !== 'all'
 
 	function toggleSelect(id: string) {
 		setSelected((prev) => {
-			const n = new Set(prev)
-			if (n.has(id)) n.delete(id)
-			else n.add(id)
-			return n
+			const next = new Set(prev)
+			if (next.has(id)) next.delete(id)
+			else next.add(id)
+			return next
 		})
 	}
 
-	function getThumb(product: Product): string | undefined {
-		const imgs = product.product_images as Record<string, unknown>[]
-		return (
-			(imgs?.find((i) => i.is_primary)?.url as string | undefined) ??
-			(imgs?.[0]?.url as string | undefined)
-		)
+	function toggleSelectAll() {
+		if (selected.size === products.length) {
+			setSelected(new Set())
+			return
+		}
+		setSelected(new Set(products.map((p) => p.id as string)))
+	}
+
+	function pauseSelected() {
+		for (const id of selected) {
+			patchMutation.mutate({ id, body: { is_visible: false } })
+		}
+		setSelected(new Set())
 	}
 
 	return (
 		<div className='space-y-4'>
-			<div className='flex items-center gap-3'>
-				<div className='relative flex-1 max-w-sm'>
-					<Search className='absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground' />
-					<Input
-						value={search}
-						onChange={(e) => setSearch(e.target.value)}
-						placeholder='Pesquisar por nome...'
-						className='pl-9'
-					/>
+			<div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
+				<div>
+					<p className='text-sm text-muted-foreground'>
+						Moderar anúncios do marketplace
+						{!isLoading ? (
+							<>
+								{' '}
+								·{' '}
+								<span className='tabular-nums text-foreground'>
+									{products.length}
+								</span>{' '}
+								{products.length === 1
+									? 'produto'
+									: 'produtos'}
+								{isFetching ? '…' : ''}
+							</>
+						) : null}
+					</p>
 				</div>
 			</div>
 
-			{selected.size > 0 && (
-				<div className='flex items-center gap-2 rounded-xl border border-border bg-muted/50 px-4 py-2'>
+			<div className='flex flex-col gap-3 sm:flex-row sm:items-center'>
+				<div className='relative min-w-0 flex-1 sm:max-w-sm'>
+					<Search className='pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' />
+					<Input
+						value={search}
+						onChange={(e) => setSearch(e.target.value)}
+						placeholder='Pesquisar por nome…'
+						className='pl-9 pr-9'
+						aria-label='Pesquisar produtos'
+					/>
+					{search ? (
+						<button
+							type='button'
+							aria-label='Limpar pesquisa'
+							className='absolute right-2.5 top-1/2 -translate-y-1/2 rounded-md p-0.5 text-muted-foreground hover:text-foreground'
+							onClick={() => setSearch('')}
+						>
+							<X className='size-4' />
+						</button>
+					) : null}
+				</div>
+
+				<Select
+					value={status}
+					onValueChange={(v) => v && setStatus(v)}
+				>
+					<SelectTrigger className='w-full sm:w-44' size='default'>
+						<SelectValue placeholder='Estado' />
+					</SelectTrigger>
+					<SelectContent>
+						{STATUS_FILTERS.map((opt) => (
+							<SelectItem key={opt.value} value={opt.value}>
+								{opt.label}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+
+				{hasFilters ? (
+					<Button
+						type='button'
+						variant='ghost'
+						size='sm'
+						className='self-start sm:self-auto'
+						onClick={() => {
+							setSearch('')
+							setStatus('all')
+						}}
+					>
+						Limpar filtros
+					</Button>
+				) : null}
+			</div>
+
+			{selected.size > 0 ? (
+				<div className='flex flex-wrap items-center gap-2 rounded-xl border border-border/60 bg-muted/40 px-3 py-2 sm:px-4'>
 					<span className='text-xs font-medium text-muted-foreground'>
-						{selected.size} selecionado
+						{selected.size} seleccionado
 						{selected.size > 1 ? 's' : ''}
 					</span>
-					<Button
-						size='sm'
-						variant='outline'
-						type='button'
-						onClick={() =>
-							selected.forEach((id) =>
-								patchMutation.mutate({
-									id,
-									body: { is_visible: false },
-								})
-							)
-						}
-					>
-						Pausar selecionados
-					</Button>
-					<Button
-						size='sm'
-						type='button'
-						className='bg-destructive/90 text-white hover:bg-destructive'
-						onClick={() =>
-							selected.forEach((id) => deleteMutation.mutate(id))
-						}
-					>
-						Eliminar selecionados
-					</Button>
+					<div className='ml-auto flex flex-wrap items-center gap-1.5'>
+						<Button
+							size='sm'
+							variant='outline'
+							type='button'
+							onClick={pauseSelected}
+							disabled={patchMutation.isPending}
+						>
+							<Pause className='size-3.5' />
+							Pausar
+						</Button>
+						<Button
+							size='sm'
+							variant='destructive'
+							type='button'
+							onClick={() => setConfirmBulkDelete(true)}
+							disabled={deleteMutation.isPending}
+						>
+							<Trash2 className='size-3.5' />
+							Eliminar
+						</Button>
+						<Button
+							size='sm'
+							variant='ghost'
+							type='button'
+							onClick={() => setSelected(new Set())}
+						>
+							Cancelar
+						</Button>
+					</div>
 				</div>
-			)}
+			) : null}
 
 			{isLoading ? (
-				<TableSkeleton rows={8} cols={6} />
+				<TableSkeleton rows={8} cols={7} />
 			) : products.length === 0 ? (
 				<EmptyState
 					icon={Package}
-					message='Nenhum produto encontrado.'
+					message={
+						hasFilters
+							? 'Nenhum produto corresponde aos filtros.'
+							: 'Nenhum produto encontrado.'
+					}
 				/>
 			) : (
-				<div className='rounded-2xl border border-border/60 bg-card overflow-hidden'>
+				<div className='overflow-hidden rounded-2xl border border-border/60 bg-card'>
 					<Table>
 						<TableHeader>
-							<TableRow>
-								<TableHead className='w-8'>
+							<TableRow className='hover:bg-transparent'>
+								<TableHead className='w-10'>
 									<input
 										type='checkbox'
-										className='size-4'
+										className='size-4 accent-primary'
 										checked={
 											selected.size === products.length &&
 											products.length > 0
 										}
-										onChange={() =>
-											selected.size === products.length
-												? setSelected(new Set())
-												: setSelected(
-														new Set(
-															products.map(
-																(p) =>
-																	p.id as string
-															)
-														)
-													)
-										}
+										onChange={toggleSelectAll}
+										aria-label='Seleccionar todos'
 									/>
 								</TableHead>
 								<TableHead>Produto</TableHead>
-								<TableHead>Loja</TableHead>
-								<TableHead>Categoria</TableHead>
+								<TableHead className='hidden md:table-cell'>
+									Loja
+								</TableHead>
+								<TableHead className='hidden lg:table-cell'>
+									Categoria
+								</TableHead>
 								<TableHead>Preço</TableHead>
 								<TableHead>Estado</TableHead>
-								<TableHead>Criado</TableHead>
-								<TableHead />
+								<TableHead className='hidden xl:table-cell'>
+									Criado
+								</TableHead>
+								<TableHead className='w-[1%] text-right'>
+									<span className='sr-only'>Acções</span>
+								</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
 							{products.map((product) => {
+								const id = product.id as string
 								const thumb = getThumb(product)
-								const store = product.stores as Record<
-									string,
-									unknown
-								>
-								const cat = product.categories as Record<
-									string,
-									unknown
-								>
+								const store = product.stores as
+									| Record<string, unknown>
+									| null
+								const cat = product.categories as
+									| Record<string, unknown>
+									| null
+								const statusKey = productStatus(product)
+								const visible = Boolean(product.is_visible)
+
 								return (
 									<TableRow
-										key={product.id as string}
+										key={id}
 										data-state={
-											selected.has(product.id as string)
+											selected.has(id)
 												? 'selected'
 												: undefined
 										}
+										className='group'
 									>
 										<TableCell>
 											<input
 												type='checkbox'
-												className='size-4'
-												checked={selected.has(
-													product.id as string
-												)}
+												className='size-4 accent-primary'
+												checked={selected.has(id)}
 												onChange={() =>
-													toggleSelect(
-														product.id as string
-													)
+													toggleSelect(id)
 												}
+												aria-label={`Seleccionar ${product.name as string}`}
 											/>
 										</TableCell>
 										<TableCell>
@@ -258,29 +453,37 @@ export function AdminProductsView() {
 												onClick={() =>
 													setPreview(product)
 												}
-												className='flex items-center gap-2 text-left'
+												className='flex max-w-xs items-center gap-3 text-left'
 											>
 												{thumb ? (
-													<img
-														src={thumb}
-														alt=''
-														className='size-8 rounded-md object-cover border border-border shrink-0'
-													/>
+													<div className='relative size-10 shrink-0 overflow-hidden rounded-lg border border-border/60'>
+														<Image
+															src={thumb}
+															alt=''
+															fill
+															sizes='40px'
+															placeholder='blur'
+															blurDataURL={
+																BLUR_PLACEHOLDER
+															}
+															className='object-cover'
+														/>
+													</div>
 												) : (
-													<div className='flex size-8 shrink-0 items-center justify-center rounded-md bg-muted'>
+													<div className='flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted'>
 														<ImageIcon className='size-4 text-muted-foreground' />
 													</div>
 												)}
-												<span className='font-medium text-sm hover:underline'>
+												<span className='line-clamp-2 text-sm font-medium group-hover:underline'>
 													{product.name as string}
 												</span>
 											</button>
 										</TableCell>
-										<TableCell>
+										<TableCell className='hidden md:table-cell'>
 											{store ? (
 												<Link
 													href={`/admin/stores/${store.id as string}`}
-													className='text-sm text-muted-foreground hover:underline'
+													className='text-sm text-muted-foreground transition-colors hover:text-foreground hover:underline'
 												>
 													{store.name as string}
 												</Link>
@@ -290,24 +493,29 @@ export function AdminProductsView() {
 												</span>
 											)}
 										</TableCell>
-										<TableCell className='text-muted-foreground'>
+										<TableCell className='hidden text-sm text-muted-foreground lg:table-cell'>
 											{(cat?.name as string) ?? '—'}
 										</TableCell>
-										<TableCell className='font-medium'>
-											{product.price
-												? `${(product.currency as string) ?? 'MZN'} ${Number(product.price).toLocaleString('pt-PT')}`
+										<TableCell className='whitespace-nowrap text-sm font-medium tabular-nums'>
+											{product.price != null
+												? formatPrice(
+														Number(product.price),
+														(product.currency as string) ??
+															'MZN'
+													)
 												: '—'}
 										</TableCell>
 										<TableCell>
 											<StatusBadge
-												status={
-													product.is_visible
-														? 'ACTIVE'
-														: 'SUSPENDED'
+												status={statusKey}
+												label={
+													PRODUCT_STATUS_LABELS[
+														statusKey
+													]
 												}
 											/>
 										</TableCell>
-										<TableCell className='text-xs text-muted-foreground'>
+										<TableCell className='hidden whitespace-nowrap text-xs text-muted-foreground xl:table-cell'>
 											{product.created_at
 												? format(
 														new Date(
@@ -319,17 +527,23 @@ export function AdminProductsView() {
 												: '—'}
 										</TableCell>
 										<TableCell>
-											<div className='flex gap-1'>
-												{product.is_visible ? (
-													<Button
-														size='sm'
-														variant='ghost'
-														type='button'
-														className='text-amber-600'
+											<div className='flex items-center justify-end gap-0.5'>
+												<IconAction
+													label='Ver detalhes'
+													onClick={() =>
+														setPreview(product)
+													}
+												>
+													<Eye className='size-3.5' />
+												</IconAction>
+												{visible ? (
+													<IconAction
+														label='Pausar'
+														className='text-amber-600 hover:bg-amber-500/10 hover:text-amber-700'
 														onClick={() =>
 															patchMutation.mutate(
 																{
-																	id: product.id as string,
+																	id,
 																	body: {
 																		is_visible: false,
 																	},
@@ -337,18 +551,16 @@ export function AdminProductsView() {
 															)
 														}
 													>
-														Pausar
-													</Button>
+														<Pause className='size-3.5' />
+													</IconAction>
 												) : (
-													<Button
-														size='sm'
-														variant='ghost'
-														type='button'
-														className='text-emerald-600'
+													<IconAction
+														label='Reactivar'
+														className='text-emerald-600 hover:bg-emerald-500/10 hover:text-emerald-700'
 														onClick={() =>
 															patchMutation.mutate(
 																{
-																	id: product.id as string,
+																	id,
 																	body: {
 																		is_visible: true,
 																	},
@@ -356,22 +568,18 @@ export function AdminProductsView() {
 															)
 														}
 													>
-														Reativar
-													</Button>
+														<Play className='size-3.5' />
+													</IconAction>
 												)}
-												<Button
-													size='sm'
-													variant='ghost'
-													type='button'
-													className='text-destructive'
+												<IconAction
+													label='Eliminar'
+													destructive
 													onClick={() =>
-														setConfirmDelete(
-															product.id as string
-														)
+														setConfirmDelete(id)
 													}
 												>
-													Eliminar
-												</Button>
+													<Trash2 className='size-3.5' />
+												</IconAction>
 											</div>
 										</TableCell>
 									</TableRow>
@@ -382,93 +590,216 @@ export function AdminProductsView() {
 				</div>
 			)}
 
-			{/* Product side panel */}
 			<Sheet
 				open={Boolean(preview)}
-				onOpenChange={(v) => !v && setPreview(null)}
+				onOpenChange={(open) => !open && setPreview(null)}
 			>
-				<SheetContent side='right' className='w-full sm:max-w-[480px]'>
-					{preview && (
+				<SheetContent
+					side='right'
+					className='flex w-full flex-col sm:max-w-md'
+				>
+					{preview ? (
 						<>
-							<SheetHeader>
-								<SheetTitle className='font-heading'>
+							<SheetHeader className='border-b border-border/60 pb-4'>
+								<SheetTitle className='font-heading pr-8 text-left'>
 									{preview.name as string}
 								</SheetTitle>
-							</SheetHeader>
-							<div className='mt-4 space-y-4 overflow-y-auto'>
-								{/* Images carousel */}
-								<div className='flex gap-2 overflow-x-auto pb-1'>
+								<SheetDescription className='text-left'>
 									{(
-										(preview.product_images ??
-											[]) as Record<string, unknown>[]
-									).map((img, i) => (
-										<img
-											key={i}
-											src={img.url as string}
-											alt=''
-											className='h-36 w-auto shrink-0 rounded-xl object-cover border border-border'
-										/>
-									))}
-								</div>
-								<div className='space-y-2 text-sm'>
-									{Boolean(preview.description) && (
-										<p className='text-muted-foreground'>
-											{String(preview.description)}
-										</p>
-									)}
-									<div className='flex items-center justify-between'>
-										<span className='font-bold text-lg'>
-											{preview.price
-												? `${(preview.currency as string) ?? 'MZN'} ${Number(preview.price).toLocaleString('pt-PT')}`
-												: '—'}
-										</span>
-										<StatusBadge
-											status={
-												Boolean(preview.is_visible)
-													? 'ACTIVE'
-													: 'SUSPENDED'
-											}
-										/>
-									</div>
-									{Boolean(
-										(
-											preview.stores as Record<
-												string,
-												unknown
-											>
-										)?.name
-									) && (
-										<Link
-											href={`/admin/stores/${(preview.stores as Record<string, unknown>)?.id as string}`}
-											className='flex items-center gap-1 text-xs text-primary hover:underline'
-										>
-											{String(
+										preview.categories as
+											| Record<string, unknown>
+											| null
+									)?.name
+										? String(
 												(
-													preview.stores as Record<
+													preview.categories as Record<
 														string,
 														unknown
 													>
-												)?.name
-											)}
-											<ExternalLink className='size-3' />
-										</Link>
+												).name
+											)
+										: 'Sem categoria'}
+								</SheetDescription>
+							</SheetHeader>
+
+							<div className='flex-1 space-y-5 overflow-y-auto py-4'>
+								<div className='flex gap-2 overflow-x-auto pb-1'>
+									{(
+										(preview.product_images ??
+											[]) as Array<{ url?: string }>
+									).length > 0 ? (
+										(
+											(preview.product_images ??
+												[]) as Array<{ url?: string }>
+										).map((img, i) =>
+											img.url ? (
+												<div
+													key={`${img.url}-${i}`}
+													className='relative h-40 w-40 shrink-0 overflow-hidden rounded-xl border border-border/60'
+												>
+													<Image
+														src={img.url}
+														alt=''
+														fill
+														sizes='160px'
+														placeholder='blur'
+														blurDataURL={
+															BLUR_PLACEHOLDER
+														}
+														className='object-cover'
+													/>
+												</div>
+											) : null
+										)
+									) : (
+										<div className='flex h-40 w-full items-center justify-center rounded-xl bg-muted'>
+											<ImageIcon className='size-8 text-muted-foreground' />
+										</div>
 									)}
 								</div>
+
+								<div className='flex flex-wrap items-center justify-between gap-2'>
+									<p className='text-2xl font-bold tabular-nums tracking-tight'>
+										{preview.price != null
+											? formatPrice(
+													Number(preview.price),
+													(preview.currency as string) ??
+														'MZN'
+												)
+											: '—'}
+									</p>
+									<StatusBadge
+										status={productStatus(preview)}
+										label={
+											PRODUCT_STATUS_LABELS[
+												productStatus(preview)
+											]
+										}
+									/>
+								</div>
+
+								{preview.description ? (
+									<p className='whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground'>
+										{String(preview.description)}
+									</p>
+								) : (
+									<p className='text-sm italic text-muted-foreground'>
+										Sem descrição.
+									</p>
+								)}
+
+								{(
+									preview.stores as
+										| Record<string, unknown>
+										| null
+								)?.name ? (
+									<Link
+										href={`/admin/stores/${
+											(
+												preview.stores as Record<
+													string,
+													unknown
+												>
+											).id as string
+										}`}
+										className='inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline'
+									>
+										{
+											(
+												preview.stores as Record<
+													string,
+													unknown
+												>
+											).name as string
+										}
+										<ExternalLink className='size-3.5' />
+									</Link>
+								) : null}
+
+								{preview.created_at ? (
+									<p className='text-xs text-muted-foreground'>
+										Criado em{' '}
+										{format(
+											new Date(
+												preview.created_at as string
+											),
+											"d 'de' MMMM yyyy",
+											{ locale: pt }
+										)}
+									</p>
+								) : null}
 							</div>
+
+							<SheetFooter className='border-t border-border/60 pt-4 sm:flex-row'>
+								{preview.is_visible ? (
+									<Button
+										type='button'
+										variant='outline'
+										className='flex-1'
+										onClick={() =>
+											patchMutation.mutate({
+												id: preview.id as string,
+												body: { is_visible: false },
+											})
+										}
+									>
+										<Pause className='size-3.5' />
+										Pausar
+									</Button>
+								) : (
+									<Button
+										type='button'
+										variant='outline'
+										className='flex-1'
+										onClick={() =>
+											patchMutation.mutate({
+												id: preview.id as string,
+												body: { is_visible: true },
+											})
+										}
+									>
+										<Play className='size-3.5' />
+										Reactivar
+									</Button>
+								)}
+								<Button
+									type='button'
+									variant='destructive'
+									className='flex-1'
+									onClick={() =>
+										setConfirmDelete(preview.id as string)
+									}
+								>
+									<Trash2 className='size-3.5' />
+									Eliminar
+								</Button>
+							</SheetFooter>
 						</>
-					)}
+					) : null}
 				</SheetContent>
 			</Sheet>
 
 			<ConfirmDialog
 				open={Boolean(confirmDelete)}
-				onOpenChange={(v) => !v && setConfirmDelete(null)}
+				onOpenChange={(open) => !open && setConfirmDelete(null)}
 				title='Eliminar produto'
-				description='Esta ação é irreversível. O produto será eliminado permanentemente.'
+				description='Esta acção é irreversível. O produto será eliminado permanentemente.'
 				confirmLabel='Eliminar'
 				loading={deleteMutation.isPending}
 				onConfirm={() =>
-					confirmDelete && deleteMutation.mutate(confirmDelete)
+					confirmDelete && deleteMutation.mutate([confirmDelete])
+				}
+			/>
+
+			<ConfirmDialog
+				open={confirmBulkDelete}
+				onOpenChange={setConfirmBulkDelete}
+				title={`Eliminar ${selected.size} produto${selected.size > 1 ? 's' : ''}?`}
+				description='Esta acção é irreversível. Os produtos seleccionados serão eliminados permanentemente.'
+				confirmLabel='Eliminar'
+				loading={deleteMutation.isPending}
+				onConfirm={() =>
+					deleteMutation.mutate(Array.from(selected))
 				}
 			/>
 		</div>
