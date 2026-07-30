@@ -1,13 +1,13 @@
 import { Pencil, Trash2 } from 'lucide-react'
 import Image from 'next/image'
-import { Button } from '@/components/ui/button'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 import type { SellerProduct } from '../../constants'
+import { IconTooltipButton } from './icon-tooltip-button'
 
 type SellerProductRowProps = {
 	product: SellerProduct
 	onEdit: (id: string) => void
-	onDelete: () => void // <- sem parâmetro
+	onDelete: () => void
 }
 
 export const SellerProductRow = ({
@@ -28,30 +28,28 @@ export const SellerProductRow = ({
 			/>
 		</div>
 
-		<div className='flex-1 min-w-0'>
+		<div className='min-w-0 flex-1'>
 			<h3 className='font-semibold leading-tight'>{product.name}</h3>
 			<p className='mt-1 font-bold'>{product.price}</p>
 		</div>
 
 		<div className='flex shrink-0 gap-2'>
-			<Button
-				variant='ghost'
+			<IconTooltipButton
+				label='Editar produto'
 				size='icon'
-				className='size-10 rounded-full bg-muted/60 hover:bg-muted'
-				aria-label='Editar produto'
+				className='size-10 bg-muted/60 hover:bg-muted'
 				onClick={() => onEdit(product.id)}
 			>
 				<Pencil className='size-4' />
-			</Button>
-			<Button
-				variant='ghost'
+			</IconTooltipButton>
+			<IconTooltipButton
+				label='Eliminar produto'
 				size='icon'
-				className='size-10 rounded-full bg-muted/60 hover:bg-muted'
-				aria-label='Eliminar produto'
+				className='size-10 bg-muted/60 hover:bg-muted'
 				onClick={onDelete}
 			>
 				<Trash2 className='size-4 text-red-600' />
-			</Button>
+			</IconTooltipButton>
 		</div>
 	</div>
 )

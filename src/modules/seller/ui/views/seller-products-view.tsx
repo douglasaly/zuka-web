@@ -47,16 +47,12 @@ import {
 	SheetTitle,
 } from '@/components/ui/sheet'
 import { Skeleton } from '@/components/ui/skeleton'
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from '@/components/ui/tooltip'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 import type { SellerProduct } from '@/lib/types/api/seller'
 import { cn } from '@/lib/utils'
 import { formatPrice } from '@/utils/format-price'
 import { DeleteProductDialog } from '../components/delete-product-dialog'
+import { IconTooltipButton } from '../components/icon-tooltip-button'
 import {
 	PRODUCT_STATUS_LABELS,
 	PRODUCT_STATUS_STYLES,
@@ -83,25 +79,15 @@ function IconAction({
 	className?: string
 	children: React.ReactNode
 }) {
-	const button = (
-		<Button
-			type='button'
-			variant='ghost'
-			size='icon-sm'
-			className={cn('rounded-full', className)}
-			aria-label={label}
+	return (
+		<IconTooltipButton
+			label={label}
 			onClick={onClick}
-			render={href ? <Link href={href} /> : undefined}
+			href={href}
+			className={className}
 		>
 			{children}
-		</Button>
-	)
-
-	return (
-		<Tooltip>
-			<TooltipTrigger render={button} />
-			<TooltipContent>{label}</TooltipContent>
-		</Tooltip>
+		</IconTooltipButton>
 	)
 }
 
@@ -396,14 +382,16 @@ export const SellerProductsView = () => {
 							aria-label='Pesquisar produtos'
 						/>
 						{search ? (
-							<button
-								type='button'
-								onClick={() => setSearch('')}
-								aria-label='Limpar pesquisa'
-								className='absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground'
-							>
-								<X className='size-4' />
-							</button>
+							<span className='absolute right-2 top-1/2 -translate-y-1/2'>
+								<IconTooltipButton
+									label='Limpar pesquisa'
+									size='icon-sm'
+									className='size-8 text-muted-foreground hover:text-foreground'
+									onClick={() => setSearch('')}
+								>
+									<X className='size-4' />
+								</IconTooltipButton>
+							</span>
 						) : null}
 					</div>
 

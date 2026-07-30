@@ -18,6 +18,11 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { EmptyState } from '../components/empty-state'
 import { StatusBadge } from '../components/status-badge'
 import { ConfirmDialog } from '../components/confirm-dialog'
@@ -344,19 +349,29 @@ export function AllStoresView() {
 														Suspender
 													</Button>
 												) : null}
-												<Button
-													size='sm'
-													variant='ghost'
-													type='button'
-													className='text-destructive'
-													onClick={() =>
-														setConfirmDelete(
-															store.id as string
-														)
-													}
-												>
-													<Trash2 className='size-3.5' />
-												</Button>
+												<Tooltip>
+													<TooltipTrigger
+														render={
+															<Button
+																size='sm'
+																variant='ghost'
+																type='button'
+																aria-label='Eliminar loja'
+																className='text-destructive'
+																onClick={() =>
+																	setConfirmDelete(
+																		store.id as string
+																	)
+																}
+															>
+																<Trash2 className='size-3.5' />
+															</Button>
+														}
+													/>
+													<TooltipContent>
+														Eliminar loja
+													</TooltipContent>
+												</Tooltip>
 											</div>
 										</TableCell>
 									</TableRow>

@@ -7,6 +7,7 @@ import { OrderStatusBadge } from '@/components/order-status-badge'
 import { Button } from '@/components/ui/button'
 import { OrderDetailSkeleton } from '@/modules/orders/ui/components/order-detail-skeleton'
 import { formatPrice } from '@/utils/format-price'
+import { IconTooltipButton } from '../components/icon-tooltip-button'
 
 interface SellerOrderDetailViewProps {
 	id: string
@@ -68,16 +69,14 @@ export const SellerOrderDetailView = ({ id }: SellerOrderDetailViewProps) => {
 	return (
 		<div className='space-y-6'>
 			<div className='flex items-center gap-3'>
-				<Button
-					variant='ghost'
+				<IconTooltipButton
+					label='Voltar aos pedidos'
 					size='icon'
 					className='shrink-0'
-					render={
-						<Link href='/dashboard/seller/pedidos'>
-							<ArrowLeft className='size-4' />
-						</Link>
-					}
-				/>
+					href='/dashboard/seller/pedidos'
+				>
+					<ArrowLeft className='size-4' />
+				</IconTooltipButton>
 				<div>
 					<p className='text-sm text-muted-foreground'>
 						Pedido #{data.id.slice(0, 8)}

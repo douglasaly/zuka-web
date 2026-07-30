@@ -18,21 +18,14 @@ import {
 	MessageSquare,
 	Send,
 } from 'lucide-react'
-import Link from 'next/link'
-import {
-	useCallback,
-	useEffect,
-	useLayoutEffect,
-	useMemo,
-	useRef,
-	useState,
-} from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { formatTime } from '@/utils/format-time'
+import { IconTooltipButton } from '../components/icon-tooltip-button'
 import {
 	type SellerConversation,
 	SellerInboxRow,
@@ -243,17 +236,16 @@ export const SellerConversationView = ({
 			<div className='flex min-w-0 flex-1 flex-col bg-background'>
 				<SellerThreadPeerHeader
 					leading={
-						<Button
-							variant='ghost'
-							size='icon'
-							className='size-11 shrink-0 rounded-full lg:hidden'
-							aria-label='Voltar às mensagens'
-							render={
-								<Link href='/dashboard/seller/mensagens'>
-									<ArrowLeft className='size-4' />
-								</Link>
-							}
-						/>
+						<span className='lg:hidden'>
+							<IconTooltipButton
+								label='Voltar às mensagens'
+								size='icon'
+								className='size-11'
+								href='/dashboard/seller/mensagens'
+							>
+								<ArrowLeft className='size-4' />
+							</IconTooltipButton>
+						</span>
 					}
 					name={peerName}
 					avatarUrl={peer?.otherUserAvatar}
@@ -391,19 +383,24 @@ export const SellerConversationView = ({
 							aria-label='Mensagem'
 							enterKeyHint='send'
 						/>
-						<Button
+						<IconTooltipButton
+							label={
+								sendMutation.isPending
+									? 'A enviar…'
+									: 'Enviar mensagem'
+							}
 							type='submit'
 							size='icon'
-							className='size-11 shrink-0 rounded-full'
+							variant='default'
+							className='size-11 shrink-0'
 							disabled={!input.trim() || sendMutation.isPending}
-							aria-label='Enviar'
 						>
 							{sendMutation.isPending ? (
 								<Loader2 className='size-4 animate-spin' />
 							) : (
 								<Send className='size-4' />
 							)}
-						</Button>
+						</IconTooltipButton>
 					</form>
 					<p className='mx-auto mt-1.5 hidden max-w-3xl text-[11px] text-muted-foreground sm:block'>
 						Enter para enviar · Shift+Enter para nova linha

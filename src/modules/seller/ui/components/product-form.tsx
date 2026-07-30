@@ -32,6 +32,7 @@ import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 import { cn } from '@/lib/utils'
 import { formatPrice } from '@/utils/format-price'
 import { useSetSellerPageMeta } from '../layouts/seller-page-meta'
+import { IconTooltipButton } from './icon-tooltip-button'
 import {
 	PRODUCT_STATUS_LABELS,
 	PRODUCT_STATUS_STYLES,
@@ -233,17 +234,12 @@ export const ProductForm = ({
 			{/* Chrome — title lives in top bar */}
 			<div className='flex min-w-0 flex-wrap items-center justify-between gap-2 sm:gap-3'>
 				<div className='flex min-w-0 flex-1 items-center gap-2'>
-					<Button
-						variant='ghost'
-						size='icon-sm'
-						className='shrink-0 rounded-full'
-						aria-label='Voltar aos produtos'
-						render={
-							<Link href='/dashboard/seller/produtos'>
-								<ArrowLeft className='size-4' />
-							</Link>
-						}
-					/>
+					<IconTooltipButton
+						label='Voltar aos produtos'
+						href='/dashboard/seller/produtos'
+					>
+						<ArrowLeft className='size-4' />
+					</IconTooltipButton>
 					<p className='min-w-0 flex-1 text-sm leading-snug text-muted-foreground'>
 						{mode === 'create'
 							? 'Preencha os detalhes e publique quando estiver pronto.'

@@ -8,6 +8,11 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from '@/components/ui/popover'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { useNotifications } from '@/hooks/use-notifications'
 import { useUserProfile } from '@/hooks/use-user-profile'
 import { cn } from '@/lib/utils'
@@ -35,33 +40,46 @@ export function NotificationDropdown() {
 
 	if (authLoading || !isAuthenticated) return null
 
+	const bellLabel =
+		unreadCount > 0
+			? `Notificações (${unreadCount} não lidas)`
+			: 'Notificações'
+
 	return (
 		<Popover>
-			<PopoverTrigger
-				render={
-					<Button
-						variant='ghost'
-						size='icon-sm'
-						type='button'
-						aria-label={`Notificações${unreadCount > 0 ? ` (${unreadCount} não lidas)` : ''}`}
-						className='relative'
-					>
-						<Bell className='size-4' />
-						{unreadCount > 0 && (
-							<span className='absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white ring-2 ring-background'>
-								{unreadCount > 9 ? '9+' : unreadCount}
-							</span>
-						)}
-					</Button>
-				}
-			/>
+			<Tooltip>
+				<TooltipTrigger
+					render={
+						<PopoverTrigger
+							render={
+								<Button
+									variant='ghost'
+									size='icon-sm'
+									type='button'
+									aria-label={bellLabel}
+									className='relative'
+								>
+									<Bell className='size-4' />
+									{unreadCount > 0 && (
+										<span className='absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white ring-2 ring-background'>
+											{unreadCount > 9
+												? '9+'
+												: unreadCount}
+										</span>
+									)}
+								</Button>
+							}
+						/>
+					}
+				/>
+				<TooltipContent side='bottom'>{bellLabel}</TooltipContent>
+			</Tooltip>
 
 			<PopoverContent
 				align='end'
 				sideOffset={8}
 				className='w-95 p-0 shadow-lg'
 			>
-				{/* HEADER */}
 				<div className='flex items-center justify-between border-b border-border/60 px-4 py-3.5'>
 					<div className='flex items-center gap-2'>
 						<span className='font-semibold'>Notificações</span>
@@ -85,7 +103,6 @@ export function NotificationDropdown() {
 					)}
 				</div>
 
-				{/* LISTA */}
 				<div className='max-h-105 overflow-y-auto'>
 					{isNotificationsLoading ? (
 						<NotificationsSkeleton />
@@ -114,7 +131,6 @@ export function NotificationDropdown() {
 					)}
 				</div>
 
-				{/* FOOTER */}
 				{!isNotificationsLoading && (
 					<div className='border-t border-border/60 p-2'>
 						<Button
