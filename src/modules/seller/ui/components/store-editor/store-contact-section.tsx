@@ -38,7 +38,7 @@ export function StoreContactSection({
 						placeholder='21 123 456'
 					/>
 				</div>
-				<div className='space-y-2 sm:col-span-2'>
+				<div className='min-w-0 space-y-2 sm:col-span-2'>
 					<Label htmlFor='store-email'>Email da loja</Label>
 					<Input
 						id='store-email'
@@ -46,6 +46,7 @@ export function StoreContactSection({
 						value={form.email}
 						onChange={(e) => onChange({ email: e.target.value })}
 						placeholder='loja@exemplo.co.mz'
+						className='h-11'
 					/>
 				</div>
 			</div>

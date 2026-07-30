@@ -37,20 +37,21 @@ export function StoreIdentitySection({
 						}}
 						placeholder='Ex: Moda Maputo'
 						maxLength={150}
+						className='h-11'
 					/>
 				</div>
 
 				<div className='space-y-2'>
 					<Label htmlFor='store-slug'>Slug (URL)</Label>
-					<div className='flex overflow-hidden rounded-lg border border-input'>
-						<span className='flex items-center bg-muted px-3 text-sm text-muted-foreground'>
+					<div className='flex min-w-0 overflow-hidden rounded-lg border border-input'>
+						<span className='flex shrink-0 items-center bg-muted px-2.5 text-xs text-muted-foreground sm:px-3 sm:text-sm'>
 							zuka.co.mz/
 						</span>
 						<Input
 							id='store-slug'
 							disabled
 							value={form.slug}
-							className='rounded-none border-0 shadow-none focus-visible:ring-0'
+							className='min-w-0 rounded-none border-0 shadow-none focus-visible:ring-0'
 							placeholder='moda-maputo'
 						/>
 					</div>

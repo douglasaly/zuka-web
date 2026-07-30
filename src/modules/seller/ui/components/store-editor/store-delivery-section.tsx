@@ -31,10 +31,12 @@ export function StoreDeliverySection({
 	}
 
 	return (
-		<StoreSection title='Entrega'>
-			<div className='space-y-5'>
-				<div className='flex items-center justify-between gap-4 rounded-lg bg-muted/50 px-4 py-3'>
-					<div>
+		<StoreSection
+			title='Entrega'
+		>
+			<div className='min-w-0 space-y-5'>
+				<div className='flex min-w-0 items-center justify-between gap-4 rounded-xl border border-border/50 bg-muted/30 px-4 py-3'>
+					<div className='min-w-0'>
 						<p className='text-sm font-medium'>Faz entregas?</p>
 						<p className='text-xs text-muted-foreground'>
 							Active para configurar zonas e preços.
@@ -49,8 +51,8 @@ export function StoreDeliverySection({
 				</div>
 
 				{form.hasDelivery ? (
-					<div className='grid gap-4 sm:grid-cols-2'>
-						<div className='space-y-2'>
+					<div className='grid min-w-0 gap-4 sm:grid-cols-2'>
+						<div className='min-w-0 space-y-2'>
 							<Label htmlFor='delivery-fee'>
 								Preço da entrega (MZN)
 							</Label>
@@ -63,9 +65,10 @@ export function StoreDeliverySection({
 									onChange({ deliveryFee: e.target.value })
 								}
 								placeholder='0'
+								className='h-11'
 							/>
 						</div>
-						<div className='space-y-2'>
+						<div className='min-w-0 space-y-2'>
 							<Label htmlFor='delivery-eta'>
 								Tempo estimado (minutos)
 							</Label>
@@ -80,11 +83,12 @@ export function StoreDeliverySection({
 									})
 								}
 								placeholder='45'
+								className='h-11'
 							/>
 						</div>
-						<div className='space-y-2 sm:col-span-2'>
+						<div className='min-w-0 space-y-2 sm:col-span-2'>
 							<Label>Zonas de entrega</Label>
-							<div className='flex gap-2'>
+							<div className='flex min-w-0 gap-2'>
 								<Input
 									value={form.zoneDraft}
 									onChange={(e) =>
@@ -97,11 +101,13 @@ export function StoreDeliverySection({
 										}
 									}}
 									placeholder='Ex: Costa do Sol, Matola'
+									className='h-11 min-w-0'
 								/>
 								<Button
 									type='button'
 									variant='outline'
 									size='icon'
+									className='size-11 shrink-0'
 									onClick={addZone}
 									aria-label='Adicionar zona'
 								>
@@ -113,9 +119,11 @@ export function StoreDeliverySection({
 									{form.deliveryZones.map((zone) => (
 										<li
 											key={zone}
-											className='inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium'
+											className='inline-flex max-w-full items-center gap-1.5 rounded-lg bg-muted px-2.5 py-1 text-xs font-medium'
 										>
-											{zone}
+											<span className='truncate'>
+												{zone}
+											</span>
 											<button
 												type='button'
 												onClick={() =>
@@ -127,7 +135,7 @@ export function StoreDeliverySection({
 															),
 													})
 												}
-												className='text-muted-foreground hover:text-foreground'
+												className='shrink-0 text-muted-foreground hover:text-foreground'
 												aria-label={`Remover ${zone}`}
 											>
 												<X className='size-3' />

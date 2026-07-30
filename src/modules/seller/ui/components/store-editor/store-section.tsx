@@ -19,11 +19,11 @@ export function StoreSection({
 	return (
 		<section
 			className={cn(
-				'rounded-xl border border-border/60 bg-card p-5 sm:p-6',
+				'min-w-0 max-w-full rounded-2xl border border-border/60 bg-card p-4 sm:p-6',
 				className
 			)}
 		>
-			<div className='mb-5 flex items-start justify-between gap-4'>
+			<div className='mb-5 flex min-w-0 items-start justify-between gap-4'>
 				<div className='min-w-0'>
 					<h2 className='font-heading text-base font-semibold tracking-tight'>
 						{title}
@@ -36,7 +36,7 @@ export function StoreSection({
 				</div>
 				{action}
 			</div>
-			{children}
+			<div className='min-w-0'>{children}</div>
 		</section>
 	)
 }

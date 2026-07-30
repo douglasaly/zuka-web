@@ -1,8 +1,10 @@
 'use client'
 
 import { Loader2, Upload, X } from 'lucide-react'
+import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
+import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 import { uploadImageToR2 } from '@/lib/api/uploads'
 import { cn } from '@/lib/utils'
 import { FileUploadCard } from '@/modules/onboarding/ui/components/file-upload-card'
@@ -80,30 +82,35 @@ export function StoreMediaSection({
 				title='Imagens'
 				description='Logotipo e banner de capa da loja.'
 			>
-				<div className='grid gap-5 lg:grid-cols-2'>
-					<div className='space-y-2'>
+				<div className='grid min-w-0 gap-5 lg:grid-cols-2'>
+					<div className='min-w-0 space-y-2'>
 						<p className='text-sm font-semibold'>Logo</p>
 						<button
 							type='button'
 							disabled={logoUploading}
 							onClick={() => inputRef.current?.click()}
 							className={cn(
-								'group relative flex min-h-[180px] w-full flex-col items-center justify-center overflow-hidden rounded-2xl border border-dashed border-border bg-card text-center transition-colors hover:border-foreground/30 hover:bg-muted/30 disabled:opacity-70'
+								'group relative flex min-h-45 w-full max-w-full flex-col items-center justify-center overflow-hidden rounded-2xl border border-dashed border-border bg-muted/20 text-center transition-colors hover:border-foreground/30 hover:bg-muted/35 disabled:opacity-70'
 							)}
 						>
 							{form.logoUrl ? (
 								<>
-									{/* biome-ignore lint/performance/noImgElement: preview of arbitrary R2 URL before save */}
-									<img
-										src={form.logoUrl}
-										alt='Logo da loja'
-										className='h-full min-h-[180px] w-full object-contain p-6'
-									/>
+									<div className='relative h-45 w-full'>
+										<Image
+											src={form.logoUrl}
+											alt='Logo da loja'
+											fill
+											className='object-contain p-6'
+											sizes='280px'
+											placeholder='blur'
+											blurDataURL={BLUR_PLACEHOLDER}
+										/>
+									</div>
 									<ImageEditOverlay label='Editar logo' />
 								</>
 							) : (
 								<div className='flex flex-col items-center gap-3 p-4'>
-									<div className='flex size-12 items-center justify-center rounded-xl bg-muted'>
+									<div className='flex size-12 items-center justify-center rounded-2xl bg-background shadow-sm ring-1 ring-border/60'>
 										{logoUploading ? (
 											<Loader2 className='size-5 animate-spin text-muted-foreground' />
 										) : (
@@ -113,7 +120,7 @@ export function StoreMediaSection({
 									<div>
 										<p className='text-sm font-semibold'>
 											{logoUploading
-												? 'A carregar...'
+												? 'A carregar…'
 												: 'Carregar e recortar logo'}
 										</p>
 										<p className='text-xs text-muted-foreground'>

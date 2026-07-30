@@ -1,15 +1,47 @@
 'use client'
 
+/**
+ * THESIS: Thread as a focused reply surface — buyer identity leads, bubbles
+ * scan by side, composer stays reachable; refuses anonymous "Conversa" chrome.
+ * OWN-WORLD: Seller Operate + inbox list grammar; desktop split fills the void.
+ * STORY: Read buyer thread → reply → stay in flow.
+ * FIRST VIEWPORT: Header + messages + composer (list alongside on lg).
+ * FORM: Extend seller inbox Operate surface.
+ * ADAPT: Fixed viewport height, safe-area composer, touch targets, internal scroll.
+ */
+
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, MessageSquare, Send } from 'lucide-react'
+import {
+	ArrowLeft,
+	Inbox,
+	Loader2,
+	MessageSquare,
+	Send,
+} from 'lucide-react'
 import Link from 'next/link'
-import { useEffect, useRef, useState } from 'react'
+import {
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-
-interface SellerConversationViewProps {
-	id: string
-}
+import { Textarea } from '@/components/ui/textarea'
+import { cn } from '@/lib/utils'
+import { formatTime } from '@/utils/format-time'
+import {
+	type SellerConversation,
+	SellerInboxRow,
+} from '../components/messages/seller-inbox-row'
+import {
+	SellerInboxRailHeader,
+	SellerThreadPeerHeader,
+} from '../components/messages/seller-messages-headers'
+import { useSetSellerPageMeta } from '../layouts/seller-page-meta'
 
 type Message = {
 	id: string
@@ -21,12 +53,68 @@ type Message = {
 	created_at: string
 }
 
-export const SellerConversationView = ({ id }: SellerConversationViewProps) => {
+function localDayKey(d: Date) {
+	return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
+}
+
+function dayKey(iso: string) {
+	return localDayKey(new Date(iso))
+}
+
+function dayLabel(iso: string) {
+	const d = new Date(iso)
+	const today = new Date()
+	const yesterday = new Date()
+	yesterday.setDate(today.getDate() - 1)
+
+	if (dayKey(iso) === localDayKey(today)) return 'Hoje'
+	if (dayKey(iso) === localDayKey(yesterday)) return 'Ontem'
+	return d.toLocaleDateString('pt-PT', {
+		day: 'numeric',
+		month: 'short',
+		year: d.getFullYear() === today.getFullYear() ? undefined : 'numeric',
+	})
+}
+
+const SHELL =
+	'-m-4 flex h-[calc(100dvh-76px)] min-w-0 sm:-m-6'
+
+type SellerConversationViewProps = {
+	id: string
+}
+
+export const SellerConversationView = ({
+	id,
+}: SellerConversationViewProps) => {
 	const [input, setInput] = useState('')
-	const bottomRef = useRef<HTMLDivElement>(null)
+	const scrollerRef = useRef<HTMLDivElement>(null)
 	const queryClient = useQueryClient()
 
-	const { data, isLoading } = useQuery<{ data: Message[] }>({
+	const { data: inboxData, isLoading: inboxLoading } = useQuery<{
+		data: SellerConversation[]
+	}>({
+		queryKey: ['seller-conversations'],
+		queryFn: async () => {
+			const res = await fetch('/api/stores/conversations')
+			if (!res.ok) throw new Error('Failed to load conversations')
+			return res.json()
+		},
+		staleTime: 30_000,
+	})
+
+	const peer = useMemo(
+		() => inboxData?.data?.find((c) => c.id === id) ?? null,
+		[inboxData, id]
+	)
+
+	const peerName = peer?.otherUserName ?? 'Cliente'
+
+	useSetSellerPageMeta({
+		title: 'Mensagens',
+		crumbs: ['Dashboard', 'Mensagens'],
+	})
+
+	const { data, isLoading, isError, refetch } = useQuery<{ data: Message[] }>({
 		queryKey: ['seller-conversation-messages', id],
 		queryFn: async () => {
 			const res = await fetch(`/api/stores/conversations/${id}/messages`)
@@ -45,155 +133,282 @@ export const SellerConversationView = ({ id }: SellerConversationViewProps) => {
 					body: JSON.stringify({ content }),
 				}
 			)
-			if (!res.ok) throw new Error('Failed to send message')
-			return res.json()
+			const json = await res.json().catch(() => ({}))
+			if (!res.ok) {
+				throw new Error(json.error ?? 'Falha ao enviar mensagem')
+			}
+			return json
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({
 				queryKey: ['seller-conversation-messages', id],
 			})
-			setInput('')
-		},
-	})
-
-	// Marcar como lida ao entrar na conversa
-	const { mutate: markAsRead } = useMutation({
-		mutationFn: async () => {
-			const res = await fetch(`/api/stores/conversations/${id}/read`, {
-				method: 'PATCH',
-			})
-			if (!res.ok) throw new Error('Failed to mark as read')
-			return res.json()
-		},
-		onSuccess: () => {
 			queryClient.invalidateQueries({
 				queryKey: ['seller-conversations'],
 			})
+			setInput('')
 		},
+		onError: (err: Error) => toast.error(err.message),
 	})
 
 	useEffect(() => {
-		if (id) markAsRead()
-	}, [id, markAsRead])
-
-	// Scroll ao fim quando mensagens carregam ou são enviadas
-	useEffect(() => {
-		bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-	}, [data])
-
-	const handleSend = () => {
-		if (!input.trim() || sendMutation.isPending) return
-		sendMutation.mutate(input.trim())
-	}
+		void (async () => {
+			try {
+				const res = await fetch(
+					`/api/stores/conversations/${id}/read`,
+					{ method: 'PATCH' }
+				)
+				if (!res.ok) return
+				queryClient.invalidateQueries({
+					queryKey: ['seller-conversations'],
+				})
+				queryClient.invalidateQueries({ queryKey: ['unread-counts'] })
+			} catch {
+				/* silent */
+			}
+		})()
+	}, [id, queryClient])
 
 	const messages = data?.data ?? []
 
-	if (isLoading) {
-		return (
-			<div className='flex h-[calc(100vh-12rem)] flex-col'>
-				<div className='flex-1 space-y-4 overflow-y-auto p-4'>
-					{Array.from({ length: 4 }).map((_, i) => (
-						<div
-							key={i}
-							className={`flex ${i % 2 === 0 ? 'justify-start' : 'justify-end'}`}
-						>
-							<Skeleton
-								className={`h-12 rounded-2xl ${i % 2 === 0 ? 'w-48' : 'w-36'}`}
-							/>
-						</div>
-					))}
-				</div>
-			</div>
-		)
+	const scrollToBottom = useCallback((smooth: boolean) => {
+		const root = scrollerRef.current
+		if (!root) return
+		root.scrollTo({
+			top: root.scrollHeight,
+			behavior: smooth ? 'smooth' : 'auto',
+		})
+	}, [])
+
+	useLayoutEffect(() => {
+		scrollToBottom(false)
+	}, [id, scrollToBottom])
+
+	useEffect(() => {
+		scrollToBottom(true)
+	}, [messages.length, sendMutation.isPending, scrollToBottom])
+
+	function handleSend() {
+		const trimmed = input.trim()
+		if (!trimmed || sendMutation.isPending) return
+		sendMutation.mutate(trimmed)
 	}
 
+	const inbox = inboxData?.data ?? []
+
 	return (
-		<div className='flex h-[calc(100vh-12rem)] flex-col'>
-			<div className='flex items-center gap-3 border-b border-border/60 px-4 py-3'>
-				<Button
-					variant='ghost'
-					size='icon'
-					className='shrink-0'
-					render={
-						<Link href='/dashboard/seller/mensagens'>
-							<ArrowLeft className='size-4' />
-						</Link>
-					}
+		<div className={SHELL}>
+			<aside className='hidden w-80 shrink-0 flex-col border-r border-border/60 bg-card lg:flex xl:w-96'>
+				<SellerInboxRailHeader
+					subtitle={`${inbox.length} conversa${inbox.length === 1 ? '' : 's'}`}
 				/>
-				<MessageSquare className='size-4 text-muted-foreground' />
-				<p className='font-medium'>Conversa</p>
-			</div>
-
-			{messages.length === 0 ? (
-				<div className='flex flex-1 flex-col items-center justify-center text-center'>
-					<div className='flex size-12 items-center justify-center rounded-full bg-muted'>
-						<MessageSquare className='size-6 text-muted-foreground' />
-					</div>
-					<p className='mt-3 text-sm text-muted-foreground'>
-						Sem mensagens ainda. Envie a primeira.
-					</p>
-				</div>
-			) : (
-				<div className='flex-1 space-y-3 overflow-y-auto p-4'>
-					{messages.map((msg) => {
-						const isStore = msg.store_id !== null
-						return (
-							<div
-								key={msg.id}
-								className={`flex ${isStore ? 'justify-end' : 'justify-start'}`}
-							>
+				<div className='min-h-0 flex-1 overflow-y-auto overscroll-contain'>
+					{inboxLoading ? (
+						<div className='divide-y divide-border/50'>
+							{Array.from({ length: 5 }).map((_, i) => (
 								<div
-									className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm ${
-										isStore
-											? 'bg-primary text-primary-foreground'
-											: 'bg-muted'
-									}`}
+									key={i}
+									className='flex items-center gap-3 px-4 py-3'
 								>
-									<p>{msg.content}</p>
-									<p
-										className={`mt-1 text-right text-[10px] ${
-											isStore
-												? 'text-primary-foreground/60'
-												: 'text-muted-foreground'
-										}`}
-									>
-										{new Date(
-											msg.created_at
-										).toLocaleTimeString('pt-PT', {
-											hour: '2-digit',
-											minute: '2-digit',
-										})}
-									</p>
+									<Skeleton className='size-10 rounded-full' />
+									<div className='flex-1 space-y-1.5'>
+										<Skeleton className='h-3.5 w-28' />
+										<Skeleton className='h-3 w-40' />
+									</div>
 								</div>
-							</div>
-						)
-					})}
-					<div ref={bottomRef} />
+							))}
+						</div>
+					) : inbox.length === 0 ? (
+						<div className='flex flex-col items-center px-4 py-12 text-center'>
+							<Inbox className='size-6 text-muted-foreground' />
+							<p className='mt-2 text-xs text-muted-foreground'>
+								Sem conversas
+							</p>
+						</div>
+					) : (
+						<div className='divide-y divide-border/50'>
+							{inbox.map((conv) => (
+								<SellerInboxRow
+									key={conv.id}
+									conversation={conv}
+									active={conv.id === id}
+									compact
+								/>
+							))}
+						</div>
+					)}
 				</div>
-			)}
+			</aside>
 
-			<div className='flex items-center gap-2 border-t border-border/60 p-4'>
-				<input
-					type='text'
-					value={input}
-					onChange={(e) => setInput(e.target.value)}
-					onKeyDown={(e) => {
-						if (e.key === 'Enter' && !e.shiftKey) {
+			<div className='flex min-w-0 flex-1 flex-col bg-background'>
+				<SellerThreadPeerHeader
+					leading={
+						<Button
+							variant='ghost'
+							size='icon'
+							className='size-11 shrink-0 rounded-full lg:hidden'
+							aria-label='Voltar às mensagens'
+							render={
+								<Link href='/dashboard/seller/mensagens'>
+									<ArrowLeft className='size-4' />
+								</Link>
+							}
+						/>
+					}
+					name={peerName}
+					avatarUrl={peer?.otherUserAvatar}
+					loading={!peer && inboxLoading}
+				/>
+
+				{isLoading ? (
+					<div className='flex flex-1 flex-col gap-3 overflow-hidden p-4'>
+						{Array.from({ length: 5 }).map((_, i) => (
+							<div
+								key={i}
+								className={cn(
+									'flex',
+									i % 2 === 0
+										? 'justify-start'
+										: 'justify-end'
+								)}
+							>
+								<Skeleton
+									className={cn(
+										'h-14 rounded-2xl',
+										i % 2 === 0 ? 'w-52 max-w-[75%]' : 'w-40'
+									)}
+								/>
+							</div>
+						))}
+					</div>
+				) : isError ? (
+					<div className='flex flex-1 flex-col items-center justify-center px-6 text-center'>
+						<p className='font-heading text-base font-semibold'>
+							Não foi possível carregar a conversa
+						</p>
+						<p className='mt-1 text-sm text-muted-foreground'>
+							Verifique a ligação e tente outra vez.
+						</p>
+						<Button
+							className='mt-4 rounded-full'
+							variant='outline'
+							size='sm'
+							onClick={() => refetch()}
+						>
+							Tentar novamente
+						</Button>
+					</div>
+				) : messages.length === 0 ? (
+					<div className='flex flex-1 flex-col items-center justify-center px-6 text-center'>
+						<div className='flex size-12 items-center justify-center rounded-2xl bg-muted/70'>
+							<MessageSquare className='size-5 text-muted-foreground' />
+						</div>
+						<p className='mt-3 text-sm text-muted-foreground'>
+							Sem mensagens ainda. Envie a primeira.
+						</p>
+					</div>
+				) : (
+					<div
+						ref={scrollerRef}
+						className='min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain px-3 py-4 sm:px-5'
+					>
+						{messages.map((msg, index) => {
+							const isStore = msg.store_id !== null
+							const prev = messages[index - 1]
+							const showDay =
+								!prev ||
+								dayKey(prev.created_at) !==
+									dayKey(msg.created_at)
+
+							return (
+								<div key={msg.id}>
+									{showDay ? (
+										<div className='flex justify-center py-3'>
+											<span className='rounded-full bg-muted/70 px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground'>
+												{dayLabel(msg.created_at)}
+											</span>
+										</div>
+									) : null}
+									<div
+										className={cn(
+											'flex',
+											isStore
+												? 'justify-end'
+												: 'justify-start'
+										)}
+									>
+										<div
+											className={cn(
+												'max-w-[min(85%,28rem)] rounded-2xl px-3.5 py-2.5 text-[15px] leading-relaxed wrap-break-word shadow-[0_1px_2px_rgba(0,0,0,0.04)] sm:max-w-[min(75%,28rem)] sm:text-sm',
+												isStore
+													? 'rounded-br-md bg-foreground text-background'
+													: 'rounded-bl-md border border-border/60 bg-card'
+											)}
+										>
+											<p className='whitespace-pre-wrap'>
+												{msg.content}
+											</p>
+											<p
+												className={cn(
+													'mt-1 text-right text-[10px] tabular-nums',
+													isStore
+														? 'text-background/55'
+														: 'text-muted-foreground'
+												)}
+											>
+												{formatTime(msg.created_at)}
+											</p>
+										</div>
+									</div>
+								</div>
+							)
+						})}
+						<div aria-hidden className='h-px' />
+					</div>
+				)}
+
+				<div className='shrink-0 border-t border-border/60 bg-card/95 px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:px-4 sm:pt-4 sm:pb-4'>
+					<form
+						className='mx-auto flex max-w-3xl items-end gap-2'
+						onSubmit={(e) => {
 							e.preventDefault()
 							handleSend()
-						}
-					}}
-					placeholder='Escreva uma mensagem…'
-					className='flex-1 rounded-full border border-border/60 bg-background px-4 py-2 text-sm outline-none focus:border-primary'
-				/>
-				<Button
-					size='icon'
-					className='shrink-0 rounded-full'
-					onClick={handleSend}
-					disabled={!input.trim() || sendMutation.isPending}
-				>
-					<Send className='size-4' />
-				</Button>
+						}}
+					>
+						<Textarea
+							value={input}
+							onChange={(e) => setInput(e.target.value)}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter' && !e.shiftKey) {
+									e.preventDefault()
+									handleSend()
+								}
+							}}
+							placeholder='Escreva uma mensagem…'
+							rows={1}
+							className='max-h-32 min-h-11 flex-1 resize-none rounded-2xl py-2.5 text-base sm:text-sm'
+							disabled={sendMutation.isPending}
+							aria-label='Mensagem'
+							enterKeyHint='send'
+						/>
+						<Button
+							type='submit'
+							size='icon'
+							className='size-11 shrink-0 rounded-full'
+							disabled={!input.trim() || sendMutation.isPending}
+							aria-label='Enviar'
+						>
+							{sendMutation.isPending ? (
+								<Loader2 className='size-4 animate-spin' />
+							) : (
+								<Send className='size-4' />
+							)}
+						</Button>
+					</form>
+					<p className='mx-auto mt-1.5 hidden max-w-3xl text-[11px] text-muted-foreground sm:block'>
+						Enter para enviar · Shift+Enter para nova linha
+					</p>
+				</div>
 			</div>
 		</div>
 	)

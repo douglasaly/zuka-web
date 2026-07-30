@@ -1,15 +1,26 @@
 'use client'
 
+/**
+ * THESIS: Store profile as a live shopfront editor — hero proves the look,
+ * sections group identity / ops / trust; refuses duplicate page titles and
+ * a save bar that overflows mobile.
+ * OWN-WORLD: Seller dashboard Operate grammar (rounded-2xl sections, sticky save).
+ * STORY: Preview → edit media/identity → location/delivery → status → save.
+ * FIRST VIEWPORT: Compact chrome + live hero.
+ * FORM: Extend product-editor Operate surface.
+ */
+
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ExternalLink, Loader2, Save } from 'lucide-react'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import type {
 	SellerStoreDetail,
 	UpdateSellerStoreInput,
 } from '@/lib/types/api/seller'
+import { useSetSellerPageMeta } from '../../layouts/seller-page-meta'
 import { LOCKED_STATUS_LABELS, STATUS_OPTIONS } from './constants'
 import { StoreContactSection } from './store-contact-section'
 import { StoreDeliverySection } from './store-delivery-section'
@@ -19,10 +30,35 @@ import { StoreIdentitySection } from './store-identity-section'
 import { StoreLocationSection } from './store-location-section'
 import { StoreMediaSection } from './store-media-section'
 import { StoreStatusSection } from './store-status-section'
-import { formatPhone, type StoreFormState, storeToFormState } from './types'
+import {
+	formatPhone,
+	type StoreFormState,
+	storeToFormState,
+} from './types'
 
 type StoreEditorFormProps = {
 	store: SellerStoreDetail
+}
+
+function formsEqual(a: StoreFormState, b: StoreFormState) {
+	return (
+		a.name === b.name &&
+		a.slug === b.slug &&
+		a.description === b.description &&
+		a.logoUrl === b.logoUrl &&
+		a.bannerUrl === b.bannerUrl &&
+		a.phone === b.phone &&
+		a.whatsapp === b.whatsapp &&
+		a.email === b.email &&
+		a.provinceId === b.provinceId &&
+		a.neighborhood === b.neighborhood &&
+		a.status === b.status &&
+		a.hasDelivery === b.hasDelivery &&
+		a.deliveryFee === b.deliveryFee &&
+		a.deliveryEtaMinutes === b.deliveryEtaMinutes &&
+		a.deliveryZones.length === b.deliveryZones.length &&
+		a.deliveryZones.every((z, i) => z === b.deliveryZones[i])
+	)
 }
 
 export function StoreEditorForm({ store }: StoreEditorFormProps) {
@@ -32,9 +68,17 @@ export function StoreEditorForm({ store }: StoreEditorFormProps) {
 	)
 	const [mediaUploading, setMediaUploading] = useState(false)
 
+	useSetSellerPageMeta({
+		title: 'Minha Loja',
+		crumbs: ['Dashboard', 'Minha Loja'],
+	})
+
 	useEffect(() => {
 		setForm(storeToFormState(store))
 	}, [store])
+
+	const baseline = useMemo(() => storeToFormState(store), [store])
+	const isDirty = !formsEqual(form, baseline)
 
 	const lockedStatus =
 		store.status === 'ACTIVE' || store.status === 'INACTIVE'
@@ -82,7 +126,6 @@ export function StoreEditorForm({ store }: StoreEditorFormProps) {
 				deliveryZones: form.hasDelivery ? form.deliveryZones : [],
 			}
 
-			// Só envia media quando mudou (mantém link actual se não alterado)
 			if (form.logoUrl !== store.logoUrl) {
 				payload.logoUrl = form.logoUrl
 			}
@@ -116,35 +159,32 @@ export function StoreEditorForm({ store }: StoreEditorFormProps) {
 		onError: (error: Error) => toast.error(error.message),
 	})
 
+	const canSave = isDirty && !mutation.isPending && !mediaUploading
+
 	return (
-		<div className='space-y-6 pb-24'>
-			<div className='flex flex-wrap items-start justify-between gap-3'>
-				<div>
-					<p className='text-xs font-medium uppercase tracking-wider text-muted-foreground'>
-						Minha Loja
-					</p>
-					<h1 className='mt-1 font-heading text-2xl font-bold tracking-tight'>
-						Perfil da loja
-					</h1>
-					<p className='mt-1 text-sm text-muted-foreground'>
-						{store.productCount} produto
-						{store.productCount === 1 ? '' : 's'} · Edite a
-						aparência e os dados públicos
-					</p>
-				</div>
+		<div className='min-w-0 max-w-full space-y-6 pb-28'>
+			<div className='flex min-w-0 flex-wrap items-center justify-between gap-2 sm:gap-3'>
+				<p className='min-w-0 flex-1 text-sm leading-snug text-muted-foreground'>
+					{isDirty
+						? 'Tem alterações por guardar.'
+						: 'Aparência e dados públicos da sua loja.'}
+				</p>
 				<Button
 					variant='outline'
 					size='sm'
-					className='rounded-full'
+					className='shrink-0 rounded-full'
 					render={
 						<Link
-							href={`/lojas/${store.slug}`}
+							href={`/lojas/${form.slug || store.slug}`}
 							target='_blank'
 							rel='noopener noreferrer'
 						>
 							<span className='inline-flex items-center gap-1.5'>
 								<ExternalLink className='size-3.5' />
-								Ver como comprador
+								<span className='hidden sm:inline'>
+									Ver como comprador
+								</span>
+								<span className='sm:hidden'>Ver loja</span>
 							</span>
 						</Link>
 					}
@@ -155,10 +195,11 @@ export function StoreEditorForm({ store }: StoreEditorFormProps) {
 				form={form}
 				verified={Boolean(store.verifiedAt)}
 				statusLabel={statusLabel}
+				productCount={store.productCount}
 			/>
 
-			<div className='grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]'>
-				<div className='space-y-6'>
+			<div className='grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]'>
+				<div className='min-w-0 space-y-6'>
 					<StoreMediaSection
 						form={form}
 						onChange={patchForm}
@@ -167,7 +208,7 @@ export function StoreEditorForm({ store }: StoreEditorFormProps) {
 					<StoreIdentitySection form={form} onChange={patchForm} />
 					<StoreContactSection form={form} onChange={patchForm} />
 				</div>
-				<div className='space-y-6'>
+				<div className='min-w-0 space-y-6'>
 					<StoreLocationSection form={form} onChange={patchForm} />
 					<StoreDeliverySection form={form} onChange={patchForm} />
 					<StoreStatusSection
@@ -182,33 +223,36 @@ export function StoreEditorForm({ store }: StoreEditorFormProps) {
 				</div>
 			</div>
 
-			<div className='fixed inset-x-0 bottom-0 z-20 border-t border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 md:left-(--sidebar-width) md:peer-data-[collapsible=icon]/sidebar:left-(--sidebar-width-icon)'>
-				<div className='mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6'>
-					<p className='hidden text-xs text-muted-foreground sm:block'>
+			<div className='fixed bottom-0 left-0 right-0 z-20 max-w-full border-t border-border/60 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80 md:left-(--sidebar-width)'>
+				<div className='mx-auto flex w-full max-w-6xl min-w-0 flex-wrap items-center justify-end gap-2 px-4 py-3 sm:justify-between sm:gap-3 sm:px-6'>
+					<p className='hidden min-w-0 flex-1 text-xs text-muted-foreground sm:block'>
 						{mediaUploading
-							? 'Aguarde o carregamento das imagens...'
-							: 'As alterações só são aplicadas ao guardar.'}
+							? 'Aguarde o carregamento das imagens…'
+							: isDirty
+								? 'As alterações só são aplicadas ao guardar.'
+								: 'Nenhuma alteração por guardar.'}
 					</p>
 					<Button
 						type='button'
-						className='rounded-full'
-						disabled={mutation.isPending || mediaUploading}
+						size='sm'
+						className='shrink-0 rounded-full'
+						disabled={!canSave}
 						onClick={() => mutation.mutate()}
 					>
 						{mutation.isPending ? (
 							<>
-								<Loader2 className='size-4 animate-spin' />A
-								guardar...
+								<Loader2 className='size-4 animate-spin' />
+								A guardar…
 							</>
 						) : mediaUploading ? (
 							<>
-								<Loader2 className='size-4 animate-spin' />A
-								carregar imagem...
+								<Loader2 className='size-4 animate-spin' />
+								A carregar…
 							</>
 						) : (
 							<>
 								<Save className='size-4' />
-								Guardar alterações
+								Guardar
 							</>
 						)}
 					</Button>

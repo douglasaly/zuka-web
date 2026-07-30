@@ -50,8 +50,8 @@ export function StoreLocationSection({
 			title='Localização'
 			description='Província e bairro onde a loja opera.'
 		>
-			<div className='grid gap-4 sm:grid-cols-2'>
-				<div className='space-y-2'>
+			<div className='grid min-w-0 gap-4 sm:grid-cols-2'>
+				<div className='min-w-0 space-y-2'>
 					<Label>Província</Label>
 					<Select
 						items={provinceItems}
@@ -61,7 +61,7 @@ export function StoreLocationSection({
 						}
 						disabled={isLoading}
 					>
-						<SelectTrigger className='w-full'>
+						<SelectTrigger className='h-11 w-full'>
 							<SelectValue
 								placeholder={
 									isLoading
@@ -79,7 +79,7 @@ export function StoreLocationSection({
 						</SelectContent>
 					</Select>
 				</div>
-				<div className='space-y-2'>
+				<div className='min-w-0 space-y-2'>
 					<Label htmlFor='store-neighborhood'>Bairro / zona</Label>
 					<Input
 						id='store-neighborhood'
@@ -88,6 +88,7 @@ export function StoreLocationSection({
 							onChange({ neighborhood: e.target.value })
 						}
 						placeholder='Ex: Polana, Malhangalene'
+						className='h-11'
 					/>
 				</div>
 			</div>

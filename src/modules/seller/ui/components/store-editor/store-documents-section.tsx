@@ -82,7 +82,7 @@ export function StoreDocumentsSection({
 					{documents.map((doc) => (
 						<li
 							key={doc.id}
-							className='flex items-center justify-between gap-3 rounded-lg border border-border/50 px-3 py-2.5'
+							className='flex min-w-0 items-center justify-between gap-3 rounded-xl border border-border/50 px-3 py-2.5'
 						>
 							<div className='min-w-0'>
 								<p className='truncate text-sm font-medium'>
