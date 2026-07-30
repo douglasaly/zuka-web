@@ -1,10 +1,15 @@
 'use client'
 
 import { Plus, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { IconTooltipButton } from '../icon-tooltip-button'
 import { StoreSection } from './store-section'
 import type { StoreFormState } from './types'
 
@@ -103,16 +108,15 @@ export function StoreDeliverySection({
 									placeholder='Ex: Costa do Sol, Matola'
 									className='h-11 min-w-0'
 								/>
-								<Button
-									type='button'
+								<IconTooltipButton
+									label='Adicionar zona'
 									variant='outline'
 									size='icon'
 									className='size-11 shrink-0'
 									onClick={addZone}
-									aria-label='Adicionar zona'
 								>
 									<Plus className='size-4' />
-								</Button>
+								</IconTooltipButton>
 							</div>
 							{form.deliveryZones.length > 0 ? (
 								<ul className='mt-2 flex flex-wrap gap-2'>
@@ -124,22 +128,34 @@ export function StoreDeliverySection({
 											<span className='truncate'>
 												{zone}
 											</span>
-											<button
-												type='button'
-												onClick={() =>
-													onChange({
-														deliveryZones:
-															form.deliveryZones.filter(
-																(z) =>
-																	z !== zone
-															),
-													})
-												}
-												className='shrink-0 text-muted-foreground hover:text-foreground'
-												aria-label={`Remover ${zone}`}
-											>
-												<X className='size-3' />
-											</button>
+											<Tooltip>
+												<TooltipTrigger
+													render={
+														<button
+															type='button'
+															onClick={() =>
+																onChange({
+																	deliveryZones:
+																		form.deliveryZones.filter(
+																			(
+																				z
+																			) =>
+																				z !==
+																				zone
+																		),
+																})
+															}
+															className='shrink-0 text-muted-foreground hover:text-foreground'
+															aria-label={`Remover ${zone}`}
+														>
+															<X className='size-3' />
+														</button>
+													}
+												/>
+												<TooltipContent>
+													Remover {zone}
+												</TooltipContent>
+											</Tooltip>
 										</li>
 									))}
 								</ul>

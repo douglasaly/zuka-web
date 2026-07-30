@@ -5,6 +5,11 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { SidebarTrigger } from '@/components/ui/sidebar'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { NotificationDropdown } from '@/modules/notifications/ui/components/notification-dropdown'
 import { useSellerPageMeta } from './seller-page-meta'
 
@@ -64,19 +69,26 @@ export const SellerTopBar = () => {
 	return (
 		<header className='sticky top-0 z-30 flex h-[76px] min-w-0 items-center justify-between gap-2 border-b border-border/60 bg-background/95 px-4 backdrop-blur-sm sm:px-6'>
 			<div className='flex min-w-0 items-center gap-2 sm:gap-3'>
-				<SidebarTrigger
-					nativeButton
-					className='md:hidden'
-					render={
-						<Button
-							variant='ghost'
-							size='icon-sm'
-							aria-label='Menu'
-						>
-							<Menu className='size-4' />
-						</Button>
-					}
-				/>
+				<Tooltip>
+					<TooltipTrigger
+						render={
+							<SidebarTrigger
+								nativeButton
+								className='md:hidden'
+								render={
+									<Button
+										variant='ghost'
+										size='icon-sm'
+										aria-label='Menu'
+									>
+										<Menu className='size-4' />
+									</Button>
+								}
+							/>
+						}
+					/>
+					<TooltipContent side='bottom'>Menu</TooltipContent>
+				</Tooltip>
 
 				<div className='hidden min-w-0 md:block'>
 					{crumbTrail.length > 0 ? (

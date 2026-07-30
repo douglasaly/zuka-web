@@ -132,8 +132,9 @@ export function mapStoreRow(
 
 const orderStatusMap = {
 	PENDING: { status: 'pending' as const, label: 'Pendente' },
-	SHIPPING: { status: 'shipping' as const, label: 'A caminho' },
-	COMPLETED: { status: 'completed' as const, label: 'Concluído' },
+	CONTACTED: { status: 'pending' as const, label: 'Contactado' },
+	SHIPPING: { status: 'shipping' as const, label: 'Em envio' },
+	COMPLETED: { status: 'completed' as const, label: 'Entregue' },
 	CANCELLED: { status: 'cancelled' as const, label: 'Cancelado' },
 }
 

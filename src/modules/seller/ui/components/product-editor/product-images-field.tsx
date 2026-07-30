@@ -4,10 +4,10 @@ import { Loader2, Plus, Star, Trash2, Upload } from 'lucide-react'
 import Image from 'next/image'
 import { useRef, useState } from 'react'
 import { toast } from 'sonner'
-import { Button } from '@/components/ui/button'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 import { uploadImageToR2 } from '@/lib/api/uploads'
 import { cn } from '@/lib/utils'
+import { IconTooltipButton } from '../icon-tooltip-button'
 import { MAX_PRODUCT_IMAGES } from './constants'
 
 type ProductImagesFieldProps = {
@@ -166,27 +166,25 @@ export function ProductImagesField({
 							) : null}
 							<div className='absolute inset-x-0 bottom-0 flex items-center justify-center gap-1 bg-linear-to-t from-black/65 to-transparent p-2 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100'>
 								{index > 0 ? (
-									<Button
-										type='button'
+									<IconTooltipButton
+										label='Definir como capa'
 										size='icon-sm'
 										variant='secondary'
-										className='size-8 rounded-full'
+										className='size-8'
 										onClick={() => makePrimary(index)}
-										aria-label='Definir como capa'
 									>
 										<Star className='size-3.5' />
-									</Button>
+									</IconTooltipButton>
 								) : null}
-								<Button
-									type='button'
+								<IconTooltipButton
+									label='Remover imagem'
 									size='icon-sm'
 									variant='destructive'
-									className='size-8 rounded-full'
+									className='size-8'
 									onClick={() => removeAt(index)}
-									aria-label='Remover imagem'
 								>
 									<Trash2 className='size-3.5' />
-								</Button>
+								</IconTooltipButton>
 							</div>
 						</div>
 					))}

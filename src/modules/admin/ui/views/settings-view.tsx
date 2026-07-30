@@ -7,6 +7,11 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { hasAdminAccess } from '@/lib/auth/roles'
 import { ConfirmDialog } from '../components/confirm-dialog'
 
@@ -194,33 +199,57 @@ export function SettingsView() {
 											autoFocus
 										/>
 										<div className='flex gap-1'>
-											<Button
-												size='sm'
-												variant='ghost'
-												type='button'
-												className='text-emerald-600'
-												onClick={() =>
-													editCatMutation.mutate({
-														id: editingCat.id,
-														name: editingCat.name,
-													})
-												}
-												disabled={
-													editCatMutation.isPending
-												}
-											>
-												<Check className='size-3.5' />
-											</Button>
-											<Button
-												size='sm'
-												variant='ghost'
-												type='button'
-												onClick={() =>
-													setEditingCat(null)
-												}
-											>
-												<X className='size-3.5' />
-											</Button>
+											<Tooltip>
+												<TooltipTrigger
+													render={
+														<Button
+															size='sm'
+															variant='ghost'
+															type='button'
+															aria-label='Guardar'
+															className='text-emerald-600'
+															onClick={() =>
+																editCatMutation.mutate(
+																	{
+																		id: editingCat.id,
+																		name: editingCat.name,
+																	}
+																)
+															}
+															disabled={
+																editCatMutation.isPending
+															}
+														>
+															<Check className='size-3.5' />
+														</Button>
+													}
+												/>
+												<TooltipContent>
+													Guardar
+												</TooltipContent>
+											</Tooltip>
+											<Tooltip>
+												<TooltipTrigger
+													render={
+														<Button
+															size='sm'
+															variant='ghost'
+															type='button'
+															aria-label='Cancelar'
+															onClick={() =>
+																setEditingCat(
+																	null
+																)
+															}
+														>
+															<X className='size-3.5' />
+														</Button>
+													}
+												/>
+												<TooltipContent>
+													Cancelar
+												</TooltipContent>
+											</Tooltip>
 										</div>
 									</>
 								) : (
@@ -232,30 +261,52 @@ export function SettingsView() {
 											{cat.slug}
 										</span>
 										<div className='flex gap-1'>
-											<Button
-												size='sm'
-												variant='ghost'
-												type='button'
-												onClick={() =>
-													setEditingCat({
-														id: cat.id,
-														name: cat.name,
-													})
-												}
-											>
-												<Pencil className='size-3.5' />
-											</Button>
-											<Button
-												size='sm'
-												variant='ghost'
-												type='button'
-												className='text-destructive'
-												onClick={() =>
-													setConfirmDeleteCat(cat.id)
-												}
-											>
-												<Trash2 className='size-3.5' />
-											</Button>
+											<Tooltip>
+												<TooltipTrigger
+													render={
+														<Button
+															size='sm'
+															variant='ghost'
+															type='button'
+															aria-label='Editar categoria'
+															onClick={() =>
+																setEditingCat({
+																	id: cat.id,
+																	name: cat.name,
+																})
+															}
+														>
+															<Pencil className='size-3.5' />
+														</Button>
+													}
+												/>
+												<TooltipContent>
+													Editar
+												</TooltipContent>
+											</Tooltip>
+											<Tooltip>
+												<TooltipTrigger
+													render={
+														<Button
+															size='sm'
+															variant='ghost'
+															type='button'
+															aria-label='Eliminar categoria'
+															className='text-destructive'
+															onClick={() =>
+																setConfirmDeleteCat(
+																	cat.id
+																)
+															}
+														>
+															<Trash2 className='size-3.5' />
+														</Button>
+													}
+												/>
+												<TooltipContent>
+													Eliminar
+												</TooltipContent>
+											</Tooltip>
 										</div>
 									</>
 								)}
