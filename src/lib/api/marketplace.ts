@@ -304,8 +304,9 @@ export async function createProduct(input: {
 	categoryId: string
 	price: number
 	discountPrice?: number
-	quantity?: number
 	imageUrl?: string
+	imageUrls?: string[]
+	status?: 'DRAFT' | 'ACTIVE' | 'INACTIVE'
 }) {
 	const res = await fetch('/api/products', {
 		method: 'POST',

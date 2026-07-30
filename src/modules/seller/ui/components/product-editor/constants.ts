@@ -14,11 +14,6 @@ export const PRODUCT_STATUS_OPTIONS = [
 		label: 'Pausado',
 		description: 'Oculto temporariamente. Pode reactivar depois.',
 	},
-	{
-		value: 'OUT_OF_STOCK' as const,
-		label: 'Sem stock',
-		description: 'Visível mas marcado como esgotado.',
-	},
 ] as const
 
 export type ProductStatusValue =
@@ -28,7 +23,6 @@ export const PRODUCT_STATUS_STYLES: Record<string, string> = {
 	DRAFT: 'bg-muted text-muted-foreground',
 	ACTIVE: 'bg-emerald-500/10 text-emerald-700',
 	INACTIVE: 'bg-amber-500/10 text-amber-700',
-	OUT_OF_STOCK: 'bg-orange-500/10 text-orange-700',
 	PENDING_REVIEW: 'bg-blue-500/10 text-blue-700',
 	ARCHIVED: 'bg-muted text-muted-foreground',
 }
@@ -37,7 +31,6 @@ export const PRODUCT_STATUS_LABELS: Record<string, string> = {
 	DRAFT: 'Rascunho',
 	ACTIVE: 'Activo',
 	INACTIVE: 'Pausado',
-	OUT_OF_STOCK: 'Sem stock',
 	PENDING_REVIEW: 'Em revisão',
 	ARCHIVED: 'Arquivado',
 }

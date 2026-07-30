@@ -139,10 +139,10 @@ _Gestão completa de pedidos._
 
 _Gestão completa de produtos (páginas próprias)._
 
-- [x] Lista com imagem, nome, preço, stock, status, categorias
+- [x] Lista com imagem, nome, preço, status, categorias
 - [x] Filtros: categoria, status, preço, search
 - [x] Bulk actions: pausar, activar, eliminar seleccionados
-- [x] Novo produto: nome, descrição, categoria, preço, stock, imagens múltiplas, status
+- [x] Novo produto: nome, descrição, categoria, preço, imagens múltiplas, status
 - [x] Editar produto: pré-preenchido, mesma estrutura
 - [x] Pré-visualização em Sheet
 - [x] Gestão de categorias: criar, editar, reordenar
@@ -151,8 +151,8 @@ _Gestão completa de produtos (páginas próprias)._
 
 | Ficheiro | Tipo | Responsabilidade |
 |---|---|---|
-| `api/seller/products/route.ts` | API | Lista com stock, filtros preço/categoria/status/search |
-| `api/seller/products/[id]/route.ts` | API | `GET` detalhe + `PATCH` multi-imagens/stock/status |
+| `api/seller/products/route.ts` | API | Lista com filtros preço/categoria/status/search |
+| `api/seller/products/[id]/route.ts` | API | `GET` detalhe + `PATCH` multi-imagens/status |
 | `api/seller/categories/route.ts` | API | CRUD + reordenar categorias |
 | `product-editor/*` | Components | Imagens múltiplas, status, preview Sheet |
 | `product-form.tsx` | Form | Layout 2 colunas create/edit |

@@ -6,7 +6,7 @@ import { createSupabaseAdmin } from '@/lib/supabase/admin'
 
 type Params = { params: Promise<{ id: string }> }
 
-const VISIBLE_STATUSES = new Set(['ACTIVE', 'OUT_OF_STOCK'])
+const VISIBLE_STATUSES = new Set(['ACTIVE'])
 
 export async function GET(_req: Request, { params }: Params) {
 	try {
@@ -20,7 +20,7 @@ export async function GET(_req: Request, { params }: Params) {
 		const { data, error } = await supabase
 			.from('products')
 			.select(
-				'*, categories(id, name), product_images(id, url, position, is_primary), product_stock(quantity)'
+				'*, categories(id, name), product_images(id, url, position, is_primary)'
 			)
 			.eq('id', id)
 			.eq('store_id', store.id as string)
@@ -47,14 +47,6 @@ export async function GET(_req: Request, { params }: Params) {
 			.filter((img) => Boolean(img.url))
 			.sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
 
-		const stockRows = record.product_stock as
-			| Array<{ quantity: number }>
-			| { quantity: number }
-			| null
-		const quantity = Array.isArray(stockRows)
-			? (stockRows[0]?.quantity ?? 0)
-			: (stockRows?.quantity ?? 0)
-
 		const cat = record.categories as { id: string; name: string } | null
 
 		return NextResponse.json({
@@ -71,7 +63,6 @@ export async function GET(_req: Request, { params }: Params) {
 						? (record.discount_price as number) / 100
 						: null,
 				currency: record.currency as string,
-				quantity,
 				status: record.status as string,
 				isVisible: record.is_visible as boolean,
 				images: images.map((img) => ({
@@ -159,32 +150,6 @@ export async function PATCH(req: Request, { params }: Params) {
 			.eq('id', id)
 
 		if (error) throw error
-
-		if (body.quantity !== undefined) {
-			const qty = Number(body.quantity) || 0
-			const { data: stock } = await supabase
-				.from('product_stock')
-				.select('id')
-				.eq('product_id', id)
-				.maybeSingle()
-
-			if (stock) {
-				await supabase
-					.from('product_stock')
-					.update({
-						quantity: qty,
-						updated_at: new Date().toISOString(),
-					})
-					.eq('id', stock.id as string)
-			} else {
-				await supabase.from('product_stock').insert({
-					id: uuidv7(),
-					product_id: id,
-					quantity: qty,
-					reserved: 0,
-				})
-			}
-		}
 
 		if (imageUrls) {
 			await supabase.from('product_images').delete().eq('product_id', id)

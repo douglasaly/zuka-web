@@ -61,7 +61,7 @@ export const SellerEditProductView = ({ id }: SellerEditProductViewProps) => {
 	}
 
 	const status = (
-		['DRAFT', 'ACTIVE', 'INACTIVE', 'OUT_OF_STOCK'].includes(data.status)
+		['DRAFT', 'ACTIVE', 'INACTIVE'].includes(data.status)
 			? data.status
 			: 'DRAFT'
 	) as ProductStatusValue
@@ -79,7 +79,6 @@ export const SellerEditProductView = ({ id }: SellerEditProductViewProps) => {
 					data.discountPrice != null
 						? String(data.discountPrice)
 						: '',
-				quantity: String(data.quantity),
 				status,
 				imageUrls: data.images.map((img) => img.url),
 			}}

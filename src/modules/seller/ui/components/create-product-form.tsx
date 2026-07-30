@@ -33,7 +33,6 @@ export function CreateProductForm({
 		categoryId: '',
 		price: '',
 		discountPrice: '',
-		quantity: '1',
 		imageUrl: '',
 	})
 
@@ -51,7 +50,6 @@ export function CreateProductForm({
 				categoryId: '',
 				price: '',
 				discountPrice: '',
-				quantity: '1',
 				imageUrl: '',
 			})
 			setOpen(false)
@@ -89,7 +87,6 @@ export function CreateProductForm({
 					discountPrice: form.discountPrice
 						? Number(form.discountPrice)
 						: undefined,
-					quantity: Number(form.quantity) || 1,
 					imageUrl: form.imageUrl || undefined,
 				})
 			}}
@@ -136,41 +133,27 @@ export function CreateProductForm({
 				/>
 			</div>
 
-			<div className='grid gap-4 sm:grid-cols-2'>
-				<div className='space-y-2'>
-					<Label htmlFor='product-category'>Categoria</Label>
-					<select
-						id='product-category'
-						required
-						className='flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm'
-						value={form.categoryId}
-						onChange={(e) =>
-							setForm((f) => ({
-								...f,
-								categoryId: e.target.value,
-							}))
-						}
-					>
-						<option value=''>Selecionar...</option>
-						{categories.map((c) => (
-							<option key={c.id} value={c.id}>
-								{c.name}
-							</option>
-						))}
-					</select>
-				</div>
-				<div className='space-y-2'>
-					<Label htmlFor='product-quantity'>Stock</Label>
-					<Input
-						id='product-quantity'
-						type='number'
-						min={1}
-						value={form.quantity}
-						onChange={(e) =>
-							setForm((f) => ({ ...f, quantity: e.target.value }))
-						}
-					/>
-				</div>
+			<div className='space-y-2'>
+				<Label htmlFor='product-category'>Categoria</Label>
+				<select
+					id='product-category'
+					required
+					className='flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm'
+					value={form.categoryId}
+					onChange={(e) =>
+						setForm((f) => ({
+							...f,
+							categoryId: e.target.value,
+						}))
+					}
+				>
+					<option value=''>Selecionar...</option>
+					{categories.map((c) => (
+						<option key={c.id} value={c.id}>
+							{c.name}
+						</option>
+					))}
+				</select>
 			</div>
 
 			<div className='grid gap-4 sm:grid-cols-2'>

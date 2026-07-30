@@ -10,7 +10,6 @@ CREATE TYPE public.product_status_enum AS ENUM (
   'PENDING_REVIEW',
   'ACTIVE',
   'INACTIVE',
-  'OUT_OF_STOCK',
   'ARCHIVED',
   'DELETED'
 );
@@ -202,29 +201,6 @@ CREATE TABLE public.product_images (
   deleted_at timestamptz
 );
 
-CREATE TABLE public.product_stock (
-  id uuid PRIMARY KEY NOT NULL,
-  product_id uuid NOT NULL UNIQUE REFERENCES public.products (id) ON DELETE CASCADE,
-  quantity integer DEFAULT 0 NOT NULL,
-  reserved integer DEFAULT 0 NOT NULL,
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now(),
-  deleted_at timestamptz
-);
-
-CREATE TABLE public.product_variants (
-  id uuid PRIMARY KEY NOT NULL,
-  store_id uuid NOT NULL REFERENCES public.stores (id) ON DELETE CASCADE,
-  product_id uuid NOT NULL REFERENCES public.products (id) ON DELETE CASCADE,
-  sku varchar(120) NOT NULL,
-  price numeric(12, 2) NOT NULL,
-  stock integer DEFAULT 0,
-  attributes jsonb,
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now(),
-  deleted_at timestamptz
-);
-
 CREATE TABLE public.store_followers (
   id uuid PRIMARY KEY NOT NULL,
   user_id uuid NOT NULL REFERENCES public.users (id) ON DELETE CASCADE,
@@ -303,7 +279,6 @@ CREATE TABLE public.order_items (
 -- Indexes
 -- ---------------------------------------------------------------------------
 
-CREATE UNIQUE INDEX store_sku_unique ON public.product_variants (store_id, sku);
 CREATE UNIQUE INDEX unique_user_store_follow ON public.store_followers (user_id, store_id);
 CREATE INDEX idx_store_followers_user ON public.store_followers (user_id);
 CREATE INDEX idx_store_followers_store ON public.store_followers (store_id);

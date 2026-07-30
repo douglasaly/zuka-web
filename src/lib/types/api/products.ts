@@ -70,8 +70,9 @@ export type CreateProductInput = {
 	price: number
 	discountPrice?: number
 	currency?: string
-	quantity?: number
 	imageUrl?: string
+	imageUrls?: string[]
+	status?: 'DRAFT' | 'ACTIVE' | 'INACTIVE'
 }
 
 export type CreateProductOutput = {

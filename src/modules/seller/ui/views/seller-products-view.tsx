@@ -38,7 +38,6 @@ const STATUS_OPTIONS = [
 	{ value: 'ACTIVE', label: 'Activos' },
 	{ value: 'INACTIVE', label: 'Pausados' },
 	{ value: 'DRAFT', label: 'Rascunhos' },
-	{ value: 'OUT_OF_STOCK', label: 'Sem stock' },
 ]
 
 export const SellerProductsView = () => {
@@ -406,9 +405,6 @@ export const SellerProductsView = () => {
 												· {product.categoryName}
 											</span>
 										) : null}
-										<span className='text-muted-foreground'>
-											· Stock {product.quantity}
-										</span>
 									</div>
 								</div>
 
@@ -548,8 +544,7 @@ export const SellerProductsView = () => {
 									</span>
 								</div>
 								<p className='text-sm text-muted-foreground'>
-									{preview.categoryName ?? 'Sem categoria'} ·
-									Stock {preview.quantity}
+									{preview.categoryName ?? 'Sem categoria'}
 								</p>
 								{preview.description ? (
 									<p className='whitespace-pre-wrap text-sm leading-relaxed'>

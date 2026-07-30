@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 		let query = supabase
 			.from('products')
 			.select(
-				'*, categories(id, name), product_images(url, is_primary, position), product_stock(quantity)',
+				'*, categories(id, name), product_images(url, is_primary, position)',
 				{ count: 'exact' }
 			)
 			.eq('store_id', store.id as string)
@@ -77,14 +77,6 @@ export async function GET(request: NextRequest) {
 			const primary =
 				images.find((img) => img.is_primary) ?? images[0] ?? null
 
-			const stockRows = record.product_stock as
-				| Array<{ quantity: number }>
-				| { quantity: number }
-				| null
-			const stock = Array.isArray(stockRows)
-				? (stockRows[0]?.quantity ?? 0)
-				: (stockRows?.quantity ?? 0)
-
 			const cat = record.categories as {
 				id: string
 				name: string
@@ -105,7 +97,6 @@ export async function GET(request: NextRequest) {
 				categoryName: cat?.name ?? null,
 				image: primary?.url ?? null,
 				images: images.map((img) => img.url),
-				quantity: stock,
 			}
 		})
 

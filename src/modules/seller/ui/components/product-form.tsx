@@ -96,7 +96,6 @@ export const ProductForm = ({
 				discountPrice: form.discountPrice
 					? Number(form.discountPrice)
 					: undefined,
-				quantity: Number(form.quantity) || 0,
 				status: form.status,
 				imageUrls: form.imageUrls,
 			}
@@ -230,38 +229,24 @@ export const ProductForm = ({
 						/>
 					</div>
 
-					<div className='grid gap-4 sm:grid-cols-2'>
-						<div className='space-y-2'>
-							<Label htmlFor='product-category'>Categoria</Label>
-							<select
-								id='product-category'
-								required
-								className='flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
-								value={form.categoryId}
-								onChange={(e) =>
-									update('categoryId', e.target.value)
-								}
-							>
-								<option value=''>Seleccionar...</option>
-								{(categories ?? []).map((c) => (
-									<option key={c.id} value={c.id}>
-										{c.name}
-									</option>
-								))}
-							</select>
-						</div>
-						<div className='space-y-2'>
-							<Label htmlFor='product-quantity'>Stock</Label>
-							<Input
-								id='product-quantity'
-								type='number'
-								min={0}
-								value={form.quantity}
-								onChange={(e) =>
-									update('quantity', e.target.value)
-								}
-							/>
-						</div>
+					<div className='space-y-2'>
+						<Label htmlFor='product-category'>Categoria</Label>
+						<select
+							id='product-category'
+							required
+							className='flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+							value={form.categoryId}
+							onChange={(e) =>
+								update('categoryId', e.target.value)
+							}
+						>
+							<option value=''>Seleccionar...</option>
+							{(categories ?? []).map((c) => (
+								<option key={c.id} value={c.id}>
+									{c.name}
+								</option>
+							))}
+						</select>
 					</div>
 
 					<div className='grid gap-4 sm:grid-cols-2'>

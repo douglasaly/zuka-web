@@ -214,7 +214,6 @@ export const POST = withErrorHandling(async (request) => {
 		price,
 		discountPrice,
 		currency,
-		quantity,
 		imageUrl,
 		imageUrls,
 		status,
@@ -235,7 +234,7 @@ export const POST = withErrorHandling(async (request) => {
 	}
 
 	const nextStatus = status ?? 'ACTIVE'
-	const isVisible = nextStatus === 'ACTIVE' || nextStatus === 'OUT_OF_STOCK'
+	const isVisible = nextStatus === 'ACTIVE'
 
 	const supabase = createSupabaseAdmin()
 	const productId = uuidv7()
@@ -272,13 +271,6 @@ export const POST = withErrorHandling(async (request) => {
 		.single()
 
 	if (productError) throw productError
-
-	await supabase.from('product_stock').insert({
-		id: uuidv7(),
-		product_id: productId,
-		quantity: quantity,
-		reserved: 0,
-	})
 
 	if (urls.length > 0) {
 		await supabase.from('product_images').insert(

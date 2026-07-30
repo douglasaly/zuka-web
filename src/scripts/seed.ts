@@ -53,8 +53,6 @@ async function seed() {
 			'seller_onboarding_steps',
 			'seller_onboarding',
 			'product_images',
-			'product_stock',
-			'product_variants',
 			'products',
 			'stores',
 			'seller_profiles',
@@ -456,27 +454,6 @@ async function seed() {
 
 		await supabase.from('products').insert(products)
 
-		await supabase.from('product_stock').insert(
-			products.map((p, i) => ({
-				id: uuidv7(),
-				product_id: p.id,
-				quantity: [50, 30, 15, 100, 200][i],
-				reserved: [5, 0, 2, 10, 20][i],
-			}))
-		)
-
-		await supabase.from('product_variants').insert([
-			{
-				id: uuidv7(),
-				store_id: stores[0].id,
-				product_id: products[0].id,
-				sku: 'SGS24-BLK',
-				price: 1200000,
-				stock: 20,
-				attributes: { color: 'Black', storage: '256GB' },
-			},
-		])
-
 		await supabase.from('product_images').insert([
 			{
 				id: uuidv7(),
@@ -500,7 +477,7 @@ async function seed() {
 			id: messageId,
 			conversation_id: conversationId,
 			user_id: users[1].id,
-			content: 'Olá, ainda tens stock?',
+			content: 'Olá, o produto ainda está disponível?',
 		})
 
 		await supabase.from('message_products').insert({

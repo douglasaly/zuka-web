@@ -120,10 +120,6 @@ export function ProductPreviewSheet({
 						)}
 					</div>
 
-					<p className='text-sm text-muted-foreground'>
-						Stock: {form.quantity || '0'} unidades
-					</p>
-
 					{form.description ? (
 						<p className='whitespace-pre-wrap text-sm leading-relaxed'>
 							{form.description}

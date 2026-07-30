@@ -11,7 +11,6 @@ export type SellerProduct = {
 	categoryName: string | null
 	image: string | null
 	images: string[]
-	quantity: number
 	description: string | null
 }
 
@@ -47,7 +46,6 @@ export type UpdateSellerProductInput = {
 	categoryId?: string
 	price?: number
 	discountPrice?: number | null
-	quantity?: number
 	status?: string
 	isVisible?: boolean
 	imageUrl?: string
@@ -64,7 +62,6 @@ export type SellerProductDetail = {
 	price: number
 	discountPrice: number | null
 	currency: string
-	quantity: number
 	status: string
 	isVisible: boolean
 	images: Array<{
