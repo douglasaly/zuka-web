@@ -106,14 +106,26 @@ export type StoreConversationItem = {
 	unread: boolean
 }
 
-/** GET /api/stores/conversations */
+/** GET /api/stores/conversations (cursor-based) */
 export type ListStoreConversationsOutput = {
+	success: true
 	data: StoreConversationItem[]
+	pagination: {
+		hasMore: boolean
+		nextCursor: string | null
+		limit: number
+	}
 }
 
-/** GET /api/stores/conversations/[id]/messages */
+/** GET /api/stores/conversations/[id]/messages (cursor-based) */
 export type ListStoreMessagesOutput = {
+	success: true
 	data: Message[]
+	pagination: {
+		hasMore: boolean
+		nextCursor: string | null
+		limit: number
+	}
 }
 
 /** POST /api/stores/conversations/[id]/messages */
@@ -122,6 +134,7 @@ export type SendStoreMessageInput = {
 }
 
 export type SendStoreMessageOutput = {
+	success: true
 	data: Message
 }
 

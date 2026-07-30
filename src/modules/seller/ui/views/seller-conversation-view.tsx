@@ -10,20 +10,23 @@
  * ADAPT: Fixed viewport height, safe-area composer, touch targets, internal scroll.
  */
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { ArrowLeft, Inbox, Loader2, MessageSquare, Send } from 'lucide-react'
 import {
-	ArrowLeft,
-	Inbox,
-	Loader2,
-	MessageSquare,
-	Send,
-} from 'lucide-react'
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
+import { flattenPages, useInfiniteList } from '@/hooks/use-infinite-list'
 import { cn } from '@/lib/utils'
+import { LoadMoreMessages } from '@/modules/messages/ui/components/load-more-messages'
 import { formatTime } from '@/utils/format-time'
 import { IconTooltipButton } from '../components/icon-tooltip-button'
 import {
@@ -69,35 +72,36 @@ function dayLabel(iso: string) {
 	})
 }
 
-const SHELL =
-	'-m-4 flex h-[calc(100dvh-76px)] min-w-0 sm:-m-6'
+const SHELL = '-m-4 flex h-[calc(100dvh-76px)] min-w-0 sm:-m-6'
+const INBOX_LIMIT = 20
+const MESSAGES_LIMIT = 30
 
 type SellerConversationViewProps = {
 	id: string
 }
 
-export const SellerConversationView = ({
-	id,
-}: SellerConversationViewProps) => {
+export const SellerConversationView = ({ id }: SellerConversationViewProps) => {
 	const [input, setInput] = useState('')
 	const scrollerRef = useRef<HTMLDivElement>(null)
 	const queryClient = useQueryClient()
 
-	const { data: inboxData, isLoading: inboxLoading } = useQuery<{
-		data: SellerConversation[]
-	}>({
+	const {
+		data: inboxData,
+		isLoading: inboxLoading,
+		fetchNextPage: fetchMoreInbox,
+		hasNextPage: hasMoreInbox,
+		isFetchingNextPage: isFetchingMoreInbox,
+	} = useInfiniteList<SellerConversation>({
 		queryKey: ['seller-conversations'],
-		queryFn: async () => {
-			const res = await fetch('/api/stores/conversations')
-			if (!res.ok) throw new Error('Failed to load conversations')
-			return res.json()
-		},
-		staleTime: 30_000,
+		endpoint: '/api/stores/conversations',
+		limit: INBOX_LIMIT,
 	})
 
+	const inbox = flattenPages<SellerConversation>(inboxData)
+
 	const peer = useMemo(
-		() => inboxData?.data?.find((c) => c.id === id) ?? null,
-		[inboxData, id]
+		() => inbox.find((c) => c.id === id) ?? null,
+		[inbox, id]
 	)
 
 	const peerName = peer?.otherUserName ?? 'Cliente'
@@ -107,14 +111,25 @@ export const SellerConversationView = ({
 		crumbs: ['Dashboard', 'Mensagens'],
 	})
 
-	const { data, isLoading, isError, refetch } = useQuery<{ data: Message[] }>({
+	const {
+		data: messagesData,
+		isLoading,
+		isError,
+		refetch,
+		fetchNextPage,
+		hasNextPage,
+		isFetchingNextPage,
+	} = useInfiniteList<Message>({
 		queryKey: ['seller-conversation-messages', id],
-		queryFn: async () => {
-			const res = await fetch(`/api/stores/conversations/${id}/messages`)
-			if (!res.ok) throw new Error('Failed to load messages')
-			return res.json()
-		},
+		endpoint: `/api/stores/conversations/${id}/messages`,
+		limit: MESSAGES_LIMIT,
 	})
+
+	// Pages are newest-first batches; reverse so older pages come first.
+	const messages = useMemo(() => {
+		const pages = messagesData?.pages ?? []
+		return [...pages].reverse().flatMap((p) => p.data as Message[])
+	}, [messagesData])
 
 	const sendMutation = useMutation({
 		mutationFn: async (content: string) => {
@@ -128,7 +143,11 @@ export const SellerConversationView = ({
 			)
 			const json = await res.json().catch(() => ({}))
 			if (!res.ok) {
-				throw new Error(json.error ?? 'Falha ao enviar mensagem')
+				throw new Error(
+					json.error?.message ??
+						json.error ??
+						'Falha ao enviar mensagem'
+				)
 			}
 			return json
 		},
@@ -162,8 +181,6 @@ export const SellerConversationView = ({
 		})()
 	}, [id, queryClient])
 
-	const messages = data?.data ?? []
-
 	const scrollToBottom = useCallback((smooth: boolean) => {
 		const root = scrollerRef.current
 		if (!root) return
@@ -173,13 +190,27 @@ export const SellerConversationView = ({
 		})
 	}, [])
 
+	const newestMessageId = messages[messages.length - 1]?.id
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: re-scroll when conversation changes
 	useLayoutEffect(() => {
 		scrollToBottom(false)
 	}, [id, scrollToBottom])
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: re-scroll on new newest message / send
 	useEffect(() => {
 		scrollToBottom(true)
-	}, [messages.length, sendMutation.isPending, scrollToBottom])
+	}, [newestMessageId, sendMutation.isPending, scrollToBottom])
+
+	async function handleLoadOlder() {
+		const root = scrollerRef.current
+		const prevHeight = root?.scrollHeight ?? 0
+		await fetchNextPage()
+		requestAnimationFrame(() => {
+			if (!root) return
+			root.scrollTop = root.scrollHeight - prevHeight
+		})
+	}
 
 	function handleSend() {
 		const trimmed = input.trim()
@@ -187,13 +218,11 @@ export const SellerConversationView = ({
 		sendMutation.mutate(trimmed)
 	}
 
-	const inbox = inboxData?.data ?? []
-
 	return (
 		<div className={SHELL}>
 			<aside className='hidden w-80 shrink-0 flex-col border-r border-border/60 bg-card lg:flex xl:w-96'>
 				<SellerInboxRailHeader
-					subtitle={`${inbox.length} conversa${inbox.length === 1 ? '' : 's'}`}
+					subtitle={`${inbox.length}${hasMoreInbox ? '+' : ''} conversa${inbox.length === 1 ? '' : 's'}`}
 				/>
 				<div className='min-h-0 flex-1 overflow-y-auto overscroll-contain'>
 					{inboxLoading ? (
@@ -219,16 +248,26 @@ export const SellerConversationView = ({
 							</p>
 						</div>
 					) : (
-						<div className='divide-y divide-border/50'>
-							{inbox.map((conv) => (
-								<SellerInboxRow
-									key={conv.id}
-									conversation={conv}
-									active={conv.id === id}
-									compact
-								/>
-							))}
-						</div>
+						<>
+							<div className='divide-y divide-border/50'>
+								{inbox.map((conv) => (
+									<SellerInboxRow
+										key={conv.id}
+										conversation={conv}
+										active={conv.id === id}
+										compact
+									/>
+								))}
+							</div>
+							{hasMoreInbox ? (
+								<div className='border-t border-border/50 py-3'>
+									<LoadMoreMessages
+										onLoadMore={() => void fetchMoreInbox()}
+										isLoading={isFetchingMoreInbox}
+									/>
+								</div>
+							) : null}
+						</>
 					)}
 				</div>
 			</aside>
@@ -267,7 +306,9 @@ export const SellerConversationView = ({
 								<Skeleton
 									className={cn(
 										'h-14 rounded-2xl',
-										i % 2 === 0 ? 'w-52 max-w-[75%]' : 'w-40'
+										i % 2 === 0
+											? 'w-52 max-w-[75%]'
+											: 'w-40'
 									)}
 								/>
 							</div>
@@ -304,6 +345,14 @@ export const SellerConversationView = ({
 						ref={scrollerRef}
 						className='min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain px-3 py-4 sm:px-5'
 					>
+						{hasNextPage ? (
+							<div className='pb-2'>
+								<LoadMoreMessages
+									onLoadMore={() => void handleLoadOlder()}
+									isLoading={isFetchingNextPage}
+								/>
+							</div>
+						) : null}
 						{messages.map((msg, index) => {
 							const isStore = msg.store_id !== null
 							const prev = messages[index - 1]

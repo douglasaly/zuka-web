@@ -28,6 +28,8 @@ export type ListSellerProductsInput = {
 	minPrice?: number
 	maxPrice?: number
 	page?: number
+	perPage?: number
+	/** @deprecated use perPage */
 	limit?: number
 }
 
@@ -35,8 +37,11 @@ export type ListSellerProductsOutput = {
 	success: true
 	products: SellerProduct[]
 	store: SellerStore
-	hasMore: boolean
+	page: number
+	perPage: number
 	total: number
+	totalPages: number
+	hasMore: boolean
 }
 
 /** PATCH /api/seller/products/[id] */

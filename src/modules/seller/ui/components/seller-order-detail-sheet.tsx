@@ -17,7 +17,6 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { OrderStatusBadge } from '@/components/order-status-badge'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import {
@@ -30,14 +29,14 @@ import { Skeleton } from '@/components/ui/skeleton'
 import type { OrderStatus } from '@/lib/orders/status-transitions'
 import { cn } from '@/lib/utils'
 import { formatPrice } from '@/utils/format-price'
+import { ReviewBadge } from './orders/review-badge'
+import type { ReviewState } from './orders/types'
 
 export type OrderSheetPendingAction = {
 	orderId: string
 	shortId: string
 	nextStatus: Extract<OrderStatus, 'SHIPPING' | 'COMPLETED' | 'CANCELLED'>
 }
-
-type ReviewState = 'none' | 'awaiting' | 'done'
 
 type OrderDetail = {
 	id: string
@@ -70,30 +69,6 @@ type OrderDetail = {
 		at: string
 		note?: string
 	}>
-}
-
-function ReviewBadge({ state }: { state: ReviewState }) {
-	if (state === 'awaiting') {
-		return (
-			<Badge
-				variant='secondary'
-				className='bg-amber-500/10 text-amber-800 dark:text-amber-300'
-			>
-				Aguardando avaliação
-			</Badge>
-		)
-	}
-	if (state === 'done') {
-		return (
-			<Badge
-				variant='secondary'
-				className='bg-emerald-500/10 text-emerald-800 dark:text-emerald-300'
-			>
-				Avaliado
-			</Badge>
-		)
-	}
-	return null
 }
 
 function formatDateTime(iso: string) {
@@ -204,8 +179,7 @@ export function SellerOrderDetailSheetContent({
 	}
 
 	const shortId = data.id.slice(0, 8)
-	const canShip =
-		data.status === 'PENDING' || data.status === 'CONTACTED'
+	const canShip = data.status === 'PENDING' || data.status === 'CONTACTED'
 	const canComplete = data.status === 'SHIPPING'
 	const canCancel =
 		data.status === 'PENDING' ||

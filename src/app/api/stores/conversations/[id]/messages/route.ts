@@ -1,19 +1,31 @@
-import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 import { uuidv7 } from 'uuidv7'
+import type { RouteContext } from '@/lib/api-handler'
+import {
+	apiCursorList,
+	apiError,
+	apiSuccess,
+	ErrorCode,
+	withErrorHandling,
+} from '@/lib/api-response'
 import { requireSellerStore } from '@/lib/auth/seller'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
+import { CursorPaginationSchema, SendMessageSchema } from '@/lib/validations'
 
-interface Params {
-	params: Promise<{ id: string }>
-}
-
-export async function GET(_request: Request, { params }: Params) {
-	try {
+// GET — latest-first cursor pagination (Load more loads older messages).
+export const GET = withErrorHandling(
+	async (request: NextRequest, { params }: RouteContext) => {
 		const { id: conversationId } = await params
 
 		const auth = await requireSellerStore()
 		if ('error' in auth && auth.error) return auth.error
 		const { store } = auth
+
+		const { searchParams } = new URL(request.url)
+		const { limit, cursor } = CursorPaginationSchema.parse({
+			limit: searchParams.get('limit') ?? undefined,
+			cursor: searchParams.get('cursor') ?? undefined,
+		})
 
 		const supabase = createSupabaseAdmin()
 
@@ -26,35 +38,38 @@ export async function GET(_request: Request, { params }: Params) {
 			.single()
 
 		if (!conversation) {
-			return NextResponse.json(
-				{ error: 'Conversa não encontrada' },
-				{ status: 404 }
-			)
+			return apiError(ErrorCode.NOT_FOUND, 'Conversa não encontrada', 404)
 		}
 
-		const { data, error } = await supabase
+		let query = supabase
 			.from('messages')
 			.select(
 				'id, conversation_id, user_id, store_id, content, status, created_at'
 			)
 			.eq('conversation_id', conversationId)
 			.is('deleted_at', null)
-			.order('created_at', { ascending: true })
+			.order('created_at', { ascending: false })
+			.limit(limit + 1)
 
+		if (cursor) {
+			query = query.lt('created_at', cursor)
+		}
+
+		const { data, error } = await query
 		if (error) throw error
 
-		return NextResponse.json({ data })
-	} catch (err) {
-		console.error('[GET /api/stores/conversations/:id/messages]', err)
-		return NextResponse.json(
-			{ error: 'Internal server error' },
-			{ status: 500 }
-		)
-	}
-}
+		const hasMore = (data?.length ?? 0) > limit
+		const pageDesc = hasMore ? (data?.slice(0, limit) ?? []) : (data ?? [])
+		const messages = [...pageDesc].reverse()
 
-export async function POST(request: Request, { params }: Params) {
-	try {
+		const nextCursor = hasMore ? (messages[0]?.created_at ?? null) : null
+
+		return apiCursorList(messages, { hasMore, nextCursor, limit })
+	}
+)
+
+export const POST = withErrorHandling(
+	async (request: NextRequest, { params }: RouteContext) => {
 		const { id: conversationId } = await params
 
 		const auth = await requireSellerStore()
@@ -72,18 +87,16 @@ export async function POST(request: Request, { params }: Params) {
 			.single()
 
 		if (!conversation) {
-			return NextResponse.json(
-				{ error: 'Conversa não encontrada' },
-				{ status: 404 }
-			)
+			return apiError(ErrorCode.NOT_FOUND, 'Conversa não encontrada', 404)
 		}
 
-		const { content } = await request.json()
+		const body = await request.json()
+		const parsed = SendMessageSchema.safeParse(body)
 
-		if (!content?.trim()) {
-			return NextResponse.json(
-				{ error: 'Conteúdo é obrigatório' },
-				{ status: 400 }
+		if (!parsed.success) {
+			return apiError(
+				ErrorCode.VALIDATION_ERROR,
+				parsed.error.issues[0]?.message ?? 'Conteúdo é obrigatório'
 			)
 		}
 
@@ -96,7 +109,7 @@ export async function POST(request: Request, { params }: Params) {
 				conversation_id: conversationId,
 				user_id: null,
 				store_id: store.id,
-				content: content.trim(),
+				content: parsed.data.content.trim(),
 			})
 			.select(
 				'id, conversation_id, user_id, store_id, content, status, created_at'
@@ -115,12 +128,6 @@ export async function POST(request: Request, { params }: Params) {
 
 		if (updateError) throw updateError
 
-		return NextResponse.json({ data: message }, { status: 201 })
-	} catch (err) {
-		console.error('[POST /api/stores/conversations/:id/messages]', err)
-		return NextResponse.json(
-			{ error: 'Internal server error' },
-			{ status: 500 }
-		)
+		return apiSuccess(message, 201)
 	}
-}
+)

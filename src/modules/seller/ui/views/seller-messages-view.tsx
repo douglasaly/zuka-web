@@ -10,13 +10,14 @@
  * ADAPT: Mobile stacked list; lg+ list + empty detail pane (same shell as thread).
  */
 
-import { useQuery } from '@tanstack/react-query'
 import { Inbox, MessageSquare, Search } from 'lucide-react'
 import { useDeferredValue, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
+import { flattenPages, useInfiniteList } from '@/hooks/use-infinite-list'
 import { cn } from '@/lib/utils'
+import { LoadMoreMessages } from '@/modules/messages/ui/components/load-more-messages'
 import {
 	type SellerConversation,
 	SellerInboxRow,
@@ -32,6 +33,8 @@ type Filter = 'all' | 'unread'
 const SHELL =
 	'-m-4 flex h-[calc(100dvh-76px)] min-w-0 flex-col sm:-m-6 lg:flex-row'
 
+const INBOX_LIMIT = 20
+
 export const SellerMessagesView = () => {
 	useSetSellerPageMeta({
 		title: 'Mensagens',
@@ -42,18 +45,21 @@ export const SellerMessagesView = () => {
 	const deferredQuery = useDeferredValue(query)
 	const [filter, setFilter] = useState<Filter>('all')
 
-	const { data, isLoading, isError, refetch } = useQuery<{
-		data: SellerConversation[]
-	}>({
+	const {
+		data,
+		isLoading,
+		isError,
+		refetch,
+		fetchNextPage,
+		hasNextPage,
+		isFetchingNextPage,
+	} = useInfiniteList<SellerConversation>({
 		queryKey: ['seller-conversations'],
-		queryFn: async () => {
-			const res = await fetch('/api/stores/conversations')
-			if (!res.ok) throw new Error('Failed to load conversations')
-			return res.json()
-		},
+		endpoint: '/api/stores/conversations',
+		limit: INBOX_LIMIT,
 	})
 
-	const conversations = data?.data ?? []
+	const conversations = flattenPages<SellerConversation>(data)
 	const unreadCount = conversations.filter((c) => c.unread).length
 
 	const visible = useMemo(() => {
@@ -80,6 +86,7 @@ export const SellerMessagesView = () => {
 					aria-label='Pesquisar conversas'
 				/>
 			</div>
+			{/* biome-ignore lint/a11y/useSemanticElements: pill filter row, not a form fieldset */}
 			<div
 				className='flex shrink-0 gap-1.5'
 				role='group'
@@ -217,6 +224,14 @@ export const SellerMessagesView = () => {
 						<SellerInboxRow key={conv.id} conversation={conv} />
 					))}
 				</div>
+				{hasNextPage && filter === 'all' && !deferredQuery.trim() ? (
+					<div className='border-t border-border/50 py-3'>
+						<LoadMoreMessages
+							onLoadMore={() => void fetchNextPage()}
+							isLoading={isFetchingNextPage}
+						/>
+					</div>
+				) : null}
 			</div>
 		)
 
@@ -224,7 +239,7 @@ export const SellerMessagesView = () => {
 		<div className={SHELL}>
 			<div className='flex min-h-0 w-full flex-1 flex-col bg-card lg:w-80 lg:flex-none lg:border-r lg:border-border/60 xl:w-96'>
 				<SellerInboxRailHeader
-					subtitle={`${conversations.length} conversa${conversations.length === 1 ? '' : 's'}${
+					subtitle={`${conversations.length}${hasNextPage ? '+' : ''} conversa${conversations.length === 1 ? '' : 's'}${
 						unreadCount > 0
 							? ` · ${unreadCount} não lida${unreadCount === 1 ? '' : 's'}`
 							: ''

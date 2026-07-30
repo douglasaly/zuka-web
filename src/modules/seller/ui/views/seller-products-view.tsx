@@ -11,8 +11,17 @@
  * FORM: Extend dashboard grammar (list density + sticky selection), not a new brand.
  */
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
+	keepPreviousData,
+	useMutation,
+	useQuery,
+	useQueryClient,
+} from '@tanstack/react-query'
+import {
+	ChevronLeft,
+	ChevronRight,
+	ChevronsLeft,
+	ChevronsRight,
 	Eye,
 	FolderTree,
 	Package,
@@ -27,10 +36,24 @@ import {
 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useDeferredValue, useState } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import {
+	useDeferredValue,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+	useTransition,
+} from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import {
+	Pagination,
+	PaginationContent,
+	PaginationEllipsis,
+	PaginationItem,
+} from '@/components/ui/pagination'
 import {
 	Select,
 	SelectContent,
@@ -65,6 +88,47 @@ const STATUS_OPTIONS = [
 	{ value: 'INACTIVE', label: 'Pausados' },
 	{ value: 'DRAFT', label: 'Rascunhos' },
 ] as const
+
+const PER_PAGE_OPTIONS = [5, 10, 25, 50, 100] as const
+const DEFAULT_PER_PAGE = 5
+
+type ProductsResponse = {
+	products: SellerProduct[]
+	total: number
+	page: number
+	perPage: number
+	totalPages: number
+	hasMore: boolean
+}
+
+function parsePerPage(raw: string | null): number {
+	const n = Number(raw ?? DEFAULT_PER_PAGE)
+	return PER_PAGE_OPTIONS.includes(n as (typeof PER_PAGE_OPTIONS)[number])
+		? n
+		: DEFAULT_PER_PAGE
+}
+
+function buildPageList(
+	current: number,
+	totalPages: number
+): Array<number | 'ellipsis'> {
+	if (totalPages <= 7) {
+		return Array.from({ length: totalPages }, (_, i) => i + 1)
+	}
+	const pages = new Set<number>()
+	pages.add(1)
+	pages.add(totalPages)
+	for (let p = current - 1; p <= current + 1; p++) {
+		if (p >= 1 && p <= totalPages) pages.add(p)
+	}
+	const sorted = [...pages].sort((a, b) => a - b)
+	const result: Array<number | 'ellipsis'> = []
+	for (let i = 0; i < sorted.length; i++) {
+		if (i > 0 && sorted[i] - sorted[i - 1] > 1) result.push('ellipsis')
+		result.push(sorted[i])
+	}
+	return result
+}
 
 function IconAction({
 	label,
@@ -121,8 +185,7 @@ function StatusChip({ status }: { status: string }) {
 		<span
 			className={cn(
 				'inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium',
-				PRODUCT_STATUS_STYLES[key] ??
-					'bg-muted text-muted-foreground'
+				PRODUCT_STATUS_STYLES[key] ?? 'bg-muted text-muted-foreground'
 			)}
 		>
 			{PRODUCT_STATUS_LABELS[key] ?? status}
@@ -144,40 +207,75 @@ export const SellerProductsView = () => {
 	const [showPriceFilters, setShowPriceFilters] = useState(false)
 	const [selected, setSelected] = useState<Set<string>>(new Set())
 	const queryClient = useQueryClient()
+	const router = useRouter()
+	const pathname = usePathname()
+	const searchParams = useSearchParams()
+	const [, startTransition] = useTransition()
+
+	const page = Math.max(Number(searchParams.get('page')) || 1, 1)
+	const perPage = parsePerPage(searchParams.get('perPage'))
 
 	useSetSellerPageMeta({
 		title: 'Produtos',
 		crumbs: ['Dashboard', 'Produtos'],
 	})
 
-	const queryParams = new URLSearchParams()
-	if (statusFilter !== 'all') queryParams.set('status', statusFilter)
-	if (categoryFilter !== 'all') queryParams.set('category', categoryFilter)
-	if (deferredSearch) queryParams.set('search', deferredSearch)
-	if (minPrice) queryParams.set('minPrice', minPrice)
-	if (maxPrice) queryParams.set('maxPrice', maxPrice)
+	function replaceParams(
+		patch: Record<string, string | null>,
+		options?: { resetPage?: boolean }
+	) {
+		const next = new URLSearchParams(searchParams.toString())
+		for (const [key, value] of Object.entries(patch)) {
+			if (value == null || value === '' || value === 'all') {
+				next.delete(key)
+			} else {
+				next.set(key, value)
+			}
+		}
+		if (options?.resetPage) next.delete('page')
+		if (next.get('perPage') === String(DEFAULT_PER_PAGE)) {
+			next.delete('perPage')
+		}
+		const qs = next.toString()
+		startTransition(() => {
+			router.replace(qs ? `${pathname}?${qs}` : pathname, {
+				scroll: false,
+			})
+		})
+	}
 
-	const { data, isLoading, isFetching } = useQuery<{
-		products: SellerProduct[]
-		total?: number
-	}>({
-		queryKey: [
-			'seller-products',
-			statusFilter,
-			categoryFilter,
-			deferredSearch,
-			minPrice,
-			maxPrice,
-		],
+	function resetPage() {
+		if (page > 1) replaceParams({}, { resetPage: true })
+	}
+
+	const apiParams = useMemo(() => {
+		const p = new URLSearchParams()
+		p.set('page', String(page))
+		p.set('perPage', String(perPage))
+		if (statusFilter !== 'all') p.set('status', statusFilter)
+		if (categoryFilter !== 'all') p.set('category', categoryFilter)
+		if (deferredSearch) p.set('search', deferredSearch)
+		if (minPrice) p.set('minPrice', minPrice)
+		if (maxPrice) p.set('maxPrice', maxPrice)
+		return p.toString()
+	}, [
+		page,
+		perPage,
+		statusFilter,
+		categoryFilter,
+		deferredSearch,
+		minPrice,
+		maxPrice,
+	])
+
+	const { data, isLoading, isFetching } = useQuery<ProductsResponse>({
+		queryKey: ['seller-products', apiParams],
 		queryFn: async () => {
-			const qs = queryParams.toString()
-			const res = await fetch(
-				`/api/seller/products${qs ? `?${qs}` : ''}`
-			)
+			const res = await fetch(`/api/seller/products?${apiParams}`)
 			if (!res.ok) throw new Error('Failed to load products')
 			return res.json()
 		},
-		placeholderData: (prev) => prev,
+		placeholderData: keepPreviousData,
 	})
 
 	const { data: categories } = useQuery<{ id: string; name: string }[]>({
@@ -238,8 +336,14 @@ export const SellerProductsView = () => {
 
 	const products = data?.products ?? []
 	const total = data?.total ?? products.length
+	const totalPages = data?.totalPages ?? 1
+	const currentPage = data?.page ?? page
 	const deletingProduct = products.find((p) => p.id === deletingId) ?? null
 	const allSelected = products.length > 0 && selected.size === products.length
+	const rangeStart = total === 0 ? 0 : (currentPage - 1) * perPage + 1
+	const rangeEnd = Math.min(currentPage * perPage, total)
+	const pageList = buildPageList(currentPage, totalPages)
+	const showPager = total > 0
 
 	const hasFilters =
 		Boolean(deferredSearch) ||
@@ -247,6 +351,25 @@ export const SellerProductsView = () => {
 		categoryFilter !== 'all' ||
 		Boolean(minPrice) ||
 		Boolean(maxPrice)
+
+	function goToPage(nextPage: number) {
+		if (nextPage < 1 || nextPage > totalPages) return
+		replaceParams({
+			page: nextPage <= 1 ? null : String(nextPage),
+			perPage: perPage === DEFAULT_PER_PAGE ? null : String(perPage),
+		})
+	}
+
+	// Debounced search → reset page (skip identical mount value)
+	const prevSearch = useRef(deferredSearch)
+	// biome-ignore lint/correctness/useExhaustiveDependencies: only react to search changes
+	useEffect(() => {
+		if (prevSearch.current === deferredSearch) return
+		prevSearch.current = deferredSearch
+		if (page > 1) {
+			replaceParams({}, { resetPage: true })
+		}
+	}, [deferredSearch])
 
 	function toggleAll() {
 		if (allSelected) setSelected(new Set())
@@ -267,6 +390,7 @@ export const SellerProductsView = () => {
 		setMinPrice('')
 		setMaxPrice('')
 		setShowPriceFilters(false)
+		resetPage()
 	}
 
 	function openPreview(product: SellerProduct) {
@@ -309,15 +433,43 @@ export const SellerProductsView = () => {
 			{/* Toolbar — title lives in top bar */}
 			<div className='flex flex-wrap items-center justify-between gap-3'>
 				<p className='text-sm text-muted-foreground'>
-					<span className='tabular-nums text-foreground'>
-						{total}
-					</span>{' '}
-					{total === 1 ? 'produto' : 'produtos'}
+					{total === 0
+						? 'Nenhum produto encontrado'
+						: `Mostrando ${rangeStart}–${rangeEnd} de ${total} ${total === 1 ? 'produto' : 'produtos'}`}
 					{isFetching && !isLoading ? (
 						<span className='ml-1 opacity-60'>· a actualizar…</span>
 					) : null}
 				</p>
 				<div className='flex flex-wrap gap-2'>
+					<Select
+						value={String(perPage)}
+						onValueChange={(v) => {
+							if (!v) return
+							replaceParams(
+								{
+									perPage:
+										v === String(DEFAULT_PER_PAGE)
+											? null
+											: v,
+								},
+								{ resetPage: true }
+							)
+						}}
+					>
+						<SelectTrigger
+							className='h-9 w-[7.5rem] rounded-full'
+							aria-label='Itens por página'
+						>
+							<SelectValue placeholder='Por página' />
+						</SelectTrigger>
+						<SelectContent>
+							{PER_PAGE_OPTIONS.map((n) => (
+								<SelectItem key={n} value={String(n)}>
+									{n} / página
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
 					<Button
 						variant='outline'
 						size='sm'
@@ -355,7 +507,10 @@ export const SellerProductsView = () => {
 							type='button'
 							role='tab'
 							aria-selected={active}
-							onClick={() => setStatusFilter(opt.value)}
+							onClick={() => {
+								setStatusFilter(opt.value)
+								resetPage()
+							}}
 							className={cn(
 								'shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors',
 								active
@@ -397,7 +552,11 @@ export const SellerProductsView = () => {
 
 					<Select
 						value={categoryFilter}
-						onValueChange={(v) => v && setCategoryFilter(v)}
+						onValueChange={(v) => {
+							if (!v) return
+							setCategoryFilter(v)
+							resetPage()
+						}}
 					>
 						<SelectTrigger className='w-40 rounded-full'>
 							<SelectValue placeholder='Categoria' />
@@ -447,7 +606,10 @@ export const SellerProductsView = () => {
 							min={0}
 							placeholder='Mín'
 							value={minPrice}
-							onChange={(e) => setMinPrice(e.target.value)}
+							onChange={(e) => {
+								setMinPrice(e.target.value)
+								resetPage()
+							}}
 							className='h-8 w-28 rounded-lg'
 							aria-label='Preço mínimo'
 						/>
@@ -457,7 +619,10 @@ export const SellerProductsView = () => {
 							min={0}
 							placeholder='Máx'
 							value={maxPrice}
-							onChange={(e) => setMaxPrice(e.target.value)}
+							onChange={(e) => {
+								setMaxPrice(e.target.value)
+								resetPage()
+							}}
 							className='h-8 w-28 rounded-lg'
 							aria-label='Preço máximo'
 						/>
@@ -533,7 +698,9 @@ export const SellerProductsView = () => {
 										isSelected
 											? 'bg-primary/4'
 											: 'hover:bg-muted/40',
-										isInactive && !isSelected && 'opacity-75'
+										isInactive &&
+											!isSelected &&
+											'opacity-75'
 									)}
 								>
 									<input
@@ -596,9 +763,7 @@ export const SellerProductsView = () => {
 									<div className='flex shrink-0 items-center gap-0.5 opacity-100 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100 sm:group-focus-within:opacity-100'>
 										<IconAction
 											label='Pré-visualizar'
-											onClick={() =>
-												openPreview(product)
-											}
+											onClick={() => openPreview(product)}
 										>
 											<Eye className='size-4' />
 										</IconAction>
@@ -625,6 +790,145 @@ export const SellerProductsView = () => {
 				</div>
 			)}
 
+			{showPager ? (
+				<div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
+					<p className='text-xs text-muted-foreground tabular-nums'>
+						Página {currentPage} de {totalPages}
+					</p>
+					<div className='flex items-center justify-between gap-2 sm:justify-end'>
+						<div className='flex gap-1 md:hidden'>
+							<Button
+								variant='outline'
+								size='icon'
+								className='rounded-full'
+								disabled={currentPage <= 1}
+								aria-label='Primeira página'
+								onClick={() => goToPage(1)}
+							>
+								<ChevronsLeft className='size-4' />
+							</Button>
+							<Button
+								variant='outline'
+								size='icon'
+								className='rounded-full'
+								disabled={currentPage <= 1}
+								aria-label='Página anterior'
+								onClick={() => goToPage(currentPage - 1)}
+							>
+								<ChevronLeft className='size-4' />
+							</Button>
+							<Button
+								variant='outline'
+								size='icon'
+								className='rounded-full'
+								disabled={currentPage >= totalPages}
+								aria-label='Página seguinte'
+								onClick={() => goToPage(currentPage + 1)}
+							>
+								<ChevronRight className='size-4' />
+							</Button>
+							<Button
+								variant='outline'
+								size='icon'
+								className='rounded-full'
+								disabled={currentPage >= totalPages}
+								aria-label='Última página'
+								onClick={() => goToPage(totalPages)}
+							>
+								<ChevronsRight className='size-4' />
+							</Button>
+						</div>
+
+						<Pagination className='hidden justify-end md:flex'>
+							<PaginationContent>
+								<PaginationItem>
+									<Button
+										variant='ghost'
+										size='icon'
+										className='rounded-full'
+										disabled={currentPage <= 1}
+										aria-label='Ir para a primeira página'
+										onClick={() => goToPage(1)}
+									>
+										<ChevronsLeft className='size-4' />
+									</Button>
+								</PaginationItem>
+								<PaginationItem>
+									<Button
+										variant='ghost'
+										size='default'
+										className='gap-1 rounded-full pl-2'
+										disabled={currentPage <= 1}
+										aria-label='Ir para página anterior'
+										onClick={() =>
+											goToPage(currentPage - 1)
+										}
+									>
+										<ChevronLeft className='size-4' />
+										<span>Anterior</span>
+									</Button>
+								</PaginationItem>
+								{pageList.map((item, idx) =>
+									item === 'ellipsis' ? (
+										<PaginationItem key={`e-${idx}`}>
+											<PaginationEllipsis />
+										</PaginationItem>
+									) : (
+										<PaginationItem key={item}>
+											<Button
+												variant={
+													item === currentPage
+														? 'outline'
+														: 'ghost'
+												}
+												size='icon'
+												className='rounded-full'
+												aria-label={`Ir para página ${item}`}
+												aria-current={
+													item === currentPage
+														? 'page'
+														: undefined
+												}
+												onClick={() => goToPage(item)}
+											>
+												{item}
+											</Button>
+										</PaginationItem>
+									)
+								)}
+								<PaginationItem>
+									<Button
+										variant='ghost'
+										size='default'
+										className='gap-1 rounded-full pr-2'
+										disabled={currentPage >= totalPages}
+										aria-label='Ir para página seguinte'
+										onClick={() =>
+											goToPage(currentPage + 1)
+										}
+									>
+										<span>Próxima</span>
+										<ChevronRight className='size-4' />
+									</Button>
+								</PaginationItem>
+								<PaginationItem>
+									<Button
+										variant='ghost'
+										size='icon'
+										className='rounded-full'
+										disabled={currentPage >= totalPages}
+										aria-label='Ir para a última página'
+										onClick={() => goToPage(totalPages)}
+									>
+										<ChevronsRight className='size-4' />
+									</Button>
+								</PaginationItem>
+							</PaginationContent>
+						</Pagination>
+					</div>
+				</div>
+			) : null}
+
 			{/* Sticky bulk bar */}
 			{selected.size > 0 ? (
 				<div className='sticky bottom-4 z-20'>
@@ -639,9 +943,7 @@ export const SellerProductsView = () => {
 								size='sm'
 								className='rounded-full'
 								disabled={bulkMutation.isPending}
-								onClick={() =>
-									bulkMutation.mutate('activate')
-								}
+								onClick={() => bulkMutation.mutate('activate')}
 							>
 								<Play className='size-3.5' />
 								Activar
@@ -837,10 +1139,7 @@ function ProductPreviewPanel({
 							</div>
 						) : (
 							<p className='text-2xl font-bold tabular-nums tracking-tight text-primary'>
-								{formatPrice(
-									preview.price,
-									preview.currency
-								)}
+								{formatPrice(preview.price, preview.currency)}
 							</p>
 						)}
 					</div>
