@@ -1,14 +1,18 @@
+import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 
 const statusStyles = {
-	shipping: 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
-	pending: 'bg-amber-50 text-amber-700 border-amber-200/60',
-	completed: 'bg-muted text-muted-foreground border-border',
-	cancelled: 'bg-red-50 text-red-600 border-red-200/60',
+	pending:
+		'border-transparent bg-amber-500/10 text-amber-800 dark:text-amber-300',
+	shipping:
+		'border-transparent bg-sky-500/10 text-sky-800 dark:text-sky-300',
+	completed:
+		'border-transparent bg-emerald-500/10 text-emerald-800 dark:text-emerald-300',
+	cancelled: 'border-border bg-muted text-muted-foreground',
 } as const
 
 interface OrderStatusBadgeProps {
-	status: keyof typeof statusStyles
+	status: keyof typeof statusStyles | string
 	label: string
 	className?: string
 }
@@ -18,15 +22,15 @@ export const OrderStatusBadge = ({
 	label,
 	className,
 }: OrderStatusBadgeProps) => {
+	const key = status.toLowerCase() as keyof typeof statusStyles
+	const style = statusStyles[key] ?? statusStyles.pending
+
 	return (
-		<span
-			className={cn(
-				'inline-flex shrink-0 items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold',
-				statusStyles[status],
-				className
-			)}
+		<Badge
+			variant='outline'
+			className={cn('font-semibold', style, className)}
 		>
 			{label}
-		</span>
+		</Badge>
 	)
 }

@@ -126,13 +126,16 @@ _Transformar a página inicial do seller._
 
 _Gestão completa de pedidos._
 
-- [ ] Lista com produto, cliente, valor, data, status colorido
-- [ ] Filtros: todos / pendentes / processando / enviado / entregue / cancelado
-- [ ] Acções: confirmar, marcar enviado, cancelar (com confirmação)
-- [ ] Detail view em Sheet: cliente, endereço, produtos, histórico de status
-- [ ] Badge de pedidos pendentes no sidebar
+- [x] Lista com produto, cliente, valor, data, status colorido
+- [x] Filtros: todos / pendentes / em envio / entregue / cancelado (enum: PENDING → SHIPPING → COMPLETED; CANCELLED)
+- [x] Acções: marcar em envio, marcar entregue, cancelar (com confirmação + ownership no backend)
+- [x] Detail view em Sheet: cliente, produtos, histórico de status
+- [x] Badge de pedidos pendentes no sidebar
 - [x] Notificação browser para novo pedido/mensagem (através de `useNotificationPush`)
+- [x] Ao marcar entregue: `review_eligible` + notificação `review` ao comprador
+- [x] Página de detalhe `/pedidos/[id]` com as mesmas acções
 
+Fluxo linear (sem saltar etapas): **Pendente → Em envio → Entregue**. Cancelar só a partir de Pendente ou Em envio.
 ---
 
 ## Fase 5 — Produtos ✅
@@ -256,7 +259,7 @@ Fase 0:  Fundação        ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~2 dias ✅
 Fase 1:  Sidebar + Rotas ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~3 dias ✅
 Fase 2:  API Layer       ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~3 dias (14/14 endpoints)
 Fase 3:  Dashboard       ⬛⬛⬛⬛⬛⬛⬛⬜⬜⬜⬜⬜  ~3 dias
-Fase 4:  Pedidos         ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬜⬜  ~2 dias (notif push done)
+Fase 4:  Pedidos         ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~2 dias ✅
 Fase 5:  Produtos        ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~3 dias ✅
 Fase 6:  Mensagens       ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~2 dias
 Fase 7:  Minha Loja      ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~2 dias ✅

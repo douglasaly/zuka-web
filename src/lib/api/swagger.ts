@@ -136,6 +136,126 @@ const schemas = {
 			statusLabel: { type: 'string' },
 		},
 	},
+	SellerOrderListItem: {
+		type: 'object',
+		properties: {
+			id: { type: 'string', format: 'uuid' },
+			shortId: { type: 'string' },
+			customerName: { type: 'string' },
+			customerEmail: { type: 'string', nullable: true },
+			itemsSummary: { type: 'string' },
+			itemCount: { type: 'integer' },
+			total: {
+				type: 'number',
+				description: 'Total in major currency units (MZN)',
+			},
+			currency: { type: 'string', example: 'MZN' },
+			status: {
+				type: 'string',
+				enum: [
+					'PENDING',
+					'CONTACTED',
+					'SHIPPING',
+					'COMPLETED',
+					'CANCELLED',
+				],
+			},
+			statusLabel: { type: 'string' },
+			date: { type: 'string', format: 'date-time' },
+			reviewEligible: { type: 'boolean' },
+			reviewState: {
+				type: 'string',
+				enum: ['none', 'awaiting', 'done'],
+			},
+			allowedActions: {
+				type: 'object',
+				properties: {
+					markShipping: { type: 'boolean' },
+					markCompleted: { type: 'boolean' },
+					cancel: { type: 'boolean' },
+				},
+			},
+		},
+	},
+	SellerOrderDetail: {
+		type: 'object',
+		properties: {
+			id: { type: 'string', format: 'uuid' },
+			storeId: { type: 'string', format: 'uuid' },
+			storeName: { type: 'string' },
+			storeAvatar: { type: 'string', nullable: true },
+			status: {
+				type: 'string',
+				enum: [
+					'PENDING',
+					'CONTACTED',
+					'SHIPPING',
+					'COMPLETED',
+					'CANCELLED',
+				],
+			},
+			statusLabel: { type: 'string' },
+			total: { type: 'number' },
+			currency: { type: 'string' },
+			itemCount: { type: 'integer' },
+			date: { type: 'string', format: 'date-time' },
+			createdAt: { type: 'string', format: 'date-time' },
+			updatedAt: { type: 'string', format: 'date-time', nullable: true },
+			completedAt: {
+				type: 'string',
+				format: 'date-time',
+				nullable: true,
+			},
+			completedBy: { type: 'string', format: 'uuid', nullable: true },
+			reviewEligible: { type: 'boolean' },
+			reviewState: {
+				type: 'string',
+				enum: ['none', 'awaiting', 'done'],
+			},
+			notes: { type: 'string', nullable: true },
+			buyer: {
+				type: 'object',
+				properties: {
+					id: { type: 'string', format: 'uuid', nullable: true },
+					name: { type: 'string' },
+					email: { type: 'string', nullable: true },
+					phone: { type: 'string', nullable: true },
+					avatarUrl: { type: 'string', nullable: true },
+				},
+			},
+			items: {
+				type: 'array',
+				items: {
+					type: 'object',
+					properties: {
+						id: { type: 'string', format: 'uuid' },
+						quantity: { type: 'integer' },
+						unitPrice: { type: 'number' },
+						currency: { type: 'string' },
+						productId: {
+							type: 'string',
+							format: 'uuid',
+							nullable: true,
+						},
+						productName: { type: 'string' },
+						productSlug: { type: 'string', nullable: true },
+					},
+				},
+			},
+			timeline: {
+				type: 'array',
+				items: {
+					type: 'object',
+					properties: {
+						status: { type: 'string' },
+						label: { type: 'string' },
+						at: { type: 'string', format: 'date-time' },
+						note: { type: 'string' },
+					},
+				},
+			},
+		},
+	},
 	Conversation: {
 		type: 'object',
 		properties: {
@@ -3009,7 +3129,9 @@ const paths: Record<string, any> = {
 	'/api/seller/orders': {
 		get: {
 			tags: ['Seller'],
-			summary: 'List seller orders',
+			summary: 'List orders for the authenticated seller store',
+			description:
+				'Multi-tenant: returns only orders belonging to the logged-in store. Linear status flow: PENDING → SHIPPING → COMPLETED (CANCELLED stops the flow).',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
@@ -3020,11 +3142,13 @@ const paths: Record<string, any> = {
 						type: 'string',
 						enum: [
 							'all',
-							'pending',
-							'shipping',
-							'completed',
-							'cancelled',
+							'PENDING',
+							'CONTACTED',
+							'SHIPPING',
+							'COMPLETED',
+							'CANCELLED',
 						],
+						default: 'all',
 					},
 				},
 				{
@@ -3036,6 +3160,14 @@ const paths: Record<string, any> = {
 						'Number of days to look back (e.g. "7", "30", "90")',
 				},
 				{
+					name: 'search',
+					in: 'query',
+					required: false,
+					schema: { type: 'string' },
+					description:
+						'Filter by order id, short id, customer name/email, or items summary (applied after fetch)',
+				},
+				{
 					name: 'page',
 					in: 'query',
 					required: false,
@@ -3045,21 +3177,25 @@ const paths: Record<string, any> = {
 					name: 'limit',
 					in: 'query',
 					required: false,
-					schema: { type: 'integer', default: 20, maximum: 100 },
+					schema: { type: 'integer', default: 50, maximum: 100 },
 				},
 			],
 			responses: {
 				'200': {
-					description: 'Order list',
+					description: 'Order list for the store',
 					content: {
 						'application/json': {
 							schema: {
 								type: 'object',
 								properties: {
+									success: {
+										type: 'boolean',
+										enum: [true],
+									},
 									orders: {
 										type: 'array',
 										items: {
-											$ref: '#/components/schemas/Order',
+											$ref: '#/components/schemas/SellerOrderListItem',
 										},
 									},
 									hasMore: { type: 'boolean' },
@@ -3068,6 +3204,125 @@ const paths: Record<string, any> = {
 							},
 						},
 					},
+				},
+				'401': { description: 'Unauthorized' },
+				'403': { description: 'Not a seller' },
+			},
+		},
+	},
+	'/api/seller/orders/{id}': {
+		get: {
+			tags: ['Seller'],
+			summary: 'Get seller order detail',
+			description:
+				'Returns order detail with buyer, line items, and derived status timeline. Ownership is enforced against the authenticated store.',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			parameters: [
+				{
+					name: 'id',
+					in: 'path',
+					required: true,
+					schema: { type: 'string', format: 'uuid' },
+				},
+			],
+			responses: {
+				'200': {
+					description: 'Order detail',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: {
+										type: 'boolean',
+										enum: [true],
+									},
+									order: {
+										$ref: '#/components/schemas/SellerOrderDetail',
+									},
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+				'403': { description: 'Not a seller' },
+				'404': {
+					description: 'Order not found for this store',
+				},
+			},
+		},
+		patch: {
+			tags: ['Seller'],
+			summary: 'Update seller order status',
+			description:
+				'Allowed transitions: PENDING|CONTACTED → SHIPPING|CANCELLED; SHIPPING → COMPLETED|CANCELLED. Completing sets review_eligible and notifies the buyer (type review). Idempotent when status is unchanged.',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			parameters: [
+				{
+					name: 'id',
+					in: 'path',
+					required: true,
+					schema: { type: 'string', format: 'uuid' },
+				},
+			],
+			requestBody: {
+				required: true,
+				content: {
+					'application/json': {
+						schema: {
+							type: 'object',
+							required: ['status'],
+							properties: {
+								status: {
+									type: 'string',
+									enum: [
+										'PENDING',
+										'CONTACTED',
+										'SHIPPING',
+										'COMPLETED',
+										'CANCELLED',
+									],
+								},
+								notes: {
+									type: 'string',
+									description:
+										'Optional note (e.g. cancel reason)',
+								},
+							},
+						},
+					},
+				},
+			},
+			responses: {
+				'200': {
+					description: 'Updated order (or idempotent no-op)',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: {
+										type: 'boolean',
+										enum: [true],
+									},
+									order: {
+										$ref: '#/components/schemas/SellerOrderDetail',
+									},
+									idempotent: { type: 'boolean' },
+								},
+							},
+						},
+					},
+				},
+				'400': { description: 'Invalid status' },
+				'401': { description: 'Unauthorized' },
+				'403': { description: 'Not a seller' },
+				'404': {
+					description: 'Order not found for this store',
+				},
+				'409': {
+					description: 'Transition not allowed from current status',
 				},
 			},
 		},
