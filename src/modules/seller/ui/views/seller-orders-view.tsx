@@ -581,8 +581,7 @@ export const SellerOrdersView = () => {
 	return (
 		<div className='w-full min-w-0 space-y-6 pb-10'>
 			<p className='max-w-3xl text-sm leading-relaxed text-muted-foreground'>
-				Acompanhe e actualize os pedidos da sua loja. O fluxo é linear:
-				Pendente → Em envio → Entregue.
+				Acompanhe e actualize os pedidos da sua loja.
 			</p>
 
 			{isEmptyStore ? (
