@@ -10,6 +10,9 @@ export type SellerProduct = {
 	isVisible: boolean
 	categoryName: string | null
 	image: string | null
+	images: string[]
+	quantity: number
+	description: string | null
 }
 
 export type SellerStore = {
@@ -23,6 +26,8 @@ export type ListSellerProductsInput = {
 	search?: string
 	status?: 'all' | 'DRAFT' | 'ACTIVE' | 'INACTIVE'
 	category?: string
+	minPrice?: number
+	maxPrice?: number
 	page?: number
 	limit?: number
 }
@@ -46,6 +51,33 @@ export type UpdateSellerProductInput = {
 	status?: string
 	isVisible?: boolean
 	imageUrl?: string
+	imageUrls?: string[]
+}
+
+/** GET /api/seller/products/[id] */
+export type SellerProductDetail = {
+	id: string
+	name: string
+	description: string | null
+	categoryId: string
+	categoryName: string | null
+	price: number
+	discountPrice: number | null
+	currency: string
+	quantity: number
+	status: string
+	isVisible: boolean
+	images: Array<{
+		id: string
+		url: string
+		position: number
+		isPrimary: boolean
+	}>
+}
+
+export type GetSellerProductOutput = {
+	success: true
+	product: SellerProductDetail
 }
 
 export type UpdateSellerProductOutput = {

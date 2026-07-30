@@ -2550,7 +2550,13 @@ const paths: Record<string, any> = {
 					required: false,
 					schema: {
 						type: 'string',
-						enum: ['all', 'draft', 'active', 'inactive'],
+						enum: [
+							'all',
+							'DRAFT',
+							'ACTIVE',
+							'INACTIVE',
+							'OUT_OF_STOCK',
+						],
 					},
 				},
 				{
@@ -2558,7 +2564,21 @@ const paths: Record<string, any> = {
 					in: 'query',
 					required: false,
 					schema: { type: 'string' },
-					description: 'Filter by category name',
+					description: 'Filter by category id',
+				},
+				{
+					name: 'minPrice',
+					in: 'query',
+					required: false,
+					schema: { type: 'number' },
+					description: 'Minimum price in MZN',
+				},
+				{
+					name: 'maxPrice',
+					in: 'query',
+					required: false,
+					schema: { type: 'number' },
+					description: 'Maximum price in MZN',
 				},
 				{
 					name: 'page',
@@ -2581,10 +2601,40 @@ const paths: Record<string, any> = {
 							schema: {
 								type: 'object',
 								properties: {
+									success: { type: 'boolean', enum: [true] },
 									products: {
 										type: 'array',
 										items: {
-											$ref: '#/components/schemas/Product',
+											type: 'object',
+											properties: {
+												id: { type: 'string' },
+												name: { type: 'string' },
+												description: {
+													type: 'string',
+													nullable: true,
+												},
+												price: { type: 'number' },
+												discountPrice: {
+													type: 'number',
+													nullable: true,
+												},
+												currency: { type: 'string' },
+												status: { type: 'string' },
+												isVisible: { type: 'boolean' },
+												categoryName: {
+													type: 'string',
+													nullable: true,
+												},
+												image: {
+													type: 'string',
+													nullable: true,
+												},
+												images: {
+													type: 'array',
+													items: { type: 'string' },
+												},
+												quantity: { type: 'integer' },
+											},
 										},
 									},
 									hasMore: { type: 'boolean' },
@@ -2598,6 +2648,76 @@ const paths: Record<string, any> = {
 		},
 	},
 	'/api/seller/products/{id}': {
+		get: {
+			tags: ['Seller'],
+			summary: 'Get seller product detail for editing',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			parameters: [
+				{
+					name: 'id',
+					in: 'path',
+					required: true,
+					schema: { type: 'string' },
+				},
+			],
+			responses: {
+				'200': {
+					description: 'Product detail',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									product: {
+										type: 'object',
+										properties: {
+											id: { type: 'string' },
+											name: { type: 'string' },
+											description: {
+												type: 'string',
+												nullable: true,
+											},
+											categoryId: { type: 'string' },
+											categoryName: {
+												type: 'string',
+												nullable: true,
+											},
+											price: { type: 'number' },
+											discountPrice: {
+												type: 'number',
+												nullable: true,
+											},
+											currency: { type: 'string' },
+											quantity: { type: 'integer' },
+											status: { type: 'string' },
+											isVisible: { type: 'boolean' },
+											images: {
+												type: 'array',
+												items: {
+													type: 'object',
+													properties: {
+														id: { type: 'string' },
+														url: { type: 'string' },
+														position: {
+															type: 'integer',
+														},
+														isPrimary: {
+															type: 'boolean',
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'404': { description: 'Product not found' },
+			},
+		},
 		patch: {
 			tags: ['Seller'],
 			summary: 'Update a product',
@@ -2619,12 +2739,28 @@ const paths: Record<string, any> = {
 								name: { type: 'string' },
 								description: { type: 'string' },
 								categoryId: { type: 'string' },
-								price: { type: 'integer' },
-								discountPrice: { type: 'integer' },
+								price: { type: 'number' },
+								discountPrice: {
+									type: 'number',
+									nullable: true,
+								},
 								quantity: { type: 'integer' },
-								status: { type: 'string' },
+								status: {
+									type: 'string',
+									enum: [
+										'DRAFT',
+										'ACTIVE',
+										'INACTIVE',
+										'OUT_OF_STOCK',
+									],
+								},
 								isVisible: { type: 'boolean' },
 								imageUrl: { type: 'string' },
+								imageUrls: {
+									type: 'array',
+									items: { type: 'string' },
+									maxItems: 8,
+								},
 							},
 						},
 					},
@@ -2719,6 +2855,151 @@ const paths: Record<string, any> = {
 					},
 				},
 				'401': { description: 'Unauthorized' },
+			},
+		},
+	},
+	'/api/seller/categories': {
+		get: {
+			tags: ['Seller'],
+			summary: 'List categories for seller management',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			responses: {
+				'200': {
+					description: 'Category list',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									categories: {
+										type: 'array',
+										items: {
+											type: 'object',
+											properties: {
+												id: { type: 'string' },
+												parentId: {
+													type: 'string',
+													nullable: true,
+												},
+												name: { type: 'string' },
+												slug: { type: 'string' },
+												position: { type: 'integer' },
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		post: {
+			tags: ['Seller'],
+			summary: 'Create category',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			requestBody: {
+				required: true,
+				content: {
+					'application/json': {
+						schema: {
+							type: 'object',
+							required: ['name'],
+							properties: {
+								name: { type: 'string' },
+								slug: { type: 'string' },
+								parentId: {
+									type: 'string',
+									nullable: true,
+								},
+							},
+						},
+					},
+				},
+			},
+			responses: {
+				'200': { description: 'Category created' },
+				'400': { description: 'Validation error' },
+			},
+		},
+		patch: {
+			tags: ['Seller'],
+			summary: 'Update category or reorder categories',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			requestBody: {
+				content: {
+					'application/json': {
+						schema: {
+							oneOf: [
+								{
+									type: 'object',
+									required: ['id'],
+									properties: {
+										id: { type: 'string' },
+										name: { type: 'string' },
+										slug: { type: 'string' },
+										parentId: {
+											type: 'string',
+											nullable: true,
+										},
+										position: { type: 'integer' },
+									},
+								},
+								{
+									type: 'object',
+									required: ['items'],
+									properties: {
+										items: {
+											type: 'array',
+											items: {
+												type: 'object',
+												properties: {
+													id: { type: 'string' },
+													position: {
+														type: 'integer',
+													},
+													parentId: {
+														type: 'string',
+														nullable: true,
+													},
+												},
+											},
+										},
+									},
+								},
+							],
+						},
+					},
+				},
+			},
+			responses: {
+				'200': { description: 'Category updated' },
+			},
+		},
+		delete: {
+			tags: ['Seller'],
+			summary: 'Soft-delete category',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			requestBody: {
+				required: true,
+				content: {
+					'application/json': {
+						schema: {
+							type: 'object',
+							required: ['id'],
+							properties: {
+								id: { type: 'string' },
+							},
+						},
+					},
+				},
+			},
+			responses: {
+				'200': { description: 'Category deleted' },
+				'400': {
+					description: 'Category still has products',
+				},
 			},
 		},
 	},

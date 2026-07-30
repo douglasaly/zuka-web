@@ -5,6 +5,8 @@ import { PackageSearch } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import type { SellerProductDetail } from '@/lib/types/api/seller'
+import type { ProductStatusValue } from '../components/product-editor/constants'
 import { ProductForm } from '../components/product-form'
 
 interface SellerEditProductViewProps {
@@ -12,18 +14,16 @@ interface SellerEditProductViewProps {
 }
 
 export const SellerEditProductView = ({ id }: SellerEditProductViewProps) => {
-	const { data, isLoading } = useQuery({
-		queryKey: ['product', id],
+	const { data, isLoading, isError } = useQuery({
+		queryKey: ['seller-product', id],
 		queryFn: async () => {
-			const res = await fetch(`/api/products/${id}`)
-			if (!res.ok) throw new Error('Failed to load product')
-			const json = await res.json()
-			return json.data as {
-				product: Record<string, unknown>
-				store: Record<string, unknown> | null
-				category: Record<string, unknown> | null
-				images: Array<Record<string, unknown>>
+			const res = await fetch(`/api/seller/products/${id}`)
+			if (!res.ok) {
+				const body = await res.json().catch(() => ({}))
+				throw new Error(body.error ?? 'Failed to load product')
 			}
+			const json = await res.json()
+			return json.product as SellerProductDetail
 		},
 	})
 
@@ -36,7 +36,7 @@ export const SellerEditProductView = ({ id }: SellerEditProductViewProps) => {
 		)
 	}
 
-	if (!data) {
+	if (isError || !data) {
 		return (
 			<div className='flex flex-col items-center justify-center py-24 text-center'>
 				<div className='flex size-16 items-center justify-center rounded-full bg-muted'>
@@ -60,23 +60,28 @@ export const SellerEditProductView = ({ id }: SellerEditProductViewProps) => {
 		)
 	}
 
-	const product = data.product
-	const primaryImage = (data.images ?? [])[0] as { url?: string } | undefined
+	const status = (
+		['DRAFT', 'ACTIVE', 'INACTIVE', 'OUT_OF_STOCK'].includes(data.status)
+			? data.status
+			: 'DRAFT'
+	) as ProductStatusValue
 
 	return (
 		<ProductForm
 			mode='edit'
 			productId={id}
 			initialData={{
-				name: String(product.name ?? ''),
-				description: String(product.description ?? ''),
-				categoryId: String(
-					(data.category as { id?: string } | null)?.id ?? ''
-				),
-				price: String(product.price ?? ''),
-				discountPrice: String(product.discount_price ?? ''),
-				quantity: String(product.quantity ?? '1'),
-				imageUrl: primaryImage?.url ?? '',
+				name: data.name,
+				description: data.description ?? '',
+				categoryId: data.categoryId,
+				price: String(data.price),
+				discountPrice:
+					data.discountPrice != null
+						? String(data.discountPrice)
+						: '',
+				quantity: String(data.quantity),
+				status,
+				imageUrls: data.images.map((img) => img.url),
 			}}
 		/>
 	)

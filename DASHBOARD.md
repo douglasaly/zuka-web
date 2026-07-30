@@ -135,17 +135,34 @@ _Gestão completa de pedidos._
 
 ---
 
-## Fase 5 — Produtos
+## Fase 5 — Produtos ✅
 
 _Gestão completa de produtos (páginas próprias)._
 
-- [ ] Lista com imagem, nome, preço, stock, status, categorias
-- [ ] Filtros: categoria, status, preço, search
-- [ ] Bulk actions: pausar, activar, eliminar seleccionados
-- [ ] Novo produto: nome, descrição, categoria, preço, stock, imagens múltiplas, variações, status
-- [ ] Editar produto: pré-preenchido, mesma estrutura
-- [ ] Pré-visualização em Sheet
-- [ ] Gestão de categorias: criar, editar, reordenar
+- [x] Lista com imagem, nome, preço, stock, status, categorias
+- [x] Filtros: categoria, status, preço, search
+- [x] Bulk actions: pausar, activar, eliminar seleccionados
+- [x] Novo produto: nome, descrição, categoria, preço, stock, imagens múltiplas, status
+- [x] Editar produto: pré-preenchido, mesma estrutura
+- [x] Pré-visualização em Sheet
+- [x] Gestão de categorias: criar, editar, reordenar
+
+### 🧱 O que foi construído
+
+| Ficheiro | Tipo | Responsabilidade |
+|---|---|---|
+| `api/seller/products/route.ts` | API | Lista com stock, filtros preço/categoria/status/search |
+| `api/seller/products/[id]/route.ts` | API | `GET` detalhe + `PATCH` multi-imagens/stock/status |
+| `api/seller/categories/route.ts` | API | CRUD + reordenar categorias |
+| `product-editor/*` | Components | Imagens múltiplas, status, preview Sheet |
+| `product-form.tsx` | Form | Layout 2 colunas create/edit |
+| `seller-products-view.tsx` | View | Lista melhorada + filtros preço + preview |
+| `seller-categories-view.tsx` | View | Criar/editar/reordenar/eliminar |
+| `migrations/20250730120000_categories_position.sql` | SQL | Coluna `position` em categories |
+
+### ⚠️ Migração necessária
+
+Correr `supabase/migrations/20250730120000_categories_position.sql` antes de usar reordenação de categorias.
 
 ---
 
@@ -185,11 +202,6 @@ _Perfil e configurações da loja._
 | `store-editor-form.tsx` | Form | Orquestra estado, save sticky bar, toasts |
 | `seller-store-view.tsx` | View | Fetch `/api/seller/store`, empty/error/loading → form |
 | `migrations/20250730100000_store_delivery_settings.sql` | SQL | `has_delivery`, `delivery_fee`, `delivery_eta_minutes`, `delivery_zones` |
-
-### ⚠️ Migração necessária
-
-Correr `supabase/migrations/20250730100000_store_delivery_settings.sql` na BD antes de usar entrega (senão o `GET/PATCH` falha ao seleccionar as novas colunas).
-
 ---
 
 ## Fase 8 — Analytics
@@ -246,7 +258,7 @@ Fase 1:  Sidebar + Rotas ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~3 dias ✅
 Fase 2:  API Layer       ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~3 dias (14/14 endpoints)
 Fase 3:  Dashboard       ⬛⬛⬛⬛⬛⬛⬛⬜⬜⬜⬜⬜  ~3 dias
 Fase 4:  Pedidos         ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬜⬜  ~2 dias (notif push done)
-Fase 5:  Produtos        ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬜  ~3 dias (bulk done)
+Fase 5:  Produtos        ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~3 dias ✅
 Fase 6:  Mensagens       ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~2 dias
 Fase 7:  Minha Loja      ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~2 dias ✅
 Fase 8:  Analytics       ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~2 dias

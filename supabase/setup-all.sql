@@ -75,6 +75,7 @@ CREATE TABLE public.categories (
   parent_id uuid REFERENCES public.categories (id) ON DELETE SET NULL,
   name varchar(150) NOT NULL,
   slug varchar(180) NOT NULL UNIQUE,
+  position integer DEFAULT 0,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now(),
   deleted_at timestamptz
