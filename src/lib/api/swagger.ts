@@ -1853,21 +1853,41 @@ const paths: Record<string, any> = {
 	'/api/stores/conversations': {
 		get: {
 			tags: ['Stores'],
-			summary: 'List store conversations (seller inbox)',
+			summary: 'List store conversations (seller inbox, cursor-based)',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			parameters: [
+				{
+					name: 'cursor',
+					in: 'query',
+					required: false,
+					schema: { type: 'string' },
+					description:
+						'last_message_at cursor from previous page (ISO timestamp)',
+				},
+				{
+					name: 'limit',
+					in: 'query',
+					required: false,
+					schema: { type: 'integer', default: 20, maximum: 100 },
+				},
+			],
 			responses: {
 				'200': {
-					description: 'Conversation list',
+					description: 'Conversation list with cursor pagination',
 					content: {
 						'application/json': {
 							schema: {
 								type: 'object',
 								properties: {
+									success: { type: 'boolean', enum: [true] },
 									data: {
 										type: 'array',
 										items: {
 											$ref: '#/components/schemas/StoreConversation',
 										},
+									},
+									pagination: {
+										$ref: '#/components/schemas/CursorPagination',
 									},
 								},
 							},
@@ -1882,7 +1902,10 @@ const paths: Record<string, any> = {
 	'/api/stores/conversations/{id}/messages': {
 		get: {
 			tags: ['Stores'],
-			summary: 'Get messages for a store conversation',
+			summary:
+				'Get messages for a store conversation (cursor-based, latest first)',
+			description:
+				'Returns the newest messages first. Pass cursor (oldest created_at from the current window) to load older messages.',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
@@ -1891,20 +1914,38 @@ const paths: Record<string, any> = {
 					required: true,
 					schema: { type: 'string' },
 				},
+				{
+					name: 'cursor',
+					in: 'query',
+					required: false,
+					schema: { type: 'string' },
+					description:
+						'created_at of the oldest loaded message (ISO timestamp)',
+				},
+				{
+					name: 'limit',
+					in: 'query',
+					required: false,
+					schema: { type: 'integer', default: 20, maximum: 100 },
+				},
 			],
 			responses: {
 				'200': {
-					description: 'Message list',
+					description: 'Message list with cursor pagination',
 					content: {
 						'application/json': {
 							schema: {
 								type: 'object',
 								properties: {
+									success: { type: 'boolean', enum: [true] },
 									data: {
 										type: 'array',
 										items: {
 											$ref: '#/components/schemas/Message',
 										},
+									},
+									pagination: {
+										$ref: '#/components/schemas/CursorPagination',
 									},
 								},
 							},
@@ -1945,6 +1986,7 @@ const paths: Record<string, any> = {
 							schema: {
 								type: 'object',
 								properties: {
+									success: { type: 'boolean', enum: [true] },
 									data: {
 										$ref: '#/components/schemas/Message',
 									},
@@ -2711,22 +2753,46 @@ const paths: Record<string, any> = {
 					name: 'page',
 					in: 'query',
 					required: false,
-					schema: { type: 'integer', default: 1 },
+					schema: { type: 'integer', minimum: 1, default: 1 },
+					description: '1-based page index for traditional pagination',
+				},
+				{
+					name: 'perPage',
+					in: 'query',
+					required: false,
+					schema: {
+						type: 'integer',
+						enum: [10, 25, 50, 100],
+						default: 20,
+					},
+					description:
+						'Items per page. Alias: limit (same values, max 100).',
 				},
 				{
 					name: 'limit',
 					in: 'query',
 					required: false,
+					deprecated: true,
 					schema: { type: 'integer', default: 20, maximum: 100 },
+					description: 'Deprecated alias for perPage',
 				},
 			],
 			responses: {
 				'200': {
-					description: 'Product list',
+					description: 'Paginated product list',
 					content: {
 						'application/json': {
 							schema: {
 								type: 'object',
+								required: [
+									'success',
+									'products',
+									'page',
+									'perPage',
+									'total',
+									'totalPages',
+									'hasMore',
+								],
 								properties: {
 									success: { type: 'boolean', enum: [true] },
 									products: {
@@ -2763,8 +2829,19 @@ const paths: Record<string, any> = {
 											},
 										},
 									},
-									hasMore: { type: 'boolean' },
+									store: {
+										type: 'object',
+										properties: {
+											id: { type: 'string' },
+											name: { type: 'string' },
+											slug: { type: 'string' },
+										},
+									},
+									page: { type: 'integer' },
+									perPage: { type: 'integer' },
 									total: { type: 'integer' },
+									totalPages: { type: 'integer' },
+									hasMore: { type: 'boolean' },
 								},
 							},
 						},

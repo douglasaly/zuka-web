@@ -931,14 +931,8 @@ export const SellerOrdersView = () => {
 
 							{showPager ? (
 								<div className='flex w-full flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between'>
-									<p
-										className='text-sm tabular-nums text-muted-foreground'
-										aria-live='polite'
-									>
-										Página{' '}
-										<span className='font-medium text-foreground'>
-											{currentPage}/{totalPages}
-										</span>
+									<p className='text-sm tabular-nums text-muted-foreground min-w-40' aria-live='polite'>
+										Página {currentPage} de {totalPages}
 									</p>
 
 									{/* Mobile: primeira / anterior / seguinte / última */}

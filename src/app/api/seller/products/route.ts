@@ -2,6 +2,18 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { requireSellerStore } from '@/lib/auth/seller'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 
+const PER_PAGE_OPTIONS = [5, 10, 25, 50, 100] as const
+const DEFAULT_PER_PAGE = 5
+
+function parsePerPage(raw: string | null): number {
+	const n = Number(raw ?? DEFAULT_PER_PAGE)
+	if (PER_PAGE_OPTIONS.includes(n as (typeof PER_PAGE_OPTIONS)[number])) {
+		return n
+	}
+	if (!Number.isNaN(n) && n >= 1 && n <= 100) return Math.floor(n)
+	return DEFAULT_PER_PAGE
+}
+
 export async function GET(request: NextRequest) {
 	try {
 		const auth = await requireSellerStore()
@@ -17,11 +29,10 @@ export async function GET(request: NextRequest) {
 		const minPrice = searchParams.get('minPrice')
 		const maxPrice = searchParams.get('maxPrice')
 		const page = Math.max(Number(searchParams.get('page')) || 1, 1)
-		const limit = Math.min(
-			Math.max(Number(searchParams.get('limit')) || 20, 1),
-			100
+		const perPage = parsePerPage(
+			searchParams.get('perPage') ?? searchParams.get('limit')
 		)
-		const from = (page - 1) * limit
+		const from = (page - 1) * perPage
 
 		let query = supabase
 			.from('products')
@@ -57,13 +68,15 @@ export async function GET(request: NextRequest) {
 
 		query = query.order('created_at', { ascending: false })
 
-		const rangeEnd = from + limit
+		const rangeEnd = from + perPage
 		const { data, error, count } = await query.range(from, rangeEnd)
 
 		if (error) throw error
 
-		const pageItems = (data ?? []).slice(0, limit)
-		const hasMore = (data?.length ?? 0) > limit
+		const total = count ?? 0
+		const totalPages = Math.max(1, Math.ceil(total / perPage) || 1)
+		const safePage = Math.min(page, totalPages)
+		const pageItems = (data ?? []).slice(0, perPage)
 
 		const products = pageItems.map((row) => {
 			const record = row as Record<string, unknown>
@@ -104,8 +117,11 @@ export async function GET(request: NextRequest) {
 			success: true,
 			products,
 			store,
-			hasMore,
-			total: count ?? 0,
+			page: safePage,
+			perPage,
+			total,
+			totalPages,
+			hasMore: (data?.length ?? 0) > perPage || safePage < totalPages,
 		})
 	} catch (error) {
 		console.error('[GET /api/seller/products]', error)
