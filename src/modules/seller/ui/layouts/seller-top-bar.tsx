@@ -21,7 +21,7 @@ export const SellerTopBar = () => {
 	const breadcrumbs = ['Dashboard', ...segments.map(formatSegment)]
 
 	return (
-		<header className='sticky top-0 z-30 flex items-center justify-between border-b border-border/60 bg-background/95 px-6 py-4.25 backdrop-blur-sm'>
+		<header className='sticky top-0 z-30 flex h-[76px] items-center justify-between border-b border-border/60 bg-background/95 px-6 backdrop-blur-sm'>
 			<div className='flex items-center gap-3'>
 				<SidebarTrigger
 					nativeButton

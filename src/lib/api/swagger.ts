@@ -259,6 +259,66 @@ const schemas = {
 			unreadMessages: { type: 'integer' },
 		},
 	},
+	SellerStoreDocument: {
+		type: 'object',
+		properties: {
+			id: { type: 'string' },
+			type: { type: 'string' },
+			status: {
+				type: 'string',
+				enum: ['PENDING', 'APPROVED', 'REJECTED'],
+			},
+			fileUrl: { type: 'string' },
+			backFileUrl: { type: 'string', nullable: true },
+			rejectionReason: { type: 'string', nullable: true },
+			reviewedAt: {
+				type: 'string',
+				nullable: true,
+				format: 'date-time',
+			},
+			createdAt: {
+				type: 'string',
+				nullable: true,
+				format: 'date-time',
+			},
+			kind: { type: 'string', nullable: true },
+		},
+	},
+	SellerStoreDetail: {
+		type: 'object',
+		properties: {
+			id: { type: 'string' },
+			name: { type: 'string' },
+			slug: { type: 'string' },
+			description: { type: 'string', nullable: true },
+			logoUrl: { type: 'string', nullable: true },
+			bannerUrl: { type: 'string', nullable: true },
+			phone: { type: 'string', nullable: true },
+			whatsapp: { type: 'string', nullable: true },
+			email: { type: 'string', nullable: true },
+			provinceId: { type: 'string', nullable: true },
+			provinceName: { type: 'string', nullable: true },
+			neighborhood: { type: 'string' },
+			status: { type: 'string' },
+			verifiedAt: {
+				type: 'string',
+				nullable: true,
+				format: 'date-time',
+			},
+			productCount: { type: 'integer' },
+			hasDelivery: { type: 'boolean' },
+			deliveryFee: { type: 'integer', nullable: true },
+			deliveryEtaMinutes: { type: 'integer', nullable: true },
+			deliveryZones: {
+				type: 'array',
+				items: { type: 'string' },
+			},
+			documents: {
+				type: 'array',
+				items: { $ref: '#/components/schemas/SellerStoreDocument' },
+			},
+		},
+	},
 	SellerStats: {
 		type: 'object',
 		properties: {
@@ -2335,6 +2395,32 @@ const paths: Record<string, any> = {
 	},
 
 	'/api/seller/store': {
+		get: {
+			tags: ['Seller'],
+			summary: 'Get seller store settings',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			responses: {
+				'200': {
+					description: 'Seller store detail',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									store: {
+										$ref: '#/components/schemas/SellerStoreDetail',
+									},
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+				'403': { description: 'Not a seller' },
+				'404': { description: 'Store not found' },
+			},
+		},
 		patch: {
 			tags: ['Seller'],
 			summary: 'Update store settings',
@@ -2345,12 +2431,30 @@ const paths: Record<string, any> = {
 						schema: {
 							type: 'object',
 							properties: {
-								logoUrl: { type: 'string' },
-								bannerUrl: { type: 'string' },
-								description: { type: 'string' },
-								phone: { type: 'string' },
-								whatsapp: { type: 'string' },
+								name: { type: 'string' },
+								slug: { type: 'string' },
+								logoUrl: { type: 'string', nullable: true },
+								bannerUrl: { type: 'string', nullable: true },
+								description: { type: 'string', nullable: true },
+								phone: { type: 'string', nullable: true },
+								whatsapp: { type: 'string', nullable: true },
+								email: { type: 'string', nullable: true },
+								provinceId: { type: 'string', nullable: true },
+								neighborhood: { type: 'string' },
+								status: {
+									type: 'string',
+									enum: ['ACTIVE', 'INACTIVE'],
+								},
 								hasDelivery: { type: 'boolean' },
+								deliveryFee: { type: 'integer', nullable: true },
+								deliveryEtaMinutes: {
+									type: 'integer',
+									nullable: true,
+								},
+								deliveryZones: {
+									type: 'array',
+									items: { type: 'string' },
+								},
 								currentStep: { type: 'string' },
 							},
 						},
@@ -2367,33 +2471,7 @@ const paths: Record<string, any> = {
 								properties: {
 									success: { type: 'boolean', enum: [true] },
 									store: {
-										type: 'object',
-										properties: {
-											id: { type: 'string' },
-											name: { type: 'string' },
-											slug: { type: 'string' },
-											logo_url: {
-												type: 'string',
-												nullable: true,
-											},
-											banner_url: {
-												type: 'string',
-												nullable: true,
-											},
-											description: {
-												type: 'string',
-												nullable: true,
-											},
-											phone: {
-												type: 'string',
-												nullable: true,
-											},
-											whatsapp: {
-												type: 'string',
-												nullable: true,
-											},
-											status: { type: 'string' },
-										},
+										$ref: '#/components/schemas/SellerStoreDetail',
 									},
 								},
 							},
@@ -2402,6 +2480,54 @@ const paths: Record<string, any> = {
 				},
 				'401': { description: 'Unauthorized' },
 				'403': { description: 'Not a seller' },
+				'404': { description: 'Store not found' },
+			},
+		},
+	},
+	'/api/seller/store/documents': {
+		post: {
+			tags: ['Seller'],
+			summary: 'Submit or resubmit seller verification documents',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			requestBody: {
+				required: true,
+				content: {
+					'application/json': {
+						schema: {
+							type: 'object',
+							required: ['idCardUrl', 'selfieUrl'],
+							properties: {
+								idCardUrl: { type: 'string' },
+								selfieUrl: { type: 'string' },
+							},
+						},
+					},
+				},
+			},
+			responses: {
+				'200': {
+					description: 'Documents submitted',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									documents: {
+										type: 'array',
+										items: {
+											$ref: '#/components/schemas/SellerStoreDocument',
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'400': { description: 'Invalid input or documents already approved' },
+				'401': { description: 'Unauthorized' },
+				'403': { description: 'Not a seller' },
+				'404': { description: 'Store not found' },
 			},
 		},
 	},

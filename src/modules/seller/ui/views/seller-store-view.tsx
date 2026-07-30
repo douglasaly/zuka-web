@@ -5,33 +5,45 @@ import { Store } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import type { UserProfile } from '@/types/marketplace'
+import type { SellerStoreDetail } from '@/lib/types/api/seller'
+import { StoreEditorForm } from '@/modules/seller/ui/components/store-editor/store-editor-form'
 
 export const SellerStoreView = () => {
-	const { data: profile, isLoading } = useQuery<UserProfile | null>({
-		queryKey: ['user-profile'],
+	const { data, isLoading, isError, error, refetch } = useQuery<{
+		store: SellerStoreDetail
+	}>({
+		queryKey: ['seller-store'],
 		queryFn: async () => {
-			const res = await fetch('/api/me/profile')
-			if (res.status === 401) return null
-			if (!res.ok) throw new Error('Failed to load profile')
-			const json = await res.json()
-			return json.profile as UserProfile
+			const res = await fetch('/api/seller/store')
+			if (res.status === 404) {
+				throw new Error('NO_STORE')
+			}
+			if (!res.ok) {
+				const body = await res.json().catch(() => ({}))
+				throw new Error(body.error ?? 'Failed to load store')
+			}
+			return res.json()
 		},
 	})
 
 	if (isLoading) {
 		return (
-			<div className='space-y-4'>
-				<Skeleton className='h-40 w-full rounded-xl' />
-				<Skeleton className='h-8 w-48' />
-				<Skeleton className='h-24 w-full rounded-xl' />
+			<div className='space-y-6'>
+				<div className='space-y-2'>
+					<Skeleton className='h-3 w-24' />
+					<Skeleton className='h-8 w-48' />
+					<Skeleton className='h-4 w-72' />
+				</div>
+				<Skeleton className='h-52 w-full rounded-xl' />
+				<div className='grid gap-6 xl:grid-cols-2'>
+					<Skeleton className='h-64 w-full rounded-xl' />
+					<Skeleton className='h-64 w-full rounded-xl' />
+				</div>
 			</div>
 		)
 	}
 
-	const store = profile?.stores?.[0]
-
-	if (!store) {
+	if (isError && error.message === 'NO_STORE') {
 		return (
 			<div className='flex flex-col items-center justify-center py-24 text-center'>
 				<div className='flex size-16 items-center justify-center rounded-full bg-muted'>
@@ -53,65 +65,25 @@ export const SellerStoreView = () => {
 		)
 	}
 
-	return (
-		<div className='space-y-6'>
-			<div className='rounded-xl border border-border/60 bg-card p-6'>
-				<div className='flex items-start justify-between'>
-					<div>
-						<p className='text-xs font-medium uppercase tracking-wider text-muted-foreground'>
-							Loja
-						</p>
-						<h1 className='mt-1 font-heading text-2xl font-bold'>
-							{store.name}
-						</h1>
-						{store.status && (
-							<span className='mt-1 inline-block rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary'>
-								{store.status === 'active'
-									? 'Activa'
-									: store.status === 'pending'
-										? 'Pendente'
-										: store.status === 'suspended'
-											? 'Suspensa'
-											: store.status}
-							</span>
-						)}
-					</div>
-					<Button
-						variant='outline'
-						size='sm'
-						className='rounded-full'
-					>
-						Editar loja
-					</Button>
-				</div>
-
-				<div className='mt-6 grid gap-4 sm:grid-cols-2'>
-					<div className='rounded-lg bg-muted/50 p-4'>
-						<p className='text-xs text-muted-foreground'>Slug</p>
-						<p className='mt-0.5 font-mono text-sm'>
-							/{store.slug}
-						</p>
-					</div>
-					<div className='rounded-lg bg-muted/50 p-4'>
-						<p className='text-xs text-muted-foreground'>
-							Produtos
-						</p>
-						<p className='mt-0.5 text-sm font-medium'>
-							{store.productCount}
-						</p>
-					</div>
-				</div>
-			</div>
-
-			<div className='rounded-xl border border-border/60 bg-card p-6'>
+	if (isError || !data?.store) {
+		return (
+			<div className='flex flex-col items-center justify-center py-24 text-center'>
 				<h2 className='font-heading text-lg font-bold'>
-					Configurações da loja
+					Não foi possível carregar a loja
 				</h2>
 				<p className='mt-1 text-sm text-muted-foreground'>
-					Em breve poderá editar o perfil da sua loja, banner,
-					logótipo, WhatsApp e zonas de entrega.
+					Tente novamente dentro de momentos.
 				</p>
+				<Button
+					className='mt-6 rounded-full'
+					variant='outline'
+					onClick={() => refetch()}
+				>
+					Tentar novamente
+				</Button>
 			</div>
-		</div>
-	)
+		)
+	}
+
+	return <StoreEditorForm store={data.store} />
 }

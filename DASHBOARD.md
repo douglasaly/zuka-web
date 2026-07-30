@@ -63,7 +63,7 @@ _Expandir navegação e criar páginas._
 
 1. **`seller-orders-view`** — Criar `GET /api/seller/orders/[id]` para o detail view funcionar com dados reais (hoje faz fetch e pode falhar 404)
 2. **`seller-conversation-view`** — Auto-scroll para o fim ao carregar/enviar; escuta real-time (WebSocket/polling) para novas mensagens
-3. **`seller-store-view`** — Transformar numa página de edição real com form de logo, banner, descrição, WhatsApp, entrega (hoje é read‑only)
+3. **`seller-store-view`** — ✅ Fase 7: formulário completo de edição (logo/banner, identidade, contactos, localização, entrega, documentos, status)
 4. **`seller-reviews-view`** — Criar `GET /api/seller/reviews` + `POST /api/seller/reviews/:id/reply` para remover mock data
 5. **`seller-analytics-view`** — Criar `GET /api/seller/stats/analytics` que a view já espera (hoje retorna 404)
 6. **`seller-settings-view`** — Ligar acções "Configurar" e "Alterar" a páginas/modais reais; implementar "Encerrar conta" com confirmação
@@ -161,18 +161,34 @@ _Chat com clientes._
 
 ---
 
-## Fase 7 — Minha Loja
+## Fase 7 — Minha Loja ✅
 
 _Perfil e configurações da loja._
 
-- [ ] Logo upload (preview + crop)
-- [ ] Banner upload
-- [ ] Nome, slug, descrição (textarea rich)
-- [ ] Telefone, WhatsApp
-- [ ] Morada / localização
-- [ ] Configurações de entrega: zonas, preço, tempo estimado
-- [ ] Documentos: status verificação, re-envio
-- [ ] Status da loja: activo / pausado / fechado
+- [x] Logo upload (preview + crop)
+- [x] Banner upload
+- [x] Nome, slug, descrição (textarea rich)
+- [x] Telefone, WhatsApp
+- [x] Morada / localização
+- [x] Configurações de entrega: zonas, preço, tempo estimado
+- [x] Documentos: status verificação, re-envio
+- [x] Status da loja: activo / pausado / fechado
+
+### 🧱 O que foi construído
+
+| Ficheiro | Tipo | Responsabilidade |
+|---|---|---|
+| `api/seller/store/route.ts` | API | `GET` loja completa + docs; `PATCH` identidade, media, contactos, localização, entrega, status |
+| `api/seller/store/documents/route.ts` | API | `POST` reenvio de documentos de verificação |
+| `api/seller/store/map-store.ts` | Mapper | Normaliza store + documents para o client |
+| `store-editor/*` | Components | Secções: hero, media (+crop), identidade, contactos, localização, entrega, status, documentos |
+| `store-editor-form.tsx` | Form | Orquestra estado, save sticky bar, toasts |
+| `seller-store-view.tsx` | View | Fetch `/api/seller/store`, empty/error/loading → form |
+| `migrations/20250730100000_store_delivery_settings.sql` | SQL | `has_delivery`, `delivery_fee`, `delivery_eta_minutes`, `delivery_zones` |
+
+### ⚠️ Migração necessária
+
+Correr `supabase/migrations/20250730100000_store_delivery_settings.sql` na BD antes de usar entrega (senão o `GET/PATCH` falha ao seleccionar as novas colunas).
 
 ---
 
@@ -232,7 +248,7 @@ Fase 3:  Dashboard       ⬛⬛⬛⬛⬛⬛⬛⬜⬜⬜⬜⬜  ~3 dias
 Fase 4:  Pedidos         ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬜⬜  ~2 dias (notif push done)
 Fase 5:  Produtos        ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬜  ~3 dias (bulk done)
 Fase 6:  Mensagens       ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~2 dias
-Fase 7:  Minha Loja      ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~2 dias
+Fase 7:  Minha Loja      ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~2 dias ✅
 Fase 8:  Analytics       ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~2 dias
 Fase 9:  Avaliações      ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~1 dia
 Fase 10: Configurações   ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬜  ~1 dia (membros done)
