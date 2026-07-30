@@ -173,7 +173,6 @@ _Chat com clientes._
 - [ ] Lista de conversas: avatar, nome, última mensagem, timestamp, badge não lidas
 - [ ] Chat inline: bolhas, input com enter, timestamp
 - [ ] Sheet ou página dedicada para conversa
-- [ ] Indicador online/offline do cliente
 - [ ] Badge de mensagens não lidas no sidebar (tempo real)
 
 ---

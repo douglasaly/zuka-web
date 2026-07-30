@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
+import { useSetSellerPageMeta } from '../layouts/seller-page-meta'
 import type { ProductStatusValue } from './product-editor/constants'
 import { ProductImagesField } from './product-editor/product-images-field'
 import { ProductPreviewSheet } from './product-editor/product-preview-sheet'
@@ -42,6 +43,19 @@ export const ProductForm = ({
 		initialData ?? EMPTY_PRODUCT_FORM
 	)
 	const [previewOpen, setPreviewOpen] = useState(false)
+
+	const pageTitle =
+		mode === 'create'
+			? 'Novo produto'
+			: form.name.trim() || initialData?.name?.trim() || 'Produto'
+
+	useSetSellerPageMeta({
+		title: pageTitle,
+		crumbs:
+			mode === 'create'
+				? ['Dashboard', 'Produtos', 'Novo']
+				: ['Dashboard', 'Produtos', pageTitle],
+	})
 
 	const { data: categories, isLoading: categoriesLoading } = useQuery<
 		Category[]
@@ -161,12 +175,14 @@ export const ProductForm = ({
 					/>
 					<div>
 						<p className='text-sm text-muted-foreground'>
-							Produtos
+							{mode === 'create' ? 'Produtos' : 'Editar produto'}
 						</p>
 						<h1 className='font-heading text-xl font-bold'>
 							{mode === 'create'
 								? 'Novo produto'
-								: 'Editar produto'}
+								: form.name.trim() ||
+									initialData?.name?.trim() ||
+									'Produto'}
 						</h1>
 					</div>
 				</div>
@@ -264,7 +280,7 @@ export const ProductForm = ({
 						</div>
 						<div className='space-y-2'>
 							<Label htmlFor='product-discount'>
-								Preço promocional
+								Preço promocional (MZN)
 							</Label>
 							<Input
 								id='product-discount'
