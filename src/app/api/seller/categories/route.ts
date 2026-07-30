@@ -2,7 +2,10 @@ import { NextResponse } from 'next/server'
 import { uuidv7 } from 'uuidv7'
 import { requireSellerStore } from '@/lib/auth/seller'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
+import type { Database } from '@/lib/supabase/types'
 import { Slug } from '@/utils/slug'
+
+type CategoryUpdate = Database['public']['Tables']['categories']['Update']
 
 function mapCategory(row: Record<string, unknown>) {
 	return {
@@ -148,7 +151,7 @@ export async function PATCH(request: Request) {
 
 			for (const item of body.items) {
 				if (!item?.id) continue
-				const updates: Record<string, unknown> = {
+				const updates: CategoryUpdate = {
 					updated_at: now,
 				}
 				if (typeof item.position === 'number') {
@@ -175,7 +178,7 @@ export async function PATCH(request: Request) {
 			)
 		}
 
-		const updates: Record<string, unknown> = {
+		const updates: CategoryUpdate = {
 			updated_at: new Date().toISOString(),
 		}
 
