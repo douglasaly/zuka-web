@@ -28,8 +28,8 @@ export function SellerLayoutShell({ children }: SellerLayoutShellProps) {
 					<div className='flex min-h-screen min-w-0 flex-1 flex-col'>
 						<SellerTopBar />
 						<SellerLayoutClient />
-						<main className='flex-1 min-w-0 overflow-y-auto p-6'>
-							{children}
+						<main className='min-w-0 flex-1 overflow-x-hidden overflow-y-auto p-4 sm:p-6'>
+							<div className='min-w-0 max-w-full'>{children}</div>
 						</main>
 					</div>
 				</SellerPageMetaProvider>

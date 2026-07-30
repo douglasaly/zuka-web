@@ -1,5 +1,6 @@
 'use client'
 
+import { Check, Circle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { PRODUCT_STATUS_OPTIONS, type ProductStatusValue } from './constants'
 
@@ -13,38 +14,47 @@ export function ProductStatusField({
 	onChange,
 }: ProductStatusFieldProps) {
 	return (
-		<div className='space-y-3'>
-			<div>
-				<p className='text-sm font-semibold'>Estado</p>
-				<p className='text-xs text-muted-foreground'>
-					Controla a visibilidade do produto na loja.
-				</p>
-			</div>
-			<div className='grid gap-2 sm:grid-cols-2'>
-				{PRODUCT_STATUS_OPTIONS.map((option) => {
-					const selected = value === option.value
-					return (
-						<button
-							key={option.value}
-							type='button'
-							onClick={() => onChange(option.value)}
+		<div className='space-y-2'>
+			{PRODUCT_STATUS_OPTIONS.map((option) => {
+				const selected = value === option.value
+				return (
+					<button
+						key={option.value}
+						type='button'
+						aria-pressed={selected}
+						onClick={() => onChange(option.value)}
+			className={cn(
+				'flex w-full items-start gap-3 rounded-xl border px-3.5 py-3 text-left transition-colors duration-150',
+				selected
+					? 'border-foreground/20 bg-foreground/3 shadow-[0_1px_2px_rgba(0,0,0,0.04)]'
+					: 'border-border/60 hover:border-foreground/15 hover:bg-muted/40'
+			)}
+					>
+						<span
 							className={cn(
-								'rounded-xl border px-4 py-3 text-left transition-colors',
+								'mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border transition-colors',
 								selected
-									? 'border-primary bg-primary/5'
-									: 'border-border/60 hover:border-foreground/20 hover:bg-muted/40'
+									? 'border-foreground bg-foreground text-background'
+									: 'border-border text-transparent'
 							)}
 						>
-							<p className='text-sm font-semibold'>
+							{selected ? (
+								<Check className='size-3' strokeWidth={3} />
+							) : (
+								<Circle className='size-2.5 opacity-0' />
+							)}
+						</span>
+						<span className='min-w-0 flex-1'>
+							<span className='block text-sm font-semibold'>
 								{option.label}
-							</p>
-							<p className='mt-1 text-xs text-muted-foreground'>
+							</span>
+							<span className='mt-0.5 block text-xs leading-relaxed break-words text-muted-foreground'>
 								{option.description}
-							</p>
-						</button>
-					)
-				})}
-			</div>
+							</span>
+						</span>
+					</button>
+				)
+			})}
 		</div>
 	)
 }

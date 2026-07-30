@@ -10,6 +10,7 @@ import {
 	SheetTitle,
 } from '@/components/ui/sheet'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
+import { cn } from '@/lib/utils'
 import { formatPrice } from '@/utils/format-price'
 import { PRODUCT_STATUS_LABELS, PRODUCT_STATUS_STYLES } from './constants'
 import type { ProductFormState } from './types'
@@ -38,18 +39,21 @@ export function ProductPreviewSheet({
 
 	return (
 		<Sheet open={open} onOpenChange={onOpenChange}>
-			<SheetContent side='right' className='w-full sm:max-w-[440px]'>
-				<SheetHeader>
-					<SheetTitle className='font-heading'>
+			<SheetContent
+				side='right'
+				className='flex w-full flex-col gap-0 p-0 sm:max-w-md'
+			>
+				<SheetHeader className='border-b border-border/60 px-6 py-4'>
+					<SheetTitle className='font-heading text-left'>
 						Pré-visualização
 					</SheetTitle>
-					<SheetDescription>
-						Como o produto pode aparecer para o comprador.
+					<SheetDescription className='text-left'>
+						Como o comprador pode ver este anúncio.
 					</SheetDescription>
 				</SheetHeader>
 
-				<div className='space-y-5 overflow-y-auto px-1 pb-6'>
-					<div className='relative aspect-[4/3] overflow-hidden rounded-xl bg-muted'>
+				<div className='flex-1 space-y-5 overflow-y-auto px-6 py-5'>
+					<div className='relative aspect-4/3 overflow-hidden rounded-2xl bg-muted ring-1 ring-border/50'>
 						{cover ? (
 							<Image
 								src={cover}
@@ -61,18 +65,19 @@ export function ProductPreviewSheet({
 								blurDataURL={BLUR_PLACEHOLDER}
 							/>
 						) : (
-							<div className='flex size-full items-center justify-center'>
-								<Package className='size-10 text-muted-foreground' />
+							<div className='flex size-full flex-col items-center justify-center gap-2 text-muted-foreground'>
+								<Package className='size-10' />
+								<p className='text-xs'>Sem imagem</p>
 							</div>
 						)}
 					</div>
 
 					{form.imageUrls.length > 1 ? (
-						<div className='flex gap-2 overflow-x-auto'>
+						<div className='flex gap-2 overflow-x-auto pb-1'>
 							{form.imageUrls.map((url) => (
 								<div
 									key={url}
-									className='relative size-14 shrink-0 overflow-hidden rounded-lg bg-muted'
+									className='relative size-14 shrink-0 overflow-hidden rounded-lg bg-muted ring-1 ring-border/40'
 								>
 									<Image
 										src={url}
@@ -88,11 +93,15 @@ export function ProductPreviewSheet({
 
 					<div>
 						<div className='flex flex-wrap items-center gap-2'>
-							<h2 className='font-heading text-xl font-bold'>
-								{form.name || 'Nome do produto'}
+							<h2 className='font-heading text-xl font-bold tracking-tight'>
+								{form.name.trim() || 'Nome do produto'}
 							</h2>
 							<span
-								className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium ${PRODUCT_STATUS_STYLES[form.status] ?? 'bg-muted text-muted-foreground'}`}
+								className={cn(
+									'rounded-full px-2.5 py-0.5 text-[11px] font-medium',
+									PRODUCT_STATUS_STYLES[form.status] ??
+										'bg-muted text-muted-foreground'
+								)}
 							>
 								{PRODUCT_STATUS_LABELS[form.status] ??
 									form.status}
@@ -106,22 +115,26 @@ export function ProductPreviewSheet({
 					<div className='flex items-baseline gap-2'>
 						{discount != null && discount > 0 ? (
 							<>
-								<p className='text-2xl font-bold text-primary'>
+								<p className='text-2xl font-bold tabular-nums tracking-tight text-primary'>
 									{formatPrice(discount, 'MZN')}
 								</p>
-								<p className='text-sm text-muted-foreground line-through'>
+								<p className='text-sm tabular-nums text-muted-foreground line-through'>
 									{formatPrice(price, 'MZN')}
 								</p>
 							</>
-						) : (
-							<p className='text-2xl font-bold text-primary'>
+						) : price > 0 ? (
+							<p className='text-2xl font-bold tabular-nums tracking-tight text-primary'>
 								{formatPrice(price, 'MZN')}
+							</p>
+						) : (
+							<p className='text-sm text-muted-foreground'>
+								Preço por definir
 							</p>
 						)}
 					</div>
 
-					{form.description ? (
-						<p className='whitespace-pre-wrap text-sm leading-relaxed'>
+					{form.description.trim() ? (
+						<p className='whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground'>
 							{form.description}
 						</p>
 					) : (

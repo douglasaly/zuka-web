@@ -319,7 +319,7 @@ export const SellerProductsView = () => {
 	}
 
 	return (
-		<div className='relative space-y-5'>
+		<div className='relative min-w-0 max-w-full space-y-5'>
 			{/* Toolbar — title lives in top bar */}
 			<div className='flex flex-wrap items-center justify-between gap-3'>
 				<p className='text-sm text-muted-foreground'>
@@ -386,7 +386,7 @@ export const SellerProductsView = () => {
 			{/* Search + secondary filters */}
 			<div className='flex flex-col gap-3'>
 				<div className='flex flex-wrap items-center gap-2'>
-					<div className='relative min-w-48 max-w-md flex-1'>
+					<div className='relative min-w-0 max-w-md flex-1 basis-full sm:basis-auto sm:min-w-48'>
 						<Search className='pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' />
 						<Input
 							placeholder='Pesquisar por nome…'

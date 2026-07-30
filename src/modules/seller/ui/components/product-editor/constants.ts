@@ -7,7 +7,7 @@ export const PRODUCT_STATUS_OPTIONS = [
 	{
 		value: 'ACTIVE' as const,
 		label: 'Activo',
-		description: 'Visível no marketplace e disponível para compra.',
+		description: 'Visível na loja e disponível para compra.',
 	},
 	{
 		value: 'INACTIVE' as const,

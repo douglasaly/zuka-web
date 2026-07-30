@@ -62,8 +62,8 @@ export const SellerTopBar = () => {
 	const crumbTrail = breadcrumbs.slice(0, -1)
 
 	return (
-		<header className='sticky top-0 z-30 flex h-[76px] items-center justify-between border-b border-border/60 bg-background/95 px-6 backdrop-blur-sm'>
-			<div className='flex min-w-0 items-center gap-3'>
+		<header className='sticky top-0 z-30 flex h-[76px] min-w-0 items-center justify-between gap-2 border-b border-border/60 bg-background/95 px-4 backdrop-blur-sm sm:px-6'>
+			<div className='flex min-w-0 items-center gap-2 sm:gap-3'>
 				<SidebarTrigger
 					nativeButton
 					className='md:hidden'
