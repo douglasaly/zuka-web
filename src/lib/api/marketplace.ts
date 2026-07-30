@@ -304,8 +304,9 @@ export async function createProduct(input: {
 	categoryId: string
 	price: number
 	discountPrice?: number
-	quantity?: number
 	imageUrl?: string
+	imageUrls?: string[]
+	status?: 'DRAFT' | 'ACTIVE' | 'INACTIVE'
 }) {
 	const res = await fetch('/api/products', {
 		method: 'POST',
@@ -362,12 +363,21 @@ export async function createStore(input: {
 }
 
 export async function updateSellerStore(input: {
-	logoUrl?: string
-	bannerUrl?: string
-	description?: string
-	phone?: string
-	whatsapp?: string
+	name?: string
+	slug?: string
+	logoUrl?: string | null
+	bannerUrl?: string | null
+	description?: string | null
+	phone?: string | null
+	whatsapp?: string | null
+	email?: string | null
+	provinceId?: string | null
+	neighborhood?: string
+	status?: 'ACTIVE' | 'INACTIVE'
 	hasDelivery?: boolean
+	deliveryFee?: number | null
+	deliveryEtaMinutes?: number | null
+	deliveryZones?: string[]
 	currentStep?: string
 }) {
 	const res = await fetch('/api/seller/store', {
@@ -382,7 +392,7 @@ export async function updateSellerStore(input: {
 		throw new Error(json.error ?? 'Failed to update store')
 	}
 
-	return json.store as Record<string, unknown>
+	return (json.store ?? json) as Record<string, unknown>
 }
 
 export async function submitVerification(input: {

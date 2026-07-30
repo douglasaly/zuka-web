@@ -259,6 +259,66 @@ const schemas = {
 			unreadMessages: { type: 'integer' },
 		},
 	},
+	SellerStoreDocument: {
+		type: 'object',
+		properties: {
+			id: { type: 'string' },
+			type: { type: 'string' },
+			status: {
+				type: 'string',
+				enum: ['PENDING', 'APPROVED', 'REJECTED'],
+			},
+			fileUrl: { type: 'string' },
+			backFileUrl: { type: 'string', nullable: true },
+			rejectionReason: { type: 'string', nullable: true },
+			reviewedAt: {
+				type: 'string',
+				nullable: true,
+				format: 'date-time',
+			},
+			createdAt: {
+				type: 'string',
+				nullable: true,
+				format: 'date-time',
+			},
+			kind: { type: 'string', nullable: true },
+		},
+	},
+	SellerStoreDetail: {
+		type: 'object',
+		properties: {
+			id: { type: 'string' },
+			name: { type: 'string' },
+			slug: { type: 'string' },
+			description: { type: 'string', nullable: true },
+			logoUrl: { type: 'string', nullable: true },
+			bannerUrl: { type: 'string', nullable: true },
+			phone: { type: 'string', nullable: true },
+			whatsapp: { type: 'string', nullable: true },
+			email: { type: 'string', nullable: true },
+			provinceId: { type: 'string', nullable: true },
+			provinceName: { type: 'string', nullable: true },
+			neighborhood: { type: 'string' },
+			status: { type: 'string' },
+			verifiedAt: {
+				type: 'string',
+				nullable: true,
+				format: 'date-time',
+			},
+			productCount: { type: 'integer' },
+			hasDelivery: { type: 'boolean' },
+			deliveryFee: { type: 'integer', nullable: true },
+			deliveryEtaMinutes: { type: 'integer', nullable: true },
+			deliveryZones: {
+				type: 'array',
+				items: { type: 'string' },
+			},
+			documents: {
+				type: 'array',
+				items: { $ref: '#/components/schemas/SellerStoreDocument' },
+			},
+		},
+	},
 	SellerStats: {
 		type: 'object',
 		properties: {
@@ -769,8 +829,16 @@ const paths: Record<string, any> = {
 								price: { type: 'number' },
 								discountPrice: { type: 'number' },
 								currency: { type: 'string', default: 'MZN' },
-								quantity: { type: 'integer', default: 1 },
 								imageUrl: { type: 'string' },
+								imageUrls: {
+									type: 'array',
+									items: { type: 'string' },
+									maxItems: 8,
+								},
+								status: {
+									type: 'string',
+									enum: ['DRAFT', 'ACTIVE', 'INACTIVE'],
+								},
 							},
 						},
 					},
@@ -2335,6 +2403,32 @@ const paths: Record<string, any> = {
 	},
 
 	'/api/seller/store': {
+		get: {
+			tags: ['Seller'],
+			summary: 'Get seller store settings',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			responses: {
+				'200': {
+					description: 'Seller store detail',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									store: {
+										$ref: '#/components/schemas/SellerStoreDetail',
+									},
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+				'403': { description: 'Not a seller' },
+				'404': { description: 'Store not found' },
+			},
+		},
 		patch: {
 			tags: ['Seller'],
 			summary: 'Update store settings',
@@ -2345,12 +2439,30 @@ const paths: Record<string, any> = {
 						schema: {
 							type: 'object',
 							properties: {
-								logoUrl: { type: 'string' },
-								bannerUrl: { type: 'string' },
-								description: { type: 'string' },
-								phone: { type: 'string' },
-								whatsapp: { type: 'string' },
+								name: { type: 'string' },
+								slug: { type: 'string' },
+								logoUrl: { type: 'string', nullable: true },
+								bannerUrl: { type: 'string', nullable: true },
+								description: { type: 'string', nullable: true },
+								phone: { type: 'string', nullable: true },
+								whatsapp: { type: 'string', nullable: true },
+								email: { type: 'string', nullable: true },
+								provinceId: { type: 'string', nullable: true },
+								neighborhood: { type: 'string' },
+								status: {
+									type: 'string',
+									enum: ['ACTIVE', 'INACTIVE'],
+								},
 								hasDelivery: { type: 'boolean' },
+								deliveryFee: { type: 'integer', nullable: true },
+								deliveryEtaMinutes: {
+									type: 'integer',
+									nullable: true,
+								},
+								deliveryZones: {
+									type: 'array',
+									items: { type: 'string' },
+								},
 								currentStep: { type: 'string' },
 							},
 						},
@@ -2367,33 +2479,7 @@ const paths: Record<string, any> = {
 								properties: {
 									success: { type: 'boolean', enum: [true] },
 									store: {
-										type: 'object',
-										properties: {
-											id: { type: 'string' },
-											name: { type: 'string' },
-											slug: { type: 'string' },
-											logo_url: {
-												type: 'string',
-												nullable: true,
-											},
-											banner_url: {
-												type: 'string',
-												nullable: true,
-											},
-											description: {
-												type: 'string',
-												nullable: true,
-											},
-											phone: {
-												type: 'string',
-												nullable: true,
-											},
-											whatsapp: {
-												type: 'string',
-												nullable: true,
-											},
-											status: { type: 'string' },
-										},
+										$ref: '#/components/schemas/SellerStoreDetail',
 									},
 								},
 							},
@@ -2402,6 +2488,54 @@ const paths: Record<string, any> = {
 				},
 				'401': { description: 'Unauthorized' },
 				'403': { description: 'Not a seller' },
+				'404': { description: 'Store not found' },
+			},
+		},
+	},
+	'/api/seller/store/documents': {
+		post: {
+			tags: ['Seller'],
+			summary: 'Submit or resubmit seller verification documents',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			requestBody: {
+				required: true,
+				content: {
+					'application/json': {
+						schema: {
+							type: 'object',
+							required: ['idCardUrl', 'selfieUrl'],
+							properties: {
+								idCardUrl: { type: 'string' },
+								selfieUrl: { type: 'string' },
+							},
+						},
+					},
+				},
+			},
+			responses: {
+				'200': {
+					description: 'Documents submitted',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									documents: {
+										type: 'array',
+										items: {
+											$ref: '#/components/schemas/SellerStoreDocument',
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'400': { description: 'Invalid input or documents already approved' },
+				'401': { description: 'Unauthorized' },
+				'403': { description: 'Not a seller' },
+				'404': { description: 'Store not found' },
 			},
 		},
 	},
@@ -2424,7 +2558,12 @@ const paths: Record<string, any> = {
 					required: false,
 					schema: {
 						type: 'string',
-						enum: ['all', 'draft', 'active', 'inactive'],
+						enum: [
+							'all',
+							'DRAFT',
+							'ACTIVE',
+							'INACTIVE',
+						],
 					},
 				},
 				{
@@ -2432,7 +2571,21 @@ const paths: Record<string, any> = {
 					in: 'query',
 					required: false,
 					schema: { type: 'string' },
-					description: 'Filter by category name',
+					description: 'Filter by category id',
+				},
+				{
+					name: 'minPrice',
+					in: 'query',
+					required: false,
+					schema: { type: 'number' },
+					description: 'Minimum price in MZN',
+				},
+				{
+					name: 'maxPrice',
+					in: 'query',
+					required: false,
+					schema: { type: 'number' },
+					description: 'Maximum price in MZN',
 				},
 				{
 					name: 'page',
@@ -2455,10 +2608,39 @@ const paths: Record<string, any> = {
 							schema: {
 								type: 'object',
 								properties: {
+									success: { type: 'boolean', enum: [true] },
 									products: {
 										type: 'array',
 										items: {
-											$ref: '#/components/schemas/Product',
+											type: 'object',
+											properties: {
+												id: { type: 'string' },
+												name: { type: 'string' },
+												description: {
+													type: 'string',
+													nullable: true,
+												},
+												price: { type: 'number' },
+												discountPrice: {
+													type: 'number',
+													nullable: true,
+												},
+												currency: { type: 'string' },
+												status: { type: 'string' },
+												isVisible: { type: 'boolean' },
+												categoryName: {
+													type: 'string',
+													nullable: true,
+												},
+												image: {
+													type: 'string',
+													nullable: true,
+												},
+												images: {
+													type: 'array',
+													items: { type: 'string' },
+												},
+											},
 										},
 									},
 									hasMore: { type: 'boolean' },
@@ -2472,6 +2654,75 @@ const paths: Record<string, any> = {
 		},
 	},
 	'/api/seller/products/{id}': {
+		get: {
+			tags: ['Seller'],
+			summary: 'Get seller product detail for editing',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			parameters: [
+				{
+					name: 'id',
+					in: 'path',
+					required: true,
+					schema: { type: 'string' },
+				},
+			],
+			responses: {
+				'200': {
+					description: 'Product detail',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									product: {
+										type: 'object',
+										properties: {
+											id: { type: 'string' },
+											name: { type: 'string' },
+											description: {
+												type: 'string',
+												nullable: true,
+											},
+											categoryId: { type: 'string' },
+											categoryName: {
+												type: 'string',
+												nullable: true,
+											},
+											price: { type: 'number' },
+											discountPrice: {
+												type: 'number',
+												nullable: true,
+											},
+											currency: { type: 'string' },
+											status: { type: 'string' },
+											isVisible: { type: 'boolean' },
+											images: {
+												type: 'array',
+												items: {
+													type: 'object',
+													properties: {
+														id: { type: 'string' },
+														url: { type: 'string' },
+														position: {
+															type: 'integer',
+														},
+														isPrimary: {
+															type: 'boolean',
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'404': { description: 'Product not found' },
+			},
+		},
 		patch: {
 			tags: ['Seller'],
 			summary: 'Update a product',
@@ -2493,12 +2744,26 @@ const paths: Record<string, any> = {
 								name: { type: 'string' },
 								description: { type: 'string' },
 								categoryId: { type: 'string' },
-								price: { type: 'integer' },
-								discountPrice: { type: 'integer' },
-								quantity: { type: 'integer' },
-								status: { type: 'string' },
+								price: { type: 'number' },
+								discountPrice: {
+									type: 'number',
+									nullable: true,
+								},
+								status: {
+									type: 'string',
+									enum: [
+										'DRAFT',
+										'ACTIVE',
+										'INACTIVE',
+									],
+								},
 								isVisible: { type: 'boolean' },
 								imageUrl: { type: 'string' },
+								imageUrls: {
+									type: 'array',
+									items: { type: 'string' },
+									maxItems: 8,
+								},
 							},
 						},
 					},
@@ -2593,6 +2858,151 @@ const paths: Record<string, any> = {
 					},
 				},
 				'401': { description: 'Unauthorized' },
+			},
+		},
+	},
+	'/api/seller/categories': {
+		get: {
+			tags: ['Seller'],
+			summary: 'List categories for seller management',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			responses: {
+				'200': {
+					description: 'Category list',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									categories: {
+										type: 'array',
+										items: {
+											type: 'object',
+											properties: {
+												id: { type: 'string' },
+												parentId: {
+													type: 'string',
+													nullable: true,
+												},
+												name: { type: 'string' },
+												slug: { type: 'string' },
+												position: { type: 'integer' },
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		post: {
+			tags: ['Seller'],
+			summary: 'Create category',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			requestBody: {
+				required: true,
+				content: {
+					'application/json': {
+						schema: {
+							type: 'object',
+							required: ['name'],
+							properties: {
+								name: { type: 'string' },
+								slug: { type: 'string' },
+								parentId: {
+									type: 'string',
+									nullable: true,
+								},
+							},
+						},
+					},
+				},
+			},
+			responses: {
+				'200': { description: 'Category created' },
+				'400': { description: 'Validation error' },
+			},
+		},
+		patch: {
+			tags: ['Seller'],
+			summary: 'Update category or reorder categories',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			requestBody: {
+				content: {
+					'application/json': {
+						schema: {
+							oneOf: [
+								{
+									type: 'object',
+									required: ['id'],
+									properties: {
+										id: { type: 'string' },
+										name: { type: 'string' },
+										slug: { type: 'string' },
+										parentId: {
+											type: 'string',
+											nullable: true,
+										},
+										position: { type: 'integer' },
+									},
+								},
+								{
+									type: 'object',
+									required: ['items'],
+									properties: {
+										items: {
+											type: 'array',
+											items: {
+												type: 'object',
+												properties: {
+													id: { type: 'string' },
+													position: {
+														type: 'integer',
+													},
+													parentId: {
+														type: 'string',
+														nullable: true,
+													},
+												},
+											},
+										},
+									},
+								},
+							],
+						},
+					},
+				},
+			},
+			responses: {
+				'200': { description: 'Category updated' },
+			},
+		},
+		delete: {
+			tags: ['Seller'],
+			summary: 'Soft-delete category',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			requestBody: {
+				required: true,
+				content: {
+					'application/json': {
+						schema: {
+							type: 'object',
+							required: ['id'],
+							properties: {
+								id: { type: 'string' },
+							},
+						},
+					},
+				},
+			},
+			responses: {
+				'200': { description: 'Category deleted' },
+				'400': {
+					description: 'Category still has products',
+				},
 			},
 		},
 	},

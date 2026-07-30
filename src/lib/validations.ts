@@ -35,8 +35,9 @@ export const CreateProductSchema = z.object({
 	price: z.number().positive('Preço deve ser positivo'),
 	discountPrice: z.number().positive().optional(),
 	currency: z.string().length(3).default('MZN'),
-	quantity: z.number().int().min(0).default(1),
 	imageUrl: z.string().url().optional(),
+	imageUrls: z.array(z.string().url()).max(8).optional(),
+	status: z.enum(['DRAFT', 'ACTIVE', 'INACTIVE']).optional(),
 })
 
 // ─── Lojas ──────────────────────────────────────────────

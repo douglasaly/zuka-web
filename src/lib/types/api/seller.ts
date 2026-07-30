@@ -10,6 +10,8 @@ export type SellerProduct = {
 	isVisible: boolean
 	categoryName: string | null
 	image: string | null
+	images: string[]
+	description: string | null
 }
 
 export type SellerStore = {
@@ -23,6 +25,8 @@ export type ListSellerProductsInput = {
 	search?: string
 	status?: 'all' | 'DRAFT' | 'ACTIVE' | 'INACTIVE'
 	category?: string
+	minPrice?: number
+	maxPrice?: number
 	page?: number
 	limit?: number
 }
@@ -42,10 +46,35 @@ export type UpdateSellerProductInput = {
 	categoryId?: string
 	price?: number
 	discountPrice?: number | null
-	quantity?: number
 	status?: string
 	isVisible?: boolean
 	imageUrl?: string
+	imageUrls?: string[]
+}
+
+/** GET /api/seller/products/[id] */
+export type SellerProductDetail = {
+	id: string
+	name: string
+	description: string | null
+	categoryId: string
+	categoryName: string | null
+	price: number
+	discountPrice: number | null
+	currency: string
+	status: string
+	isVisible: boolean
+	images: Array<{
+		id: string
+		url: string
+		position: number
+		isPrimary: boolean
+	}>
+}
+
+export type GetSellerProductOutput = {
+	success: true
+	product: SellerProductDetail
 }
 
 export type UpdateSellerProductOutput = {
@@ -93,30 +122,82 @@ export type ListSellerOrdersOutput = {
 	total: number
 }
 
+/** Seller store document (verification) */
+export type SellerStoreDocument = {
+	id: string
+	type: string
+	status: 'PENDING' | 'APPROVED' | 'REJECTED'
+	fileUrl: string
+	backFileUrl: string | null
+	rejectionReason: string | null
+	reviewedAt: string | null
+	createdAt: string | null
+	kind: string | null
+}
+
+/** GET /api/seller/store */
+export type SellerStoreDetail = {
+	id: string
+	name: string
+	slug: string
+	description: string | null
+	logoUrl: string | null
+	bannerUrl: string | null
+	phone: string | null
+	whatsapp: string | null
+	email: string | null
+	provinceId: string | null
+	provinceName: string | null
+	neighborhood: string
+	status: string
+	verifiedAt: string | null
+	productCount: number
+	hasDelivery: boolean
+	deliveryFee: number | null
+	deliveryEtaMinutes: number | null
+	deliveryZones: string[]
+	documents: SellerStoreDocument[]
+}
+
+export type GetSellerStoreOutput = {
+	success: true
+	store: SellerStoreDetail
+}
+
 /** PATCH /api/seller/store */
 export type UpdateSellerStoreInput = {
-	logoUrl?: string
-	bannerUrl?: string
-	description?: string
-	phone?: string
-	whatsapp?: string
+	name?: string
+	slug?: string
+	logoUrl?: string | null
+	bannerUrl?: string | null
+	description?: string | null
+	phone?: string | null
+	whatsapp?: string | null
+	email?: string | null
+	provinceId?: string | null
+	neighborhood?: string
+	status?: 'ACTIVE' | 'INACTIVE'
 	hasDelivery?: boolean
+	deliveryFee?: number | null
+	deliveryEtaMinutes?: number | null
+	deliveryZones?: string[]
 	currentStep?: string
 }
 
 export type UpdateSellerStoreOutput = {
 	success: true
-	store: {
-		id: string
-		name: string
-		slug: string
-		logo_url: string | null
-		banner_url: string | null
-		description: string | null
-		phone: string | null
-		whatsapp: string | null
-		status: string
-	}
+	store: SellerStoreDetail
+}
+
+/** POST /api/seller/store/documents */
+export type ResubmitStoreDocumentsInput = {
+	idCardUrl: string
+	selfieUrl: string
+}
+
+export type ResubmitStoreDocumentsOutput = {
+	success: true
+	documents: SellerStoreDocument[]
 }
 
 /** GET /api/seller/members */

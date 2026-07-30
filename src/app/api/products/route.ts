@@ -214,16 +214,27 @@ export const POST = withErrorHandling(async (request) => {
 		price,
 		discountPrice,
 		currency,
-		quantity,
 		imageUrl,
+		imageUrls,
+		status,
 	} = parsed.data
 
-	if (imageUrl && !isR2PublicUrl(imageUrl)) {
+	const urls =
+		imageUrls && imageUrls.length > 0
+			? imageUrls
+			: imageUrl
+				? [imageUrl]
+				: []
+
+	if (urls.some((url) => !isR2PublicUrl(url))) {
 		return apiError(
 			ErrorCode.VALIDATION_ERROR,
 			'A imagem deve ser carregada para o armazenamento'
 		)
 	}
+
+	const nextStatus = status ?? 'ACTIVE'
+	const isVisible = nextStatus === 'ACTIVE'
 
 	const supabase = createSupabaseAdmin()
 	const productId = uuidv7()
@@ -249,8 +260,8 @@ export const POST = withErrorHandling(async (request) => {
 			name,
 			slug,
 			description: description ?? null,
-			is_visible: true,
-			status: 'ACTIVE',
+			is_visible: isVisible,
+			status: nextStatus,
 			price: Math.round(price * 100),
 			discount_price:
 				discountPrice != null ? Math.round(discountPrice * 100) : null,
@@ -261,22 +272,17 @@ export const POST = withErrorHandling(async (request) => {
 
 	if (productError) throw productError
 
-	await supabase.from('product_stock').insert({
-		id: uuidv7(),
-		product_id: productId,
-		quantity: quantity,
-		reserved: 0,
-	})
-
-	if (imageUrl) {
-		await supabase.from('product_images').insert({
-			id: uuidv7(),
-			product_id: productId,
-			url: imageUrl,
-			position: 0,
-			is_primary: true,
-			alt: name,
-		})
+	if (urls.length > 0) {
+		await supabase.from('product_images').insert(
+			urls.map((url, index) => ({
+				id: uuidv7(),
+				product_id: productId,
+				url,
+				position: index,
+				is_primary: index === 0,
+				alt: name,
+			}))
+		)
 	}
 
 	return apiSuccess({ product }, 201)

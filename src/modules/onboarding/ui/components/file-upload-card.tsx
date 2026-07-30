@@ -1,6 +1,6 @@
 'use client'
 
-import { Camera, Loader2, Upload, User, X } from 'lucide-react'
+import { Camera, Loader2, SquarePen, Upload, User, X } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { uploadImageToR2 } from '@/lib/api/uploads'
 import { cn } from '@/lib/utils'
@@ -12,6 +12,7 @@ interface FileUploadCardProps {
 	accept?: string
 	value: string | null
 	onChange: (value: string | null, file: File | null) => void
+	onUploadingChange?: (uploading: boolean) => void
 	variant?: 'document' | 'selfie' | 'logo' | 'banner'
 	purpose: UploadPurpose
 	className?: string
@@ -30,7 +31,7 @@ const variantConfig = {
 	},
 	logo: {
 		icon: Upload,
-		emptyTitle: 'Carregar logo circular',
+		emptyTitle: 'Carregar logotipo',
 		emptyHint: 'Formatos: JPG, PNG · Máx. 5MB',
 	},
 	banner: {
@@ -40,7 +41,7 @@ const variantConfig = {
 	},
 }
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ACCEPTED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
 
 export function FileUploadCard({
@@ -49,6 +50,7 @@ export function FileUploadCard({
 	accept = 'image/jpeg,image/png,image/webp',
 	value,
 	onChange,
+	onUploadingChange,
 	variant = 'document',
 	purpose,
 	className,
@@ -59,6 +61,11 @@ export function FileUploadCard({
 	const config = variantConfig[variant]
 	const Icon = config.icon
 	const isWide = variant === 'banner'
+
+	function setUploadingState(next: boolean) {
+		setUploading(next)
+		onUploadingChange?.(next)
+	}
 
 	async function handleFile(file: File | null) {
 		setError(null)
@@ -78,7 +85,7 @@ export function FileUploadCard({
 			return
 		}
 
-		setUploading(true)
+		setUploadingState(true)
 		try {
 			const publicUrl = await uploadImageToR2(file, purpose)
 			onChange(publicUrl, file)
@@ -90,7 +97,7 @@ export function FileUploadCard({
 			)
 			onChange(null, null)
 		} finally {
-			setUploading(false)
+			setUploadingState(false)
 		}
 	}
 
@@ -120,7 +127,18 @@ export function FileUploadCard({
 									: 'object-cover'
 							)}
 						/>
-						<div className='absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20' />
+						<div className='pointer-events-none absolute inset-0 flex items-center justify-center bg-black/0 transition-colors duration-150 group-hover:bg-black/45 group-focus-visible:bg-black/45 group-active:bg-black/45'>
+							<span className='flex size-11 scale-95 items-center justify-center rounded-full bg-white text-foreground opacity-0 shadow-md transition-all duration-150 group-hover:scale-100 group-hover:opacity-100 group-focus-visible:opacity-100 group-active:opacity-100'>
+								{uploading ? (
+									<Loader2 className='size-4 animate-spin' />
+								) : (
+									<SquarePen
+										className='size-4'
+										strokeWidth={2.25}
+									/>
+								)}
+							</span>
+						</div>
 					</div>
 				) : (
 					<div

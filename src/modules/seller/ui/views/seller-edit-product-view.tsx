@@ -5,6 +5,8 @@ import { PackageSearch } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import type { SellerProductDetail } from '@/lib/types/api/seller'
+import type { ProductStatusValue } from '../components/product-editor/constants'
 import { ProductForm } from '../components/product-form'
 
 interface SellerEditProductViewProps {
@@ -12,40 +14,45 @@ interface SellerEditProductViewProps {
 }
 
 export const SellerEditProductView = ({ id }: SellerEditProductViewProps) => {
-	const { data, isLoading } = useQuery({
-		queryKey: ['product', id],
+	const { data, isLoading, isError } = useQuery({
+		queryKey: ['seller-product', id],
 		queryFn: async () => {
-			const res = await fetch(`/api/products/${id}`)
-			if (!res.ok) throw new Error('Failed to load product')
-			const json = await res.json()
-			return json.data as {
-				product: Record<string, unknown>
-				store: Record<string, unknown> | null
-				category: Record<string, unknown> | null
-				images: Array<Record<string, unknown>>
+			const res = await fetch(`/api/seller/products/${id}`)
+			if (!res.ok) {
+				const body = await res.json().catch(() => ({}))
+				throw new Error(body.error ?? 'Failed to load product')
 			}
+			const json = await res.json()
+			return json.product as SellerProductDetail
 		},
 	})
 
 	if (isLoading) {
 		return (
-			<div className='space-y-4'>
-				<Skeleton className='h-10 w-48' />
-				<Skeleton className='h-64 w-full rounded-xl' />
+			<div className='space-y-5'>
+				<div className='flex items-center justify-between'>
+					<Skeleton className='h-9 w-40' />
+					<Skeleton className='h-9 w-32 rounded-full' />
+				</div>
+				<Skeleton className='h-48 w-full rounded-2xl' />
+				<div className='grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]'>
+					<Skeleton className='h-72 w-full rounded-2xl' />
+					<Skeleton className='h-56 w-full rounded-2xl' />
+				</div>
 			</div>
 		)
 	}
 
-	if (!data) {
+	if (isError || !data) {
 		return (
-			<div className='flex flex-col items-center justify-center py-24 text-center'>
-				<div className='flex size-16 items-center justify-center rounded-full bg-muted'>
-					<PackageSearch className='size-8 text-muted-foreground' />
+			<div className='flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/70 bg-muted/20 px-6 py-20 text-center'>
+				<div className='flex size-14 items-center justify-center rounded-2xl bg-background shadow-sm ring-1 ring-border/60'>
+					<PackageSearch className='size-7 text-muted-foreground' />
 				</div>
-				<h2 className='mt-4 font-heading text-xl font-bold'>
+				<h2 className='mt-5 font-heading text-xl font-bold tracking-tight'>
 					Produto não encontrado
 				</h2>
-				<p className='mt-1 max-w-sm text-sm text-muted-foreground'>
+				<p className='mt-1.5 max-w-sm text-sm text-muted-foreground'>
 					O produto que procura não existe ou foi removido.
 				</p>
 				<Button
@@ -60,23 +67,27 @@ export const SellerEditProductView = ({ id }: SellerEditProductViewProps) => {
 		)
 	}
 
-	const product = data.product
-	const primaryImage = (data.images ?? [])[0] as { url?: string } | undefined
+	const status = (
+		['DRAFT', 'ACTIVE', 'INACTIVE'].includes(data.status)
+			? data.status
+			: 'DRAFT'
+	) as ProductStatusValue
 
 	return (
 		<ProductForm
 			mode='edit'
 			productId={id}
 			initialData={{
-				name: String(product.name ?? ''),
-				description: String(product.description ?? ''),
-				categoryId: String(
-					(data.category as { id?: string } | null)?.id ?? ''
-				),
-				price: String(product.price ?? ''),
-				discountPrice: String(product.discount_price ?? ''),
-				quantity: String(product.quantity ?? '1'),
-				imageUrl: primaryImage?.url ?? '',
+				name: data.name,
+				description: data.description ?? '',
+				categoryId: data.categoryId,
+				price: String(data.price),
+				discountPrice:
+					data.discountPrice != null
+						? String(data.discountPrice)
+						: '',
+				status,
+				imageUrls: data.images.map((img) => img.url),
 			}}
 		/>
 	)

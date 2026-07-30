@@ -57,7 +57,7 @@ export async function GET(req: Request, { params }: GetStoreProductsProps) {
 			)
 			.eq('store_id', String(store.id))
 			.eq('is_visible', true)
-			.in('status', ['ACTIVE', 'OUT_OF_STOCK'])
+			.eq('status', 'ACTIVE')
 			.is('deleted_at', null)
 			.eq('product_images.is_primary', true)
 			.order('created_at', { ascending: false })

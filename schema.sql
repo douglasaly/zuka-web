@@ -1,4 +1,4 @@
-CREATE TYPE "public"."product_status_enum" AS ENUM('DRAFT', 'PENDING_REVIEW', 'ACTIVE', 'INACTIVE', 'OUT_OF_STOCK', 'ARCHIVED', 'DELETED');
+CREATE TYPE "public"."product_status_enum" AS ENUM('DRAFT', 'PENDING_REVIEW', 'ACTIVE', 'INACTIVE', 'ARCHIVED', 'DELETED');
 CREATE TYPE "public"."on_boarding_status_enum" AS ENUM('DRAFT', 'SUBMITTED', 'APPROVED', 'REJECTED');
 CREATE TYPE "public"."status_enum" AS ENUM('PENDING', 'VERIFIED', 'DENIED');
 CREATE TYPE "public"."store_status" AS ENUM('ACTIVE', 'INACTIVE', 'BANNED', 'PENDING', 'SUSPENDED');
@@ -69,30 +69,6 @@ CREATE TABLE "product_images" (
         "position" integer DEFAULT 0 NOT NULL,
         "is_primary" boolean DEFAULT false NOT NULL,
         "alt" text,
-        "created_at" timestamp with time zone DEFAULT now(),
-        "updated_at" timestamp with time zone DEFAULT now(),
-        "deleted_at" timestamp with time zone
-);
-
-CREATE TABLE "product_stock" (
-        "id" uuid PRIMARY KEY NOT NULL,
-        "product_id" uuid NOT NULL,
-        "quantity" integer DEFAULT 0 NOT NULL,
-        "reserved" integer DEFAULT 0 NOT NULL,
-        "created_at" timestamp with time zone DEFAULT now(),
-        "updated_at" timestamp with time zone DEFAULT now(),
-        "deleted_at" timestamp with time zone,
-        CONSTRAINT "product_stock_product_id_unique" UNIQUE("product_id")
-);
-
-CREATE TABLE "product_variants" (
-        "id" uuid PRIMARY KEY NOT NULL,
-        "store_id" uuid NOT NULL,
-        "product_id" uuid NOT NULL,
-        "sku" varchar(120) NOT NULL,
-        "price" numeric(12, 2) NOT NULL,
-        "stock" integer DEFAULT 0,
-        "attributes" jsonb,
         "created_at" timestamp with time zone DEFAULT now(),
         "updated_at" timestamp with time zone DEFAULT now(),
         "deleted_at" timestamp with time zone
@@ -242,9 +218,6 @@ ALTER TABLE "messages" ADD CONSTRAINT "messages_conversation_id_conversations_id
 ALTER TABLE "messages" ADD CONSTRAINT "messages_sender_id_users_id_fk" FOREIGN KEY ("sender_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "seller_onboarding_steps" ADD CONSTRAINT "seller_onboarding_steps_onboarding_id_seller_onboarding_id_fk" FOREIGN KEY ("onboarding_id") REFERENCES "public"."seller_onboarding"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "product_images" ADD CONSTRAINT "product_images_product_id_products_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE cascade ON UPDATE no action;
-ALTER TABLE "product_stock" ADD CONSTRAINT "product_stock_product_id_products_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE cascade ON UPDATE no action;
-ALTER TABLE "product_variants" ADD CONSTRAINT "product_variants_store_id_stores_id_fk" FOREIGN KEY ("store_id") REFERENCES "public"."stores"("id") ON DELETE cascade ON UPDATE no action;
-ALTER TABLE "product_variants" ADD CONSTRAINT "product_variants_product_id_products_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "products" ADD CONSTRAINT "products_store_id_stores_id_fk" FOREIGN KEY ("store_id") REFERENCES "public"."stores"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "products" ADD CONSTRAINT "products_category_id_categories_id_fk" FOREIGN KEY ("category_id") REFERENCES "public"."categories"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "role_permissions" ADD CONSTRAINT "role_permissions_role_id_roles_id_fk" FOREIGN KEY ("role_id") REFERENCES "public"."roles"("id") ON DELETE cascade ON UPDATE no action;
@@ -265,7 +238,6 @@ CREATE INDEX "idx_conversation_participants_conversation_id" ON "conversation_pa
 CREATE INDEX "idx_conversation_participants_user_id" ON "conversation_participants" USING btree ("user_id");
 CREATE INDEX "idx_message_products_unique" ON "message_products" USING btree ("message_id","product_id");
 CREATE UNIQUE INDEX "idx_product_primary_image" ON "product_images" USING btree ("product_id","is_primary") WHERE "product_images"."is_primary" = true;
-CREATE UNIQUE INDEX "store_sku_unique" ON "product_variants" USING btree ("store_id","sku");
 CREATE UNIQUE INDEX "unique_user_store_follow" ON "store_followers" USING btree ("user_id","store_id");
 CREATE INDEX "idx_store_followers_user" ON "store_followers" USING btree ("user_id");
 CREATE INDEX "idx_store_followers_store" ON "store_followers" USING btree ("store_id");

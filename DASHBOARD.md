@@ -63,7 +63,7 @@ _Expandir navegação e criar páginas._
 
 1. **`seller-orders-view`** — Criar `GET /api/seller/orders/[id]` para o detail view funcionar com dados reais (hoje faz fetch e pode falhar 404)
 2. **`seller-conversation-view`** — Auto-scroll para o fim ao carregar/enviar; escuta real-time (WebSocket/polling) para novas mensagens
-3. **`seller-store-view`** — Transformar numa página de edição real com form de logo, banner, descrição, WhatsApp, entrega (hoje é read‑only)
+3. **`seller-store-view`** — ✅ Fase 7: formulário completo de edição (logo/banner, identidade, contactos, localização, entrega, documentos, status)
 4. **`seller-reviews-view`** — Criar `GET /api/seller/reviews` + `POST /api/seller/reviews/:id/reply` para remover mock data
 5. **`seller-analytics-view`** — Criar `GET /api/seller/stats/analytics` que a view já espera (hoje retorna 404)
 6. **`seller-settings-view`** — Ligar acções "Configurar" e "Alterar" a páginas/modais reais; implementar "Encerrar conta" com confirmação
@@ -135,17 +135,34 @@ _Gestão completa de pedidos._
 
 ---
 
-## Fase 5 — Produtos
+## Fase 5 — Produtos ✅
 
 _Gestão completa de produtos (páginas próprias)._
 
-- [ ] Lista com imagem, nome, preço, stock, status, categorias
-- [ ] Filtros: categoria, status, preço, search
-- [ ] Bulk actions: pausar, activar, eliminar seleccionados
-- [ ] Novo produto: nome, descrição, categoria, preço, stock, imagens múltiplas, variações, status
-- [ ] Editar produto: pré-preenchido, mesma estrutura
-- [ ] Pré-visualização em Sheet
-- [ ] Gestão de categorias: criar, editar, reordenar
+- [x] Lista com imagem, nome, preço, status, categorias
+- [x] Filtros: categoria, status, preço, search
+- [x] Bulk actions: pausar, activar, eliminar seleccionados
+- [x] Novo produto: nome, descrição, categoria, preço, imagens múltiplas, status
+- [x] Editar produto: pré-preenchido, mesma estrutura
+- [x] Pré-visualização em Sheet
+- [x] Gestão de categorias: criar, editar, reordenar
+
+### 🧱 O que foi construído
+
+| Ficheiro | Tipo | Responsabilidade |
+|---|---|---|
+| `api/seller/products/route.ts` | API | Lista com filtros preço/categoria/status/search |
+| `api/seller/products/[id]/route.ts` | API | `GET` detalhe + `PATCH` multi-imagens/status |
+| `api/seller/categories/route.ts` | API | CRUD + reordenar categorias |
+| `product-editor/*` | Components | Imagens múltiplas, status, preview Sheet |
+| `product-form.tsx` | Form | Layout 2 colunas create/edit |
+| `seller-products-view.tsx` | View | Lista melhorada + filtros preço + preview |
+| `seller-categories-view.tsx` | View | Criar/editar/reordenar/eliminar |
+| `migrations/20250730120000_categories_position.sql` | SQL | Coluna `position` em categories |
+
+### ⚠️ Migração necessária
+
+Correr `supabase/migrations/20250730120000_categories_position.sql` antes de usar reordenação de categorias.
 
 ---
 
@@ -156,24 +173,34 @@ _Chat com clientes._
 - [ ] Lista de conversas: avatar, nome, última mensagem, timestamp, badge não lidas
 - [ ] Chat inline: bolhas, input com enter, timestamp
 - [ ] Sheet ou página dedicada para conversa
-- [ ] Indicador online/offline do cliente
 - [ ] Badge de mensagens não lidas no sidebar (tempo real)
 
 ---
 
-## Fase 7 — Minha Loja
+## Fase 7 — Minha Loja ✅
 
 _Perfil e configurações da loja._
 
-- [ ] Logo upload (preview + crop)
-- [ ] Banner upload
-- [ ] Nome, slug, descrição (textarea rich)
-- [ ] Telefone, WhatsApp
-- [ ] Morada / localização
-- [ ] Configurações de entrega: zonas, preço, tempo estimado
-- [ ] Documentos: status verificação, re-envio
-- [ ] Status da loja: activo / pausado / fechado
+- [x] Logo upload (preview + crop)
+- [x] Banner upload
+- [x] Nome, slug, descrição (textarea rich)
+- [x] Telefone, WhatsApp
+- [x] Morada / localização
+- [x] Configurações de entrega: zonas, preço, tempo estimado
+- [x] Documentos: status verificação, re-envio
+- [x] Status da loja: activo / pausado / fechado
 
+### 🧱 O que foi construído
+
+| Ficheiro | Tipo | Responsabilidade |
+|---|---|---|
+| `api/seller/store/route.ts` | API | `GET` loja completa + docs; `PATCH` identidade, media, contactos, localização, entrega, status |
+| `api/seller/store/documents/route.ts` | API | `POST` reenvio de documentos de verificação |
+| `api/seller/store/map-store.ts` | Mapper | Normaliza store + documents para o client |
+| `store-editor/*` | Components | Secções: hero, media (+crop), identidade, contactos, localização, entrega, status, documentos |
+| `store-editor-form.tsx` | Form | Orquestra estado, save sticky bar, toasts |
+| `seller-store-view.tsx` | View | Fetch `/api/seller/store`, empty/error/loading → form |
+| `migrations/20250730100000_store_delivery_settings.sql` | SQL | `has_delivery`, `delivery_fee`, `delivery_eta_minutes`, `delivery_zones` |
 ---
 
 ## Fase 8 — Analytics
@@ -230,9 +257,9 @@ Fase 1:  Sidebar + Rotas ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~3 dias ✅
 Fase 2:  API Layer       ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~3 dias (14/14 endpoints)
 Fase 3:  Dashboard       ⬛⬛⬛⬛⬛⬛⬛⬜⬜⬜⬜⬜  ~3 dias
 Fase 4:  Pedidos         ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬜⬜  ~2 dias (notif push done)
-Fase 5:  Produtos        ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬜  ~3 dias (bulk done)
+Fase 5:  Produtos        ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~3 dias ✅
 Fase 6:  Mensagens       ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~2 dias
-Fase 7:  Minha Loja      ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~2 dias
+Fase 7:  Minha Loja      ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~2 dias ✅
 Fase 8:  Analytics       ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~2 dias
 Fase 9:  Avaliações      ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛  ~1 dia
 Fase 10: Configurações   ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬜  ~1 dia (membros done)

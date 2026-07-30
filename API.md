@@ -52,11 +52,11 @@
 - [x] **2.1** Tabela `messages` — idx_messages_conversation_created, idx_messages_sender
 - [x] **2.2** Tabela `products` — idx_products_store_status, idx_products_category_status, idx_products_visible_created, idx_products_store_visible
 - [x] **2.3** Tabela `product_images` — idx_product_images_product
-- [x] **2.4** Tabela `product_variants` — idx_product_variants_product
+- [x] **2.4** ~~Tabela `product_variants`~~ — removida (sem modelo de inventário)
 - [x] **2.5** Tabela `orders` — idx_orders_buyer_created, idx_orders_store_status
 - [x] **2.6** Tabela `stores` — idx_stores_status_created, idx_stores_province
 - [x] **2.7** Soft-Delete indexes — users, categories, conversations, verification_documents
-- [ ] **2.8** Triggers `updated_at` ausentes — seller_profiles, seller_onboarding, product_images, product_stock, product_variants, store_members
+- [ ] **2.8** Triggers `updated_at` ausentes — seller_profiles, seller_onboarding, product_images, store_members
 
 ---
 

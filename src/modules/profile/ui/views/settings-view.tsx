@@ -144,7 +144,7 @@ export const SettingsView = () => {
 						icon={Store}
 						title='Definições da loja'
 						description='Gerir informações da sua loja'
-						href='/dashboard/seller/definicoes'
+						href='/dashboard/seller/configuracoes'
 					/>
 				)}
 			</SettingsSection>
