@@ -410,8 +410,8 @@ export function SellerOrderDetailSheetContent({
 				{!hasActions ? (
 					<p className='text-center text-xs text-muted-foreground'>
 						{data.status === 'COMPLETED'
-							? 'Pedido entregue — sem mais acções.'
-							: 'Pedido cancelado — sem mais acções.'}
+							? 'Pedido entregue'
+							: 'Pedido cancelado'}
 					</p>
 				) : null}
 				<Button
@@ -421,7 +421,7 @@ export function SellerOrderDetailSheetContent({
 						<Link href={`/dashboard/seller/pedidos/${data.id}`} />
 					}
 				>
-					Abrir página completa
+					Ver pedido completo
 				</Button>
 			</SheetFooter>
 		</>

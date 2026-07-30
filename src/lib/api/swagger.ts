@@ -3165,28 +3165,51 @@ const paths: Record<string, any> = {
 					required: false,
 					schema: { type: 'string' },
 					description:
-						'Filter by order id, short id, customer name/email, or items summary (applied after fetch)',
+						'Filter by order id, short id, customer name/email, or items summary. When set, matching is applied then the result is paginated (total reflects filtered count).',
 				},
 				{
 					name: 'page',
 					in: 'query',
 					required: false,
-					schema: { type: 'integer', default: 1 },
+					schema: { type: 'integer', minimum: 1, default: 1 },
+					description: '1-based page index for traditional pagination',
+				},
+				{
+					name: 'perPage',
+					in: 'query',
+					required: false,
+					schema: {
+						type: 'integer',
+						enum: [10, 25, 50, 100],
+						default: 10,
+					},
+					description:
+						'Items per page. Alias: limit (same values, max 100).',
 				},
 				{
 					name: 'limit',
 					in: 'query',
 					required: false,
-					schema: { type: 'integer', default: 50, maximum: 100 },
+					deprecated: true,
+					schema: { type: 'integer', default: 10, maximum: 100 },
+					description: 'Deprecated alias for perPage',
 				},
 			],
 			responses: {
 				'200': {
-					description: 'Order list for the store',
+					description: 'Paginated order list for the store',
 					content: {
 						'application/json': {
 							schema: {
 								type: 'object',
+								required: [
+									'success',
+									'orders',
+									'page',
+									'perPage',
+									'total',
+									'totalPages',
+								],
 								properties: {
 									success: {
 										type: 'boolean',
@@ -3198,8 +3221,29 @@ const paths: Record<string, any> = {
 											$ref: '#/components/schemas/SellerOrderListItem',
 										},
 									},
-									hasMore: { type: 'boolean' },
-									total: { type: 'integer' },
+									page: {
+										type: 'integer',
+										minimum: 1,
+										description: 'Current page (1-based)',
+									},
+									perPage: {
+										type: 'integer',
+										enum: [10, 25, 50, 100],
+									},
+									total: {
+										type: 'integer',
+										description:
+											'Total orders matching filters/search',
+									},
+									totalPages: {
+										type: 'integer',
+										minimum: 1,
+									},
+									hasMore: {
+										type: 'boolean',
+										description:
+											'True when page < totalPages',
+									},
 								},
 							},
 						},
@@ -3256,7 +3300,7 @@ const paths: Record<string, any> = {
 			tags: ['Seller'],
 			summary: 'Update seller order status',
 			description:
-				'Allowed transitions: PENDING|CONTACTED → SHIPPING|CANCELLED; SHIPPING → COMPLETED|CANCELLED. Completing sets review_eligible and notifies the buyer (type review). Idempotent when status is unchanged.',
+				'Allowed transitions: PENDING|CONTACTED → SHIPPING|CANCELLED; SHIPPING → COMPLETED|CANCELLED. Mark as delivered = status COMPLETED (only from SHIPPING). Completing sets completed_at/completed_by, review_eligible=true, and inserts a review notification for the buyer. Idempotent when status is unchanged.',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
@@ -3283,6 +3327,8 @@ const paths: Record<string, any> = {
 										'COMPLETED',
 										'CANCELLED',
 									],
+									description:
+										'COMPLETED = marcar como entregue (irreversível)',
 								},
 								notes: {
 									type: 'string',
@@ -3291,12 +3337,30 @@ const paths: Record<string, any> = {
 								},
 							},
 						},
+						examples: {
+							markDelivered: {
+								summary: 'Marcar como entregue',
+								value: { status: 'COMPLETED' },
+							},
+							markShipping: {
+								summary: 'Marcar como em envio',
+								value: { status: 'SHIPPING' },
+							},
+							cancel: {
+								summary: 'Cancelar pedido',
+								value: {
+									status: 'CANCELLED',
+									notes: 'Cliente pediu cancelamento',
+								},
+							},
+						},
 					},
 				},
 			},
 			responses: {
 				'200': {
-					description: 'Updated order (or idempotent no-op)',
+					description:
+						'Updated order. On COMPLETED, buyer receives review notification.',
 					content: {
 						'application/json': {
 							schema: {
@@ -3309,7 +3373,11 @@ const paths: Record<string, any> = {
 									order: {
 										$ref: '#/components/schemas/SellerOrderDetail',
 									},
-									idempotent: { type: 'boolean' },
+									idempotent: {
+										type: 'boolean',
+										description:
+											'True when status was already the requested value',
+									},
 								},
 							},
 						},
@@ -3322,7 +3390,8 @@ const paths: Record<string, any> = {
 					description: 'Order not found for this store',
 				},
 				'409': {
-					description: 'Transition not allowed from current status',
+					description:
+						'Transition not allowed (e.g. COMPLETED from PENDING, or from CANCELLED)',
 				},
 			},
 		},

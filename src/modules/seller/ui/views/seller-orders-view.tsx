@@ -2,16 +2,25 @@
 
 /**
  * THESIS: Orders as a full-bleed fulfillment workbench — Table on desktop,
- * stacked rows on mobile; irreversible steps behind AlertDialog.
- * OWN-WORLD: Seller Operate + shadcn Table/Badge/AlertDialog tokens.
- * STORY: Filter → scan → confirm → status advances; review unlocks on delivery.
- * FIRST VIEWPORT: Toolbar + full-width list.
+ * stacked rows on mobile; traditional numbered pagination in the URL.
+ * OWN-WORLD: Seller Operate + shadcn Table/Badge/AlertDialog/Pagination.
+ * STORY: Filter → page → confirm delivery → status advances.
+ * FIRST VIEWPORT: Toolbar + full-width list + footer pager.
  * FORM: Polish of existing orders Operate surface (no new visual world).
  */
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+	keepPreviousData,
+	useMutation,
+	useQuery,
+	useQueryClient,
+} from '@tanstack/react-query'
 import {
 	CheckCircle2,
+	ChevronLeft,
+	ChevronRight,
+	ChevronsLeft,
+	ChevronsRight,
 	Ellipsis,
 	Loader2,
 	Package,
@@ -22,7 +31,14 @@ import {
 	XCircle,
 } from 'lucide-react'
 import Link from 'next/link'
-import { useDeferredValue, useState } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import {
+	useDeferredValue,
+	useEffect,
+	useMemo,
+	useState,
+	useTransition,
+} from 'react'
 import { toast } from 'sonner'
 import { OrderStatusBadge } from '@/components/order-status-badge'
 import {
@@ -46,16 +62,19 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import {
+	Pagination,
+	PaginationContent,
+	PaginationEllipsis,
+	PaginationItem,
+} from '@/components/ui/pagination'
+import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
-import {
-	Sheet,
-	SheetContent,
-} from '@/components/ui/sheet'
+import { Sheet, SheetContent } from '@/components/ui/sheet'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
 	Table,
@@ -98,10 +117,16 @@ type SellerOrder = {
 	}
 }
 
-type OrderDetail = {
-	id: string
-	status: OrderStatus
+type OrdersResponse = {
+	orders: SellerOrder[]
+	total: number
+	page: number
+	perPage: number
+	totalPages: number
+	hasMore: boolean
 }
+
+type PendingAction = OrderSheetPendingAction
 
 const STATUS_OPTIONS = [
 	{ value: 'all', label: 'Todos' },
@@ -118,7 +143,8 @@ const DATE_OPTIONS = [
 	{ value: '90', label: 'Últimos 90 dias' },
 ] as const
 
-type PendingAction = OrderSheetPendingAction
+const PER_PAGE_OPTIONS = [10, 25, 50, 100] as const
+const DEFAULT_PER_PAGE = 10
 
 function ReviewBadge({ state }: { state: ReviewState }) {
 	if (state === 'awaiting') {
@@ -183,6 +209,28 @@ function confirmCopy(action: PendingAction) {
 				destructive: true,
 			}
 	}
+}
+
+function buildPageList(
+	current: number,
+	totalPages: number
+): Array<number | 'ellipsis'> {
+	if (totalPages <= 7) {
+		return Array.from({ length: totalPages }, (_, i) => i + 1)
+	}
+	const pages = new Set<number>()
+	pages.add(1)
+	pages.add(totalPages)
+	for (let p = current - 1; p <= current + 1; p++) {
+		if (p >= 1 && p <= totalPages) pages.add(p)
+	}
+	const sorted = [...pages].sort((a, b) => a - b)
+	const result: Array<number | 'ellipsis'> = []
+	for (let i = 0; i < sorted.length; i++) {
+		if (i > 0 && sorted[i] - sorted[i - 1] > 1) result.push('ellipsis')
+		result.push(sorted[i])
+	}
+	return result
 }
 
 function OrderActionsMenu({
@@ -277,15 +325,8 @@ function OrdersTableSkeleton() {
 					<Skeleton className='h-10 w-40 rounded-full' />
 				</div>
 			</div>
-			<Skeleton className='h-4 w-28' />
+			<Skeleton className='h-4 w-48' />
 			<div className='overflow-hidden rounded-xl border border-border'>
-				<div className='hidden border-b border-border bg-muted/40 px-4 py-3 md:block'>
-					<div className='grid grid-cols-7 gap-4'>
-						{Array.from({ length: 7 }).map((_, i) => (
-							<Skeleton key={i} className='h-3 w-full' />
-						))}
-					</div>
-				</div>
 				{Array.from({ length: 6 }).map((_, i) => (
 					<div
 						key={i}
@@ -295,7 +336,6 @@ function OrdersTableSkeleton() {
 							<Skeleton className='h-4 w-28' />
 							<Skeleton className='h-3 w-48 max-w-full' />
 						</div>
-						<Skeleton className='hidden h-4 w-20 sm:block' />
 						<Skeleton className='h-5 w-20 rounded-full' />
 					</div>
 				))}
@@ -304,46 +344,109 @@ function OrdersTableSkeleton() {
 	)
 }
 
+function parsePerPage(raw: string | null): number {
+	const n = Number(raw ?? DEFAULT_PER_PAGE)
+	return PER_PAGE_OPTIONS.includes(n as (typeof PER_PAGE_OPTIONS)[number])
+		? n
+		: DEFAULT_PER_PAGE
+}
+
 export const SellerOrdersView = () => {
 	useSetSellerPageMeta({
 		title: 'Pedidos',
 		crumbs: ['Dashboard', 'Pedidos'],
 	})
 
+	const router = useRouter()
+	const pathname = usePathname()
+	const searchParams = useSearchParams()
+	const [, startTransition] = useTransition()
 	const queryClient = useQueryClient()
-	const [search, setSearch] = useState('')
-	const deferredSearch = useDeferredValue(search)
-	const [statusFilter, setStatusFilter] = useState('all')
-	const [dateFilter, setDateFilter] = useState('all')
+
+	const page = Math.max(Number(searchParams.get('page')) || 1, 1)
+	const perPage = parsePerPage(searchParams.get('perPage'))
+	const statusFilter = searchParams.get('status') ?? 'all'
+	const dateFilter = searchParams.get('date') ?? 'all'
+	const searchFromUrl = searchParams.get('q') ?? ''
+
+	const [searchInput, setSearchInput] = useState(searchFromUrl)
+	const deferredSearch = useDeferredValue(searchInput)
 	const [selectedId, setSelectedId] = useState<string | null>(null)
 	const [pendingAction, setPendingAction] = useState<PendingAction | null>(
 		null
 	)
 
-	const queryParams = new URLSearchParams()
-	if (statusFilter !== 'all') queryParams.set('status', statusFilter)
-	if (dateFilter !== 'all') queryParams.set('date', dateFilter)
-	if (deferredSearch.trim()) queryParams.set('search', deferredSearch.trim())
-	queryParams.set('limit', '50')
+	useEffect(() => {
+		setSearchInput(searchFromUrl)
+	}, [searchFromUrl])
 
-	const { data, isLoading, isError, refetch } = useQuery<{
-		orders: SellerOrder[]
-		total: number
-	}>({
-		queryKey: [
-			'seller-orders',
-			statusFilter,
-			dateFilter,
-			deferredSearch.trim(),
-		],
-		queryFn: async () => {
-			const res = await fetch(
-				`/api/seller/orders?${queryParams.toString()}`
-			)
-			if (!res.ok) throw new Error('Failed to load orders')
-			return res.json()
-		},
-	})
+	function replaceParams(
+		patch: Record<string, string | null>,
+		options?: { resetPage?: boolean }
+	) {
+		const next = new URLSearchParams(searchParams.toString())
+		for (const [key, value] of Object.entries(patch)) {
+			if (value == null || value === '' || value === 'all') {
+				next.delete(key)
+			} else {
+				next.set(key, value)
+			}
+		}
+		if (options?.resetPage) {
+			next.delete('page')
+		}
+		if (!next.get('perPage') || next.get('perPage') === String(DEFAULT_PER_PAGE)) {
+			// keep default out of URL when it's 25? User asked for URL reflection —
+			// always set perPage when not default to keep URLs clean; always set page when > 1
+			if (next.get('perPage') === String(DEFAULT_PER_PAGE)) {
+				next.delete('perPage')
+			}
+		}
+		const qs = next.toString()
+		startTransition(() => {
+			router.replace(qs ? `${pathname}?${qs}` : pathname, {
+				scroll: false,
+			})
+		})
+	}
+
+	// Sync deferred search → URL (resets page). Keep filters.
+	useEffect(() => {
+		const trimmed = deferredSearch.trim()
+		const current = searchParams.get('q') ?? ''
+		if (trimmed === current) return
+		const next = new URLSearchParams(searchParams.toString())
+		if (trimmed) next.set('q', trimmed)
+		else next.delete('q')
+		next.delete('page')
+		const qs = next.toString()
+		startTransition(() => {
+			router.replace(qs ? `${pathname}?${qs}` : pathname, {
+				scroll: false,
+			})
+		})
+	}, [deferredSearch, searchParams, pathname, router])
+
+	const apiParams = useMemo(() => {
+		const p = new URLSearchParams()
+		p.set('page', String(page))
+		p.set('perPage', String(perPage))
+		if (statusFilter !== 'all') p.set('status', statusFilter)
+		if (dateFilter !== 'all') p.set('date', dateFilter)
+		if (searchFromUrl.trim()) p.set('search', searchFromUrl.trim())
+		return p.toString()
+	}, [page, perPage, statusFilter, dateFilter, searchFromUrl])
+
+	const { data, isLoading, isError, isFetching, refetch } =
+		useQuery<OrdersResponse>({
+			queryKey: ['seller-orders', apiParams],
+			queryFn: async () => {
+				const res = await fetch(`/api/seller/orders?${apiParams}`)
+				if (!res.ok) throw new Error('Failed to load orders')
+				return res.json()
+			},
+			placeholderData: keepPreviousData,
+		})
 
 	const statusMutation = useMutation({
 		mutationFn: async (action: PendingAction) => {
@@ -358,15 +461,15 @@ export const SellerOrdersView = () => {
 					json.error ?? 'Não foi possível actualizar o pedido'
 				)
 			}
-			return { action, order: json.order as OrderDetail }
+			return { action, order: json.order }
 		},
 		onMutate: async (action) => {
 			await queryClient.cancelQueries({ queryKey: ['seller-orders'] })
-			const previous = queryClient.getQueriesData<{
-				orders: SellerOrder[]
-			}>({ queryKey: ['seller-orders'] })
+			const previous = queryClient.getQueriesData<OrdersResponse>({
+				queryKey: ['seller-orders'],
+			})
 
-			queryClient.setQueriesData<{ orders: SellerOrder[] }>(
+			queryClient.setQueriesData<OrdersResponse>(
 				{ queryKey: ['seller-orders'] },
 				(old) => {
 					if (!old?.orders) return old
@@ -427,16 +530,35 @@ export const SellerOrdersView = () => {
 	})
 
 	const orders = data?.orders ?? []
+	const total = data?.total ?? 0
+	const totalPages = data?.totalPages ?? 1
+	const currentPage = data?.page ?? page
 	const confirm = pendingAction ? confirmCopy(pendingAction) : null
 	const isEmptyStore =
-		orders.length === 0 &&
+		total === 0 &&
 		statusFilter === 'all' &&
-		!search &&
-		dateFilter === 'all'
+		!searchFromUrl &&
+		dateFilter === 'all' &&
+		!isLoading
 
-	if (isLoading) return <OrdersTableSkeleton />
+	const rangeStart = total === 0 ? 0 : (currentPage - 1) * perPage + 1
+	const rangeEnd = Math.min(currentPage * perPage, total)
+	const pageList = buildPageList(currentPage, totalPages)
+	const showPager = total > 0
+	const isPageFetching = isFetching && !isLoading
 
-	if (isError) {
+	function goToPage(nextPage: number) {
+		if (nextPage < 1 || nextPage > totalPages) return
+		replaceParams({
+			page: nextPage <= 1 ? null : String(nextPage),
+			perPage:
+				perPage === DEFAULT_PER_PAGE ? null : String(perPage),
+		})
+	}
+
+	if (isLoading && !data) return <OrdersTableSkeleton />
+
+	if (isError && !data) {
 		return (
 			<div className='flex w-full min-w-0 flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-6 py-16 text-center'>
 				<h2 className='font-heading text-lg font-bold tracking-tight'>
@@ -459,9 +581,9 @@ export const SellerOrdersView = () => {
 	return (
 		<div className='w-full min-w-0 space-y-6 pb-10'>
 			<p className='max-w-3xl text-sm leading-relaxed text-muted-foreground'>
-				Acompanhe e actualize os pedidos da sua loja. 
-				</p>
-			
+				Acompanhe e actualize os pedidos da sua loja. O fluxo é linear:
+				Pendente → Em envio → Entregue.
+			</p>
 
 			{isEmptyStore ? (
 				<div className='flex w-full flex-col items-center rounded-xl border border-border bg-card px-6 py-16 text-center sm:py-20'>
@@ -489,18 +611,18 @@ export const SellerOrdersView = () => {
 						<div className='relative min-w-0 flex-1 sm:max-w-md'>
 							<Search className='pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground' />
 							<Input
-								value={search}
-								onChange={(e) => setSearch(e.target.value)}
+								value={searchInput}
+								onChange={(e) => setSearchInput(e.target.value)}
 								placeholder='Nº do pedido ou nome do cliente…'
 								aria-label='Pesquisar pedidos'
 								className='h-10 rounded-full border-border bg-background pr-10 pl-9'
 							/>
-							{search ? (
+							{searchInput ? (
 								<span className='absolute top-1/2 right-1.5 -translate-y-1/2'>
 									<IconTooltipButton
 										label='Limpar pesquisa'
 										className='size-8 text-muted-foreground'
-										onClick={() => setSearch('')}
+										onClick={() => setSearchInput('')}
 									>
 										<X className='size-4' />
 									</IconTooltipButton>
@@ -510,7 +632,13 @@ export const SellerOrdersView = () => {
 						<div className='flex flex-wrap gap-2'>
 							<Select
 								value={statusFilter}
-								onValueChange={(v) => v && setStatusFilter(v)}
+								onValueChange={(v) => {
+									if (!v) return
+									replaceParams(
+										{ status: v },
+										{ resetPage: true }
+									)
+								}}
 							>
 								<SelectTrigger className='h-10 w-full rounded-full sm:w-40'>
 									<SelectValue placeholder='Estado' />
@@ -528,7 +656,13 @@ export const SellerOrdersView = () => {
 							</Select>
 							<Select
 								value={dateFilter}
-								onValueChange={(v) => v && setDateFilter(v)}
+								onValueChange={(v) => {
+									if (!v) return
+									replaceParams(
+										{ date: v },
+										{ resetPage: true }
+									)
+								}}
 							>
 								<SelectTrigger className='h-10 w-full rounded-full sm:w-44'>
 									<SelectValue placeholder='Período' />
@@ -544,18 +678,42 @@ export const SellerOrdersView = () => {
 									))}
 								</SelectContent>
 							</Select>
+							<Select
+								value={String(perPage)}
+								onValueChange={(v) => {
+									if (!v) return
+									replaceParams(
+										{
+											perPage:
+												v === String(DEFAULT_PER_PAGE)
+													? null
+													: v,
+										},
+										{ resetPage: true }
+									)
+								}}
+							>
+								<SelectTrigger
+									className='h-10 w-full rounded-full sm:w-36'
+									aria-label='Itens por página'
+								>
+									<SelectValue placeholder='Por página' />
+								</SelectTrigger>
+								<SelectContent>
+									{PER_PAGE_OPTIONS.map((n) => (
+										<SelectItem key={n} value={String(n)}>
+											{n} / página
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
 						</div>
 					</div>
 
-					<p className='text-sm text-muted-foreground'>
-						<span className='font-medium text-foreground'>
-							{orders.length}
-						</span>{' '}
-						{orders.length === 1 ? 'pedido' : 'pedidos'}
-						{typeof data?.total === 'number' &&
-						data.total !== orders.length
-							? ` de ${data.total}`
-							: ''}
+					<p className='text-sm text-muted-foreground' aria-live='polite'>
+						{total === 0
+							? 'Nenhum pedido encontrado'
+							: `Mostrando ${rangeStart}–${rangeEnd} de ${total} ${total === 1 ? 'pedido' : 'pedidos'}`}
 					</p>
 
 					{orders.length === 0 ? (
@@ -568,9 +726,16 @@ export const SellerOrdersView = () => {
 								size='sm'
 								className='mt-3 rounded-full'
 								onClick={() => {
-									setSearch('')
-									setStatusFilter('all')
-									setDateFilter('all')
+									setSearchInput('')
+									replaceParams(
+										{
+											q: null,
+											status: null,
+											date: null,
+											page: null,
+										},
+										{ resetPage: true }
+									)
 								}}
 							>
 								Limpar filtros
@@ -578,183 +743,366 @@ export const SellerOrdersView = () => {
 						</div>
 					) : (
 						<>
-							{/* Mobile: stacked interactive rows */}
-							<ul className='flex w-full flex-col gap-2 md:hidden'>
-								{orders.map((order) => (
-									<li key={order.id}>
-										<button
-											type='button'
-											onClick={() =>
-												setSelectedId(order.id)
-											}
-											className={cn(
-												'flex w-full min-w-0 flex-col gap-2 rounded-xl border border-border bg-card px-4 py-3.5 text-left',
-												'transition-colors duration-200 hover:bg-muted/40',
-												'focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none'
-											)}
-										>
-											<div className='flex items-start justify-between gap-3'>
-												<div className='min-w-0'>
-													<p className='font-heading text-sm font-semibold tracking-tight'>
-														#{order.shortId}
-													</p>
-													<p className='truncate text-sm font-medium'>
-														{order.customerName}
-													</p>
-												</div>
-												<OrderStatusBadge
-													status={order.status}
-													label={order.statusLabel}
-												/>
-											</div>
-											<p className='truncate text-sm text-muted-foreground'>
-												{order.itemsSummary}
-											</p>
-											<div className='flex items-center justify-between gap-2'>
-												<span className='text-xs text-muted-foreground'>
-													{formatOrderDate(
-														order.date
-													)}
-												</span>
-												<span className='text-sm font-semibold tabular-nums'>
-													{formatPrice(
-														order.total,
-														order.currency
-													)}
-												</span>
-											</div>
-											<ReviewBadge
-												state={order.reviewState}
-											/>
-										</button>
-									</li>
-								))}
-							</ul>
+							<div className='relative'>
+								{isPageFetching ? (
+									<div
+										className='absolute inset-0 z-10 rounded-xl bg-background/50 transition-opacity duration-200'
+										aria-hidden
+									/>
+								) : null}
 
-							{/* Desktop: shadcn Table */}
-							<div className='hidden w-full overflow-hidden rounded-xl border border-border md:block'>
-								<Table>
-									<TableHeader>
-										<TableRow className='bg-muted/40 hover:bg-muted/40'>
-											<TableHead className='px-4'>
-												Pedido
-											</TableHead>
-											<TableHead>Cliente</TableHead>
-											<TableHead className='hidden lg:table-cell'>
-												Itens
-											</TableHead>
-											<TableHead>Total</TableHead>
-											<TableHead className='hidden xl:table-cell'>
-												Data
-											</TableHead>
-											<TableHead>Estado</TableHead>
-											<TableHead className='px-4 text-right'>
-												Acções
-											</TableHead>
-										</TableRow>
-									</TableHeader>
-									<TableBody>
-										{orders.map((order) => (
-											<TableRow
-												key={order.id}
-												className='cursor-pointer transition-colors duration-200'
+								<ul className='flex w-full flex-col gap-2 md:hidden'>
+									{orders.map((order) => (
+										<li key={order.id}>
+											<button
+												type='button'
 												onClick={() =>
 													setSelectedId(order.id)
 												}
+												className={cn(
+													'flex w-full min-w-0 flex-col gap-2 rounded-xl border border-border bg-card px-4 py-3.5 text-left',
+													'transition-colors duration-200 hover:bg-muted/40',
+													'focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none'
+												)}
 											>
-												<TableCell className='px-4'>
-													<span className='font-heading font-semibold tracking-tight'>
-														#{order.shortId}
-													</span>
-												</TableCell>
-												<TableCell className='max-w-48'>
-													<p className='truncate font-medium'>
-														{order.customerName}
-													</p>
-													{order.customerEmail ? (
-														<p className='truncate text-xs text-muted-foreground'>
-															{
-																order.customerEmail
-															}
+												<div className='flex items-start justify-between gap-3'>
+													<div className='min-w-0'>
+														<p className='font-heading text-sm font-semibold tracking-tight'>
+															#{order.shortId}
 														</p>
-													) : null}
-												</TableCell>
-												<TableCell className='hidden max-w-56 truncate text-muted-foreground lg:table-cell'>
-													{order.itemsSummary}
-												</TableCell>
-												<TableCell className='font-semibold tabular-nums'>
-													{formatPrice(
-														order.total,
-														order.currency
-													)}
-												</TableCell>
-												<TableCell className='hidden text-muted-foreground xl:table-cell'>
-													{formatOrderDate(
-														order.date
-													)}
-												</TableCell>
-												<TableCell>
-													<div className='flex flex-col items-start gap-1'>
-														<OrderStatusBadge
-															status={
-																order.status
-															}
-															label={
-																order.statusLabel
-															}
-														/>
-														<ReviewBadge
-															state={
-																order.reviewState
-															}
-														/>
+														<p className='truncate text-sm font-medium'>
+															{order.customerName}
+														</p>
 													</div>
-												</TableCell>
-												<TableCell
-													className='px-4 text-right'
-													onClick={(e) =>
-														e.stopPropagation()
+													<OrderStatusBadge
+														status={order.status}
+														label={
+															order.statusLabel
+														}
+													/>
+												</div>
+												<p className='truncate text-sm text-muted-foreground'>
+													{order.itemsSummary}
+												</p>
+												<div className='flex items-center justify-between gap-2'>
+													<span className='text-xs text-muted-foreground'>
+														{formatOrderDate(
+															order.date
+														)}
+													</span>
+													<span className='text-sm font-semibold tabular-nums'>
+														{formatPrice(
+															order.total,
+															order.currency
+														)}
+													</span>
+												</div>
+												<ReviewBadge
+													state={order.reviewState}
+												/>
+											</button>
+										</li>
+									))}
+								</ul>
+
+								<div className='hidden w-full overflow-hidden rounded-xl border border-border md:block'>
+									<Table>
+										<TableHeader>
+											<TableRow className='bg-muted/40 hover:bg-muted/40'>
+												<TableHead className='px-4'>
+													Pedido
+												</TableHead>
+												<TableHead>Cliente</TableHead>
+												<TableHead className='hidden lg:table-cell'>
+													Itens
+												</TableHead>
+												<TableHead>Total</TableHead>
+												<TableHead className='hidden xl:table-cell'>
+													Data
+												</TableHead>
+												<TableHead>Estado</TableHead>
+												<TableHead className='px-4 text-right'>
+													Acções
+												</TableHead>
+											</TableRow>
+										</TableHeader>
+										<TableBody>
+											{orders.map((order) => (
+												<TableRow
+													key={order.id}
+													className='cursor-pointer transition-colors duration-200'
+													onClick={() =>
+														setSelectedId(order.id)
 													}
 												>
-													<div className='inline-flex items-center justify-end gap-0.5'>
-														{order.allowedActions
-															.markCompleted ? (
-															<IconTooltipButton
-																label='Marcar como entregue'
-																onClick={() =>
-																	setPendingAction(
-																		{
-																			orderId:
-																				order.id,
-																			shortId:
-																				order.shortId,
-																			nextStatus:
-																				'COMPLETED',
-																		}
+													<TableCell className='px-4'>
+														<span className='font-heading font-semibold tracking-tight'>
+															#{order.shortId}
+														</span>
+													</TableCell>
+													<TableCell className='max-w-48'>
+														<p className='truncate font-medium'>
+															{order.customerName}
+														</p>
+														{order.customerEmail ? (
+															<p className='truncate text-xs text-muted-foreground'>
+																{
+																	order.customerEmail
+																}
+															</p>
+														) : null}
+													</TableCell>
+													<TableCell className='hidden max-w-56 truncate text-muted-foreground lg:table-cell'>
+														{order.itemsSummary}
+													</TableCell>
+													<TableCell className='font-semibold tabular-nums'>
+														{formatPrice(
+															order.total,
+															order.currency
+														)}
+													</TableCell>
+													<TableCell className='hidden text-muted-foreground xl:table-cell'>
+														{formatOrderDate(
+															order.date
+														)}
+													</TableCell>
+													<TableCell>
+														<div className='flex flex-col items-start gap-1'>
+															<OrderStatusBadge
+																status={
+																	order.status
+																}
+																label={
+																	order.statusLabel
+																}
+															/>
+															<ReviewBadge
+																state={
+																	order.reviewState
+																}
+															/>
+														</div>
+													</TableCell>
+													<TableCell
+														className='px-4 text-right'
+														onClick={(e) =>
+															e.stopPropagation()
+														}
+													>
+														<div className='inline-flex items-center justify-end gap-0.5'>
+															{order.allowedActions
+																.markCompleted ? (
+																<IconTooltipButton
+																	label='Marcar como entregue'
+																	onClick={() =>
+																		setPendingAction(
+																			{
+																				orderId:
+																					order.id,
+																				shortId:
+																					order.shortId,
+																				nextStatus:
+																					'COMPLETED',
+																			}
+																		)
+																	}
+																>
+																	<CheckCircle2 className='size-4' />
+																</IconTooltipButton>
+															) : null}
+															<OrderActionsMenu
+																order={order}
+																onAction={
+																	setPendingAction
+																}
+																onOpen={() =>
+																	setSelectedId(
+																		order.id
 																	)
 																}
-															>
-																<CheckCircle2 className='size-4' />
-															</IconTooltipButton>
-														) : null}
-														<OrderActionsMenu
-															order={order}
-															onAction={
-																setPendingAction
-															}
-															onOpen={() =>
-																setSelectedId(
-																	order.id
-																)
-															}
-														/>
-													</div>
-												</TableCell>
-											</TableRow>
-										))}
-									</TableBody>
-								</Table>
+															/>
+														</div>
+													</TableCell>
+												</TableRow>
+											))}
+										</TableBody>
+									</Table>
+								</div>
 							</div>
+
+							{showPager ? (
+								<div className='flex w-full flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between'>
+									<p
+										className='text-sm tabular-nums text-muted-foreground'
+										aria-live='polite'
+									>
+										Página{' '}
+										<span className='font-medium text-foreground'>
+											{currentPage}/{totalPages}
+										</span>
+									</p>
+
+									{/* Mobile: primeira / anterior / seguinte / última */}
+									<div className='flex items-center justify-center gap-1.5 md:hidden'>
+										<Button
+											variant='outline'
+											size='icon'
+											className='rounded-full'
+											disabled={currentPage <= 1}
+											aria-label='Primeira página'
+											onClick={() => goToPage(1)}
+										>
+											<ChevronsLeft className='size-4' />
+										</Button>
+										<Button
+											variant='outline'
+											size='icon'
+											className='rounded-full'
+											disabled={currentPage <= 1}
+											aria-label='Página anterior'
+											onClick={() =>
+												goToPage(currentPage - 1)
+											}
+										>
+											<ChevronLeft className='size-4' />
+										</Button>
+										<Button
+											variant='outline'
+											size='icon'
+											className='rounded-full'
+											disabled={
+												currentPage >= totalPages
+											}
+											aria-label='Página seguinte'
+											onClick={() =>
+												goToPage(currentPage + 1)
+											}
+										>
+											<ChevronRight className='size-4' />
+										</Button>
+										<Button
+											variant='outline'
+											size='icon'
+											className='rounded-full'
+											disabled={
+												currentPage >= totalPages
+											}
+											aria-label='Última página'
+											onClick={() =>
+												goToPage(totalPages)
+											}
+										>
+											<ChevronsRight className='size-4' />
+										</Button>
+									</div>
+
+									{/* Desktop: primeira + anterior + números + seguinte + última */}
+									<Pagination className='hidden justify-end md:flex'>
+										<PaginationContent>
+											<PaginationItem>
+												<Button
+													variant='ghost'
+													size='icon'
+													className='rounded-full'
+													disabled={currentPage <= 1}
+													aria-label='Ir para a primeira página'
+													onClick={() => goToPage(1)}
+												>
+													<ChevronsLeft className='size-4' />
+												</Button>
+											</PaginationItem>
+											<PaginationItem>
+												<Button
+													variant='ghost'
+													size='default'
+													className='gap-1 rounded-full pl-2'
+													disabled={currentPage <= 1}
+													aria-label='Ir para página anterior'
+													onClick={() =>
+														goToPage(
+															currentPage - 1
+														)
+													}
+												>
+													<ChevronLeft className='size-4' />
+													<span>Anterior</span>
+												</Button>
+											</PaginationItem>
+											{pageList.map((item, idx) =>
+												item === 'ellipsis' ? (
+													<PaginationItem
+														key={`e-${idx}`}
+													>
+														<PaginationEllipsis />
+													</PaginationItem>
+												) : (
+													<PaginationItem key={item}>
+														<Button
+															variant={
+																item ===
+																currentPage
+																	? 'outline'
+																	: 'ghost'
+															}
+															size='icon'
+															className='rounded-full'
+															aria-label={`Ir para página ${item}`}
+															aria-current={
+																item ===
+																currentPage
+																	? 'page'
+																	: undefined
+															}
+															onClick={() =>
+																goToPage(item)
+															}
+														>
+															{item}
+														</Button>
+													</PaginationItem>
+												)
+											)}
+											<PaginationItem>
+												<Button
+													variant='ghost'
+													size='default'
+													className='gap-1 rounded-full pr-2'
+													disabled={
+														currentPage >=
+														totalPages
+													}
+													aria-label='Ir para página seguinte'
+													onClick={() =>
+														goToPage(
+															currentPage + 1
+														)
+													}
+												>
+													<span>Próxima</span>
+													<ChevronRight className='size-4' />
+												</Button>
+											</PaginationItem>
+											<PaginationItem>
+												<Button
+													variant='ghost'
+													size='icon'
+													className='rounded-full'
+													disabled={
+														currentPage >=
+														totalPages
+													}
+													aria-label='Ir para a última página'
+													onClick={() =>
+														goToPage(totalPages)
+													}
+												>
+													<ChevronsRight className='size-4' />
+												</Button>
+											</PaginationItem>
+										</PaginationContent>
+									</Pagination>
+								</div>
+							) : null}
 						</>
 					)}
 				</>

@@ -22,6 +22,9 @@ type ItemRow = {
 	products: { name: string } | null
 }
 
+const PER_PAGE_OPTIONS = [10, 25, 50, 100] as const
+const DEFAULT_PER_PAGE = 10
+
 function buyerName(buyer: BuyerRow | null): string {
 	if (!buyer) return 'Cliente'
 	const name = [buyer.first_name, buyer.last_name]
@@ -42,6 +45,61 @@ function itemsSummary(items: ItemRow[]): string {
 	return `${names[0]} +${names.length - 1}`
 }
 
+function parsePerPage(raw: string | null): number {
+	const n = Number(raw ?? DEFAULT_PER_PAGE)
+	if (PER_PAGE_OPTIONS.includes(n as (typeof PER_PAGE_OPTIONS)[number])) {
+		return n
+	}
+	if (!Number.isNaN(n) && n >= 1 && n <= 100) return Math.floor(n)
+	return DEFAULT_PER_PAGE
+}
+
+function mapOrder(row: Record<string, unknown>) {
+	const orderStatus = row.status as OrderStatus
+	const buyer = (row.users as BuyerRow | null) ?? null
+	const items = (row.order_items as ItemRow[] | null) ?? []
+	const customerName = buyerName(buyer)
+
+	return {
+		id: row.id as string,
+		shortId: String(row.id).slice(0, 8),
+		customerName,
+		customerEmail: buyer?.email ?? null,
+		itemsSummary: itemsSummary(items),
+		itemCount: row.item_count as number,
+		total: Number(row.total) / 100,
+		currency: row.currency as string,
+		status: orderStatus,
+		statusLabel: ORDER_STATUS_LABELS[orderStatus],
+		date: row.created_at as string,
+		reviewEligible: Boolean(row.review_eligible),
+		reviewState: ((): 'none' | 'awaiting' | 'done' => {
+			if (orderStatus !== 'COMPLETED') return 'none'
+			if (row.review_eligible) return 'awaiting'
+			return 'done'
+		})(),
+		allowedActions: {
+			markShipping: canMarkShipping(orderStatus),
+			markCompleted: canMarkCompleted(orderStatus),
+			cancel: canCancelOrder(orderStatus),
+		},
+	}
+}
+
+function matchesSearch(
+	order: ReturnType<typeof mapOrder>,
+	search: string
+): boolean {
+	const q = search.toLowerCase()
+	return (
+		order.id.toLowerCase().includes(q) ||
+		order.shortId.toLowerCase().includes(q) ||
+		order.customerName.toLowerCase().includes(q) ||
+		(order.customerEmail?.toLowerCase().includes(q) ?? false) ||
+		order.itemsSummary.toLowerCase().includes(q)
+	)
+}
+
 export async function GET(request: NextRequest) {
 	try {
 		const auth = await requireSellerStore()
@@ -53,11 +111,9 @@ export async function GET(request: NextRequest) {
 		const date = searchParams.get('date') ?? 'all'
 		const search = (searchParams.get('search') ?? '').trim().toLowerCase()
 		const page = Math.max(Number(searchParams.get('page')) || 1, 1)
-		const limit = Math.min(
-			Math.max(Number(searchParams.get('limit')) || 50, 1),
-			100
+		const perPage = parsePerPage(
+			searchParams.get('perPage') ?? searchParams.get('limit')
 		)
-		const from = (page - 1) * limit
 
 		const supabase = createSupabaseAdmin()
 
@@ -76,10 +132,7 @@ export async function GET(request: NextRequest) {
 			.is('deleted_at', null)
 
 		if (status !== 'all') {
-			query = query.eq(
-				'status',
-				status.toUpperCase() as OrderStatus
-			)
+			query = query.eq('status', status.toUpperCase() as OrderStatus)
 		}
 
 		if (date !== 'all') {
@@ -94,63 +147,54 @@ export async function GET(request: NextRequest) {
 
 		query = query.order('created_at', { ascending: false })
 
-		const rangeEnd = from + limit
+		// Text requires post-filter for buyer/items — fetch matching set then page.
+		if (search) {
+			const { data, error } = await query.limit(2000)
+			if (error) throw error
+
+			const filtered = ((data ?? []) as Array<Record<string, unknown>>)
+				.map(mapOrder)
+				.filter((o) => matchesSearch(o, search))
+
+			const total = filtered.length
+			const totalPages = Math.max(1, Math.ceil(total / perPage))
+			const safePage = Math.min(page, totalPages)
+			const from = (safePage - 1) * perPage
+			const orders = filtered.slice(from, from + perPage)
+
+			return NextResponse.json({
+				success: true,
+				orders,
+				page: safePage,
+				perPage,
+				total,
+				totalPages,
+				hasMore: safePage < totalPages,
+			})
+		}
+
+		const from = (page - 1) * perPage
+		const rangeEnd = from + perPage
 		const { data, error, count } = await query.range(from, rangeEnd)
 
 		if (error) throw error
 
-		const pageItems = (data ?? []).slice(0, limit) as Array<
+		const total = count ?? 0
+		const totalPages = Math.max(1, Math.ceil(total / perPage) || 1)
+		const safePage = Math.min(page, totalPages)
+		const pageItems = (data ?? []).slice(0, perPage) as Array<
 			Record<string, unknown>
 		>
-
-		let orders = pageItems.map((row) => {
-			const orderStatus = row.status as OrderStatus
-			const buyer = (row.users as BuyerRow | null) ?? null
-			const items = (row.order_items as ItemRow[] | null) ?? []
-			const customerName = buyerName(buyer)
-
-			return {
-				id: row.id as string,
-				shortId: String(row.id).slice(0, 8),
-				customerName,
-				customerEmail: buyer?.email ?? null,
-				itemsSummary: itemsSummary(items),
-				itemCount: row.item_count as number,
-				total: Number(row.total) / 100,
-				currency: row.currency as string,
-				status: orderStatus,
-				statusLabel: ORDER_STATUS_LABELS[orderStatus],
-				date: row.created_at as string,
-				reviewEligible: Boolean(row.review_eligible),
-				reviewState: ((): 'none' | 'awaiting' | 'done' => {
-					if (orderStatus !== 'COMPLETED') return 'none'
-					if (row.review_eligible) return 'awaiting'
-					return 'done'
-				})(),
-				allowedActions: {
-					markShipping: canMarkShipping(orderStatus),
-					markCompleted: canMarkCompleted(orderStatus),
-					cancel: canCancelOrder(orderStatus),
-				},
-			}
-		})
-
-		if (search) {
-			orders = orders.filter(
-				(o) =>
-					o.id.toLowerCase().includes(search) ||
-					o.shortId.toLowerCase().includes(search) ||
-					o.customerName.toLowerCase().includes(search) ||
-					(o.customerEmail?.toLowerCase().includes(search) ?? false) ||
-					o.itemsSummary.toLowerCase().includes(search)
-			)
-		}
+		const orders = pageItems.map(mapOrder)
 
 		return NextResponse.json({
 			success: true,
 			orders,
-			hasMore: (data?.length ?? 0) > limit,
-			total: count ?? 0,
+			page: safePage,
+			perPage,
+			total,
+			totalPages,
+			hasMore: (data?.length ?? 0) > perPage || safePage < totalPages,
 		})
 	} catch (error) {
 		console.error('[GET /api/seller/orders]', error)
