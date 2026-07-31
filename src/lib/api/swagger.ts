@@ -256,6 +256,205 @@ const schemas = {
 			},
 		},
 	},
+	RatingSummary: {
+		type: 'object',
+		required: ['average', 'count', 'distribution'],
+		properties: {
+			average: { type: 'number' },
+			count: { type: 'integer' },
+			distribution: {
+				type: 'array',
+				items: { type: 'integer' },
+				minItems: 5,
+				maxItems: 5,
+				description: 'Counts for stars 1–5',
+			},
+		},
+	},
+	SellerStoreReview: {
+		type: 'object',
+		properties: {
+			id: { type: 'string', format: 'uuid' },
+			orderId: { type: 'string', format: 'uuid' },
+			shortOrderId: { type: 'string' },
+			buyerName: { type: 'string' },
+			rating: { type: 'integer', minimum: 1, maximum: 5 },
+			body: { type: 'string', nullable: true },
+			storeReply: { type: 'string', nullable: true },
+			storeRepliedAt: {
+				type: 'string',
+				format: 'date-time',
+				nullable: true,
+			},
+			createdAt: { type: 'string', format: 'date-time' },
+			products: {
+				type: 'array',
+				items: {
+					type: 'object',
+					properties: {
+						id: { type: 'string', format: 'uuid' },
+						productId: { type: 'string', format: 'uuid' },
+						productName: { type: 'string' },
+						productImage: { type: 'string', nullable: true },
+						rating: { type: 'integer', minimum: 1, maximum: 5 },
+						body: { type: 'string', nullable: true },
+						createdAt: { type: 'string', format: 'date-time' },
+					},
+				},
+			},
+		},
+	},
+	SellerProductReview: {
+		type: 'object',
+		properties: {
+			id: { type: 'string', format: 'uuid' },
+			reviewId: { type: 'string', format: 'uuid' },
+			orderId: { type: 'string', format: 'uuid' },
+			shortOrderId: { type: 'string' },
+			buyerName: { type: 'string' },
+			productId: { type: 'string', format: 'uuid' },
+			productName: { type: 'string' },
+			productImage: { type: 'string', nullable: true },
+			rating: { type: 'integer', minimum: 1, maximum: 5 },
+			body: { type: 'string', nullable: true },
+			createdAt: { type: 'string', format: 'date-time' },
+			storeReply: { type: 'string', nullable: true },
+		},
+	},
+	ProductReviewsProduct: {
+		type: 'object',
+		required: [
+			'id',
+			'name',
+			'price',
+			'discountPrice',
+			'currency',
+			'image',
+			'categoryName',
+		],
+		properties: {
+			id: { type: 'string', format: 'uuid' },
+			name: { type: 'string' },
+			price: {
+				type: 'number',
+				description: 'Price in major currency units (MZN)',
+			},
+			discountPrice: {
+				type: 'number',
+				nullable: true,
+				description: 'Promo price in major units, if any',
+			},
+			currency: { type: 'string', example: 'MZN' },
+			image: { type: 'string', nullable: true },
+			categoryName: { type: 'string', nullable: true },
+		},
+	},
+	ProductReviewsStore: {
+		type: 'object',
+		required: [
+			'id',
+			'name',
+			'slug',
+			'avatarUrl',
+			'verified',
+			'rating',
+			'reviewCount',
+		],
+		properties: {
+			id: { type: 'string', format: 'uuid' },
+			name: { type: 'string' },
+			slug: { type: 'string' },
+			avatarUrl: { type: 'string', nullable: true },
+			verified: {
+				type: 'boolean',
+				description: 'True when stores.verified_at is set',
+			},
+			rating: {
+				type: 'number',
+				nullable: true,
+				description: 'store_ratings.rating_avg',
+			},
+			reviewCount: {
+				type: 'integer',
+				description: 'store_ratings.rating_count',
+			},
+		},
+	},
+	PublicProductReview: {
+		type: 'object',
+		required: [
+			'id',
+			'reviewId',
+			'orderId',
+			'shortOrderId',
+			'buyerName',
+			'rating',
+			'body',
+			'createdAt',
+			'storeReply',
+			'storeRepliedAt',
+		],
+		properties: {
+			id: {
+				type: 'string',
+				format: 'uuid',
+				description: 'review_products.id',
+			},
+			reviewId: {
+				type: 'string',
+				format: 'uuid',
+				description: 'Parent reviews.id',
+			},
+			orderId: { type: 'string', format: 'uuid' },
+			shortOrderId: { type: 'string' },
+			buyerName: {
+				type: 'string',
+				description: 'Partially anonymised (e.g. Maria S.)',
+			},
+			rating: { type: 'integer', minimum: 1, maximum: 5 },
+			body: { type: 'string', nullable: true },
+			createdAt: { type: 'string', format: 'date-time' },
+			storeReply: { type: 'string', nullable: true },
+			storeRepliedAt: {
+				type: 'string',
+				format: 'date-time',
+				nullable: true,
+			},
+		},
+	},
+	ProductReviewsResponse: {
+		type: 'object',
+		required: [
+			'success',
+			'product',
+			'store',
+			'summary',
+			'reviews',
+			'page',
+			'perPage',
+			'total',
+			'totalPages',
+			'hasMore',
+		],
+		properties: {
+			success: { type: 'boolean', enum: [true] },
+			product: { $ref: '#/components/schemas/ProductReviewsProduct' },
+			store: {
+				allOf: [{ $ref: '#/components/schemas/ProductReviewsStore' }],
+				nullable: true,
+			},
+			summary: { $ref: '#/components/schemas/RatingSummary' },
+			reviews: {
+				type: 'array',
+				items: { $ref: '#/components/schemas/PublicProductReview' },
+			},
+			page: { type: 'integer', minimum: 1 },
+			perPage: { type: 'integer', enum: [0, 10, 25, 50] },
+			total: { type: 'integer' },
+			totalPages: { type: 'integer', minimum: 1 },
+			hasMore: { type: 'boolean' },
+		},
+	},
 	Conversation: {
 		type: 'object',
 		properties: {
@@ -1073,6 +1272,91 @@ const paths: Record<string, any> = {
 						},
 					},
 				},
+			},
+		},
+	},
+	'/api/products/{id}/reviews': {
+		get: {
+			tags: ['Public'],
+			summary: 'List public product reviews',
+			description:
+				'Paginated product reviews with rating summary and store context. Requires reviews migration. Use summaryOnly=1 for the PDP teaser (empty reviews array, perPage=0). Prices are in major currency units.',
+			parameters: [
+				{
+					name: 'id',
+					in: 'path',
+					required: true,
+					schema: { type: 'string', format: 'uuid' },
+					description: 'Product id',
+				},
+				{
+					name: 'page',
+					in: 'query',
+					required: false,
+					schema: { type: 'integer', minimum: 1, default: 1 },
+					description: '1-based page index',
+				},
+				{
+					name: 'perPage',
+					in: 'query',
+					required: false,
+					schema: {
+						type: 'integer',
+						enum: [10, 25, 50],
+						default: 10,
+					},
+					description: 'Ignored when summaryOnly=1',
+				},
+				{
+					name: 'rating',
+					in: 'query',
+					required: false,
+					schema: {
+						type: 'integer',
+						enum: [1, 2, 3, 4, 5],
+					},
+					description: 'Filter by exact star rating',
+				},
+				{
+					name: 'sort',
+					in: 'query',
+					required: false,
+					schema: {
+						type: 'string',
+						enum: ['recent', 'highest', 'lowest'],
+						default: 'recent',
+					},
+				},
+				{
+					name: 'search',
+					in: 'query',
+					required: false,
+					schema: { type: 'string' },
+					description: 'Filter by comment body (ilike)',
+				},
+				{
+					name: 'summaryOnly',
+					in: 'query',
+					required: false,
+					schema: { type: 'string', enum: ['0', '1'] },
+					description:
+						'When 1, returns product/store/summary only (reviews=[])',
+				},
+			],
+			responses: {
+				'200': {
+					description: 'Product reviews + summary',
+					content: {
+						'application/json': {
+							schema: {
+								$ref: '#/components/schemas/ProductReviewsResponse',
+							},
+						},
+					},
+				},
+				'400': { description: 'Missing product id' },
+				'404': { description: 'Product not found' },
+				'500': { description: 'Failed to load reviews' },
 			},
 		},
 	},
@@ -3470,6 +3754,161 @@ const paths: Record<string, any> = {
 					description:
 						'Transition not allowed (e.g. COMPLETED from PENDING, or from CANCELLED)',
 				},
+			},
+		},
+	},
+	'/api/seller/reviews': {
+		get: {
+			tags: ['Seller'],
+			summary: 'List store and product reviews for the seller',
+			description:
+				'Returns rating summary plus store-level reviews (with nested product reviews) and a flattened product-reviews list. Requires reviews migration applied. Generated Supabase Database types may lag — routes use an untyped admin client.',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			parameters: [
+				{
+					name: 'scope',
+					in: 'query',
+					required: false,
+					schema: {
+						type: 'string',
+						enum: ['all', 'store', 'product'],
+						default: 'all',
+					},
+					description:
+						'When store|product, the other list is returned empty. UI typically requests all and filters client-side by tab.',
+				},
+				{
+					name: 'search',
+					in: 'query',
+					required: false,
+					schema: { type: 'string' },
+					description:
+						'Filter by buyer name, short order id, comment, or product name',
+				},
+				{
+					name: 'needsReply',
+					in: 'query',
+					required: false,
+					schema: { type: 'string', enum: ['0', '1'] },
+					description:
+						'When 1, only store reviews without store_reply',
+				},
+			],
+			responses: {
+				'200': {
+					description: 'Reviews + summary for the authenticated store',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								required: [
+									'success',
+									'summary',
+									'storeReviews',
+									'productReviews',
+								],
+								properties: {
+									success: {
+										type: 'boolean',
+										enum: [true],
+									},
+									summary: {
+										type: 'object',
+										properties: {
+											store: {
+												$ref: '#/components/schemas/RatingSummary',
+											},
+											products: {
+												$ref: '#/components/schemas/RatingSummary',
+											},
+										},
+									},
+									storeReviews: {
+										type: 'array',
+										items: {
+											$ref: '#/components/schemas/SellerStoreReview',
+										},
+									},
+									productReviews: {
+										type: 'array',
+										items: {
+											$ref: '#/components/schemas/SellerProductReview',
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+				'403': { description: 'Not a seller' },
+				'500': { description: 'Failed to load reviews' },
+			},
+		},
+	},
+	'/api/seller/reviews/{id}/reply': {
+		post: {
+			tags: ['Seller'],
+			summary: 'Reply to a store review',
+			description:
+				'Sets store_reply / store_replied_at on a review owned by the authenticated store. Fails with 409 if a reply already exists.',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			parameters: [
+				{
+					name: 'id',
+					in: 'path',
+					required: true,
+					schema: { type: 'string', format: 'uuid' },
+					description: 'Review id (store-level reviews.id)',
+				},
+			],
+			requestBody: {
+				required: true,
+				content: {
+					'application/json': {
+						schema: {
+							type: 'object',
+							required: ['reply'],
+							properties: {
+								reply: {
+									type: 'string',
+									minLength: 1,
+									maxLength: 2000,
+								},
+							},
+						},
+					},
+				},
+			},
+			responses: {
+				'200': {
+					description: 'Reply saved',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								required: ['success', 'reply', 'repliedAt'],
+								properties: {
+									success: {
+										type: 'boolean',
+										enum: [true],
+									},
+									reply: { type: 'string' },
+									repliedAt: {
+										type: 'string',
+										format: 'date-time',
+									},
+								},
+							},
+						},
+					},
+				},
+				'400': { description: 'Empty or too-long reply' },
+				'401': { description: 'Unauthorized' },
+				'403': { description: 'Not a seller' },
+				'404': { description: 'Review not found for this store' },
+				'409': { description: 'Review already has a reply' },
+				'500': { description: 'Failed to save reply' },
 			},
 		},
 	},

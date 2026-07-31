@@ -20,10 +20,29 @@ import { ProductGallery } from '../components/product-gallery'
 import { ProductHeader } from '../components/product-header'
 import { ProductPrice } from '../components/product-price'
 import { ProductStoreCard } from '../components/product-store-card'
+import { ReviewsTeaser } from '../components/reviews/reviews-teaser'
+import type { RatingSummary } from '../components/reviews/types'
 import { RelatedProducts } from '../components/related-products'
 
 interface ProductDetailViewProps {
 	id: string
+}
+
+async function fetchReviewsSummary(productId: string): Promise<RatingSummary> {
+	const res = await fetch(
+		`/api/products/${productId}/reviews?summaryOnly=1`
+	)
+	if (!res.ok) {
+		return { average: 0, count: 0, distribution: [0, 0, 0, 0, 0] }
+	}
+	const json = await res.json()
+	return (
+		json.summary ?? {
+			average: 0,
+			count: 0,
+			distribution: [0, 0, 0, 0, 0],
+		}
+	)
 }
 
 export const ProductDetailView = ({ id }: ProductDetailViewProps) => {
@@ -40,6 +59,12 @@ export const ProductDetailView = ({ id }: ProductDetailViewProps) => {
 	const { data, isLoading } = useQuery({
 		queryKey: ['product', id],
 		queryFn: () => fetchProduct(id),
+	})
+
+	const { data: reviewsSummary, isLoading: reviewsLoading } = useQuery({
+		queryKey: ['product-reviews-summary', id],
+		queryFn: () => fetchReviewsSummary(id),
+		staleTime: 60_000,
 	})
 
 	const { data: related = [] } = useQuery({
@@ -130,6 +155,12 @@ export const ProductDetailView = ({ id }: ProductDetailViewProps) => {
 					currency={product.currency}
 					negotiable={product.negotiable}
 					hasDelivery={product.hasDelivery}
+				/>
+
+				<ReviewsTeaser
+					productId={product.id}
+					summary={reviewsSummary ?? null}
+					isLoading={reviewsLoading}
 				/>
 
 				<ProductStoreCard
