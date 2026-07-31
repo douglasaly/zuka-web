@@ -653,13 +653,45 @@ const schemas = {
 	},
 	SellerAnalytics: {
 		type: 'object',
+		required: [
+			'totalSales',
+			'totalOrders',
+			'totalViews',
+			'totalFollowers',
+			'productCount',
+			'changes',
+			'dailySales',
+		],
 		properties: {
-			totalSales: { type: 'integer' },
+			totalSales: {
+				type: 'number',
+				description: 'Sales total in major currency units (MZN)',
+			},
 			totalOrders: { type: 'integer' },
 			totalViews: { type: 'integer' },
 			totalFollowers: { type: 'integer' },
-			averageTicket: { type: 'integer' },
 			productCount: { type: 'integer' },
+			changes: {
+				type: 'object',
+				description: 'Percent change vs previous period',
+				properties: {
+					totalSales: { type: 'number' },
+					totalOrders: { type: 'number' },
+					totalViews: { type: 'number' },
+					totalFollowers: { type: 'number' },
+					productCount: { type: 'number' },
+				},
+			},
+			dailySales: {
+				type: 'array',
+				items: {
+					type: 'object',
+					properties: {
+						date: { type: 'string', format: 'date' },
+						sales: { type: 'number' },
+					},
+				},
+			},
 		},
 	},
 	Category: {
@@ -4032,24 +4064,45 @@ const paths: Record<string, any> = {
 	'/api/seller/stats/analytics': {
 		get: {
 			tags: ['Seller'],
-			summary: 'Analytics data for dashboard charts',
+			summary: 'Store performance metrics for the seller analytics page',
+			description:
+				'Currently returns mock data (mock: true). No averageTicket. Range accepts 7d|30d|90d (or numeric days).',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'range',
 					in: 'query',
-					schema: { type: 'integer', default: 30 },
-					description: 'Days to look back (7, 30, 90)',
+					required: false,
+					schema: {
+						type: 'string',
+						enum: ['7d', '30d', '90d'],
+						default: '30d',
+					},
+					description: 'Lookback period. Numeric 7/30/90 also accepted.',
 				},
 			],
 			responses: {
 				'200': {
-					description: 'Analytics data',
+					description: 'Performance metrics (often mock)',
 					content: {
 						'application/json': {
 							schema: {
 								type: 'object',
+								required: ['success', 'mock', 'range', 'data'],
 								properties: {
+									success: {
+										type: 'boolean',
+										enum: [true],
+									},
+									mock: {
+										type: 'boolean',
+										description:
+											'True while view tracking is not live',
+									},
+									range: {
+										type: 'string',
+										enum: ['7d', '30d', '90d'],
+									},
 									data: {
 										$ref: '#/components/schemas/SellerAnalytics',
 									},
@@ -4058,6 +4111,9 @@ const paths: Record<string, any> = {
 						},
 					},
 				},
+				'401': { description: 'Unauthorized' },
+				'403': { description: 'Not a seller' },
+				'500': { description: 'Failed to load performance' },
 			},
 		},
 	},

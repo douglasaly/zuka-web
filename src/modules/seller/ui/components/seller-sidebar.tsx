@@ -1,7 +1,6 @@
 'use client'
 
 import {
-	BarChart3,
 	LayoutGrid,
 	LogOut,
 	MessageSquare,
@@ -68,16 +67,6 @@ const GROUPS = [
 				title: 'Avaliações',
 				icon: Star,
 				href: '/dashboard/seller/avaliacoes',
-			},
-		],
-	},
-	{
-		label: 'Análises',
-		items: [
-			{
-				title: 'Analytics',
-				icon: BarChart3,
-				href: '/dashboard/seller/analytics',
 			},
 		],
 	},

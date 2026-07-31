@@ -13,7 +13,6 @@ export const SellerLayoutClient = () => {
 		p: () => router.push('/dashboard/seller/produtos'),
 		o: () => router.push('/dashboard/seller/pedidos'),
 		m: () => router.push('/dashboard/seller/mensagens'),
-		a: () => router.push('/dashboard/seller/analytics'),
 		n: () => router.push('/dashboard/seller/produtos/novo'),
 	})
 

@@ -253,15 +253,25 @@ export type GetSellerStatsOutput = {
 	}
 }
 
-/** GET /api/seller/stats/analytics */
+/** GET /api/seller/stats/analytics (mock until view events exist) */
 export type GetSellerAnalyticsOutput = {
+	success: true
+	mock: true
+	range: '7d' | '30d' | '90d'
 	data: {
 		totalSales: number
 		totalOrders: number
 		totalViews: number
 		totalFollowers: number
-		averageTicket: number
 		productCount: number
+		changes: {
+			totalSales: number
+			totalOrders: number
+			totalViews: number
+			totalFollowers: number
+			productCount: number
+		}
+		dailySales: Array<{ date: string; sales: number }>
 	}
 }
 
