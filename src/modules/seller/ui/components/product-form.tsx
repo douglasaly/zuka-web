@@ -30,6 +30,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 import { cn } from '@/lib/utils'
+import { useSellerAccess } from '@/modules/seller/hooks/use-seller-access'
 import { formatPrice } from '@/utils/format-price'
 import { useSetSellerPageMeta } from '../layouts/seller-page-meta'
 import { IconTooltipButton } from './icon-tooltip-button'
@@ -78,6 +79,9 @@ export const ProductForm = ({
 }: ProductFormProps) => {
 	const router = useRouter()
 	const queryClient = useQueryClient()
+	const { can } = useSellerAccess()
+	const canWrite =
+		mode === 'create' ? can('product.create') : can('product.update')
 	const baseline = initialData ?? EMPTY_PRODUCT_FORM
 	const [form, setForm] = useState<ProductFormState>(baseline)
 	const [previewOpen, setPreviewOpen] = useState(false)
@@ -224,6 +228,7 @@ export const ProductForm = ({
 
 	const cover = form.imageUrls[0] ?? null
 	const canSave =
+		canWrite &&
 		!mutation.isPending &&
 		!mediaUploading &&
 		(mode === 'create' || isDirty) &&
@@ -241,11 +246,13 @@ export const ProductForm = ({
 						<ArrowLeft className='size-4' />
 					</IconTooltipButton>
 					<p className='min-w-0 flex-1 text-sm leading-snug text-muted-foreground'>
-						{mode === 'create'
-							? 'Preencha os detalhes e publique quando estiver pronto.'
-							: isDirty
-								? 'Tem alterações por guardar.'
-								: 'Sem alterações por guardar.'}
+						{!canWrite
+							? 'Modo consulta — a sua função na loja não permite gravar produtos.'
+							: mode === 'create'
+								? 'Preencha os detalhes e publique quando estiver pronto.'
+								: isDirty
+									? 'Tem alterações por guardar.'
+									: 'Sem alterações por guardar.'}
 					</p>
 				</div>
 				<Button

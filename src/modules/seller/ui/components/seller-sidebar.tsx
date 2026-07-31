@@ -1,7 +1,6 @@
 'use client'
 
 import {
-	BarChart3,
 	LayoutGrid,
 	LogOut,
 	MessageSquare,
@@ -10,6 +9,7 @@ import {
 	ShoppingBag,
 	Star,
 	Store,
+	Users,
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -26,9 +26,20 @@ import {
 	SidebarMenuItem,
 } from '@/components/ui/sidebar'
 import { useUnreadCounts } from '@/hooks/use-unread-counts'
+import type { StorePermission } from '@/lib/auth/store-permissions'
 import { cn } from '@/lib/utils'
+import { useSellerAccess } from '@/modules/seller/hooks/use-seller-access'
 
-const GROUPS = [
+type NavItem = {
+	title: string
+	icon: typeof LayoutGrid
+	href: string
+	badgeKey?: 'pendingOrders' | 'unreadMessages'
+	/** If set, item is hidden when the member lacks this permission */
+	permission?: StorePermission
+}
+
+const GROUPS: Array<{ label: string; items: NavItem[] }> = [
 	{
 		label: 'Principal',
 		items: [
@@ -36,18 +47,21 @@ const GROUPS = [
 				title: 'Dashboard',
 				icon: LayoutGrid,
 				href: '/dashboard/seller',
+				permission: 'store.read',
 			},
 			{
 				title: 'Pedidos',
 				icon: ShoppingBag,
 				href: '/dashboard/seller/pedidos',
-				badgeKey: 'pendingOrders' as const,
+				badgeKey: 'pendingOrders',
+				permission: 'order.read',
 			},
 			{
 				title: 'Mensagens',
 				icon: MessageSquare,
 				href: '/dashboard/seller/mensagens',
-				badgeKey: 'unreadMessages' as const,
+				badgeKey: 'unreadMessages',
+				permission: 'message.read',
 			},
 		],
 	},
@@ -58,26 +72,19 @@ const GROUPS = [
 				title: 'Produtos',
 				icon: Package,
 				href: '/dashboard/seller/produtos',
+				permission: 'product.read',
 			},
 			{
 				title: 'Minha Loja',
 				icon: Store,
 				href: '/dashboard/seller/loja',
+				permission: 'store.read',
 			},
 			{
 				title: 'Avaliações',
 				icon: Star,
 				href: '/dashboard/seller/avaliacoes',
-			},
-		],
-	},
-	{
-		label: 'Análises',
-		items: [
-			{
-				title: 'Analytics',
-				icon: BarChart3,
-				href: '/dashboard/seller/analytics',
+				permission: 'review.read',
 			},
 		],
 	},
@@ -91,8 +98,9 @@ const GROUPS = [
 			},
 			{
 				title: 'Membros',
-				icon: Store,
+				icon: Users,
 				href: '/dashboard/seller/loja/membros',
+				permission: 'member.read',
 			},
 		],
 	},
@@ -106,6 +114,7 @@ const FOOTER_ITEMS = [
 export const SellerSidebar = () => {
 	const pathname = usePathname()
 	const { data: unread } = useUnreadCounts()
+	const { can, isLoading } = useSellerAccess()
 
 	return (
 		<Sidebar
@@ -126,57 +135,67 @@ export const SellerSidebar = () => {
 			</SidebarHeader>
 
 			<SidebarContent className='px-2 py-3'>
-				{GROUPS.map((group) => (
-					<SidebarGroup key={group.label}>
-						<SidebarGroupLabel>
-							{group.label.toUpperCase()}
-						</SidebarGroupLabel>
-						<SidebarGroupContent>
-							<SidebarMenu>
-								{group.items.map((item) => {
-									const Icon = item.icon
-									const isActive =
-										pathname === item.href ||
-										pathname.startsWith(`${item.href}/`)
+				{GROUPS.map((group) => {
+					const items = group.items.filter((item) => {
+						if (!item.permission) return true
+						// While loading access, keep links visible to avoid flicker
+						if (isLoading) return true
+						return can(item.permission)
+					})
+					if (items.length === 0) return null
 
-									const badgeCount =
-										item.badgeKey && unread
-											? unread[item.badgeKey]
-											: 0
+					return (
+						<SidebarGroup key={group.label}>
+							<SidebarGroupLabel>
+								{group.label.toUpperCase()}
+							</SidebarGroupLabel>
+							<SidebarGroupContent>
+								<SidebarMenu>
+									{items.map((item) => {
+										const Icon = item.icon
+										const isActive =
+											pathname === item.href ||
+											pathname.startsWith(`${item.href}/`)
 
-									return (
-										<SidebarMenuItem key={item.title}>
-											<SidebarMenuButton
-												isActive={isActive}
-												tooltip={item.title}
-												render={
-													<Link href={item.href}>
-														<Icon className='size-4' />
-														<span>
-															{item.title}
-														</span>
-													</Link>
-												}
-											/>
-											{badgeCount > 0 && (
-												<span
-													className={cn(
-														'absolute right-2 top-1/2 -translate-y-1/2 flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground',
-														'group-data-[collapsible=icon]:relative group-data-[collapsible=icon]:right-auto group-data-[collapsible=icon]:top-auto group-data-[collapsible=icon]:translate-y-0 group-data-[collapsible=icon]:mt-1'
-													)}
-												>
-													{badgeCount > 99
-														? '99+'
-														: badgeCount}
-												</span>
-											)}
-										</SidebarMenuItem>
-									)
-								})}
-							</SidebarMenu>
-						</SidebarGroupContent>
-					</SidebarGroup>
-				))}
+										const badgeCount =
+											item.badgeKey && unread
+												? unread[item.badgeKey]
+												: 0
+
+										return (
+											<SidebarMenuItem key={item.title}>
+												<SidebarMenuButton
+													isActive={isActive}
+													tooltip={item.title}
+													render={
+														<Link href={item.href}>
+															<Icon className='size-4' />
+															<span>
+																{item.title}
+															</span>
+														</Link>
+													}
+												/>
+												{badgeCount > 0 && (
+													<span
+														className={cn(
+															'absolute right-2 top-1/2 -translate-y-1/2 flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground',
+															'group-data-[collapsible=icon]:relative group-data-[collapsible=icon]:right-auto group-data-[collapsible=icon]:top-auto group-data-[collapsible=icon]:translate-y-0 group-data-[collapsible=icon]:mt-1'
+														)}
+													>
+														{badgeCount > 99
+															? '99+'
+															: badgeCount}
+													</span>
+												)}
+											</SidebarMenuItem>
+										)
+									})}
+								</SidebarMenu>
+							</SidebarGroupContent>
+						</SidebarGroup>
+					)
+				})}
 			</SidebarContent>
 
 			<SidebarFooter className='border-t border-sidebar-border p-2'>

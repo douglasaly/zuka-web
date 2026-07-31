@@ -100,14 +100,6 @@ export const SellerSummaryTab = () => {
 							))}
 						</div>
 					</div>
-
-					<Link
-						href='/dashboard/seller/analytics'
-						className='flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground'
-					>
-						Ver mais
-						<ArrowUpRight className='size-3' />
-					</Link>
 				</div>
 
 				{dailySales.length > 0 ? (

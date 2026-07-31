@@ -208,7 +208,8 @@ export type ResubmitStoreDocumentsOutput = {
 /** GET /api/seller/members */
 export type StoreMember = {
 	id: string
-	role: string
+	role: 'owner' | 'manager' | 'staff' | 'viewer' | string
+	status: 'pending' | 'active' | 'removed' | string
 	joinedAt: string | null
 	invitedAt: string | null
 	user: {
@@ -220,19 +221,51 @@ export type StoreMember = {
 	}
 }
 
+export type StoreRoleCatalogEntry = {
+	label: string
+	summary: string
+	permissions: string[]
+}
+
 export type ListSellerMembersOutput = {
+	success?: true
 	members: StoreMember[]
+	me?: {
+		userId: string
+		memberRole: string
+		rbacRole: string
+		isOwner: boolean
+		permissions: string[]
+		canManage: boolean
+	}
+	roleCatalog?: Record<
+		'manager' | 'staff' | 'viewer',
+		StoreRoleCatalogEntry
+	>
+}
+
+/** GET /api/seller/access */
+export type GetSellerAccessOutput = {
+	success: true
+	store: { id: string; name: string; slug: string }
+	memberRole: string
+	rbacRole: string
+	isOwner: boolean
+	permissions: string[]
+	roleCatalog: Record<'manager' | 'staff' | 'viewer', StoreRoleCatalogEntry>
 }
 
 /** POST /api/seller/members */
 export type InviteMemberInput = {
 	userId?: string
 	email?: string
-	role?: string
+	role?: 'manager' | 'staff' | 'viewer' | string
 }
 
 export type InviteMemberOutput = {
 	success: true
+	/** True when a soft-deleted membership was restored */
+	revived?: boolean
 }
 
 /** GET /api/seller/stats */
@@ -253,15 +286,25 @@ export type GetSellerStatsOutput = {
 	}
 }
 
-/** GET /api/seller/stats/analytics */
+/** GET /api/seller/stats/analytics (mock until view events exist) */
 export type GetSellerAnalyticsOutput = {
+	success: true
+	mock: true
+	range: '7d' | '30d' | '90d'
 	data: {
 		totalSales: number
 		totalOrders: number
 		totalViews: number
 		totalFollowers: number
-		averageTicket: number
 		productCount: number
+		changes: {
+			totalSales: number
+			totalOrders: number
+			totalViews: number
+			totalFollowers: number
+			productCount: number
+		}
+		dailySales: Array<{ date: string; sales: number }>
 	}
 }
 

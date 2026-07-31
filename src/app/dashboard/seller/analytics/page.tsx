@@ -1,5 +1,9 @@
-import { SellerAnalyticsView } from '@/modules/seller/ui/views/seller-analytics-view'
+import { notFound } from 'next/navigation'
 
+/**
+ * Seller analytics / desempenho — hidden until real metrics exist.
+ * Re-enable by restoring SellerAnalyticsView and the sidebar item.
+ */
 export default function SellerAnalyticsPage() {
-	return <SellerAnalyticsView />
+	notFound()
 }

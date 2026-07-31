@@ -256,6 +256,205 @@ const schemas = {
 			},
 		},
 	},
+	RatingSummary: {
+		type: 'object',
+		required: ['average', 'count', 'distribution'],
+		properties: {
+			average: { type: 'number' },
+			count: { type: 'integer' },
+			distribution: {
+				type: 'array',
+				items: { type: 'integer' },
+				minItems: 5,
+				maxItems: 5,
+				description: 'Counts for stars 1–5',
+			},
+		},
+	},
+	SellerStoreReview: {
+		type: 'object',
+		properties: {
+			id: { type: 'string', format: 'uuid' },
+			orderId: { type: 'string', format: 'uuid' },
+			shortOrderId: { type: 'string' },
+			buyerName: { type: 'string' },
+			rating: { type: 'integer', minimum: 1, maximum: 5 },
+			body: { type: 'string', nullable: true },
+			storeReply: { type: 'string', nullable: true },
+			storeRepliedAt: {
+				type: 'string',
+				format: 'date-time',
+				nullable: true,
+			},
+			createdAt: { type: 'string', format: 'date-time' },
+			products: {
+				type: 'array',
+				items: {
+					type: 'object',
+					properties: {
+						id: { type: 'string', format: 'uuid' },
+						productId: { type: 'string', format: 'uuid' },
+						productName: { type: 'string' },
+						productImage: { type: 'string', nullable: true },
+						rating: { type: 'integer', minimum: 1, maximum: 5 },
+						body: { type: 'string', nullable: true },
+						createdAt: { type: 'string', format: 'date-time' },
+					},
+				},
+			},
+		},
+	},
+	SellerProductReview: {
+		type: 'object',
+		properties: {
+			id: { type: 'string', format: 'uuid' },
+			reviewId: { type: 'string', format: 'uuid' },
+			orderId: { type: 'string', format: 'uuid' },
+			shortOrderId: { type: 'string' },
+			buyerName: { type: 'string' },
+			productId: { type: 'string', format: 'uuid' },
+			productName: { type: 'string' },
+			productImage: { type: 'string', nullable: true },
+			rating: { type: 'integer', minimum: 1, maximum: 5 },
+			body: { type: 'string', nullable: true },
+			createdAt: { type: 'string', format: 'date-time' },
+			storeReply: { type: 'string', nullable: true },
+		},
+	},
+	ProductReviewsProduct: {
+		type: 'object',
+		required: [
+			'id',
+			'name',
+			'price',
+			'discountPrice',
+			'currency',
+			'image',
+			'categoryName',
+		],
+		properties: {
+			id: { type: 'string', format: 'uuid' },
+			name: { type: 'string' },
+			price: {
+				type: 'number',
+				description: 'Price in major currency units (MZN)',
+			},
+			discountPrice: {
+				type: 'number',
+				nullable: true,
+				description: 'Promo price in major units, if any',
+			},
+			currency: { type: 'string', example: 'MZN' },
+			image: { type: 'string', nullable: true },
+			categoryName: { type: 'string', nullable: true },
+		},
+	},
+	ProductReviewsStore: {
+		type: 'object',
+		required: [
+			'id',
+			'name',
+			'slug',
+			'avatarUrl',
+			'verified',
+			'rating',
+			'reviewCount',
+		],
+		properties: {
+			id: { type: 'string', format: 'uuid' },
+			name: { type: 'string' },
+			slug: { type: 'string' },
+			avatarUrl: { type: 'string', nullable: true },
+			verified: {
+				type: 'boolean',
+				description: 'True when stores.verified_at is set',
+			},
+			rating: {
+				type: 'number',
+				nullable: true,
+				description: 'store_ratings.rating_avg',
+			},
+			reviewCount: {
+				type: 'integer',
+				description: 'store_ratings.rating_count',
+			},
+		},
+	},
+	PublicProductReview: {
+		type: 'object',
+		required: [
+			'id',
+			'reviewId',
+			'orderId',
+			'shortOrderId',
+			'buyerName',
+			'rating',
+			'body',
+			'createdAt',
+			'storeReply',
+			'storeRepliedAt',
+		],
+		properties: {
+			id: {
+				type: 'string',
+				format: 'uuid',
+				description: 'review_products.id',
+			},
+			reviewId: {
+				type: 'string',
+				format: 'uuid',
+				description: 'Parent reviews.id',
+			},
+			orderId: { type: 'string', format: 'uuid' },
+			shortOrderId: { type: 'string' },
+			buyerName: {
+				type: 'string',
+				description: 'Partially anonymised (e.g. Maria S.)',
+			},
+			rating: { type: 'integer', minimum: 1, maximum: 5 },
+			body: { type: 'string', nullable: true },
+			createdAt: { type: 'string', format: 'date-time' },
+			storeReply: { type: 'string', nullable: true },
+			storeRepliedAt: {
+				type: 'string',
+				format: 'date-time',
+				nullable: true,
+			},
+		},
+	},
+	ProductReviewsResponse: {
+		type: 'object',
+		required: [
+			'success',
+			'product',
+			'store',
+			'summary',
+			'reviews',
+			'page',
+			'perPage',
+			'total',
+			'totalPages',
+			'hasMore',
+		],
+		properties: {
+			success: { type: 'boolean', enum: [true] },
+			product: { $ref: '#/components/schemas/ProductReviewsProduct' },
+			store: {
+				allOf: [{ $ref: '#/components/schemas/ProductReviewsStore' }],
+				nullable: true,
+			},
+			summary: { $ref: '#/components/schemas/RatingSummary' },
+			reviews: {
+				type: 'array',
+				items: { $ref: '#/components/schemas/PublicProductReview' },
+			},
+			page: { type: 'integer', minimum: 1 },
+			perPage: { type: 'integer', enum: [0, 10, 25, 50] },
+			total: { type: 'integer' },
+			totalPages: { type: 'integer', minimum: 1 },
+			hasMore: { type: 'boolean' },
+		},
+	},
 	Conversation: {
 		type: 'object',
 		properties: {
@@ -343,14 +542,21 @@ const schemas = {
 	StoreMember: {
 		type: 'object',
 		properties: {
-			id: { type: 'string' },
-			role: { type: 'string' },
+			id: { type: 'string', format: 'uuid' },
+			role: {
+				type: 'string',
+				enum: ['owner', 'manager', 'staff', 'viewer'],
+			},
+			status: {
+				type: 'string',
+				enum: ['pending', 'active', 'removed'],
+			},
 			joinedAt: { type: 'string', nullable: true, format: 'date-time' },
 			invitedAt: { type: 'string', nullable: true, format: 'date-time' },
 			user: {
 				type: 'object',
 				properties: {
-					id: { type: 'string' },
+					id: { type: 'string', format: 'uuid' },
 					firstName: { type: 'string', nullable: true },
 					lastName: { type: 'string', nullable: true },
 					email: { type: 'string', nullable: true },
@@ -454,13 +660,45 @@ const schemas = {
 	},
 	SellerAnalytics: {
 		type: 'object',
+		required: [
+			'totalSales',
+			'totalOrders',
+			'totalViews',
+			'totalFollowers',
+			'productCount',
+			'changes',
+			'dailySales',
+		],
 		properties: {
-			totalSales: { type: 'integer' },
+			totalSales: {
+				type: 'number',
+				description: 'Sales total in major currency units (MZN)',
+			},
 			totalOrders: { type: 'integer' },
 			totalViews: { type: 'integer' },
 			totalFollowers: { type: 'integer' },
-			averageTicket: { type: 'integer' },
 			productCount: { type: 'integer' },
+			changes: {
+				type: 'object',
+				description: 'Percent change vs previous period',
+				properties: {
+					totalSales: { type: 'number' },
+					totalOrders: { type: 'number' },
+					totalViews: { type: 'number' },
+					totalFollowers: { type: 'number' },
+					productCount: { type: 'number' },
+				},
+			},
+			dailySales: {
+				type: 'array',
+				items: {
+					type: 'object',
+					properties: {
+						date: { type: 'string', format: 'date' },
+						sales: { type: 'number' },
+					},
+				},
+			},
 		},
 	},
 	Category: {
@@ -1073,6 +1311,91 @@ const paths: Record<string, any> = {
 						},
 					},
 				},
+			},
+		},
+	},
+	'/api/products/{id}/reviews': {
+		get: {
+			tags: ['Public'],
+			summary: 'List public product reviews',
+			description:
+				'Paginated product reviews with rating summary and store context. Requires reviews migration. Use summaryOnly=1 for the PDP teaser (empty reviews array, perPage=0). Prices are in major currency units.',
+			parameters: [
+				{
+					name: 'id',
+					in: 'path',
+					required: true,
+					schema: { type: 'string', format: 'uuid' },
+					description: 'Product id',
+				},
+				{
+					name: 'page',
+					in: 'query',
+					required: false,
+					schema: { type: 'integer', minimum: 1, default: 1 },
+					description: '1-based page index',
+				},
+				{
+					name: 'perPage',
+					in: 'query',
+					required: false,
+					schema: {
+						type: 'integer',
+						enum: [10, 25, 50],
+						default: 10,
+					},
+					description: 'Ignored when summaryOnly=1',
+				},
+				{
+					name: 'rating',
+					in: 'query',
+					required: false,
+					schema: {
+						type: 'integer',
+						enum: [1, 2, 3, 4, 5],
+					},
+					description: 'Filter by exact star rating',
+				},
+				{
+					name: 'sort',
+					in: 'query',
+					required: false,
+					schema: {
+						type: 'string',
+						enum: ['recent', 'highest', 'lowest'],
+						default: 'recent',
+					},
+				},
+				{
+					name: 'search',
+					in: 'query',
+					required: false,
+					schema: { type: 'string' },
+					description: 'Filter by comment body (ilike)',
+				},
+				{
+					name: 'summaryOnly',
+					in: 'query',
+					required: false,
+					schema: { type: 'string', enum: ['0', '1'] },
+					description:
+						'When 1, returns product/store/summary only (reviews=[])',
+				},
+			],
+			responses: {
+				'200': {
+					description: 'Product reviews + summary',
+					content: {
+						'application/json': {
+							schema: {
+								$ref: '#/components/schemas/ProductReviewsResponse',
+							},
+						},
+					},
+				},
+				'400': { description: 'Missing product id' },
+				'404': { description: 'Product not found' },
+				'500': { description: 'Failed to load reviews' },
 			},
 		},
 	},
@@ -3473,10 +3796,167 @@ const paths: Record<string, any> = {
 			},
 		},
 	},
+	'/api/seller/reviews': {
+		get: {
+			tags: ['Seller'],
+			summary: 'List store and product reviews for the seller',
+			description:
+				'Returns rating summary plus store-level reviews (with nested product reviews) and a flattened product-reviews list. Requires reviews migration applied. Generated Supabase Database types may lag — routes use an untyped admin client.',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			parameters: [
+				{
+					name: 'scope',
+					in: 'query',
+					required: false,
+					schema: {
+						type: 'string',
+						enum: ['all', 'store', 'product'],
+						default: 'all',
+					},
+					description:
+						'When store|product, the other list is returned empty. UI typically requests all and filters client-side by tab.',
+				},
+				{
+					name: 'search',
+					in: 'query',
+					required: false,
+					schema: { type: 'string' },
+					description:
+						'Filter by buyer name, short order id, comment, or product name',
+				},
+				{
+					name: 'needsReply',
+					in: 'query',
+					required: false,
+					schema: { type: 'string', enum: ['0', '1'] },
+					description:
+						'When 1, only store reviews without store_reply',
+				},
+			],
+			responses: {
+				'200': {
+					description: 'Reviews + summary for the authenticated store',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								required: [
+									'success',
+									'summary',
+									'storeReviews',
+									'productReviews',
+								],
+								properties: {
+									success: {
+										type: 'boolean',
+										enum: [true],
+									},
+									summary: {
+										type: 'object',
+										properties: {
+											store: {
+												$ref: '#/components/schemas/RatingSummary',
+											},
+											products: {
+												$ref: '#/components/schemas/RatingSummary',
+											},
+										},
+									},
+									storeReviews: {
+										type: 'array',
+										items: {
+											$ref: '#/components/schemas/SellerStoreReview',
+										},
+									},
+									productReviews: {
+										type: 'array',
+										items: {
+											$ref: '#/components/schemas/SellerProductReview',
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+				'403': { description: 'Not a seller' },
+				'500': { description: 'Failed to load reviews' },
+			},
+		},
+	},
+	'/api/seller/reviews/{id}/reply': {
+		post: {
+			tags: ['Seller'],
+			summary: 'Reply to a store review',
+			description:
+				'Sets store_reply / store_replied_at on a review owned by the authenticated store. Fails with 409 if a reply already exists.',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			parameters: [
+				{
+					name: 'id',
+					in: 'path',
+					required: true,
+					schema: { type: 'string', format: 'uuid' },
+					description: 'Review id (store-level reviews.id)',
+				},
+			],
+			requestBody: {
+				required: true,
+				content: {
+					'application/json': {
+						schema: {
+							type: 'object',
+							required: ['reply'],
+							properties: {
+								reply: {
+									type: 'string',
+									minLength: 1,
+									maxLength: 2000,
+								},
+							},
+						},
+					},
+				},
+			},
+			responses: {
+				'200': {
+					description: 'Reply saved',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								required: ['success', 'reply', 'repliedAt'],
+								properties: {
+									success: {
+										type: 'boolean',
+										enum: [true],
+									},
+									reply: { type: 'string' },
+									repliedAt: {
+										type: 'string',
+										format: 'date-time',
+									},
+								},
+							},
+						},
+					},
+				},
+				'400': { description: 'Empty or too-long reply' },
+				'401': { description: 'Unauthorized' },
+				'403': { description: 'Not a seller' },
+				'404': { description: 'Review not found for this store' },
+				'409': { description: 'Review already has a reply' },
+				'500': { description: 'Failed to save reply' },
+			},
+		},
+	},
 	'/api/seller/members': {
 		get: {
 			tags: ['Seller'],
 			summary: 'List store members',
+			description:
+				'Lists active/pending members for the authenticated store. Requires member.read. Response includes me.canManage (member.manage) and roleCatalog from RBAC.',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			responses: {
 				'200': {
@@ -3485,11 +3965,49 @@ const paths: Record<string, any> = {
 						'application/json': {
 							schema: {
 								type: 'object',
+								required: ['members'],
 								properties: {
+									success: {
+										type: 'boolean',
+										enum: [true],
+									},
 									members: {
 										type: 'array',
 										items: {
 											$ref: '#/components/schemas/StoreMember',
+										},
+									},
+									me: {
+										type: 'object',
+										properties: {
+											userId: {
+												type: 'string',
+												format: 'uuid',
+												description:
+													'Current authenticated user id (for “Você” UI)',
+											},
+											memberRole: { type: 'string' },
+											rbacRole: { type: 'string' },
+											isOwner: { type: 'boolean' },
+											permissions: {
+												type: 'array',
+												items: { type: 'string' },
+											},
+											canManage: { type: 'boolean' },
+										},
+									},
+									roleCatalog: {
+										type: 'object',
+										additionalProperties: {
+											type: 'object',
+											properties: {
+												label: { type: 'string' },
+												summary: { type: 'string' },
+												permissions: {
+													type: 'array',
+													items: { type: 'string' },
+												},
+											},
 										},
 									},
 								},
@@ -3497,21 +4015,34 @@ const paths: Record<string, any> = {
 						},
 					},
 				},
+				'401': { description: 'Unauthorized' },
+				'403': { description: 'Missing member.read' },
+				'500': { description: 'Failed to load members' },
 			},
 		},
 		post: {
 			tags: ['Seller'],
 			summary: 'Invite a member to the store',
+			description:
+				'Requires member.manage. Adds an existing Zuka user by email or userId (roles: manager|staff|viewer → store_* via role_permissions). Soft-deleted memberships are revived. On success, inserts a system notification for the invitee (sender_store_id = store; link /dashboard/seller). Notification failures are logged and do not fail the invite.',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			requestBody: {
+				required: true,
 				content: {
 					'application/json': {
 						schema: {
 							type: 'object',
 							properties: {
-								userId: { type: 'string' },
-								email: { type: 'string' },
-								role: { type: 'string', default: 'staff' },
+								userId: {
+									type: 'string',
+									format: 'uuid',
+								},
+								email: { type: 'string', format: 'email' },
+								role: {
+									type: 'string',
+									enum: ['manager', 'staff', 'viewer'],
+									default: 'staff',
+								},
 							},
 						},
 					},
@@ -3519,13 +4050,22 @@ const paths: Record<string, any> = {
 			},
 			responses: {
 				'200': {
-					description: 'Member invited',
+					description:
+						'Member invited or revived; invitee notified (best-effort)',
 					content: {
 						'application/json': {
 							schema: {
 								type: 'object',
 								properties: {
-									success: { type: 'boolean', enum: [true] },
+									success: {
+										type: 'boolean',
+										enum: [true],
+									},
+									revived: {
+										type: 'boolean',
+										description:
+											'True when a soft-deleted membership was restored',
+									},
 								},
 							},
 						},
@@ -3533,8 +4073,154 @@ const paths: Record<string, any> = {
 				},
 				'400': { description: 'Validation error' },
 				'401': { description: 'Unauthorized' },
+				'403': { description: 'Missing member.manage' },
 				'404': { description: 'User not found' },
 				'409': { description: 'Already a member' },
+				'500': { description: 'Failed to invite' },
+			},
+		},
+	},
+	'/api/seller/access': {
+		get: {
+			tags: ['Seller'],
+			summary: 'Current store access and permissions',
+			description:
+				'Returns the caller store context, RBAC permissions (from role_permissions), and roleCatalog for UI gating.',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			responses: {
+				'200': {
+					description: 'Access payload',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: {
+										type: 'boolean',
+										enum: [true],
+									},
+									store: {
+										type: 'object',
+										properties: {
+											id: { type: 'string' },
+											name: { type: 'string' },
+											slug: { type: 'string' },
+										},
+									},
+									memberRole: { type: 'string' },
+									rbacRole: { type: 'string' },
+									isOwner: { type: 'boolean' },
+									permissions: {
+										type: 'array',
+										items: { type: 'string' },
+									},
+									roleCatalog: { type: 'object' },
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+				'403': { description: 'No store access' },
+			},
+		},
+	},
+	'/api/seller/members/{id}': {
+		patch: {
+			tags: ['Seller'],
+			summary: 'Update a store member role',
+			description:
+				'Requires member.manage. Cannot change the store owner. Role maps to store_* RBAC via role_permissions.',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			parameters: [
+				{
+					name: 'id',
+					in: 'path',
+					required: true,
+					schema: { type: 'string', format: 'uuid' },
+				},
+			],
+			requestBody: {
+				required: true,
+				content: {
+					'application/json': {
+						schema: {
+							type: 'object',
+							required: ['role'],
+							properties: {
+								role: {
+									type: 'string',
+									enum: ['manager', 'staff', 'viewer'],
+								},
+							},
+						},
+					},
+				},
+			},
+			responses: {
+				'200': {
+					description: 'Role updated',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: {
+										type: 'boolean',
+										enum: [true],
+									},
+									role: { type: 'string' },
+								},
+							},
+						},
+					},
+				},
+				'400': { description: 'Invalid role' },
+				'401': { description: 'Unauthorized' },
+				'403': {
+					description: 'Missing member.manage or cannot change owner',
+				},
+				'404': { description: 'Member not found' },
+				'500': { description: 'Failed to update role' },
+			},
+		},
+		delete: {
+			tags: ['Seller'],
+			summary: 'Remove a store member (soft delete)',
+			description:
+				'Requires member.manage. Soft-deletes the membership (status removed). Cannot remove the store owner.',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			parameters: [
+				{
+					name: 'id',
+					in: 'path',
+					required: true,
+					schema: { type: 'string', format: 'uuid' },
+				},
+			],
+			responses: {
+				'200': {
+					description: 'Member removed',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: {
+										type: 'boolean',
+										enum: [true],
+									},
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+				'403': {
+					description: 'Missing member.manage or cannot remove owner',
+				},
+				'404': { description: 'Member not found' },
+				'500': { description: 'Failed to remove member' },
 			},
 		},
 	},
@@ -3593,24 +4279,45 @@ const paths: Record<string, any> = {
 	'/api/seller/stats/analytics': {
 		get: {
 			tags: ['Seller'],
-			summary: 'Analytics data for dashboard charts',
+			summary: 'Store performance metrics for the seller analytics page',
+			description:
+				'Currently returns mock data (mock: true). No averageTicket. Range accepts 7d|30d|90d (or numeric days).',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'range',
 					in: 'query',
-					schema: { type: 'integer', default: 30 },
-					description: 'Days to look back (7, 30, 90)',
+					required: false,
+					schema: {
+						type: 'string',
+						enum: ['7d', '30d', '90d'],
+						default: '30d',
+					},
+					description: 'Lookback period. Numeric 7/30/90 also accepted.',
 				},
 			],
 			responses: {
 				'200': {
-					description: 'Analytics data',
+					description: 'Performance metrics (often mock)',
 					content: {
 						'application/json': {
 							schema: {
 								type: 'object',
+								required: ['success', 'mock', 'range', 'data'],
 								properties: {
+									success: {
+										type: 'boolean',
+										enum: [true],
+									},
+									mock: {
+										type: 'boolean',
+										description:
+											'True while view tracking is not live',
+									},
+									range: {
+										type: 'string',
+										enum: ['7d', '30d', '90d'],
+									},
 									data: {
 										$ref: '#/components/schemas/SellerAnalytics',
 									},
@@ -3619,6 +4326,9 @@ const paths: Record<string, any> = {
 						},
 					},
 				},
+				'401': { description: 'Unauthorized' },
+				'403': { description: 'Not a seller' },
+				'500': { description: 'Failed to load performance' },
 			},
 		},
 	},

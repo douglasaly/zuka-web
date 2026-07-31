@@ -21,8 +21,6 @@ export const ProductStoreCard = ({
 	storeVerified,
 	storeRating,
 }: ProductStoreCardProps) => {
-	console.log(storeAvatar)
-
 	return (
 		<Link
 			href={`/lojas/${storeSlug}`}

@@ -27,6 +27,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Switch } from '@/components/ui/switch'
 import { useUserProfile } from '@/hooks/use-user-profile'
 import { cn } from '@/lib/utils'
+import { useSellerAccess } from '@/modules/seller/hooks/use-seller-access'
 import { SellerDangerZone } from '../components/settings/seller-danger-zone'
 import { useSetSellerPageMeta } from '../layouts/seller-page-meta'
 
@@ -200,6 +201,7 @@ export const SellerSettingsView = () => {
 	})
 
 	const { profile, isLoading, isAuthenticated } = useUserProfile()
+	const { can } = useSellerAccess()
 	const [prefs, setPrefs] = useState<NotificationPrefs>(DEFAULT_PREFS)
 	const [prefsReady, setPrefsReady] = useState(false)
 
@@ -304,20 +306,32 @@ export const SellerSettingsView = () => {
 				<div className='min-w-0 space-y-6'>
 					<SettingsBand
 						title='Loja'
-						description='Aparência pública e equipa.'
+						description='Aparência pública e Equipe.'
 					>
-						<NavRow
-							icon={Store}
-							title='Minha loja'
-							description='Nome, imagens, contactos, entrega e estado'
-							href='/dashboard/seller/loja'
-						/>
-						<NavRow
-							icon={Users}
-							title='Membros'
-							description='Quem tem acesso ao painel da loja'
-							href='/dashboard/seller/loja/membros'
-						/>
+						{can('store.read') ? (
+							<NavRow
+								icon={Store}
+								title='Minha loja'
+								description={
+									can('store.update')
+										? 'Nome, imagens, contactos, entrega e estado'
+										: 'Ver perfil da loja (sem edição)'
+								}
+								href='/dashboard/seller/loja'
+							/>
+						) : null}
+						{can('member.read') ? (
+							<NavRow
+								icon={Users}
+								title='Membros'
+								description={
+									can('member.manage')
+										? 'Convidar e gerir quem tem acesso ao painel'
+										: 'Ver quem tem acesso ao painel da loja'
+								}
+								href='/dashboard/seller/loja/membros'
+							/>
+						) : null}
 						{store?.slug ? (
 							<NavRow
 								icon={ExternalLink}

@@ -19,7 +19,7 @@ const SEGMENT_LABELS: Record<string, string> = {
 	mensagens: 'Mensagens',
 	loja: 'Minha Loja',
 	avaliacoes: 'Avaliações',
-	analytics: 'Analytics',
+	analytics: 'Desempenho',
 	configuracoes: 'Configurações',
 	categorias: 'Categorias',
 	membros: 'Membros',

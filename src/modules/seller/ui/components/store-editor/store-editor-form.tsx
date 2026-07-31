@@ -20,6 +20,7 @@ import type {
 	SellerStoreDetail,
 	UpdateSellerStoreInput,
 } from '@/lib/types/api/seller'
+import { useSellerAccess } from '@/modules/seller/hooks/use-seller-access'
 import { useSetSellerPageMeta } from '../../layouts/seller-page-meta'
 import { LOCKED_STATUS_LABELS, STATUS_OPTIONS } from './constants'
 import { StoreContactSection } from './store-contact-section'
@@ -63,6 +64,8 @@ function formsEqual(a: StoreFormState, b: StoreFormState) {
 
 export function StoreEditorForm({ store }: StoreEditorFormProps) {
 	const queryClient = useQueryClient()
+	const { can } = useSellerAccess()
+	const canUpdate = can('store.update')
 	const [form, setForm] = useState<StoreFormState>(() =>
 		storeToFormState(store)
 	)
@@ -91,11 +94,15 @@ export function StoreEditorForm({ store }: StoreEditorFormProps) {
 		store.status
 
 	function patchForm(patch: Partial<StoreFormState>) {
+		if (!canUpdate) return
 		setForm((prev) => ({ ...prev, ...patch }))
 	}
 
 	const mutation = useMutation({
 		mutationFn: async () => {
+			if (!canUpdate) {
+				throw new Error('Não tem permissão para editar a loja.')
+			}
 			if (!form.name.trim()) {
 				throw new Error('O nome da loja é obrigatório')
 			}
@@ -159,15 +166,18 @@ export function StoreEditorForm({ store }: StoreEditorFormProps) {
 		onError: (error: Error) => toast.error(error.message),
 	})
 
-	const canSave = isDirty && !mutation.isPending && !mediaUploading
+	const canSave =
+		canUpdate && isDirty && !mutation.isPending && !mediaUploading
 
 	return (
 		<div className='min-w-0 max-w-full space-y-6 pb-28'>
 			<div className='flex min-w-0 flex-wrap items-center justify-between gap-2 sm:gap-3'>
 				<p className='min-w-0 flex-1 text-sm leading-snug text-muted-foreground'>
-					{isDirty
-						? 'Tem alterações por guardar.'
-						: 'Aparência e dados públicos da sua loja.'}
+					{!canUpdate
+						? 'Modo consulta — só o dono ou um gestor com permissão pode editar a loja.'
+						: isDirty
+							? 'Tem alterações por guardar.'
+							: 'Aparência e dados públicos da sua loja.'}
 				</p>
 				<Button
 					variant='outline'
@@ -223,41 +233,43 @@ export function StoreEditorForm({ store }: StoreEditorFormProps) {
 				</div>
 			</div>
 
-			<div className='fixed bottom-0 left-0 right-0 z-20 max-w-full border-t border-border/60 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80 md:left-(--sidebar-width)'>
-				<div className='mx-auto flex w-full max-w-6xl min-w-0 flex-wrap items-center justify-end gap-2 px-4 py-3 sm:justify-between sm:gap-3 sm:px-6'>
-					<p className='hidden min-w-0 flex-1 text-xs text-muted-foreground sm:block'>
-						{mediaUploading
-							? 'Aguarde o carregamento das imagens…'
-							: isDirty
-								? 'As alterações só são aplicadas ao guardar.'
-								: 'Nenhuma alteração por guardar.'}
-					</p>
-					<Button
-						type='button'
-						size='sm'
-						className='shrink-0 rounded-full'
-						disabled={!canSave}
-						onClick={() => mutation.mutate()}
-					>
-						{mutation.isPending ? (
-							<>
-								<Loader2 className='size-4 animate-spin' />
-								A guardar…
-							</>
-						) : mediaUploading ? (
-							<>
-								<Loader2 className='size-4 animate-spin' />
-								A carregar…
-							</>
-						) : (
-							<>
-								<Save className='size-4' />
-								Guardar
-							</>
-						)}
-					</Button>
+			{canUpdate ? (
+				<div className='fixed bottom-0 left-0 right-0 z-20 max-w-full border-t border-border/60 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80 md:left-(--sidebar-width)'>
+					<div className='mx-auto flex w-full max-w-6xl min-w-0 flex-wrap items-center justify-end gap-2 px-4 py-3 sm:justify-between sm:gap-3 sm:px-6'>
+						<p className='hidden min-w-0 flex-1 text-xs text-muted-foreground sm:block'>
+							{mediaUploading
+								? 'Aguarde o carregamento das imagens…'
+								: isDirty
+									? 'As alterações só são aplicadas ao guardar.'
+									: 'Nenhuma alteração por guardar.'}
+						</p>
+						<Button
+							type='button'
+							size='sm'
+							className='shrink-0 rounded-full'
+							disabled={!canSave}
+							onClick={() => mutation.mutate()}
+						>
+							{mutation.isPending ? (
+								<>
+									<Loader2 className='size-4 animate-spin' />
+									A guardar…
+								</>
+							) : mediaUploading ? (
+								<>
+									<Loader2 className='size-4 animate-spin' />
+									A carregar…
+								</>
+							) : (
+								<>
+									<Save className='size-4' />
+									Guardar
+								</>
+							)}
+						</Button>
+					</div>
 				</div>
-			</div>
+			) : null}
 		</div>
 	)
 }

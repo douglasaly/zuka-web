@@ -26,6 +26,7 @@ import {
 import { Button } from '@/components/ui/button'
 import type { OrderStatus } from '@/lib/orders/status-transitions'
 import { cn } from '@/lib/utils'
+import { useSellerAccess } from '@/modules/seller/hooks/use-seller-access'
 import { formatPrice } from '@/utils/format-price'
 import { IconTooltipButton } from '../components/icon-tooltip-button'
 import { useSetSellerPageMeta } from '../layouts/seller-page-meta'
@@ -115,6 +116,8 @@ export const SellerOrderDetailView = ({ id }: SellerOrderDetailViewProps) => {
 
 	const queryClient = useQueryClient()
 	const [pending, setPending] = useState<PendingStatus | null>(null)
+	const { can } = useSellerAccess()
+	const canUpdateOrder = can('order.update')
 
 	const { data, isLoading, isError, refetch } = useQuery({
 		queryKey: ['seller-order', id],
@@ -328,9 +331,10 @@ export const SellerOrderDetailView = ({ id }: SellerOrderDetailViewProps) => {
 				</ol>
 			</section>
 
-			{(data.status === 'PENDING' ||
-				data.status === 'CONTACTED' ||
-				data.status === 'SHIPPING') && (
+			{canUpdateOrder &&
+				(data.status === 'PENDING' ||
+					data.status === 'CONTACTED' ||
+					data.status === 'SHIPPING') && (
 				<section className='flex flex-wrap gap-2'>
 					{data.status === 'SHIPPING' ? (
 						<Button

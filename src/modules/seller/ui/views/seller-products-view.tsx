@@ -73,6 +73,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 import type { SellerProduct } from '@/lib/types/api/seller'
 import { cn } from '@/lib/utils'
+import { useSellerAccess } from '@/modules/seller/hooks/use-seller-access'
 import { formatPrice } from '@/utils/format-price'
 import { DeleteProductDialog } from '../components/delete-product-dialog'
 import { IconTooltipButton } from '../components/icon-tooltip-button'
@@ -211,6 +212,10 @@ export const SellerProductsView = () => {
 	const pathname = usePathname()
 	const searchParams = useSearchParams()
 	const [, startTransition] = useTransition()
+	const { can } = useSellerAccess()
+	const canCreate = can('product.create')
+	const canUpdate = can('product.update')
+	const canDelete = can('product.delete')
 
 	const page = Math.max(Number(searchParams.get('page')) || 1, 1)
 	const perPage = parsePerPage(searchParams.get('perPage'))
@@ -481,15 +486,17 @@ export const SellerProductsView = () => {
 							</Link>
 						}
 					/>
-					<Button
-						className='rounded-full'
-						render={
-							<Link href='/dashboard/seller/produtos/novo'>
-								<Plus className='size-4' />
-								Novo produto
-							</Link>
-						}
-					/>
+					{canCreate ? (
+						<Button
+							className='rounded-full'
+							render={
+								<Link href='/dashboard/seller/produtos/novo'>
+									<Plus className='size-4' />
+									Novo produto
+								</Link>
+							}
+						/>
+					) : null}
 				</div>
 			</div>
 
@@ -655,7 +662,7 @@ export const SellerProductsView = () => {
 						>
 							Limpar filtros
 						</Button>
-					) : (
+					) : canCreate ? (
 						<Button
 							className='mt-6 rounded-full'
 							render={
@@ -665,7 +672,7 @@ export const SellerProductsView = () => {
 								</Link>
 							}
 						/>
-					)}
+					) : null}
 				</div>
 			) : (
 				<div className='overflow-hidden rounded-2xl border border-border/60 bg-card shadow-[0_1px_2px_rgba(0,0,0,0.04)]'>
@@ -767,21 +774,25 @@ export const SellerProductsView = () => {
 										>
 											<Eye className='size-4' />
 										</IconAction>
-										<IconAction
-											label='Editar'
-											href={`/dashboard/seller/produtos/${product.id}/editar`}
-										>
-											<Pencil className='size-4' />
-										</IconAction>
-										<IconAction
-											label='Eliminar'
-											className='text-destructive hover:bg-destructive/10 hover:text-destructive'
-											onClick={() =>
-												setDeletingId(product.id)
-											}
-										>
-											<Trash2 className='size-4' />
-										</IconAction>
+										{canUpdate ? (
+											<IconAction
+												label='Editar'
+												href={`/dashboard/seller/produtos/${product.id}/editar`}
+											>
+												<Pencil className='size-4' />
+											</IconAction>
+										) : null}
+										{canDelete ? (
+											<IconAction
+												label='Eliminar'
+												className='text-destructive hover:bg-destructive/10 hover:text-destructive'
+												onClick={() =>
+													setDeletingId(product.id)
+												}
+											>
+												<Trash2 className='size-4' />
+											</IconAction>
+										) : null}
 									</div>
 								</li>
 							)
@@ -938,38 +949,46 @@ export const SellerProductsView = () => {
 							{selected.size > 1 ? 's' : ''}
 						</p>
 						<div className='ml-auto flex flex-wrap items-center gap-1.5'>
-							<Button
-								variant='outline'
-								size='sm'
-								className='rounded-full'
-								disabled={bulkMutation.isPending}
-								onClick={() => bulkMutation.mutate('activate')}
-							>
-								<Play className='size-3.5' />
-								Activar
-							</Button>
-							<Button
-								variant='outline'
-								size='sm'
-								className='rounded-full'
-								disabled={bulkMutation.isPending}
-								onClick={() =>
-									bulkMutation.mutate('deactivate')
-								}
-							>
-								<Pause className='size-3.5' />
-								Pausar
-							</Button>
-							<Button
-								variant='destructive'
-								size='sm'
-								className='rounded-full'
-								disabled={bulkMutation.isPending}
-								onClick={() => setConfirmBulkDelete(true)}
-							>
-								<Trash2 className='size-3.5' />
-								Eliminar
-							</Button>
+							{canUpdate ? (
+								<>
+									<Button
+										variant='outline'
+										size='sm'
+										className='rounded-full'
+										disabled={bulkMutation.isPending}
+										onClick={() =>
+											bulkMutation.mutate('activate')
+										}
+									>
+										<Play className='size-3.5' />
+										Activar
+									</Button>
+									<Button
+										variant='outline'
+										size='sm'
+										className='rounded-full'
+										disabled={bulkMutation.isPending}
+										onClick={() =>
+											bulkMutation.mutate('deactivate')
+										}
+									>
+										<Pause className='size-3.5' />
+										Pausar
+									</Button>
+								</>
+							) : null}
+							{canDelete ? (
+								<Button
+									variant='destructive'
+									size='sm'
+									className='rounded-full'
+									disabled={bulkMutation.isPending}
+									onClick={() => setConfirmBulkDelete(true)}
+								>
+									<Trash2 className='size-3.5' />
+									Eliminar
+								</Button>
+							) : null}
 							<Button
 								variant='ghost'
 								size='sm'
@@ -1044,6 +1063,8 @@ export const SellerProductsView = () => {
 							heroUrl={previewImage ?? preview.image}
 							onSelectImage={setPreviewImage}
 							onDelete={() => setDeletingId(preview.id)}
+							canUpdate={canUpdate}
+							canDelete={canDelete}
 						/>
 					) : null}
 				</SheetContent>
@@ -1057,11 +1078,15 @@ function ProductPreviewPanel({
 	heroUrl,
 	onSelectImage,
 	onDelete,
+	canUpdate = true,
+	canDelete = true,
 }: {
 	preview: SellerProduct
 	heroUrl: string | null
 	onSelectImage: (url: string) => void
 	onDelete: () => void
+	canUpdate?: boolean
+	canDelete?: boolean
 }) {
 	return (
 		<>
@@ -1157,28 +1182,34 @@ function ProductPreviewPanel({
 				)}
 			</div>
 
-			<SheetFooter className='border-t border-border/60 px-6 py-4 sm:flex-row'>
-				<Button
-					className='flex-1 rounded-full'
-					render={
-						<Link
-							href={`/dashboard/seller/produtos/${preview.id}/editar`}
+			{(canUpdate || canDelete) && (
+				<SheetFooter className='border-t border-border/60 px-6 py-4 sm:flex-row'>
+					{canUpdate ? (
+						<Button
+							className='flex-1 rounded-full'
+							render={
+								<Link
+									href={`/dashboard/seller/produtos/${preview.id}/editar`}
+								>
+									<Pencil className='size-4' />
+									Editar
+								</Link>
+							}
+						/>
+					) : null}
+					{canDelete ? (
+						<Button
+							type='button'
+							variant='outline'
+							className='flex-1 rounded-full text-destructive hover:bg-destructive/10 hover:text-destructive'
+							onClick={onDelete}
 						>
-							<Pencil className='size-4' />
-							Editar
-						</Link>
-					}
-				/>
-				<Button
-					type='button'
-					variant='outline'
-					className='flex-1 rounded-full text-destructive hover:bg-destructive/10 hover:text-destructive'
-					onClick={onDelete}
-				>
-					<Trash2 className='size-4' />
-					Eliminar
-				</Button>
-			</SheetFooter>
+							<Trash2 className='size-4' />
+							Eliminar
+						</Button>
+					) : null}
+				</SheetFooter>
+			)}
 		</>
 	)
 }

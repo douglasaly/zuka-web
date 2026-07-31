@@ -11,7 +11,7 @@ const features = [
 		icon: CheckCircle2,
 		title: 'Lojas verificadas',
 		description:
-			'Todas as lojas são verificadas pela nossa equipa para garantir confiança',
+			'Todas as lojas são verificadas pela nossa Equipe para garantir confiança',
 		iconClass: 'bg-emerald-50 text-emerald-600',
 	},
 	{

@@ -1,11 +1,11 @@
 import { type NextRequest, NextResponse } from 'next/server'
-import { requireSellerStore } from '@/lib/auth/seller'
+import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 
 export async function GET(request: NextRequest) {
 	try {
-		const auth = await requireSellerStore()
-		if ('error' in auth && auth.error) return auth.error
+		const auth = await requireSellerStore({ permission: 'stats.read' })
+		if (isSellerStoreAuthError(auth)) return auth.error
 		const { store } = auth
 
 		const { searchParams } = new URL(request.url)
