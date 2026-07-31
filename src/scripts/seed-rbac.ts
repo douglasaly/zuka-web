@@ -12,57 +12,48 @@ const supabase = createSupabaseAdmin()
 async function seed() {
 	console.log('🌱 Iniciando seed de RBAC...')
 
-	const roles = [
+	const roleDefs = [
 		{
-			id: uuidv7(),
 			name: 'admin',
 			description:
 				'Gerencia o marketplace com acesso total às funcionalidades administrativas',
 		},
 		{
-			id: uuidv7(),
 			name: 'super_admin',
 			description:
 				'Acesso total ao sistema, incluindo override de todas as regras e permissões',
 		},
 		{
-			id: uuidv7(),
 			name: 'seller',
 			description:
 				'Pode gerenciar produtos e pedidos relacionados às suas vendas',
 		},
 		{
-			id: uuidv7(),
 			name: 'buyer',
 			description:
 				'Pode comprar produtos e gerenciar seus próprios pedidos',
 		},
 		{
-			id: uuidv7(),
 			name: 'support',
 			description:
 				'Responsável pelo atendimento ao cliente e resolução de disputas',
 		},
 		{
-			id: uuidv7(),
 			name: 'store_owner',
 			description:
 				'Dono da loja. Com acesso total à loja e gestão da Equipe',
 		},
 		{
-			id: uuidv7(),
 			name: 'store_manager',
 			description:
 				'Gestor da loja. Pode realizar todas as operações e convidar novos membros',
 		},
 		{
-			id: uuidv7(),
 			name: 'store_staff',
 			description:
 				'Colaborador. Pode gerenciar produtos, pedidos, mensagens e respostas a avaliações',
 		},
 		{
-			id: uuidv7(),
 			name: 'store_viewer',
 			description: 'Visualizador. Pode consultar apenas os dados da loja e os produtos',
 		},
@@ -96,20 +87,72 @@ async function seed() {
 		{ key: 'stats.read', description: 'Ver desempenho e estatísticas' },
 	]
 
-	const permissions = permissionDefs.map((p) => ({
-		id: uuidv7(),
-		...p,
-	}))
+	// Load existing rows first. Upserting with a new id onConflict:key
+	// tries to rewrite the PK and fails under role_permissions FKs (ON UPDATE no action).
+	const { data: existingRoles, error: rolesLoadError } = await supabase
+		.from('roles')
+		.select('id, name')
+	if (rolesLoadError) throw rolesLoadError
 
-	await supabase.from('roles').upsert(roles, { onConflict: 'name' })
-	await supabase
-		.from('permissions')
-		.upsert(permissions, { onConflict: 'key' })
+	const existingRoleByName = new Map(
+		(existingRoles ?? []).map((r) => [r.name, r.id])
+	)
+	const rolesToInsert = roleDefs
+		.filter((r) => !existingRoleByName.has(r.name))
+		.map((r) => ({ id: uuidv7(), ...r }))
 
-	const { data: insertedRoles } = await supabase.from('roles').select('*')
-	const { data: insertedPermissions } = await supabase
+	if (rolesToInsert.length) {
+		const { error } = await supabase.from('roles').insert(rolesToInsert)
+		if (error) throw error
+	}
+
+	for (const role of roleDefs) {
+		const id = existingRoleByName.get(role.name)
+		if (!id) continue
+		const { error } = await supabase
+			.from('roles')
+			.update({ description: role.description })
+			.eq('id', id)
+		if (error) throw error
+	}
+
+	const { data: existingPermissions, error: permsLoadError } = await supabase
 		.from('permissions')
+		.select('id, key')
+	if (permsLoadError) throw permsLoadError
+
+	const existingPermByKey = new Map(
+		(existingPermissions ?? []).map((p) => [p.key, p.id])
+	)
+	const permissionsToInsert = permissionDefs
+		.filter((p) => !existingPermByKey.has(p.key))
+		.map((p) => ({ id: uuidv7(), ...p }))
+
+	if (permissionsToInsert.length) {
+		const { error } = await supabase
+			.from('permissions')
+			.insert(permissionsToInsert)
+		if (error) throw error
+	}
+
+	for (const perm of permissionDefs) {
+		const id = existingPermByKey.get(perm.key)
+		if (!id) continue
+		const { error } = await supabase
+			.from('permissions')
+			.update({ description: perm.description })
+			.eq('id', id)
+		if (error) throw error
+	}
+
+	const { data: insertedRoles, error: rolesSelectError } = await supabase
+		.from('roles')
 		.select('*')
+	if (rolesSelectError) throw rolesSelectError
+
+	const { data: insertedPermissions, error: permsSelectError } =
+		await supabase.from('permissions').select('*')
+	if (permsSelectError) throw permsSelectError
 
 	if (!insertedRoles?.length || !insertedPermissions?.length) {
 		throw new Error('Failed to load roles or permissions after upsert')
@@ -130,6 +173,22 @@ async function seed() {
 	for (const key of mustHave) {
 		if (!permMap[key]) {
 			throw new Error(`Permission missing after upsert: ${key}`)
+		}
+	}
+
+	for (const name of [
+		'admin',
+		'super_admin',
+		'seller',
+		'buyer',
+		'support',
+		'store_owner',
+		'store_manager',
+		'store_staff',
+		'store_viewer',
+	]) {
+		if (!roleMap[name]) {
+			throw new Error(`Role missing after upsert: ${name}`)
 		}
 	}
 
@@ -184,10 +243,13 @@ async function seed() {
 		})),
 	]
 
-	await supabase.from('role_permissions').upsert(rolePermissions, {
-		onConflict: 'role_id,permission_id',
-		ignoreDuplicates: true,
-	})
+	const { error: rpError } = await supabase
+		.from('role_permissions')
+		.upsert(rolePermissions, {
+			onConflict: 'role_id,permission_id',
+			ignoreDuplicates: true,
+		})
+	if (rpError) throw rpError
 
 	console.log('✅ Seed de RBAC concluído (inclui roles store_* + permissões da loja)!')
 }
