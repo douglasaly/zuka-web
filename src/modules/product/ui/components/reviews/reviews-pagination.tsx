@@ -6,6 +6,7 @@ import {
 	ChevronsLeft,
 	ChevronsRight,
 } from 'lucide-react'
+import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { Button } from '@/components/ui/button'
 import {
 	Pagination,
@@ -62,68 +63,66 @@ export function ReviewsPagination({
 				className='text-sm tabular-nums text-muted-foreground'
 				aria-live='polite'
 			>
-				A mostrar {from}–{to} de {total}
+				A mostrar {from} a {to} de {total}
 			</p>
 
 			<div className='flex items-center justify-center gap-1.5 md:hidden'>
-				<Button
+				<IconTooltipButton
+					label='Primeira página'
 					variant='outline'
 					size='icon'
-					className='size-10 rounded-full'
+					className='size-10'
 					disabled={currentPage <= 1}
-					aria-label='Primeira página'
 					onClick={() => onPageChange(1)}
 				>
 					<ChevronsLeft className='size-4' />
-				</Button>
-				<Button
+				</IconTooltipButton>
+				<IconTooltipButton
+					label='Página anterior'
 					variant='outline'
 					size='icon'
-					className='size-10 rounded-full'
+					className='size-10'
 					disabled={currentPage <= 1}
-					aria-label='Página anterior'
 					onClick={() => onPageChange(currentPage - 1)}
 				>
 					<ChevronLeft className='size-4' />
-				</Button>
+				</IconTooltipButton>
 				<span className='min-w-16 text-center text-sm tabular-nums'>
 					{currentPage}/{totalPages}
 				</span>
-				<Button
+				<IconTooltipButton
+					label='Página seguinte'
 					variant='outline'
 					size='icon'
-					className='size-10 rounded-full'
+					className='size-10'
 					disabled={currentPage >= totalPages}
-					aria-label='Página seguinte'
 					onClick={() => onPageChange(currentPage + 1)}
 				>
 					<ChevronRight className='size-4' />
-				</Button>
-				<Button
+				</IconTooltipButton>
+				<IconTooltipButton
+					label='Última página'
 					variant='outline'
 					size='icon'
-					className='size-10 rounded-full'
+					className='size-10'
 					disabled={currentPage >= totalPages}
-					aria-label='Última página'
 					onClick={() => onPageChange(totalPages)}
 				>
 					<ChevronsRight className='size-4' />
-				</Button>
+				</IconTooltipButton>
 			</div>
 
 			<Pagination className='hidden justify-end md:flex'>
 				<PaginationContent>
 					<PaginationItem>
-						<Button
-							variant='ghost'
+						<IconTooltipButton
+							label='Ir para a primeira página'
 							size='icon'
-							className='rounded-full'
 							disabled={currentPage <= 1}
-							aria-label='Ir para a primeira página'
 							onClick={() => onPageChange(1)}
 						>
 							<ChevronsLeft className='size-4' />
-						</Button>
+						</IconTooltipButton>
 					</PaginationItem>
 					{pageList.map((item, idx) =>
 						item === 'ellipsis' ? (
@@ -154,16 +153,14 @@ export function ReviewsPagination({
 						)
 					)}
 					<PaginationItem>
-						<Button
-							variant='ghost'
+						<IconTooltipButton
+							label='Ir para a última página'
 							size='icon'
-							className='rounded-full'
 							disabled={currentPage >= totalPages}
-							aria-label='Ir para a última página'
 							onClick={() => onPageChange(totalPages)}
 						>
 							<ChevronsRight className='size-4' />
-						</Button>
+						</IconTooltipButton>
 					</PaginationItem>
 				</PaginationContent>
 			</Pagination>

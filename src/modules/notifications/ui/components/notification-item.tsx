@@ -1,10 +1,9 @@
 'use client'
 
-import { format } from 'date-fns'
-import { pt } from 'date-fns/locale'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import type { Notification } from '@/types/notifications'
+import { formatLongPtDateTime } from '@/utils/format-date'
 import { NOTIFICATION_META } from '../../constants'
 import { NotificationAvatar } from './notification-avatar'
 
@@ -69,11 +68,7 @@ export function NotificationItem({
 						{meta.label}
 					</span>
 					<span className='text-[10px] text-muted-foreground/60'>
-						{format(
-							new Date(notification.createdAt),
-							"d MMM 'às' HH:mm",
-							{ locale: pt }
-						)}
+						{formatLongPtDateTime(notification.createdAt)}
 					</span>
 				</div>
 			</div>

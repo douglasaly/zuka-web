@@ -32,12 +32,12 @@ const variantConfig = {
 	logo: {
 		icon: Upload,
 		emptyTitle: 'Carregar logotipo',
-		emptyHint: 'Formatos: JPG, PNG · Máx. 5MB',
+		emptyHint: 'Formatos: JPG, PNG. Máx. 5MB',
 	},
 	banner: {
 		icon: Upload,
 		emptyTitle: 'Carregar imagem de capa',
-		emptyHint: 'Formatos: JPG, PNG · Máx. 5MB',
+		emptyHint: 'Formatos: JPG, PNG. Máx. 5MB',
 	},
 }
 

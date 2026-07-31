@@ -4,8 +4,14 @@ import { Heart, Menu, ShoppingBag } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Suspense } from 'react'
+import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { Button } from '@/components/ui/button'
 import { SidebarTrigger } from '@/components/ui/sidebar'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { UserAvatar } from '@/components/user-avatar'
 import { useUserProfile } from '@/hooks/use-user-profile'
 import { NotificationDropdown } from '@/modules/notifications/ui/components/notification-dropdown'
@@ -17,14 +23,9 @@ function NavbarOrdersLink() {
 	if (isLoading || !isAuthenticated) return null
 
 	return (
-		<Button
-			render={<Link href='/feed/pedidos' />}
-			variant='ghost'
-			size='icon-sm'
-			aria-label='Pedidos'
-		>
+		<IconTooltipButton label='Pedidos' href='/feed/pedidos'>
 			<ShoppingBag className='size-4' />
-		</Button>
+		</IconTooltipButton>
 	)
 }
 function NavbarAuth() {
@@ -89,22 +90,29 @@ export const HomeNavbar = () => {
 	const router = useRouter()
 
 	return (
-		<header className='sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl py-1.5'>
+		<header className='sticky top-0 z-50 border-b border-border/60 bg-background/95 py-1.5 backdrop-blur-xl supports-backdrop-filter:bg-background/80'>
 			<div className='mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 md:px-6'>
 				<div className='flex items-center gap-3 md:gap-4'>
-					<SidebarTrigger
-						nativeButton
-						className='md:hidden'
-						render={
-							<Button
-								variant='ghost'
-								size='icon-sm'
-								aria-label='Menu'
-							>
-								<Menu />
-							</Button>
-						}
-					/>
+					<Tooltip>
+						<TooltipTrigger
+							render={
+								<SidebarTrigger
+									nativeButton
+									className='md:hidden'
+									render={
+										<Button
+											variant='ghost'
+											size='icon-sm'
+											aria-label='Menu'
+										>
+											<Menu />
+										</Button>
+									}
+								/>
+							}
+						/>
+						<TooltipContent>Menu</TooltipContent>
+					</Tooltip>
 
 					<Link
 						prefetch
@@ -128,15 +136,12 @@ export const HomeNavbar = () => {
 					</div>
 
 					<div className='ml-auto flex items-center gap-1'>
-						<Button
-							variant='ghost'
-							size='icon-sm'
-							type='button'
-							aria-label='Favoritos'
+						<IconTooltipButton
+							label='Favoritos'
 							onClick={() => router.push('/perfil?tab=Guardados')}
 						>
 							<Heart className='size-4' />
-						</Button>
+						</IconTooltipButton>
 						<NotificationDropdown />
 						<NavbarOrdersLink />
 						<NavbarAuth />

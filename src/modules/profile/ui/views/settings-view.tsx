@@ -5,11 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from '@/components/ui/tooltip'
+import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { useUserProfile } from '@/hooks/use-user-profile'
 import {
 	MOCK_NOTIFICATIONS,
@@ -96,19 +92,9 @@ export const SettingsView = () => {
 	return (
 		<div className='mx-auto max-w-4xl space-y-8 px-4 py-8 md:py-12'>
 			<div className='flex gap-1 items-center'>
-				<Tooltip>
-					<TooltipTrigger
-						render={
-							<Button
-								variant='ghost'
-								onClick={() => router.back()}
-							>
-								<ArrowLeft className='size-4' />
-							</Button>
-						}
-					/>
-					<TooltipContent>Voltar</TooltipContent>
-				</Tooltip>
+				<IconTooltipButton label='Voltar' onClick={() => router.back()}>
+					<ArrowLeft className='size-4' />
+				</IconTooltipButton>
 
 				<h1 className='font-heading text-2xl font-bold md:text-3xl'>
 					Definições

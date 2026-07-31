@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import type { Address, CreateAddressInput } from '@/app/api/addresses/types'
+import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -32,11 +33,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from '@/components/ui/tooltip'
 
 const LABEL_ICONS: Record<string, typeof Home> = {
 	Casa: Home,
@@ -154,19 +150,9 @@ export const AddressesView = () => {
 		<div className='mx-auto max-w-2xl px-4 py-8 md:py-12'>
 			<div className='mb-8 flex items-center justify-between'>
 				<div className='flex items-center gap-2'>
-					<Tooltip>
-						<TooltipTrigger
-							render={
-								<Button
-									variant='ghost'
-									onClick={() => router.back()}
-								>
-									<ArrowLeft className='size-4' />
-								</Button>
-							}
-						/>
-						<TooltipContent>Voltar</TooltipContent>
-					</Tooltip>
+					<IconTooltipButton label='Voltar' onClick={() => router.back()}>
+						<ArrowLeft className='size-4' />
+					</IconTooltipButton>
 					<div>
 						<h1 className='font-heading text-2xl font-bold md:text-3xl'>
 							Endereços
@@ -257,32 +243,28 @@ export const AddressesView = () => {
 
 									<div className='flex shrink-0 items-center gap-1'>
 										{!address.isDefault && (
-											<Button
-												variant='ghost'
-												size='icon-sm'
+											<IconTooltipButton
+												label='Definir como padrão'
 												onClick={() =>
 													handleSetDefault(address.id)
 												}
-												title='Definir como padrão'
 											>
 												<MapPin className='size-4 text-muted-foreground' />
-											</Button>
+											</IconTooltipButton>
 										)}
-										<Button
-											variant='ghost'
-											size='icon-sm'
+										<IconTooltipButton
+											label='Remover'
 											onClick={() =>
 												handleDelete(address.id)
 											}
 											disabled={deleting === address.id}
-											title='Remover'
 										>
 											{deleting === address.id ? (
 												<Loader2 className='size-4 animate-spin text-destructive' />
 											) : (
 												<Trash2 className='size-4 text-destructive/70' />
 											)}
-										</Button>
+										</IconTooltipButton>
 									</div>
 								</CardContent>
 							</Card>

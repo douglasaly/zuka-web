@@ -1,4 +1,5 @@
 import type { OrderSummary, Product, StoreProfile } from '@/types/marketplace'
+import { formatLongPtDate } from '@/utils/format-date'
 
 type DbImage = {
 	url: string
@@ -156,11 +157,7 @@ export function mapOrderRow(order: {
 		storeName: order.stores?.name ?? 'Loja',
 		storeAvatar:
 			order.stores?.logo_url ?? sanitizeUrl(order.stores?.logo_url),
-		date: new Date(order.created_at).toLocaleDateString('pt-PT', {
-			day: 'numeric',
-			month: 'short',
-			year: 'numeric',
-		}),
+		date: formatLongPtDate(order.created_at),
 		itemCount: order.item_count,
 		total: order.total / 100,
 		currency: order.currency,

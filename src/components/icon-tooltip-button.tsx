@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import type { ComponentProps, ReactNode } from 'react'
+import type { ComponentProps, MouseEvent, ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import {
 	Tooltip,
@@ -13,14 +13,15 @@ import { cn } from '@/lib/utils'
 type IconTooltipButtonProps = {
 	label: string
 	children: ReactNode
-	onClick?: () => void
+	onClick?: (event: MouseEvent<HTMLButtonElement>) => void
 	href?: string
 	disabled?: boolean
 	type?: 'button' | 'submit'
 	variant?: ComponentProps<typeof Button>['variant']
-	size?: 'icon' | 'icon-sm'
+	size?: 'icon' | 'icon-sm' | 'icon-xs' | 'icon-lg'
 	className?: string
 	side?: 'top' | 'bottom' | 'left' | 'right'
+	'aria-pressed'?: boolean
 }
 
 /** Icon-only control with visible tooltip + aria-label. */
@@ -35,6 +36,7 @@ export function IconTooltipButton({
 	size = 'icon-sm',
 	className,
 	side = 'top',
+	'aria-pressed': ariaPressed,
 }: IconTooltipButtonProps) {
 	const button = (
 		<Button
@@ -43,6 +45,7 @@ export function IconTooltipButton({
 			size={size}
 			className={cn('rounded-full', className)}
 			aria-label={label}
+			aria-pressed={ariaPressed}
 			onClick={onClick}
 			disabled={disabled}
 			render={href ? <Link href={href} /> : undefined}

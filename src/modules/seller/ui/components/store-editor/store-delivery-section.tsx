@@ -9,7 +9,7 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { IconTooltipButton } from '../icon-tooltip-button'
+import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { StoreSection } from './store-section'
 import type { StoreFormState } from './types'
 

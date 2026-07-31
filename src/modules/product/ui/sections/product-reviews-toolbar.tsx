@@ -1,6 +1,7 @@
 'use client'
 
 import { Search, X } from 'lucide-react'
+import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import type { ProductReviewSort } from '../components/reviews/types'
@@ -42,14 +43,13 @@ export function ProductReviewsToolbar({
 					className='h-11 rounded-full pr-10 pl-9'
 				/>
 				{search ? (
-					<button
-						type='button'
-						aria-label='Limpar pesquisa'
-						className='absolute top-1/2 right-2 flex size-9 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring'
+					<IconTooltipButton
+						label='Limpar pesquisa'
+						className='absolute top-1/2 right-2 size-9 -translate-y-1/2 text-muted-foreground'
 						onClick={() => onSearchChange('')}
 					>
 						<X className='size-4' />
-					</button>
+					</IconTooltipButton>
 				) : null}
 			</div>
 

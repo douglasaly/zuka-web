@@ -28,7 +28,7 @@ import type { OrderStatus } from '@/lib/orders/status-transitions'
 import { cn } from '@/lib/utils'
 import { useSellerAccess } from '@/modules/seller/hooks/use-seller-access'
 import { formatPrice } from '@/utils/format-price'
-import { IconTooltipButton } from '../components/icon-tooltip-button'
+import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { useSetSellerPageMeta } from '../layouts/seller-page-meta'
 
 interface SellerOrderDetailViewProps {

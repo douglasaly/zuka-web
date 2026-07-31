@@ -11,12 +11,12 @@ interface HomeLayoutProps {
 
 export const HomeLayout = ({ children }: HomeLayoutProps) => {
 	return (
-		<div className='flex min-h-screen w-full overflow-x-hidden bg-background'>
+		<div className='flex min-h-screen w-full bg-background'>
 			<SidebarProvider defaultOpen>
 				<HomeSidebar />
 				<div className='flex min-h-screen min-w-0 flex-1 flex-col'>
 					<HomeNavbar />
-					<main id='main-content' className='flex-1 min-w-0'>
+					<main id='main-content' className='min-w-0 flex-1 overflow-x-hidden'>
 						{children}
 					</main>
 					<AppFooter />

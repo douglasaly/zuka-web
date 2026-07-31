@@ -3,8 +3,8 @@
 import { Heart, Store, Truck } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { useSavedItems } from '@/hooks/use-saved-items'
 import { PRODUCT_PLACEHOLDER } from '@/lib/api/marketplace'
@@ -86,20 +86,22 @@ export const ProductCard = ({
 					</Badge>
 				)}
 
-				<Button
+				<IconTooltipButton
+					label={
+						saved
+							? 'Remover dos favoritos'
+							: 'Adicionar aos favoritos'
+					}
 					variant='secondary'
-					size='icon-sm'
-					type='button'
+					disabled={isSaving}
 					onClick={(e) => {
 						e.stopPropagation()
 						handleSaveItem(product.id)
 					}}
-					disabled={isSaving}
 					className={cn(
-						'absolute right-2 top-2 size-8 rounded-full border border-border/50 bg-background/90 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100 hover:[&svg]:text-white',
+						'absolute right-2 top-2 size-8 border border-border/50 bg-background/90 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100 hover:[&svg]:text-white',
 						(saved || isHorizontal) && 'opacity-100'
 					)}
-					aria-label='Adicionar aos favoritos'
 				>
 					<Heart
 						className={cn(
@@ -107,7 +109,7 @@ export const ProductCard = ({
 							saved && 'size-4 fill-red-500 text-red-500'
 						)}
 					/>
-				</Button>
+				</IconTooltipButton>
 
 				{!isHorizontal && (
 					<Badge

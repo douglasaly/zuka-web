@@ -301,7 +301,7 @@ export async function PATCH(
 					user_id: buyerId,
 					type: 'review',
 					title: 'Como correu a sua compra?',
-					body: `O pedido #${shortId} da loja ${store.name} foi entregue. Avalie a loja e os produtos — a sua opinião ajuda outros compradores.`,
+					body: `O pedido #${shortId} da loja ${store.name} foi entregue. Avalie a loja e os produtos. A sua opinião ajuda outros compradores.`,
 					link: `/pedidos/${updated.id}`,
 					sender_store_id: store.id as string,
 				})

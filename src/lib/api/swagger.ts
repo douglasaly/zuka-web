@@ -119,21 +119,100 @@ const schemas = {
 			productCount: { type: 'integer' },
 		},
 	},
-	Order: {
+	BuyerOrderItem: {
 		type: 'object',
 		properties: {
-			id: { type: 'string' },
+			id: { type: 'string', format: 'uuid' },
+			productId: { type: 'string', format: 'uuid', nullable: true },
+			productName: { type: 'string' },
+			quantity: { type: 'integer' },
+			unitPrice: {
+				type: 'number',
+				description: 'Unit price in major currency units (MZN)',
+			},
+			currency: { type: 'string', example: 'MZN' },
+			imageUrl: { type: 'string', nullable: true },
+		},
+	},
+	BuyerOrderTimelineStep: {
+		type: 'object',
+		properties: {
+			status: { type: 'string' },
+			label: { type: 'string' },
+			at: { type: 'string', nullable: true },
+			state: {
+				type: 'string',
+				enum: ['done', 'current', 'upcoming'],
+			},
+		},
+	},
+	BuyerOrderProductReview: {
+		type: 'object',
+		properties: {
+			productId: { type: 'string', format: 'uuid' },
+			productName: { type: 'string' },
+			imageUrl: { type: 'string', nullable: true },
+			rating: { type: 'integer', minimum: 1, maximum: 5 },
+			body: { type: 'string', nullable: true },
+		},
+	},
+	BuyerOrderReview: {
+		type: 'object',
+		properties: {
+			id: { type: 'string', format: 'uuid' },
+			rating: { type: 'integer', minimum: 1, maximum: 5 },
+			body: { type: 'string', nullable: true },
+			createdAt: { type: 'string', format: 'date-time' },
+			storeReply: { type: 'string', nullable: true },
+			storeRepliedAt: {
+				type: 'string',
+				format: 'date-time',
+				nullable: true,
+			},
+			products: {
+				type: 'array',
+				items: { $ref: '#/components/schemas/BuyerOrderProductReview' },
+			},
+		},
+	},
+	Order: {
+		type: 'object',
+		description: 'Buyer-facing order summary (mapped from DB)',
+		properties: {
+			id: { type: 'string', format: 'uuid' },
+			shortId: { type: 'string', description: 'First 8 chars of id, uppercased' },
 			storeName: { type: 'string' },
 			storeAvatar: { type: 'string', nullable: true },
-			date: { type: 'string', format: 'date-time' },
+			storeSlug: { type: 'string', nullable: true },
+			date: {
+				type: 'string',
+				description: 'Human-readable PT date (e.g. "31 de julho de 2026")',
+			},
+			createdAt: { type: 'string', format: 'date-time' },
 			itemCount: { type: 'integer' },
-			total: { type: 'integer' },
-			currency: { type: 'string' },
+			total: {
+				type: 'number',
+				description: 'Total in major currency units (MZN)',
+			},
+			currency: { type: 'string', example: 'MZN' },
 			status: {
 				type: 'string',
 				enum: ['pending', 'shipping', 'completed', 'cancelled'],
+				description:
+					'Buyer UI status. PENDING and CONTACTED both map to pending.',
 			},
 			statusLabel: { type: 'string' },
+			reviewEligible: { type: 'boolean' },
+			conversationId: {
+				type: 'string',
+				format: 'uuid',
+				nullable: true,
+			},
+			itemsPreview: {
+				type: 'array',
+				description: 'Up to 3 line items for list cards',
+				items: { $ref: '#/components/schemas/BuyerOrderItem' },
+			},
 		},
 	},
 	SellerOrderListItem: {
@@ -2758,18 +2837,123 @@ const paths: Record<string, any> = {
 	'/api/orders': {
 		get: {
 			tags: ['Orders'],
-			summary: 'List user orders',
+			summary: 'List authenticated buyer orders',
+			description:
+				'Cursor-paginated list of orders for the logged-in buyer. Also returns status counts, distinct store names for filters, and up to 5 completed orders awaiting review.',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			parameters: [
+				{
+					name: 'status',
+					in: 'query',
+					required: false,
+					schema: {
+						type: 'string',
+						enum: [
+							'all',
+							'pending',
+							'shipping',
+							'completed',
+							'cancelled',
+						],
+						default: 'all',
+					},
+					description:
+						'Buyer UI status filter. pending includes PENDING and CONTACTED.',
+				},
+				{
+					name: 'period',
+					in: 'query',
+					required: false,
+					schema: {
+						type: 'string',
+						enum: ['all', '7', '30', '90'],
+						default: 'all',
+					},
+					description:
+						'Look-back window in days. "all" disables the date filter.',
+				},
+				{
+					name: 'store',
+					in: 'query',
+					required: false,
+					schema: { type: 'string' },
+					description:
+						'Exact store name filter. Omit or pass "all" for every store.',
+				},
+				{
+					name: 'cursor',
+					in: 'query',
+					required: false,
+					schema: { type: 'string' },
+					description:
+						'Cursor for next page (previous page last created_at ISO value)',
+				},
+				{
+					name: 'limit',
+					in: 'query',
+					required: false,
+					schema: {
+						type: 'integer',
+						minimum: 1,
+						maximum: 100,
+						default: 5,
+					},
+				},
+			],
 			responses: {
 				'200': {
-					description: 'Order list',
+					description: 'Cursor-paginated buyer order list',
 					content: {
 						'application/json': {
 							schema: {
 								type: 'object',
+								required: [
+									'success',
+									'data',
+									'pagination',
+									'counts',
+									'stores',
+									'pendingReviews',
+								],
 								properties: {
-									orders: {
+									success: {
+										type: 'boolean',
+										enum: [true],
+									},
+									data: {
 										type: 'array',
+										items: {
+											$ref: '#/components/schemas/Order',
+										},
+									},
+									pagination: {
+										$ref: '#/components/schemas/CursorPagination',
+									},
+									counts: {
+										type: 'object',
+										properties: {
+											all: { type: 'integer' },
+											pending: { type: 'integer' },
+											shipping: { type: 'integer' },
+											completed: { type: 'integer' },
+											cancelled: { type: 'integer' },
+											reviewEligible: {
+												type: 'integer',
+												description:
+													'COMPLETED orders with review_eligible=true',
+											},
+										},
+									},
+									stores: {
+										type: 'array',
+										items: { type: 'string' },
+										description:
+											'Distinct store names from the buyer orders (sorted pt)',
+									},
+									pendingReviews: {
+										type: 'array',
+										description:
+											'Up to 5 completed, review-eligible orders (newest completed first)',
 										items: {
 											$ref: '#/components/schemas/Order',
 										},
@@ -2779,51 +2963,77 @@ const paths: Record<string, any> = {
 						},
 					},
 				},
+				'401': { description: 'Unauthorized' },
+				'500': { description: 'Failed to load orders' },
 			},
 		},
 	},
 	'/api/orders/{id}': {
 		get: {
 			tags: ['Orders'],
-			summary: 'Get order details',
+			summary: 'Get buyer order details',
+			description:
+				'Returns mapped order summary, full line items, derived status timeline, notes, and existing store/product review when present. Ownership enforced against the authenticated buyer.',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'id',
 					in: 'path',
 					required: true,
-					schema: { type: 'string' },
+					schema: { type: 'string', format: 'uuid' },
 				},
 			],
 			responses: {
 				'200': {
-					description: 'Order with items',
+					description: 'Buyer order detail',
 					content: {
 						'application/json': {
 							schema: {
 								type: 'object',
+								required: [
+									'success',
+									'order',
+									'items',
+									'timeline',
+									'notes',
+									'review',
+									'storeSlug',
+								],
 								properties: {
-									success: { type: 'boolean', enum: [true] },
+									success: {
+										type: 'boolean',
+										enum: [true],
+									},
 									order: {
 										$ref: '#/components/schemas/Order',
-									},
-									storeSlug: {
-										type: 'string',
-										nullable: true,
 									},
 									items: {
 										type: 'array',
 										items: {
-											type: 'object',
-											properties: {
-												id: { type: 'string' },
-												quantity: { type: 'integer' },
-												unitPrice: { type: 'integer' },
-												currency: { type: 'string' },
-												productName: { type: 'string' },
-												productSlug: { type: 'string' },
-											},
+											$ref: '#/components/schemas/BuyerOrderItem',
 										},
+									},
+									timeline: {
+										type: 'array',
+										items: {
+											$ref: '#/components/schemas/BuyerOrderTimelineStep',
+										},
+									},
+									notes: {
+										type: 'string',
+										nullable: true,
+									},
+									review: {
+										nullable: true,
+										allOf: [
+											{
+												$ref: '#/components/schemas/BuyerOrderReview',
+											},
+										],
+									},
+									storeSlug: {
+										type: 'string',
+										nullable: true,
 									},
 								},
 							},
@@ -2832,6 +3042,105 @@ const paths: Record<string, any> = {
 				},
 				'401': { description: 'Unauthorized' },
 				'404': { description: 'Order not found' },
+				'500': { description: 'Failed to load order' },
+			},
+		},
+	},
+	'/api/orders/{id}/review': {
+		post: {
+			tags: ['Orders'],
+			summary: 'Submit store and product reviews for a completed order',
+			description:
+				'Creates a store-level review and nested product reviews for a COMPLETED, review-eligible order owned by the authenticated buyer. All order products must be rated. A DB trigger sets orders.review_eligible=false after insert.',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			parameters: [
+				{
+					name: 'id',
+					in: 'path',
+					required: true,
+					schema: { type: 'string', format: 'uuid' },
+					description: 'Order id',
+				},
+			],
+			requestBody: {
+				required: true,
+				content: {
+					'application/json': {
+						schema: {
+							type: 'object',
+							required: ['storeRating', 'products'],
+							properties: {
+								storeRating: {
+									type: 'integer',
+									minimum: 1,
+									maximum: 5,
+								},
+								storeBody: {
+									type: 'string',
+									nullable: true,
+									maxLength: 2000,
+								},
+								products: {
+									type: 'array',
+									minItems: 1,
+									items: {
+										type: 'object',
+										required: ['productId', 'rating'],
+										properties: {
+											productId: {
+												type: 'string',
+												format: 'uuid',
+											},
+											rating: {
+												type: 'integer',
+												minimum: 1,
+												maximum: 5,
+											},
+											body: {
+												type: 'string',
+												nullable: true,
+												maxLength: 2000,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			responses: {
+				'200': {
+					description: 'Review created',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								required: ['success', 'reviewId'],
+								properties: {
+									success: {
+										type: 'boolean',
+										enum: [true],
+									},
+									reviewId: {
+										type: 'string',
+										format: 'uuid',
+									},
+								},
+							},
+						},
+					},
+				},
+				'400': {
+					description:
+						'Invalid payload, order not completed, or missing product ratings',
+				},
+				'401': { description: 'Unauthorized' },
+				'404': { description: 'Order not found' },
+				'409': {
+					description: 'Order already reviewed / not review-eligible',
+				},
+				'500': { description: 'Failed to submit review' },
 			},
 		},
 	},

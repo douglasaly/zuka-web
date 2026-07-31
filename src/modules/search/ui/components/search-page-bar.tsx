@@ -3,6 +3,7 @@
 import { SearchIcon, SlidersHorizontal, XIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
@@ -50,27 +51,23 @@ export function SearchPageBar({
 			/>
 			<div className='absolute top-1/2 right-2 flex -translate-y-1/2 items-center gap-0.5'>
 				{value && (
-					<Button
-						type='button'
-						variant='ghost'
+					<IconTooltipButton
+						label='Limpar pesquisa'
 						size='icon-xs'
 						onClick={handleClear}
-						className='rounded-full text-muted-foreground'
-						aria-label='Limpar pesquisa'
+						className='text-muted-foreground'
 					>
 						<XIcon className='size-4' />
-					</Button>
+					</IconTooltipButton>
 				)}
-				<Button
-					type='button'
-					variant='ghost'
+				<IconTooltipButton
+					label='Filtros'
 					size='icon-xs'
 					onClick={onFilterClick}
-					className='rounded-full text-muted-foreground'
-					aria-label='Filtros'
+					className='text-muted-foreground'
 				>
 					<SlidersHorizontal className='size-4' />
-				</Button>
+				</IconTooltipButton>
 				<Button type='submit' size='sm' className='rounded-lg px-4'>
 					Buscar
 				</Button>

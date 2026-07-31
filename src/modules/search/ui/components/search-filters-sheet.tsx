@@ -38,6 +38,11 @@ import {
 } from '@/components/ui/sheet'
 import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { useMediaQuery } from '@/hooks/use-media-query'
 import { getCategories } from '@/lib/api/categories'
 import { getProvinces } from '@/lib/api/provinces'
@@ -56,6 +61,7 @@ type SearchFiltersSheetProps = {
 	onApply: (values: FilterValues) => void
 	onClear: () => void
 	trigger?: React.ReactElement
+	triggerLabel?: string
 }
 
 const SORT_OPTIONS = [
@@ -69,6 +75,7 @@ export function SearchFiltersSheet(props: SearchFiltersSheetProps) {
 	const [mounted, setMounted] = useState(false)
 	const isDesktop = useMediaQuery('(min-width: 768px)')
 	const [open, setOpen] = useState(false)
+	const triggerLabel = props.triggerLabel ?? 'Filtros'
 
 	useEffect(() => {
 		setMounted(true)
@@ -91,7 +98,12 @@ export function SearchFiltersSheet(props: SearchFiltersSheetProps) {
 	if (isDesktop) {
 		return (
 			<Dialog open={open} onOpenChange={setOpen}>
-				<DialogTrigger render={props.trigger} />
+				<Tooltip>
+					<TooltipTrigger
+						render={<DialogTrigger render={props.trigger} />}
+					/>
+					<TooltipContent side='bottom'>{triggerLabel}</TooltipContent>
+				</Tooltip>
 				<DialogContent className='sm:max-w-md'>
 					<DialogHeader>
 						<DialogTitle>Filtros</DialogTitle>
@@ -111,7 +123,12 @@ export function SearchFiltersSheet(props: SearchFiltersSheetProps) {
 
 	return (
 		<Sheet open={open} onOpenChange={setOpen}>
-			<SheetTrigger render={props.trigger} />
+			<Tooltip>
+				<TooltipTrigger
+					render={<SheetTrigger render={props.trigger} />}
+				/>
+				<TooltipContent side='bottom'>{triggerLabel}</TooltipContent>
+			</Tooltip>
 			<SheetContent side='bottom' className='rounded-t-2xl'>
 				<SheetHeader className='text-left'>
 					<SheetTitle>Filtros</SheetTitle>
@@ -268,7 +285,7 @@ function FiltersContent({
 						onChange={(e) => setMinPrice(e.target.value)}
 						min={0}
 					/>
-					<span className='text-muted-foreground'>—</span>
+					<span className='text-muted-foreground'>a</span>
 					<Input
 						type='number'
 						placeholder='Máx'

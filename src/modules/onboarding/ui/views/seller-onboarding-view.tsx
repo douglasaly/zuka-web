@@ -300,7 +300,7 @@ export const SellerOnboardingView = () => {
 									neighborhood: e.target.value,
 								}))
 							}
-							placeholder='Ex: Maputo · Baixa'
+							placeholder='Ex: Maputo, Baixa'
 							className={onboardingInputClass}
 						/>
 					</OnboardingField>

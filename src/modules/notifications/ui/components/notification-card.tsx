@@ -53,7 +53,7 @@ export const NotificationCard = ({
 								<span className='font-bold text-foreground'>
 									{sender.name}
 								</span>
-								{' — '}
+								{', '}
 							</>
 						)}
 						{notification.title}

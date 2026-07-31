@@ -64,7 +64,7 @@ export const HomeHeroSection = () => {
 							>
 								{!isLoading &&
 									(featured
-										? `Compre em ${featured.location} · ${featured.neighborhood}`
+										? `Compre em ${featured.location}, ${featured.neighborhood}`
 										: 'O marketplace local de Moçambique')}
 							</p>
 						</div>

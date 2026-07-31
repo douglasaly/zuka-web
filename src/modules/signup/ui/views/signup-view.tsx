@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
@@ -504,15 +505,13 @@ export function SignupView() {
 								className={cn(onboardingInputClass, 'pr-10')}
 								autoComplete='new-password'
 							/>
-							<button
-								type='button'
-								tabIndex={-1}
-								aria-label={
+							<IconTooltipButton
+								label={
 									showPassword
 										? 'Ocultar senha'
 										: 'Mostrar senha'
 								}
-								className='absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground'
+								className='absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground'
 								onClick={() => setShowPassword((v) => !v)}
 							>
 								{showPassword ? (
@@ -520,7 +519,7 @@ export function SignupView() {
 								) : (
 									<Eye className='size-4' />
 								)}
-							</button>
+							</IconTooltipButton>
 						</div>
 					</OnboardingField>
 				</OnboardingFormCard>
@@ -738,15 +737,13 @@ export function SignupView() {
 								className={cn(onboardingInputClass, 'pr-10')}
 								autoComplete='new-password'
 							/>
-							<button
-								type='button'
-								tabIndex={-1}
-								aria-label={
+							<IconTooltipButton
+								label={
 									showPassword
 										? 'Ocultar senha'
 										: 'Mostrar senha'
 								}
-								className='absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground'
+								className='absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground'
 								onClick={() => setShowPassword((v) => !v)}
 							>
 								{showPassword ? (
@@ -754,7 +751,7 @@ export function SignupView() {
 								) : (
 									<Eye className='size-4' />
 								)}
-							</button>
+							</IconTooltipButton>
 						</div>
 					</OnboardingField>
 

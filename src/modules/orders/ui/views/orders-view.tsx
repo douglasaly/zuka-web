@@ -1,155 +1,286 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
-import { ArrowRight, PackageOpen, XCircle } from 'lucide-react'
-import Image from 'next/image'
+import { PackageOpen, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
-import { OrderStatusBadge } from '@/components/order-status-badge'
-import { fetchOrders, STORE_PLACEHOLDER } from '@/lib/api/marketplace'
-import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
-import { cn } from '@/lib/utils'
-import type { OrderSummary } from '@/types/marketplace'
-import { formatPrice } from '@/utils/format-price'
+import { useMemo, useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { flattenPages, useInfiniteList } from '@/hooks/use-infinite-list'
+import type {
+	BuyerOrder,
+	PeriodFilter,
+	StatusFilter,
+} from '@/modules/orders/types'
+import { EmptyState } from '@/modules/profile/ui/components/empty-state'
+import { OrderCard } from '../components/order-card'
 import { OrderSkeleton } from '../components/order-skeleton'
+import { OrdersAside } from '../components/orders-aside'
+import { OrdersToolbar } from '../components/orders-toolbar'
 
-const tabs = [
-	{
-		value: 'active',
-		label: 'Ativos',
-		statuses: ['shipping', 'pending'] as const,
-	},
-	{
-		value: 'completed',
-		label: 'Concluídos',
-		statuses: ['completed'] as const,
-	},
-	{
-		value: 'cancelled',
-		label: 'Cancelados',
-		statuses: ['cancelled'] as const,
-	},
-]
+const PAGE_SIZE = 5
 
-function OrderCard({ order }: { order: OrderSummary }) {
-	return (
-		<div className='overflow-hidden rounded-2xl border border-border/60 bg-card'>
-			<div className='flex items-center gap-3 p-4'>
-				<div className='relative size-11 shrink-0 overflow-hidden rounded-full'>
-					<Image
-						src={order.storeAvatar ?? STORE_PLACEHOLDER}
-						alt={order.storeName}
-						fill
-						placeholder='blur'
-						blurDataURL={BLUR_PLACEHOLDER}
-						className='object-cover'
-					/>
-				</div>
-				<div className='min-w-0 flex-1'>
-					<p className='truncate font-semibold text-foreground'>
-						{order.storeName}
-					</p>
-					<p className='text-sm text-muted-foreground'>
-						{order.date} · {order.itemCount} ite
-						{order.itemCount !== 1 ? 'ns' : 'm'}
-					</p>
-				</div>
-				<OrderStatusBadge
-					status={order.status}
-					label={order.statusLabel}
-				/>
-			</div>
+type OrdersPage = {
+	success: boolean
+	data: BuyerOrder[]
+	pagination: {
+		hasMore: boolean
+		nextCursor: string | null
+		limit: number
+	}
+	counts?: Record<StatusFilter, number> & { reviewEligible?: number }
+	stores?: string[]
+	pendingReviews?: BuyerOrder[]
+}
 
-			<div className='flex items-center justify-between border-t border-border/60 px-4 py-3'>
-				<span className='font-bold text-foreground'>
-					{formatPrice(order.total, order.currency)}
-				</span>
-				<Link
-					href={`/feed/pedidos/${order.id}`}
-					className='flex items-center gap-1 text-sm font-medium text-secondary hover:underline'
-				>
-					Ver detalhes
-					<ArrowRight className='size-3.5' />
-				</Link>
-			</div>
-		</div>
-	)
+function matchesSearch(order: BuyerOrder, q: string) {
+	if (!q) return true
+	const haystack = [
+		order.shortId,
+		order.id,
+		order.storeName,
+		...order.itemsPreview.map((i) => i.productName),
+	]
+		.join(' ')
+		.toLowerCase()
+	return haystack.includes(q)
 }
 
 export const OrdersView = () => {
-	const [activeTab, setActiveTab] = useState('active')
+	const [search, setSearch] = useState('')
+	const [status, setStatus] = useState<StatusFilter>('all')
+	const [period, setPeriod] = useState<PeriodFilter>('all')
+	const [store, setStore] = useState('all')
 
-	const { data: orders = [], isLoading } = useQuery({
-		queryKey: ['orders'],
-		queryFn: fetchOrders,
-		retry: false,
+	const extraParams = useMemo(() => {
+		const params: Record<string, string> = {}
+		if (status !== 'all') params.status = status
+		if (period !== 'all') params.period = period
+		if (store !== 'all') params.store = store
+		return params
+	}, [status, period, store])
+
+	const {
+		data,
+		isLoading,
+		isError,
+		refetch,
+		isFetching,
+		fetchNextPage,
+		hasNextPage,
+		isFetchingNextPage,
+	} = useInfiniteList<BuyerOrder>({
+		queryKey: ['orders', status, period, store],
+		endpoint: '/api/orders',
+		limit: PAGE_SIZE,
+		extraParams,
 	})
 
-	const currentTab = tabs.find((t) => t.value === activeTab)!
-	const filtered = orders.filter((o) =>
-		(currentTab.statuses as readonly string[]).includes(o.status)
-	)
+	const pages = data as { pages: OrdersPage[] } | undefined
+	const orders = flattenPages<BuyerOrder>(pages)
+
+	const statusCounts = useMemo(() => {
+		const fromApi = pages?.pages[0]?.counts
+		if (fromApi) {
+			return {
+				all: fromApi.all,
+				pending: fromApi.pending,
+				shipping: fromApi.shipping,
+				completed: fromApi.completed,
+				cancelled: fromApi.cancelled,
+			} satisfies Record<StatusFilter, number>
+		}
+		return {
+			all: 0,
+			pending: 0,
+			shipping: 0,
+			completed: 0,
+			cancelled: 0,
+		} satisfies Record<StatusFilter, number>
+	}, [pages])
+
+	const pendingReviews = pages?.pages[0]?.pendingReviews ?? []
+	const pendingReviewCount =
+		pages?.pages[0]?.counts?.reviewEligible ?? pendingReviews.length
+	const recentOrder = orders[0] ?? pendingReviews[0] ?? null
+
+	const stores = useMemo(() => {
+		const fromApi = pages?.pages[0]?.stores
+		if (fromApi && fromApi.length > 0) return fromApi
+		return [
+			...new Set(orders.map((o) => o.storeName).filter(Boolean)),
+		].sort((a, b) => a.localeCompare(b, 'pt'))
+	}, [pages, orders])
+
+	const filtered = useMemo(() => {
+		const q = search.trim().toLowerCase()
+		return orders.filter((order) => matchesSearch(order, q))
+	}, [orders, search])
+
+	const hasFilters =
+		search.trim() !== '' ||
+		status !== 'all' ||
+		period !== 'all' ||
+		store !== 'all'
+
+	const clearFilters = () => {
+		setSearch('')
+		setStatus('all')
+		setPeriod('all')
+		setStore('all')
+	}
+
+	const isEmptyAll =
+		!isLoading &&
+		!isError &&
+		orders.length === 0 &&
+		status === 'all' &&
+		period === 'all' &&
+		store === 'all' &&
+		!search.trim()
+
+	const showAside = !isLoading && !isError
 
 	return (
-		<div className='mx-auto max-w-4xl px-4 py-6 md:px-6 md:py-8'>
-			<h1 className='mb-6 font-heading text-2xl font-bold tracking-tight md:text-3xl'>
-				Os meus pedidos
-			</h1>
+		<div className='mx-auto w-full max-w-7xl px-4 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] md:px-6 md:py-8'>
+			<header className='mb-5 sm:mb-6'>
+				<h1 className='font-heading text-2xl font-bold tracking-tight md:text-3xl'>
+					Meus pedidos
+				</h1>
+				<p className='mt-1 max-w-2xl text-sm text-muted-foreground'>
+					Acompanha o estado das tuas compras, fala com a loja e
+					avalia quando o pedido for entregue.
+				</p>
+			</header>
 
-			<div className='mb-6 flex gap-6 border-b border-border/60'>
-				{tabs.map((tab) => (
-					<button
-						key={tab.value}
-						type='button'
-						onClick={() => setActiveTab(tab.value)}
-						className={cn(
-							'pb-3 text-sm font-medium transition-colors',
-							activeTab === tab.value
-								? 'border-b-2 border-primary text-foreground'
-								: 'text-muted-foreground hover:text-foreground'
-						)}
-					>
-						{tab.label}
-					</button>
-				))}
+			<div className='mb-5 sm:mb-6'>
+				<OrdersToolbar
+					search={search}
+					onSearchChange={setSearch}
+					status={status}
+					onStatusChange={setStatus}
+					statusCounts={statusCounts}
+					showCounts={!isLoading && !isError && statusCounts.all > 0}
+					period={period}
+					onPeriodChange={setPeriod}
+					store={store}
+					onStoreChange={setStore}
+					stores={stores}
+				/>
 			</div>
 
-			<div className='space-y-3'>
-				{isLoading ? (
+			{isLoading ? (
+				<div aria-busy='true' aria-label='A carregar pedidos'>
 					<OrderSkeleton />
-				) : filtered.length === 0 ? (
-					<div className='flex flex-col items-center gap-4 rounded-2xl border border-dashed border-border/60 px-4 py-16 text-center'>
-						<div className='flex size-14 items-center justify-center rounded-full bg-muted'>
-							{activeTab === 'cancelled' ? (
-								<XCircle className='size-7 text-muted-foreground' />
-							) : (
-								<PackageOpen className='size-7 text-muted-foreground' />
-							)}
-						</div>
-						<div>
-							<p className='text-lg font-medium'>
-								Nenhum pedido{' '}
-								{activeTab === 'active'
-									? 'ativo'
-									: activeTab === 'completed'
-										? 'concluído'
-										: 'cancelado'}
-							</p>
-							<p className='mt-1 text-sm text-muted-foreground'>
-								{activeTab === 'active'
-									? 'Os seus pedidos em andamento aparecerão aqui.'
-									: activeTab === 'completed'
-										? 'Os pedidos concluídos aparecerão aqui.'
-										: 'Nenhum pedido foi cancelado.'}
-							</p>
-						</div>
+				</div>
+			) : isError ? (
+				<div className='flex flex-col items-center gap-4 rounded-2xl border border-border/70 bg-card py-12 text-center'>
+					<div className='flex size-12 items-center justify-center rounded-full bg-muted'>
+						<RefreshCw className='size-6 text-muted-foreground' />
 					</div>
-				) : (
-					filtered.map((order) => (
-						<OrderCard key={order.id} order={order} />
-					))
-				)}
-			</div>
+					<div>
+						<p className='text-sm font-medium'>
+							Não foi possível carregar os pedidos
+						</p>
+						<p className='mt-1 text-xs text-muted-foreground'>
+							Verifica a ligação e tenta outra vez.
+						</p>
+					</div>
+					<Button
+						variant='outline'
+						className='min-h-11 rounded-full'
+						disabled={isFetching}
+						onClick={() => refetch()}
+					>
+						{isFetching ? 'A tentar…' : 'Tentar novamente'}
+					</Button>
+				</div>
+			) : (
+				<div className='flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8'>
+					<div className='order-2 min-w-0 flex-1 lg:order-1'>
+						{isEmptyAll ? (
+							<EmptyState
+								icon={PackageOpen}
+								title='Ainda não fizeste nenhum pedido'
+								description='Explora produtos e contacta lojas para começar. Os teus pedidos aparecem aqui.'
+								className='py-16'
+								action={
+									<Button
+										className='min-h-11 rounded-full px-5'
+										render={
+											<Link href='/feed/explorar' />
+										}
+									>
+										Explorar produtos
+									</Button>
+								}
+							/>
+						) : filtered.length === 0 ? (
+							<EmptyState
+								icon={PackageOpen}
+								title='Nenhum pedido encontrado'
+								description='Ajusta a pesquisa ou os filtros para ver outros resultados.'
+								className='py-14'
+								action={
+									hasFilters ? (
+										<Button
+											variant='outline'
+											className='min-h-11 rounded-full'
+											onClick={clearFilters}
+										>
+											Limpar filtros
+										</Button>
+									) : null
+								}
+							/>
+						) : (
+							<div className='space-y-3'>
+								<p
+									className='text-sm text-muted-foreground'
+									aria-live='polite'
+								>
+									{filtered.length}{' '}
+									{filtered.length === 1
+										? 'pedido'
+										: 'pedidos'}
+								</p>
+								<ul className='grid gap-3'>
+									{filtered.map((order) => (
+										<li key={order.id}>
+											<OrderCard order={order} />
+										</li>
+									))}
+								</ul>
+
+								{hasNextPage ? (
+									<div className='flex justify-center pt-2'>
+										<Button
+											variant='ghost'
+											size='sm'
+											onClick={() => void fetchNextPage()}
+											disabled={isFetchingNextPage}
+											className='min-h-10 text-sm text-secondary hover:text-secondary/80'
+										>
+											{isFetchingNextPage
+												? 'A carregar pedidos...'
+												: 'Carregar mais pedidos'}
+										</Button>
+									</div>
+								) : null}
+							</div>
+						)}
+					</div>
+
+					{showAside ? (
+						<OrdersAside
+							className='order-1 lg:order-2'
+							pendingReviews={pendingReviews}
+							pendingReviewCount={pendingReviewCount}
+							recentOrder={recentOrder}
+							statusCounts={statusCounts}
+							onStatusChange={setStatus}
+						/>
+					) : null}
+				</div>
+			)}
 		</div>
 	)
 }
