@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server'
-import { requireSellerStore } from '@/lib/auth/seller'
+import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
 import {
 	canTransition,
 	ORDER_STATUS_LABELS,
@@ -173,8 +173,8 @@ export async function GET(
 	context: { params: Promise<{ id: string }> }
 ) {
 	try {
-		const auth = await requireSellerStore()
-		if ('error' in auth && auth.error) return auth.error
+		const auth = await requireSellerStore({ permission: 'order.read' })
+		if (isSellerStoreAuthError(auth)) return auth.error
 
 		const { store } = auth
 		const { id } = await context.params
@@ -205,8 +205,8 @@ export async function PATCH(
 	context: { params: Promise<{ id: string }> }
 ) {
 	try {
-		const auth = await requireSellerStore()
-		if ('error' in auth && auth.error) return auth.error
+		const auth = await requireSellerStore({ permission: 'order.update' })
+		if (isSellerStoreAuthError(auth)) return auth.error
 
 		const { user, store } = auth
 		const { id } = await context.params

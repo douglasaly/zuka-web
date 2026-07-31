@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server'
 import { uuidv7 } from 'uuidv7'
 import { mapSellerStoreDetail } from '@/app/api/seller/store/map-store'
-import { getUserRoles } from '@/lib/auth/roles'
-import { getSessionUser } from '@/lib/auth/session'
+import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
 import { isR2PublicUrl } from '@/lib/storage/r2'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import type { Database } from '@/lib/supabase/types'
@@ -16,17 +15,18 @@ const STORE_SELECT = `
 `
 
 type StoreStatus = Database['public']['Enums']['store_status']
+type StoreRow = NonNullable<
+	Awaited<ReturnType<typeof fetchStoreDetail>>['store']
+>
 
-async function resolveSellerStore(userId: string) {
+async function fetchStoreDetail(storeId: string) {
 	const supabase = createSupabaseAdmin()
 
 	const { data: store, error } = await supabase
 		.from('stores')
 		.select(STORE_SELECT)
-		.eq('owner_id', userId)
+		.eq('id', storeId)
 		.is('deleted_at', null)
-		.order('created_at', { ascending: true })
-		.limit(1)
 		.maybeSingle()
 
 	if (error) throw error
@@ -36,7 +36,7 @@ async function resolveSellerStore(userId: string) {
 async function loadStoreBundle(
 	supabase: ReturnType<typeof createSupabaseAdmin>,
 	storeId: string,
-	store: NonNullable<Awaited<ReturnType<typeof resolveSellerStore>>['store']>
+	store: StoreRow
 ) {
 	const [{ count }, { data: documents }] = await Promise.all([
 		supabase
@@ -59,17 +59,10 @@ async function loadStoreBundle(
 
 export async function GET() {
 	try {
-		const user = await getSessionUser()
-		if (!user) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-		}
+		const auth = await requireSellerStore({ permission: 'store.read' })
+		if (isSellerStoreAuthError(auth)) return auth.error
 
-		const roles = await getUserRoles(user.id as string)
-		if (!roles.includes('seller')) {
-			return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-		}
-
-		const { supabase, store } = await resolveSellerStore(user.id as string)
+		const { supabase, store } = await fetchStoreDetail(auth.store.id)
 		if (!store) {
 			return NextResponse.json(
 				{ error: 'Store not found' },
@@ -94,16 +87,10 @@ export async function GET() {
 
 export async function PATCH(request: Request) {
 	try {
-		const user = await getSessionUser()
-		if (!user) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-		}
+		const auth = await requireSellerStore({ permission: 'store.update' })
+		if (isSellerStoreAuthError(auth)) return auth.error
 
-		const roles = await getUserRoles(user.id as string)
-		if (!roles.includes('seller')) {
-			return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-		}
-
+		const user = auth.user
 		const body = await request.json()
 		const {
 			name,
@@ -124,7 +111,7 @@ export async function PATCH(request: Request) {
 			currentStep,
 		} = body
 
-		const { supabase, store } = await resolveSellerStore(user.id as string)
+		const { supabase, store } = await fetchStoreDetail(auth.store.id)
 		if (!store) {
 			return NextResponse.json(
 				{ error: 'Store not found' },
@@ -285,7 +272,7 @@ export async function PATCH(request: Request) {
 			}
 		}
 
-		const { store: refreshed } = await resolveSellerStore(user.id as string)
+		const { store: refreshed } = await fetchStoreDetail(auth.store.id)
 		if (!refreshed) {
 			return NextResponse.json(
 				{ error: 'Store not found' },

@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server'
-import { requireSellerStore } from '@/lib/auth/seller'
+import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 
 export async function POST(req: Request) {
 	try {
-		const auth = await requireSellerStore()
-		if ('error' in auth && auth.error) return auth.error
+		const auth = await requireSellerStore({ permission: 'product.update' })
+		if (isSellerStoreAuthError(auth)) return auth.error
 
 		const { store } = auth
 		const body = (await req.json()) as {

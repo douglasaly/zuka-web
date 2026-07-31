@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { requireSellerStore } from '@/lib/auth/seller'
+import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 
 /** Reviews tables exist after manual migration; generated Database types may lag. */
@@ -35,8 +35,8 @@ function distributionFromRatings(ratings: number[]): number[] {
 
 export async function GET(request: NextRequest) {
 	try {
-		const auth = await requireSellerStore()
-		if ('error' in auth && auth.error) return auth.error
+		const auth = await requireSellerStore({ permission: 'review.read' })
+		if (isSellerStoreAuthError(auth)) return auth.error
 		const { store } = auth
 
 		const { searchParams } = new URL(request.url)

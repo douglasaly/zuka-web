@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { uuidv7 } from 'uuidv7'
-import { requireSellerStore } from '@/lib/auth/seller'
+import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
 import { isR2PublicUrl } from '@/lib/storage/r2'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 
@@ -10,8 +10,8 @@ const VISIBLE_STATUSES = new Set(['ACTIVE'])
 
 export async function GET(_req: Request, { params }: Params) {
 	try {
-		const auth = await requireSellerStore()
-		if ('error' in auth && auth.error) return auth.error
+		const auth = await requireSellerStore({ permission: 'product.read' })
+		if (isSellerStoreAuthError(auth)) return auth.error
 
 		const { id } = await params
 		const { store } = auth
@@ -84,8 +84,8 @@ export async function GET(_req: Request, { params }: Params) {
 
 export async function PATCH(req: Request, { params }: Params) {
 	try {
-		const auth = await requireSellerStore()
-		if ('error' in auth && auth.error) return auth.error
+		const auth = await requireSellerStore({ permission: 'product.update' })
+		if (isSellerStoreAuthError(auth)) return auth.error
 
 		const { id } = await params
 		const { store } = auth
@@ -180,8 +180,8 @@ export async function PATCH(req: Request, { params }: Params) {
 
 export async function DELETE(_req: Request, { params }: Params) {
 	try {
-		const auth = await requireSellerStore()
-		if ('error' in auth && auth.error) return auth.error
+		const auth = await requireSellerStore({ permission: 'product.delete' })
+		if (isSellerStoreAuthError(auth)) return auth.error
 
 		const { id } = await params
 		const { store } = auth

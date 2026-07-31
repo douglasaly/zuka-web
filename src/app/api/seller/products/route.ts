@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server'
-import { requireSellerStore } from '@/lib/auth/seller'
+import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 
 const PER_PAGE_OPTIONS = [5, 10, 25, 50, 100] as const
@@ -16,8 +16,8 @@ function parsePerPage(raw: string | null): number {
 
 export async function GET(request: NextRequest) {
 	try {
-		const auth = await requireSellerStore()
-		if ('error' in auth && auth.error) return auth.error
+		const auth = await requireSellerStore({ permission: 'product.read' })
+		if (isSellerStoreAuthError(auth)) return auth.error
 
 		const { store } = auth
 		const supabase = createSupabaseAdmin()

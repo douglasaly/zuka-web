@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { uuidv7 } from 'uuidv7'
-import { requireSellerStore } from '@/lib/auth/seller'
+import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import type { Database } from '@/lib/supabase/types'
 import { Slug } from '@/utils/slug'
@@ -21,8 +21,8 @@ function mapCategory(row: Record<string, unknown>) {
 
 export async function GET() {
 	try {
-		const auth = await requireSellerStore()
-		if ('error' in auth && auth.error) return auth.error
+		const auth = await requireSellerStore({ permission: 'product.read' })
+		if (isSellerStoreAuthError(auth)) return auth.error
 
 		const supabase = createSupabaseAdmin()
 		const { data, error } = await supabase
@@ -53,8 +53,8 @@ export async function GET() {
 
 export async function POST(request: Request) {
 	try {
-		const auth = await requireSellerStore()
-		if ('error' in auth && auth.error) return auth.error
+		const auth = await requireSellerStore({ permission: 'product.update' })
+		if (isSellerStoreAuthError(auth)) return auth.error
 
 		const body = await request.json()
 		const name = typeof body.name === 'string' ? body.name.trim() : ''
@@ -139,8 +139,8 @@ export async function POST(request: Request) {
 
 export async function PATCH(request: Request) {
 	try {
-		const auth = await requireSellerStore()
-		if ('error' in auth && auth.error) return auth.error
+		const auth = await requireSellerStore({ permission: 'product.update' })
+		if (isSellerStoreAuthError(auth)) return auth.error
 
 		const body = await request.json()
 
@@ -216,8 +216,8 @@ export async function PATCH(request: Request) {
 
 export async function DELETE(request: Request) {
 	try {
-		const auth = await requireSellerStore()
-		if ('error' in auth && auth.error) return auth.error
+		const auth = await requireSellerStore({ permission: 'product.update' })
+		if (isSellerStoreAuthError(auth)) return auth.error
 
 		const body = await request.json()
 		const id = typeof body.id === 'string' ? body.id : ''

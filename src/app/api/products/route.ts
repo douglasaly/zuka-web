@@ -6,7 +6,7 @@ import {
 	ErrorCode,
 	withErrorHandling,
 } from '@/lib/api-response'
-import { requireSeller } from '@/lib/auth'
+import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
 import { isR2PublicUrl } from '@/lib/storage/r2'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import {
@@ -195,7 +195,8 @@ export const GET = withErrorHandling(async (request) => {
 // Criar produto (vendedor autenticado).
 
 export const POST = withErrorHandling(async (request) => {
-	const auth = await requireSeller()
+	const auth = await requireSellerStore({ permission: 'product.create' })
+	if (isSellerStoreAuthError(auth)) throw auth.error
 
 	const body = await request.json()
 	const parsed = CreateProductSchema.safeParse(body)

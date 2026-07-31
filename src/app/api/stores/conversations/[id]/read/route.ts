@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { requireSellerStore } from '@/lib/auth/seller'
+import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 
 interface Params {
@@ -10,8 +10,8 @@ export async function PATCH(_request: Request, { params }: Params) {
 	try {
 		const { id: conversationId } = await params
 
-		const auth = await requireSellerStore()
-		if ('error' in auth && auth.error) return auth.error
+		const auth = await requireSellerStore({ permission: 'message.read' })
+		if (isSellerStoreAuthError(auth)) return auth.error
 		const { store } = auth
 
 		const supabase = createSupabaseAdmin()

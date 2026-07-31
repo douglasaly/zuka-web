@@ -1,12 +1,12 @@
 import type { NextRequest } from 'next/server'
 import { apiCursorList, withErrorHandling } from '@/lib/api-response'
-import { requireSellerStore } from '@/lib/auth/seller'
+import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import { CursorPaginationSchema } from '@/lib/validations'
 
 export const GET = withErrorHandling(async (request: NextRequest) => {
-	const auth = await requireSellerStore()
-	if ('error' in auth && auth.error) return auth.error
+	const auth = await requireSellerStore({ permission: 'message.read' })
+	if (isSellerStoreAuthError(auth)) return auth.error
 	const { store } = auth
 
 	const { searchParams } = new URL(request.url)

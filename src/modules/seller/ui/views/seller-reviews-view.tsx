@@ -10,6 +10,7 @@
  */
 
 import { useSellerReviews } from '@/modules/seller/hooks/use-seller-reviews'
+import { useSellerAccess } from '@/modules/seller/hooks/use-seller-access'
 import { ReviewsSummary } from '@/modules/seller/ui/components/reviews/reviews-summary'
 import {
 	ProductReviewCard,
@@ -49,6 +50,9 @@ export const SellerReviewsView = () => {
 		refetch,
 		markReplied,
 	} = useSellerReviews()
+
+	const { can } = useSellerAccess()
+	const canReply = can('review.reply')
 
 	if (isLoading) return <ReviewsSkeleton />
 
@@ -92,6 +96,7 @@ export const SellerReviewsView = () => {
 									key={review.id}
 									review={review}
 									onReplied={markReplied}
+									canReply={canReply}
 								/>
 							))}
 						</div>

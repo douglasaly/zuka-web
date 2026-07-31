@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { requireSellerStore } from '@/lib/auth/seller'
+import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 
 function db(): SupabaseClient {
@@ -12,8 +12,8 @@ type Params = { params: Promise<{ id: string }> }
 export async function POST(request: NextRequest, { params }: Params) {
 	try {
 		const { id } = await params
-		const auth = await requireSellerStore()
-		if ('error' in auth && auth.error) return auth.error
+		const auth = await requireSellerStore({ permission: 'review.reply' })
+		if (isSellerStoreAuthError(auth)) return auth.error
 		const { store } = auth
 
 		const body = await request.json().catch(() => ({}))

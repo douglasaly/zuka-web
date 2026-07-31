@@ -80,7 +80,7 @@ _Expandir navegação e criar páginas._
 | `api/seller/products/bulk/route.ts` | API | `POST` bulk com acções `delete`/`activate`/`deactivate` (valida store_id) |
 | `api/seller/members/route.ts` | API | `GET` membros da loja (com join users), `POST` convite por userId ou email |
 | `layouts/seller-layout-client.tsx` | Componente Client | Injecta `useShortcuts` + `useNotificationPush` sem quebrar server component |
-| `views/seller-members-view.tsx` | View | Lista equipa (owner + staff), modal de convite por email com role picker |
+| `views/seller-members-view.tsx` | View | Lista Equipe (owner + staff), modal de convite por email com role picker |
 | `migrations/20250710090000_store_members.sql` | SQL | Nova tabela `store_members` com UNIQUE(store_id, user_id) |
 
 ---

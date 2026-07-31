@@ -124,7 +124,11 @@ type StoreReviewCardProps = {
 	onReplied: (reviewId: string, reply: string) => void
 }
 
-export function StoreReviewCard({ review, onReplied }: StoreReviewCardProps) {
+export function StoreReviewCard({
+	review,
+	onReplied,
+	canReply = true,
+}: StoreReviewCardProps & { canReply?: boolean }) {
 	const [replying, setReplying] = useState(false)
 
 	return (
@@ -210,7 +214,7 @@ export function StoreReviewCard({ review, onReplied }: StoreReviewCardProps) {
 						{review.storeReply}
 					</p>
 				</div>
-			) : replying ? (
+			) : canReply && replying ? (
 				<ReplyForm
 					reviewId={review.id}
 					onCancel={() => setReplying(false)}
@@ -219,7 +223,7 @@ export function StoreReviewCard({ review, onReplied }: StoreReviewCardProps) {
 						onReplied(review.id, reply)
 					}}
 				/>
-			) : (
+			) : canReply ? (
 				<Button
 					type='button'
 					variant='ghost'
@@ -229,7 +233,7 @@ export function StoreReviewCard({ review, onReplied }: StoreReviewCardProps) {
 				>
 					Responder ao cliente
 				</Button>
-			)}
+			) : null}
 		</article>
 	)
 }

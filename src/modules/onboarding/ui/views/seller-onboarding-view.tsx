@@ -589,7 +589,7 @@ export const SellerOnboardingView = () => {
 						A tua loja está em revisão!
 					</h1>
 					<p className='text-sm leading-relaxed text-muted-foreground sm:text-base'>
-						A nossa equipa vai verificar os teus dados. Vais receber
+						A nossa Equipe vai verificar os teus dados. Vais receber
 						uma notificação quando a tua conta for aprovada.
 					</p>
 				</div>

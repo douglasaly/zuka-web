@@ -542,14 +542,21 @@ const schemas = {
 	StoreMember: {
 		type: 'object',
 		properties: {
-			id: { type: 'string' },
-			role: { type: 'string' },
+			id: { type: 'string', format: 'uuid' },
+			role: {
+				type: 'string',
+				enum: ['owner', 'manager', 'staff', 'viewer'],
+			},
+			status: {
+				type: 'string',
+				enum: ['pending', 'active', 'removed'],
+			},
 			joinedAt: { type: 'string', nullable: true, format: 'date-time' },
 			invitedAt: { type: 'string', nullable: true, format: 'date-time' },
 			user: {
 				type: 'object',
 				properties: {
-					id: { type: 'string' },
+					id: { type: 'string', format: 'uuid' },
 					firstName: { type: 'string', nullable: true },
 					lastName: { type: 'string', nullable: true },
 					email: { type: 'string', nullable: true },
@@ -3948,6 +3955,8 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Seller'],
 			summary: 'List store members',
+			description:
+				'Lists active/pending members for the authenticated store. Requires member.read. Response includes me.canManage (member.manage) and roleCatalog from RBAC.',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			responses: {
 				'200': {
@@ -3956,11 +3965,49 @@ const paths: Record<string, any> = {
 						'application/json': {
 							schema: {
 								type: 'object',
+								required: ['members'],
 								properties: {
+									success: {
+										type: 'boolean',
+										enum: [true],
+									},
 									members: {
 										type: 'array',
 										items: {
 											$ref: '#/components/schemas/StoreMember',
+										},
+									},
+									me: {
+										type: 'object',
+										properties: {
+											userId: {
+												type: 'string',
+												format: 'uuid',
+												description:
+													'Current authenticated user id (for “Você” UI)',
+											},
+											memberRole: { type: 'string' },
+											rbacRole: { type: 'string' },
+											isOwner: { type: 'boolean' },
+											permissions: {
+												type: 'array',
+												items: { type: 'string' },
+											},
+											canManage: { type: 'boolean' },
+										},
+									},
+									roleCatalog: {
+										type: 'object',
+										additionalProperties: {
+											type: 'object',
+											properties: {
+												label: { type: 'string' },
+												summary: { type: 'string' },
+												permissions: {
+													type: 'array',
+													items: { type: 'string' },
+												},
+											},
 										},
 									},
 								},
@@ -3968,21 +4015,34 @@ const paths: Record<string, any> = {
 						},
 					},
 				},
+				'401': { description: 'Unauthorized' },
+				'403': { description: 'Missing member.read' },
+				'500': { description: 'Failed to load members' },
 			},
 		},
 		post: {
 			tags: ['Seller'],
 			summary: 'Invite a member to the store',
+			description:
+				'Requires member.manage. Adds an existing Zuka user by email or userId (roles: manager|staff|viewer → store_* via role_permissions). Soft-deleted memberships are revived. On success, inserts a system notification for the invitee (sender_store_id = store; link /dashboard/seller). Notification failures are logged and do not fail the invite.',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			requestBody: {
+				required: true,
 				content: {
 					'application/json': {
 						schema: {
 							type: 'object',
 							properties: {
-								userId: { type: 'string' },
-								email: { type: 'string' },
-								role: { type: 'string', default: 'staff' },
+								userId: {
+									type: 'string',
+									format: 'uuid',
+								},
+								email: { type: 'string', format: 'email' },
+								role: {
+									type: 'string',
+									enum: ['manager', 'staff', 'viewer'],
+									default: 'staff',
+								},
 							},
 						},
 					},
@@ -3990,13 +4050,22 @@ const paths: Record<string, any> = {
 			},
 			responses: {
 				'200': {
-					description: 'Member invited',
+					description:
+						'Member invited or revived; invitee notified (best-effort)',
 					content: {
 						'application/json': {
 							schema: {
 								type: 'object',
 								properties: {
-									success: { type: 'boolean', enum: [true] },
+									success: {
+										type: 'boolean',
+										enum: [true],
+									},
+									revived: {
+										type: 'boolean',
+										description:
+											'True when a soft-deleted membership was restored',
+									},
 								},
 							},
 						},
@@ -4004,8 +4073,154 @@ const paths: Record<string, any> = {
 				},
 				'400': { description: 'Validation error' },
 				'401': { description: 'Unauthorized' },
+				'403': { description: 'Missing member.manage' },
 				'404': { description: 'User not found' },
 				'409': { description: 'Already a member' },
+				'500': { description: 'Failed to invite' },
+			},
+		},
+	},
+	'/api/seller/access': {
+		get: {
+			tags: ['Seller'],
+			summary: 'Current store access and permissions',
+			description:
+				'Returns the caller store context, RBAC permissions (from role_permissions), and roleCatalog for UI gating.',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			responses: {
+				'200': {
+					description: 'Access payload',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: {
+										type: 'boolean',
+										enum: [true],
+									},
+									store: {
+										type: 'object',
+										properties: {
+											id: { type: 'string' },
+											name: { type: 'string' },
+											slug: { type: 'string' },
+										},
+									},
+									memberRole: { type: 'string' },
+									rbacRole: { type: 'string' },
+									isOwner: { type: 'boolean' },
+									permissions: {
+										type: 'array',
+										items: { type: 'string' },
+									},
+									roleCatalog: { type: 'object' },
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+				'403': { description: 'No store access' },
+			},
+		},
+	},
+	'/api/seller/members/{id}': {
+		patch: {
+			tags: ['Seller'],
+			summary: 'Update a store member role',
+			description:
+				'Requires member.manage. Cannot change the store owner. Role maps to store_* RBAC via role_permissions.',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			parameters: [
+				{
+					name: 'id',
+					in: 'path',
+					required: true,
+					schema: { type: 'string', format: 'uuid' },
+				},
+			],
+			requestBody: {
+				required: true,
+				content: {
+					'application/json': {
+						schema: {
+							type: 'object',
+							required: ['role'],
+							properties: {
+								role: {
+									type: 'string',
+									enum: ['manager', 'staff', 'viewer'],
+								},
+							},
+						},
+					},
+				},
+			},
+			responses: {
+				'200': {
+					description: 'Role updated',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: {
+										type: 'boolean',
+										enum: [true],
+									},
+									role: { type: 'string' },
+								},
+							},
+						},
+					},
+				},
+				'400': { description: 'Invalid role' },
+				'401': { description: 'Unauthorized' },
+				'403': {
+					description: 'Missing member.manage or cannot change owner',
+				},
+				'404': { description: 'Member not found' },
+				'500': { description: 'Failed to update role' },
+			},
+		},
+		delete: {
+			tags: ['Seller'],
+			summary: 'Remove a store member (soft delete)',
+			description:
+				'Requires member.manage. Soft-deletes the membership (status removed). Cannot remove the store owner.',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			parameters: [
+				{
+					name: 'id',
+					in: 'path',
+					required: true,
+					schema: { type: 'string', format: 'uuid' },
+				},
+			],
+			responses: {
+				'200': {
+					description: 'Member removed',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: {
+										type: 'boolean',
+										enum: [true],
+									},
+								},
+							},
+						},
+					},
+				},
+				'401': { description: 'Unauthorized' },
+				'403': {
+					description: 'Missing member.manage or cannot remove owner',
+				},
+				'404': { description: 'Member not found' },
+				'500': { description: 'Failed to remove member' },
 			},
 		},
 	},
