@@ -227,7 +227,9 @@ export async function fetchStoreBySlug(slug: string) {
 	}
 }
 
-export async function fetchOrders(): Promise<OrderSummary[]> {
+export async function fetchOrders(): Promise<
+	import('@/modules/orders/types').BuyerOrder[]
+> {
 	const res = await fetch('/api/orders', { credentials: 'include' })
 	if (res.status === 401) {
 		throw new Error('Unauthorized')
@@ -235,7 +237,7 @@ export async function fetchOrders(): Promise<OrderSummary[]> {
 	if (!res.ok) throw new Error('Failed to load orders')
 
 	const json = await res.json()
-	return (json.orders ?? []) as OrderSummary[]
+	return (json.orders ?? []) as import('@/modules/orders/types').BuyerOrder[]
 }
 
 export async function fetchOrder(id: string) {
@@ -244,17 +246,8 @@ export async function fetchOrder(id: string) {
 	if (!res.ok) throw new Error('Failed to load order')
 
 	const json = await res.json()
-	return json as {
-		order: OrderSummary
+	return json as import('@/modules/orders/types').BuyerOrderDetail & {
 		storeSlug: string | null
-		items: Array<{
-			id: string
-			quantity: number
-			unitPrice: number
-			currency: string
-			productName: string
-			productSlug: string | null
-		}>
 	}
 }
 

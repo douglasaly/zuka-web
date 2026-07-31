@@ -37,7 +37,7 @@ export const ExploreStoreCard = ({ store }: ExploreStoreCardProps) => (
 			</div>
 
 			<p className='mt-0.5 truncate text-sm text-muted-foreground'>
-				{store.location} · {store.neighborhood}
+				{store.location}, {store.neighborhood}
 			</p>
 
 			<div className='mt-1 flex items-center gap-2 text-xs text-muted-foreground'>

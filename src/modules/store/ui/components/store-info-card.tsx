@@ -43,7 +43,7 @@ export const StoreInfoCard = ({ store }: StoreInfoCardProps) => {
 
 					<p className='mt-0.5 flex items-center gap-1 text-sm text-muted-foreground'>
 						<MapPin className='size-3.5 shrink-0 text-secondary' />
-						{store.location} · {store.neighborhood}
+						{store.location}, {store.neighborhood}
 					</p>
 
 					<StoreStatsRow store={store} />

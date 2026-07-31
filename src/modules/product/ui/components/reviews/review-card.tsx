@@ -5,15 +5,12 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { STORE_PLACEHOLDER } from '@/lib/api/marketplace'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
+import { formatLongPtDate } from '@/utils/format-date'
 import { StarRating } from './star-rating'
 import type { ProductReviewsStore, PublicProductReview } from './types'
 
 function formatReviewDate(iso: string) {
-	return new Date(iso).toLocaleDateString('pt-PT', {
-		day: 'numeric',
-		month: 'short',
-		year: 'numeric',
-	})
+	return formatLongPtDate(iso)
 }
 
 function Initials({ name }: { name: string }) {
@@ -130,7 +127,7 @@ export function StoreReviewsRef({
 							<span>Nota da loja</span>
 							<StarRating rating={store.rating} size='sm' />
 							<span className='tabular-nums'>
-								{store.rating.toFixed(1)} ·{' '}
+								{store.rating.toFixed(1)},{' '}
 								{store.reviewCount === 1
 									? '1 avaliação'
 									: `${store.reviewCount} avaliações`}

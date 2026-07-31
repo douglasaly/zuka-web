@@ -285,7 +285,7 @@ function FiltersContent({
 						onChange={(e) => setMinPrice(e.target.value)}
 						min={0}
 					/>
-					<span className='text-muted-foreground'>—</span>
+					<span className='text-muted-foreground'>a</span>
 					<Input
 						type='number'
 						placeholder='Máx'

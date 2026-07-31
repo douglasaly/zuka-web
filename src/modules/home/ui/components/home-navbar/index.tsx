@@ -90,7 +90,7 @@ export const HomeNavbar = () => {
 	const router = useRouter()
 
 	return (
-		<header className='sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl py-1.5'>
+		<header className='sticky top-0 z-50 border-b border-border/60 bg-background/95 py-1.5 backdrop-blur-xl supports-backdrop-filter:bg-background/80'>
 			<div className='mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 md:px-6'>
 				<div className='flex items-center gap-3 md:gap-4'>
 					<Tooltip>

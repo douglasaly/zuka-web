@@ -5,6 +5,7 @@ import dayjs from 'dayjs'
 import 'dayjs/locale/pt'
 import { useEffect, useRef } from 'react'
 import type { ChatMessage } from '@/modules/messages/constants'
+import { formatLongPtDate } from '@/utils/format-date'
 import { ChatBubble } from './chat-bubble'
 
 dayjs.locale('pt')
@@ -21,7 +22,7 @@ function getDateLabel(date: dayjs.Dayjs): string {
 	if (date.isSame(today, 'day')) return 'Hoje'
 	if (date.isSame(today.subtract(1, 'day'), 'day')) return 'Ontem'
 
-	return date.format('DD MMMM YYYY')
+	return formatLongPtDate(date.toDate())
 }
 
 function groupMessagesByDate(messages: ChatMessage[]): DateGroup[] {

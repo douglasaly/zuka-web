@@ -63,7 +63,7 @@ export function ReviewsPagination({
 				className='text-sm tabular-nums text-muted-foreground'
 				aria-live='polite'
 			>
-				A mostrar {from}–{to} de {total}
+				A mostrar {from} a {to} de {total}
 			</p>
 
 			<div className='flex items-center justify-center gap-1.5 md:hidden'>

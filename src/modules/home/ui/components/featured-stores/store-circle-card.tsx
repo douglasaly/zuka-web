@@ -60,7 +60,7 @@ export const StoreCircleCard = ({
 				<p className='mt-0.5 flex items-center justify-center gap-0.5 text-[10px] text-muted-foreground sm:text-xs'>
 					<MapPin className='size-2.5 shrink-0' />
 					<span className='truncate'>
-						{store.location} · {store.neighborhood}
+						{store.location}, {store.neighborhood}
 					</span>
 				</p>
 			</div>
