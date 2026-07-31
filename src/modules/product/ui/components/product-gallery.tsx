@@ -4,6 +4,7 @@ import { ArrowLeft, Heart, Share2 } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { Button } from '@/components/ui/button'
 import {
 	Carousel,
@@ -76,29 +77,25 @@ export const ProductGallery = ({
 				</Carousel>
 
 				<div className='absolute left-4 right-4 top-4 flex items-center justify-between'>
-					<Button
+					<IconTooltipButton
+						label='Voltar'
 						variant='secondary'
-						size='icon-sm'
-						type='button'
-						aria-label='Voltar'
 						onClick={() => router.back()}
-						className='group rounded-full border border-border/60 bg-background/90 backdrop-blur-sm'
+						className='group border border-border/60 bg-background/90 backdrop-blur-sm'
 					>
 						<ArrowLeft className='size-4 text-black group-hover:[&svg]:text-white' />
-					</Button>
+					</IconTooltipButton>
 					<div className='flex gap-2'>
-						<Button
-							variant='secondary'
-							size='icon-sm'
-							type='button'
-							aria-label={
+						<IconTooltipButton
+							label={
 								isSaved
 									? 'Remover dos guardados'
 									: 'Guardar produto'
 							}
+							variant='secondary'
 							disabled={isPending}
 							onClick={onToggleSave}
-							className='group rounded-full border border-border/60 bg-background/90 backdrop-blur-sm'
+							className='group border border-border/60 bg-background/90 backdrop-blur-sm'
 						>
 							<Heart
 								className={cn(
@@ -108,17 +105,15 @@ export const ProductGallery = ({
 										: 'text-black'
 								)}
 							/>
-						</Button>
-						<Button
+						</IconTooltipButton>
+						<IconTooltipButton
+							label='Partilhar produto'
 							variant='secondary'
-							size='icon-sm'
-							type='button'
-							aria-label='Partilhar produto'
 							onClick={onShare}
-							className='group rounded-full border border-border/60 bg-background/90 backdrop-blur-sm'
+							className='group border border-border/60 bg-background/90 backdrop-blur-sm'
 						>
 							<Share2 className='size-4 text-black group-hover:[&svg]:text-white' />
-						</Button>
+						</IconTooltipButton>
 					</div>
 				</div>
 

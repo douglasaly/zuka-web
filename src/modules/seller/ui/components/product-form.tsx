@@ -33,7 +33,7 @@ import { cn } from '@/lib/utils'
 import { useSellerAccess } from '@/modules/seller/hooks/use-seller-access'
 import { formatPrice } from '@/utils/format-price'
 import { useSetSellerPageMeta } from '../layouts/seller-page-meta'
-import { IconTooltipButton } from './icon-tooltip-button'
+import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import {
 	PRODUCT_STATUS_LABELS,
 	PRODUCT_STATUS_STYLES,

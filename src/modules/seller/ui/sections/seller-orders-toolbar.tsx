@@ -9,7 +9,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
-import { IconTooltipButton } from '../components/icon-tooltip-button'
+import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import {
 	DATE_OPTIONS,
 	PER_PAGE_OPTIONS,

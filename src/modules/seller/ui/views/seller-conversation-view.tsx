@@ -28,7 +28,7 @@ import { flattenPages, useInfiniteList } from '@/hooks/use-infinite-list'
 import { cn } from '@/lib/utils'
 import { LoadMoreMessages } from '@/modules/messages/ui/components/load-more-messages'
 import { formatTime } from '@/utils/format-time'
-import { IconTooltipButton } from '../components/icon-tooltip-button'
+import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import {
 	type SellerConversation,
 	SellerInboxRow,

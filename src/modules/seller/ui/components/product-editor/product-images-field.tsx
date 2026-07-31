@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 import { uploadImageToR2 } from '@/lib/api/uploads'
 import { cn } from '@/lib/utils'
-import { IconTooltipButton } from '../icon-tooltip-button'
+import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { MAX_PRODUCT_IMAGES } from './constants'
 
 type ProductImagesFieldProps = {

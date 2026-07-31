@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { ArrowLeft, Bell, CheckCheck } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
+import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { Button } from '@/components/ui/button'
 import { useNotifications } from '@/hooks/use-notifications'
 import { getNotifications } from '@/lib/api/notifications'
@@ -56,9 +57,12 @@ export function NotificationsView() {
 			{/* HEADER */}
 			<div className='mb-8 flex items-start justify-between gap-4'>
 				<div className='flex gap-1 items-start'>
-					<Button variant='ghost' onClick={() => router.back()}>
+					<IconTooltipButton
+						label='Voltar'
+						onClick={() => router.back()}
+					>
 						<ArrowLeft className='size-4' />
-					</Button>
+					</IconTooltipButton>
 
 					<div>
 						<h1 className='font-heading text-2xl font-bold md:text-3xl'>

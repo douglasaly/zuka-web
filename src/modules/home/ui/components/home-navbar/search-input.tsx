@@ -3,13 +3,14 @@
 import { SearchIcon, SlidersHorizontal, XIcon } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
+import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import {
-	SearchFiltersSheet,
-	type FilterValues,
-} from '@/modules/search/ui/components/search-filters-sheet'
 import { cn } from '@/lib/utils'
+import {
+	type FilterValues,
+	SearchFiltersSheet,
+} from '@/modules/search/ui/components/search-filters-sheet'
 
 export const SearchInput = () => {
 	const searchParams = useSearchParams()
@@ -93,16 +94,14 @@ export const SearchInput = () => {
 			/>
 			<div className='absolute top-1/2 right-1.5 flex -translate-y-1/2 items-center gap-0.5'>
 				{value && (
-					<Button
-						type='button'
-						variant='ghost'
+					<IconTooltipButton
+						label='Limpar pesquisa'
 						size='icon-xs'
 						onClick={() => setValue('')}
-						className='rounded-full text-muted-foreground'
-						aria-label='Limpar pesquisa'
+						className='text-muted-foreground'
 					>
 						<XIcon className='size-3.5' />
-					</Button>
+					</IconTooltipButton>
 				)}
 				<SearchFiltersSheet
 					values={filterValues}

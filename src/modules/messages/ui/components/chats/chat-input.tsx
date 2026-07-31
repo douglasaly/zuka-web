@@ -2,7 +2,7 @@
 
 import { Send } from 'lucide-react'
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { Input } from '@/components/ui/input'
 
 type ChatInputProps = {
@@ -34,13 +34,16 @@ export const ChatInput = ({ onSend }: ChatInputProps) => {
 					className='h-12 flex-1 bg-gray-200 placeholder:text-sm placeholder:text-muted-foreground'
 					placeholder='Escreva uma mensagem...'
 				/>
-				<Button
+				<IconTooltipButton
 					type='submit'
-					className='h-12 w-12'
+					label='Enviar'
+					size='icon-lg'
+					variant='default'
 					disabled={!value.trim()}
+					className='h-12 w-12 rounded-md'
 				>
 					<Send className='size-5' />
-				</Button>
+				</IconTooltipButton>
 			</div>
 		</form>
 	)

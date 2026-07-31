@@ -9,6 +9,7 @@ import { ArrowLeft, Eye, EyeOff, KeyRound, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { Button } from '@/components/ui/button'
 import {
 	Card,
@@ -20,11 +21,6 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from '@/components/ui/tooltip'
 import { auth } from '@/lib/firebase/firebase-client'
 
 export const ChangePasswordView = () => {
@@ -108,19 +104,9 @@ export const ChangePasswordView = () => {
 	return (
 		<div className='mx-auto max-w-2xl px-4 py-8 md:py-12'>
 			<div className='mb-8 flex items-center gap-2'>
-				<Tooltip>
-					<TooltipTrigger
-						render={
-							<Button
-								variant='ghost'
-								onClick={() => router.back()}
-							>
-								<ArrowLeft className='size-4' />
-							</Button>
-						}
-					/>
-					<TooltipContent>Voltar</TooltipContent>
-				</Tooltip>
+				<IconTooltipButton label='Voltar' onClick={() => router.back()}>
+					<ArrowLeft className='size-4' />
+				</IconTooltipButton>
 				<div>
 					<h1 className='font-heading text-2xl font-bold md:text-3xl'>
 						Alterar palavra-passe
@@ -162,30 +148,21 @@ export const ChangePasswordView = () => {
 									autoComplete='current-password'
 									required
 								/>
-								<Tooltip>
-									<TooltipTrigger
-										render={
-											<Button
-												type='button'
-												variant='ghost'
-												size='icon-sm'
-												className='absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground'
-												onClick={() =>
-													setShowCurrent(!showCurrent)
-												}
-											>
-												{showCurrent ? (
-													<EyeOff className='size-4' />
-												) : (
-													<Eye className='size-4' />
-												)}
-											</Button>
-										}
-									/>
-									<TooltipContent>
-										{showCurrent ? 'Esconder' : 'Mostrar'}
-									</TooltipContent>
-								</Tooltip>
+								<IconTooltipButton
+									label={
+										showCurrent ? 'Esconder' : 'Mostrar'
+									}
+									className='absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground'
+									onClick={() =>
+										setShowCurrent(!showCurrent)
+									}
+								>
+									{showCurrent ? (
+										<EyeOff className='size-4' />
+									) : (
+										<Eye className='size-4' />
+									)}
+								</IconTooltipButton>
 							</div>
 						</div>
 
@@ -206,30 +183,17 @@ export const ChangePasswordView = () => {
 									minLength={6}
 									required
 								/>
-								<Tooltip>
-									<TooltipTrigger
-										render={
-											<Button
-												type='button'
-												variant='ghost'
-												size='icon-sm'
-												className='absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground'
-												onClick={() =>
-													setShowNew(!showNew)
-												}
-											>
-												{showNew ? (
-													<EyeOff className='size-4' />
-												) : (
-													<Eye className='size-4' />
-												)}
-											</Button>
-										}
-									/>
-									<TooltipContent>
-										{showNew ? 'Esconder' : 'Mostrar'}
-									</TooltipContent>
-								</Tooltip>
+								<IconTooltipButton
+									label={showNew ? 'Esconder' : 'Mostrar'}
+									className='absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground'
+									onClick={() => setShowNew(!showNew)}
+								>
+									{showNew ? (
+										<EyeOff className='size-4' />
+									) : (
+										<Eye className='size-4' />
+									)}
+								</IconTooltipButton>
 							</div>
 						</div>
 

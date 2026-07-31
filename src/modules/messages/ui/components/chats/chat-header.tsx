@@ -1,11 +1,11 @@
 'use client'
 
 import { ArrowLeft } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { StoreAvatar } from '@/components/store-avatar'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { IconTooltipButton } from '@/components/icon-tooltip-button'
+import { StoreAvatar } from '@/components/store-avatar'
+import { Separator } from '@/components/ui/separator'
 
 type ChatHeaderProps = {
 	storeName: string
@@ -24,15 +24,14 @@ export const ChatHeader = ({
 
 	return (
 		<div className='fixed left-0 right-0 top-0 z-50 flex items-center gap-2 border bg-white p-4 pt-6 md:left-72 md:right-8'>
-			<Button
-				className='hover:bg-secondary/40'
-				variant='ghost'
+			<IconTooltipButton
+				label='Voltar'
 				size='icon'
-				aria-label='Voltar'
+				className='hover:bg-secondary/40'
 				onClick={() => router.back()}
 			>
 				<ArrowLeft className='size-5' />
-			</Button>
+			</IconTooltipButton>
 
 			<Separator orientation='vertical' className='h-10 self-center' />
 

@@ -3,7 +3,7 @@
 import { ArrowLeft, Expand, Heart, Share2 } from 'lucide-react'
 import Image from 'next/image'
 import { useCallback, useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { STORE_PLACEHOLDER } from '@/lib/api/marketplace'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 import { cn } from '@/lib/utils'
@@ -43,40 +43,34 @@ export const StoreHero = ({
 				/>
 				<div className='pointer-events-none absolute inset-0 bg-black/20' />
 
-				<Button
+				<IconTooltipButton
+					label='Ver banner em tamanho real'
 					variant='secondary'
-					size='icon-sm'
-					type='button'
-					aria-label='Ver banner em tamanho real'
 					onClick={() => setLightboxOpen(true)}
-					className='absolute bottom-18 md:bottom-3 right-3 z-20 rounded-full border border-border/60 bg-background/90 backdrop-blur-sm group'
+					className='absolute bottom-18 md:bottom-3 right-3 z-20 border border-border/60 bg-background/90 backdrop-blur-sm group'
 				>
 					<Expand className='size-4 text-black group-hover:[&svg]:text-white' />
-				</Button>
+				</IconTooltipButton>
 
 				<div className='absolute left-4 right-4 top-4 flex items-center justify-between'>
-					<Button
+					<IconTooltipButton
+						label='Voltar'
 						variant='secondary'
-						size='icon-sm'
-						type='button'
-						aria-label='Voltar'
 						onClick={onBack}
-						className='group rounded-full border border-border/60 bg-background/90 backdrop-blur-sm'
+						className='group border border-border/60 bg-background/90 backdrop-blur-sm'
 					>
 						<ArrowLeft className='size-4 text-black group-hover:[&svg]:text-white' />
-					</Button>
+					</IconTooltipButton>
 					<div className='flex gap-2'>
-						<Button
-							variant='secondary'
-							size='icon-sm'
-							type='button'
-							aria-label={
+						<IconTooltipButton
+							label={
 								isSaved
 									? 'Remover dos guardados'
-									: 'Guardar produto'
+									: 'Guardar loja'
 							}
+							variant='secondary'
 							onClick={onToggleSave}
-							className='group rounded-full border border-border/60 bg-background/90 backdrop-blur-sm'
+							className='group border border-border/60 bg-background/90 backdrop-blur-sm'
 						>
 							<Heart
 								className={cn(
@@ -86,17 +80,15 @@ export const StoreHero = ({
 										: 'text-black'
 								)}
 							/>
-						</Button>
-						<Button
+						</IconTooltipButton>
+						<IconTooltipButton
+							label='Partilhar loja'
 							variant='secondary'
-							size='icon-sm'
-							type='button'
-							aria-label='Partilhar produto'
 							onClick={onShare}
-							className='group rounded-full border border-border/60 bg-background/90 backdrop-blur-sm'
+							className='group border border-border/60 bg-background/90 backdrop-blur-sm'
 						>
 							<Share2 className='size-4 text-black group-hover:[&svg]:text-white' />
-						</Button>
+						</IconTooltipButton>
 					</div>
 				</div>
 			</div>

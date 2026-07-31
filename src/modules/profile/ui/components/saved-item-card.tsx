@@ -3,8 +3,8 @@
 import { Heart } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { StoreAvatar } from '@/components/store-avatar'
-import { Button } from '@/components/ui/button'
 import { PRODUCT_PLACEHOLDER, STORE_PLACEHOLDER } from '@/lib/api/marketplace'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 import type { SavedItem } from '@/types/saved-items'
@@ -27,19 +27,18 @@ export const SavedItemCard = ({
 				isRemoving ? 'pointer-events-none scale-95 opacity-0' : ''
 			}`}
 		>
-			<Button
-				variant='ghost'
+			<IconTooltipButton
+				label='Remover dos guardados'
 				size='icon'
 				onClick={(e) => {
 					e.stopPropagation()
 					e.preventDefault()
 					onRemove(item.id)
 				}}
-				aria-label='Remover dos guardados'
-				className='absolute right-2 top-2 z-10 size-7 rounded-full bg-white/90 shadow-sm backdrop-blur-sm hover:bg-white'
+				className='absolute right-2 top-2 z-10 size-7 bg-white/90 shadow-sm backdrop-blur-sm hover:bg-white'
 			>
 				<Heart className='size-4 fill-red-500 text-red-500' />
-			</Button>
+			</IconTooltipButton>
 
 			<div className='block relative group'>
 				<Link

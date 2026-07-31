@@ -3,7 +3,7 @@
 import { ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import type { ReactNode } from 'react'
-import { Button } from '@/components/ui/button'
+import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { cn } from '@/lib/utils'
 import { OnboardingProgress } from './onboarding-progress'
 
@@ -51,16 +51,13 @@ export function OnboardingShell({
 			<div className='mx-auto flex w-full flex-1 flex-col px-4 py-8 sm:px-6 sm:py-10'>
 				<div className={cn('mx-auto w-full', maxWidthClass[maxWidth])}>
 					<div className='mb-8 flex items-center justify-between'>
-						<Button
-							type='button'
-							variant='ghost'
+						<IconTooltipButton
+							label='Voltar'
 							size='icon'
 							onClick={handleBack}
-							className='rounded-full'
-							aria-label='Voltar'
 						>
 							<ArrowLeft className='size-5' />
-						</Button>
+						</IconTooltipButton>
 
 						{currentStep != null && (
 							<OnboardingProgress
