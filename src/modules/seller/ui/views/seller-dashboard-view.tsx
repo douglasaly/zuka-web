@@ -7,6 +7,7 @@ import type { UserProfile } from '@/types/marketplace'
 import { OrderStatusBadge } from '@/components/order-status-badge'
 import { formatPrice } from '@/utils/format-price'
 import { Package } from 'lucide-react'
+import { useUserProfile } from '@/hooks/use-user-profile'
 import { SellerEmptyState } from '../components/seller-empty-state'
 import { QuickActions } from '../components/seller-quick-actions'
 import { SellerStatsGrid } from '../components/seller-stats-grid'
@@ -50,11 +51,13 @@ type DashboardOrder = {
 
 export const SellerDashboardView = () => {
 	const [tab, setTab] = useState('Produtos')
+	const { profile: sessionProfile } = useUserProfile()
+	const userKey = sessionProfile?.id ?? 'anon'
 
 	const { data: profile, isLoading: isLoadingProfile } = useQuery<{
 		profile: UserProfile
 	}>({
-		queryKey: ['profile'],
+		queryKey: ['profile', userKey],
 		queryFn: () => fetch('/api/me/profile').then((r) => r.json()),
 		staleTime: 5 * 60 * 1000,
 	})
@@ -62,14 +65,14 @@ export const SellerDashboardView = () => {
 	const { data: statsResponse, isLoading: isLoadingStats } = useQuery<{
 		data: StatsData
 	}>({
-		queryKey: ['seller-stats'],
+		queryKey: ['seller-stats', userKey],
 		queryFn: () => fetch('/api/seller/stats').then((r) => r.json()),
 	})
 
 	const { data: productsData, isLoading: isLoadingProducts } = useQuery<{
 		products: ApiProduct[]
 	}>({
-		queryKey: ['seller-dashboard-products'],
+		queryKey: ['seller-dashboard-products', userKey],
 		queryFn: () =>
 			fetch('/api/seller/products?limit=20').then((r) => r.json()),
 	})
@@ -77,7 +80,7 @@ export const SellerDashboardView = () => {
 	const { data: ordersData, isLoading: isLoadingOrders } = useQuery<{
 		orders: DashboardOrder[]
 	}>({
-		queryKey: ['seller-dashboard-orders'],
+		queryKey: ['seller-dashboard-orders', userKey],
 		queryFn: () =>
 			fetch('/api/seller/orders?limit=5').then((r) => r.json()),
 	})

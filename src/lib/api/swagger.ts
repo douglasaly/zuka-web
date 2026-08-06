@@ -660,8 +660,16 @@ const schemas = {
 	UnreadCounts: {
 		type: 'object',
 		properties: {
-			pendingOrders: { type: 'integer' },
-			unreadMessages: { type: 'integer' },
+			pendingOrders: {
+				type: 'integer',
+				description:
+					'Number of store orders with status PENDING or CONTACTED (soft-deleted excluded)',
+			},
+			unreadMessages: {
+				type: 'integer',
+				description:
+					'Number of store conversations with unread buyer messages',
+			},
 		},
 	},
 	SellerStoreDocument: {
@@ -4592,6 +4600,8 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Seller'],
 			summary: 'Get unread counts for sidebar badges',
+			description:
+				'Returns `pendingOrders` (orders in PENDING or CONTACTED for the current store) and `unreadMessages` (store conversations with unread buyer messages, based on the store owner `last_read_at`). Returns zeros when the user has no store access.',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			responses: {
 				'200': {

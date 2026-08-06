@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { flattenPages, useInfiniteList } from '@/hooks/use-infinite-list'
+import { useUserProfile } from '@/hooks/use-user-profile'
 import type {
 	BuyerOrder,
 	PeriodFilter,
@@ -45,6 +46,7 @@ function matchesSearch(order: BuyerOrder, q: string) {
 }
 
 export const OrdersView = () => {
+	const { profile, isAuthenticated } = useUserProfile()
 	const [search, setSearch] = useState('')
 	const [status, setStatus] = useState<StatusFilter>('all')
 	const [period, setPeriod] = useState<PeriodFilter>('all')
@@ -68,10 +70,11 @@ export const OrdersView = () => {
 		hasNextPage,
 		isFetchingNextPage,
 	} = useInfiniteList<BuyerOrder>({
-		queryKey: ['orders', status, period, store],
+		queryKey: ['orders', profile?.id ?? 'anon', status, period, store],
 		endpoint: '/api/orders',
 		limit: PAGE_SIZE,
 		extraParams,
+		enabled: isAuthenticated,
 	})
 
 	const pages = data as { pages: OrdersPage[] } | undefined

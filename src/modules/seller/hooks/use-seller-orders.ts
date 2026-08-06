@@ -104,7 +104,9 @@ export function useSellerOrders() {
 		useQuery<OrdersResponse>({
 			queryKey: ['seller-orders', apiParams],
 			queryFn: async () => {
-				const res = await fetch(`/api/seller/orders?${apiParams}`)
+				const res = await fetch(`/api/seller/orders?${apiParams}`, {
+					credentials: 'include',
+				})
 				if (!res.ok) throw new Error('Failed to load orders')
 				return res.json()
 			},
@@ -188,9 +190,17 @@ export function useSellerOrders() {
 			queryClient.invalidateQueries({
 				queryKey: ['seller-order', action.orderId],
 			})
-			queryClient.invalidateQueries({ queryKey: ['seller-unread'] })
+			queryClient.invalidateQueries({ queryKey: ['unread-counts'] })
+			queryClient.invalidateQueries({
+				queryKey: ['seller-dashboard-orders'],
+			})
 		},
 	})
+
+	// Keep sidebar pending badge in sync while the seller reviews orders
+	useEffect(() => {
+		void queryClient.invalidateQueries({ queryKey: ['unread-counts'] })
+	}, [queryClient])
 
 	const orders = data?.orders ?? []
 	const total = data?.total ?? 0

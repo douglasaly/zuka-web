@@ -70,7 +70,9 @@ export const SellerSummaryTab = () => {
 	const { data: ordersData } = useQuery<{ orders: DashboardOrder[] }>({
 		queryKey: ['seller-dashboard-orders'],
 		queryFn: () =>
-			fetch('/api/seller/orders?limit=5').then((r) => r.json()),
+			fetch('/api/seller/orders?limit=5', {
+				credentials: 'include',
+			}).then((r) => r.json()),
 	})
 
 	const dailySales = dailyData?.data ?? []

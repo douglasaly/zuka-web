@@ -149,6 +149,10 @@ export const SellerOrderDetailView = ({ id }: SellerOrderDetailViewProps) => {
 			setPending(null)
 			queryClient.invalidateQueries({ queryKey: ['seller-order', id] })
 			queryClient.invalidateQueries({ queryKey: ['seller-orders'] })
+			queryClient.invalidateQueries({ queryKey: ['unread-counts'] })
+			queryClient.invalidateQueries({
+				queryKey: ['seller-dashboard-orders'],
+			})
 		},
 		onError: (error: Error, nextStatus) => {
 			toast.error(error.message, {
