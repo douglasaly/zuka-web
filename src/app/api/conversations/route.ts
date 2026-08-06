@@ -149,7 +149,7 @@ export const GET = withErrorHandling(async (request) => {
 })
 
 // ─── POST /api/conversations ─────────────────────────────
-// Criar ou reutilizar conversa com uma loja.
+// Criar ou reutilizar conversa com uma loja (1 conversa por buyer+loja).
 
 export const POST = withErrorHandling(async (request) => {
 	const auth = await requireAuth()
@@ -191,39 +191,73 @@ export const POST = withErrorHandling(async (request) => {
 		)
 	}
 
-	// Verificar conversa existente
-	const { data: userParticipations } = await supabase
-		.from('conversation_participants')
-		.select('conversation_id')
-		.eq('user_id', auth.user.id)
+	// Uma conversa por buyer + loja: reutilizar a mais recente (activa ou soft-deleted)
+	const { data: existingRows, error: existingError } = await supabase
+		.from('conversations')
+		.select(
+			`
+			id,
+			deleted_at,
+			conversation_participants!inner ( user_id )
+		`
+		)
+		.eq('store_id', storeId)
+		.eq('conversation_participants.user_id', auth.user.id)
+		.order('deleted_at', { ascending: true, nullsFirst: true })
+		.order('last_message_at', { ascending: false, nullsFirst: false })
+		.order('created_at', { ascending: false })
+		.limit(1)
 
-	const userConvIds = (userParticipations ?? []).map((p) => p.conversation_id)
+	if (existingError) throw existingError
 
-	let conversationId: string | null = null
+	const existing = existingRows?.[0] ?? null
+	let conversationId: string
+	let created = false
 
-	if (userConvIds.length > 0) {
-		const { data: shared } = await supabase
-			.from('conversation_participants')
-			.select('conversation_id')
-			.eq('user_id', storeOwnerId)
-			.in('conversation_id', userConvIds)
-			.limit(1)
+	if (existing) {
+		conversationId = existing.id as string
 
-		if (shared?.[0]?.conversation_id) {
-			const { data: conv } = await supabase
-				.from('conversations')
-				.select('id')
-				.eq('id', shared[0].conversation_id)
-				.is('deleted_at', null)
-				.single()
-
-			if (conv) conversationId = conv.id
+		const updates: {
+			product_id: string
+			deleted_at?: null
+			updated_at: string
+		} = {
+			product_id: productId,
+			updated_at: new Date().toISOString(),
 		}
-	}
 
-	// Criar nova conversa se não existe
-	if (!conversationId) {
+		// Reabrir conversa soft-deleted em vez de criar outra
+		if (existing.deleted_at) {
+			updates.deleted_at = null
+		}
+
+		const { error: reviveError } = await supabase
+			.from('conversations')
+			.update(updates)
+			.eq('id', conversationId)
+
+		if (reviveError) throw reviveError
+
+		// Garantir que o dono da loja continua como participante
+		const { data: ownerPart } = await supabase
+			.from('conversation_participants')
+			.select('user_id')
+			.eq('conversation_id', conversationId)
+			.eq('user_id', storeOwnerId)
+			.maybeSingle()
+
+		if (!ownerPart) {
+			const { error: ownerPartError } = await supabase
+				.from('conversation_participants')
+				.insert({
+					conversation_id: conversationId,
+					user_id: storeOwnerId,
+				})
+			if (ownerPartError) throw ownerPartError
+		}
+	} else {
 		conversationId = uuidv7()
+		created = true
 
 		const { error: convError } = await supabase
 			.from('conversations')
@@ -267,5 +301,5 @@ export const POST = withErrorHandling(async (request) => {
 			.eq('id', conversationId)
 	}
 
-	return apiSuccess({ conversationId }, 201)
+	return apiSuccess({ conversationId }, created ? 201 : 200)
 })

@@ -2532,7 +2532,7 @@ const paths: Record<string, any> = {
 			tags: ['Conversations'],
 			summary: 'Create or reuse a buyer conversation with a store',
 			description:
-				'Creates (or reuses) a conversation between the current user and a store for a product. Forbidden when the product belongs to a store the user owns or manages — use the seller dashboard instead.',
+				'Opens the existing conversation between the current user and the product\'s store (one thread per buyer+store). Creates a new conversation only if none exists. Soft-deleted threads are revived. Updates `product_id` to the product that triggered the open. Forbidden when the product belongs to a store the user owns or manages.',
 			security: [{ CookieAuth: [] }],
 			requestBody: {
 				content: {
@@ -2553,8 +2553,27 @@ const paths: Record<string, any> = {
 				},
 			},
 			responses: {
+				'200': {
+					description: 'Existing conversation reused (and optionally revived)',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									data: {
+										type: 'object',
+										properties: {
+											conversationId: { type: 'string' },
+										},
+									},
+								},
+							},
+						},
+					},
+				},
 				'201': {
-					description: 'Conversation created or reused',
+					description: 'New conversation created',
 					content: {
 						'application/json': {
 							schema: {
