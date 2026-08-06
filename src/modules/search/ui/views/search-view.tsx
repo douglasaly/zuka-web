@@ -2,7 +2,7 @@
 
 import { ChevronRight, SearchIcon, SlidersHorizontal, Tag } from 'lucide-react'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { ProductCard } from '@/components/product-card'
 import { Button } from '@/components/ui/button'
 import { ExploreStoreCard } from '@/modules/explore/ui/components/explore-store-card'
@@ -15,6 +15,7 @@ import {
 import { SearchSkeleton } from '../components/search-skeleton'
 
 export function SearchView() {
+	const router = useRouter()
 	const searchParams = useSearchParams()
 
 	const q = searchParams.get('q') ?? ''
@@ -25,7 +26,7 @@ export function SearchView() {
 	const isNew = searchParams.get('recente') ?? ''
 	const sort = searchParams.get('ordenar') ?? 'relevance'
 
-	const { data, isLoading } = useSearch({
+	const { data, isSearching } = useSearch({
 		query: q,
 		category,
 		province,
@@ -35,9 +36,16 @@ export function SearchView() {
 		sort,
 	})
 
-	const hasQuery = !!q
-	const noDataYet = hasQuery && !data
-	const showSkeleton = isLoading || noDataYet
+	const hasQuery = !!q.trim()
+	const hasFilters = Boolean(
+		(category && category !== 'all') ||
+			(province && province !== 'all') ||
+			minPrice ||
+			maxPrice ||
+			isNew === 'true'
+	)
+	const hasSearchIntent = hasQuery || hasFilters
+	const showSkeleton = hasSearchIntent && isSearching
 
 	const hasResults =
 		(data?.products?.length ?? 0) > 0 ||
@@ -48,6 +56,11 @@ export function SearchView() {
 		(data?.products?.length ?? 0) +
 		(data?.stores?.length ?? 0) +
 		(data?.categories?.length ?? 0)
+
+	const navigate = (params: URLSearchParams) => {
+		const qs = params.toString()
+		router.replace(qs ? `/pesquisa?${qs}` : '/pesquisa', { scroll: false })
+	}
 
 	const handleApplyFilters = (values: FilterValues) => {
 		const params = new URLSearchParams()
@@ -61,13 +74,13 @@ export function SearchView() {
 		if (values.isNew === 'true') params.set('recente', 'true')
 		if (values.sort && values.sort !== 'relevance')
 			params.set('ordenar', values.sort)
-		window.history.pushState(null, '', `/pesquisa?${params.toString()}`)
+		navigate(params)
 	}
 
 	const handleClearFilters = () => {
 		const params = new URLSearchParams()
 		if (q) params.set('q', q)
-		window.history.pushState(null, '', `/pesquisa?${params.toString()}`)
+		navigate(params)
 	}
 
 	const filterValues: FilterValues = {
@@ -79,9 +92,19 @@ export function SearchView() {
 		sort,
 	}
 
+	const resultLabel = hasQuery ? (
+		<>
+			{totalResults} resultado{totalResults !== 1 ? 's' : ''} para{' '}
+			<span className='font-medium text-foreground'>"{q}"</span>
+		</>
+	) : (
+		<>
+			{totalResults} resultado{totalResults !== 1 ? 's' : ''}
+		</>
+	)
+
 	return (
 		<div className='mx-auto max-w-6xl px-4 py-6 md:px-6 md:py-8'>
-			{/* Filter button (search input is in the navbar) */}
 			<div className='mb-6 flex items-center justify-end'>
 				<SearchFiltersSheet
 					values={filterValues}
@@ -102,7 +125,7 @@ export function SearchView() {
 
 			{showSkeleton && <SearchSkeleton />}
 
-			{!showSkeleton && !q && (
+			{!showSkeleton && !hasSearchIntent && (
 				<div className='flex flex-col items-center justify-center gap-3 py-20'>
 					<SearchIcon className='size-12 text-muted-foreground/40' />
 					<p className='text-muted-foreground'>
@@ -111,20 +134,14 @@ export function SearchView() {
 				</div>
 			)}
 
-			{!showSkeleton && q && !hasResults && <SearchEmpty query={q} />}
+			{!showSkeleton && hasSearchIntent && !hasResults && (
+				<SearchEmpty query={q || 'estes filtros'} />
+			)}
 
 			{!showSkeleton && hasResults && (
 				<div className='space-y-8'>
-					{/* Result count */}
-					<p className='text-sm text-muted-foreground'>
-						{totalResults} resultado{totalResults !== 1 ? 's' : ''}{' '}
-						para{' '}
-						<span className='font-medium text-foreground'>
-							"{q}"
-						</span>
-					</p>
+					<p className='text-sm text-muted-foreground'>{resultLabel}</p>
 
-					{/* Products */}
 					{(data?.products?.length ?? 0) > 0 && (
 						<section>
 							<div className='mb-3 flex items-center justify-between'>
@@ -132,7 +149,11 @@ export function SearchView() {
 									Produtos
 								</h2>
 								<Link
-									href={`/feed/explorar?search=${encodeURIComponent(q)}`}
+									href={
+										q
+											? `/feed/explorar?q=${encodeURIComponent(q)}${category ? `&categoria=${encodeURIComponent(category)}` : ''}`
+											: `/feed/explorar${category ? `?categoria=${encodeURIComponent(category)}` : ''}`
+									}
 									className='flex items-center gap-1 text-sm text-secondary hover:underline'
 								>
 									Ver todos{' '}
@@ -150,13 +171,12 @@ export function SearchView() {
 						</section>
 					)}
 
-					{/* Stores */}
 					{(data?.stores?.length ?? 0) > 0 && (
 						<section>
 							<div className='mb-3 flex items-center justify-between'>
 								<h2 className='text-lg font-semibold'>Lojas</h2>
 								<Link
-									href={`/feed/explorar?tab=stores&search=${encodeURIComponent(q)}`}
+									href={`/feed/explorar?tab=stores&q=${encodeURIComponent(q)}`}
 									className='flex items-center gap-1 text-sm text-secondary hover:underline'
 								>
 									Ver todas{' '}
@@ -174,7 +194,6 @@ export function SearchView() {
 						</section>
 					)}
 
-					{/* Categories */}
 					{(data?.categories?.length ?? 0) > 0 && (
 						<section>
 							<div className='mb-3 flex items-center justify-between'>

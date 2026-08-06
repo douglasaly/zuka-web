@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { Product } from '@/lib/api/Product'
+import { resolveCategoryIds } from '@/lib/categories/resolve-category-ids'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import type { StoreProfile } from '@/types/marketplace'
 
@@ -25,7 +26,7 @@ export type SearchResults = {
 export async function GET(req: Request) {
 	try {
 		const { searchParams } = new URL(req.url)
-		const q = searchParams.get('q')?.trim()
+		const q = searchParams.get('q')?.trim() ?? ''
 		const categorySlug = searchParams.get('categoria')
 		const provinceSlug = searchParams.get('provincia')
 		const minPrice = searchParams.get('preco_min')
@@ -36,25 +37,32 @@ export async function GET(req: Request) {
 		const normalizedMinPrice = minPrice ? Number(minPrice) * 100 : undefined
 		const normalizedMaxPrice = maxPrice ? Number(maxPrice) * 100 : undefined
 
-		if (!q) {
+		const hasTextQuery = q.length > 0
+		const hasCategory =
+			Boolean(categorySlug) && categorySlug !== 'all'
+		const hasProvince =
+			Boolean(provinceSlug) && provinceSlug !== 'all'
+		const hasOtherFilters = Boolean(
+			minPrice || maxPrice || isNew === 'true'
+		)
+
+		// Need a text query and/or at least one browse filter
+		if (!hasTextQuery && !hasCategory && !hasProvince && !hasOtherFilters) {
 			return NextResponse.json({
 				products: [],
 				stores: [],
 				categories: [],
-			})
+			} satisfies SearchResults)
 		}
 
 		const supabase = createSupabaseAdmin()
-		const term = `%${q}%`
-		const [catLookup, provLookup] = await Promise.all([
-			categorySlug && categorySlug !== 'all'
-				? supabase
-						.from('categories')
-						.select('id')
-						.eq('slug', categorySlug)
-						.maybeSingle()
-				: Promise.resolve({ data: null }),
-			provinceSlug && provinceSlug !== 'all'
+		const term = hasTextQuery ? `%${q}%` : null
+
+		const [categoryIds, provLookup] = await Promise.all([
+			hasCategory && categorySlug
+				? resolveCategoryIds(supabase, categorySlug)
+				: Promise.resolve([] as string[]),
+			hasProvince && provinceSlug
 				? supabase
 						.from('provinces')
 						.select('id')
@@ -63,8 +71,7 @@ export async function GET(req: Request) {
 				: Promise.resolve({ data: null }),
 		])
 
-		const categoryId = catLookup?.data?.id
-		const provinceId = provLookup?.data?.id
+		const provinceId = provLookup?.data?.id as string | undefined
 
 		let productQuery = supabase
 			.from('products')
@@ -79,19 +86,26 @@ export async function GET(req: Request) {
 			.is('deleted_at', null)
 			.eq('stores.status', 'ACTIVE')
 			.is('stores.deleted_at', null)
-			.ilike('name', term)
 
-		if (categoryId)
-			productQuery = productQuery.eq('category_id', categoryId)
+		if (term) {
+			productQuery = productQuery.ilike('name', term)
+		}
 
-		if (provinceId)
+		if (categoryIds.length > 0) {
+			productQuery = productQuery.in('category_id', categoryIds)
+		}
+
+		if (provinceId) {
 			productQuery = productQuery.eq('stores.province_id', provinceId)
+		}
 
-		if (minPrice)
+		if (minPrice && normalizedMinPrice != null) {
 			productQuery = productQuery.gte('price', normalizedMinPrice)
+		}
 
-		if (maxPrice)
+		if (maxPrice && normalizedMaxPrice != null) {
 			productQuery = productQuery.lte('price', normalizedMaxPrice)
+		}
 
 		if (isNew === 'true') {
 			const fourteenDaysAgo = new Date(
@@ -100,36 +114,51 @@ export async function GET(req: Request) {
 			productQuery = productQuery.gte('created_at', fourteenDaysAgo)
 		}
 
-		if (sort === 'price_asc')
+		if (sort === 'price_asc') {
 			productQuery = productQuery.order('price', { ascending: true })
-		else if (sort === 'price_desc')
+		} else if (sort === 'price_desc') {
 			productQuery = productQuery.order('price', { ascending: false })
-		else if (sort === 'newest')
+		} else if (sort === 'newest') {
 			productQuery = productQuery.order('created_at', {
 				ascending: false,
 			})
+		} else {
+			productQuery = productQuery.order('created_at', {
+				ascending: false,
+			})
+		}
+
+		const storePromise = term
+			? supabase
+					.from('stores')
+					.select(
+						`
+						id, name, slug, logo_url, state,
+						provinces ( name )
+					`
+					)
+					.is('deleted_at', null)
+					.eq('status', 'ACTIVE')
+					.ilike('name', term)
+					.limit(4)
+			: Promise.resolve({ data: [] as unknown[] })
+
+		const categoryPromise = term
+			? supabase
+					.from('categories')
+					.select('id, name, slug')
+					.is('deleted_at', null)
+					.ilike('name', term)
+					.limit(4)
+			: Promise.resolve({ data: [] as unknown[] })
 
 		const [productRes, storeRes, categoryRes] = await Promise.all([
 			productQuery.limit(6),
-			supabase
-				.from('stores')
-				.select(
-					`
-					id, name, slug, logo_url, state,
-					provinces ( name )
-				`
-				)
-				.is('deleted_at', null)
-				.eq('status', 'ACTIVE')
-				.ilike('name', term)
-				.limit(4),
-			supabase
-				.from('categories')
-				.select('id, name, slug')
-				.is('deleted_at', null)
-				.ilike('name', term)
-				.limit(4),
+			storePromise,
+			categoryPromise,
 		])
+
+		if (productRes.error) throw productRes.error
 
 		const products: SearchProduct[] = (productRes.data ?? []).map(
 			(p: any) => ({
@@ -148,33 +177,35 @@ export async function GET(req: Request) {
 			})
 		)
 
-		const stores: SearchStore[] = (storeRes.data ?? []).map((s: any) => ({
-			id: s.id,
-			name: s.name,
-			slug: s.slug,
-			location: s.provinces?.name ?? '',
-			neighborhood: s.state ?? '',
-			verified: false,
-			rating: 0,
-			reviewCount: 0,
-			followers: 0,
-			productCount: 0,
-			bannerUrl: null,
-			logoUrl: s.logo_url,
-			whatsapp: null,
-			phone: null,
-			about: '',
-			email: null,
-			status: null,
-		}))
-
-		const categories: SearchCategory[] = (categoryRes.data ?? []).map(
-			(c: any) => ({
-				id: c.id,
-				name: c.name,
-				slug: c.slug,
+		const stores: SearchStore[] = ((storeRes.data ?? []) as any[]).map(
+			(s) => ({
+				id: s.id,
+				name: s.name,
+				slug: s.slug,
+				location: s.provinces?.name ?? '',
+				neighborhood: s.state ?? '',
+				verified: false,
+				rating: 0,
+				reviewCount: 0,
+				followers: 0,
+				productCount: 0,
+				bannerUrl: null,
+				logoUrl: s.logo_url,
+				whatsapp: null,
+				phone: null,
+				about: '',
+				email: null,
+				status: null,
 			})
 		)
+
+		const categories: SearchCategory[] = (
+			(categoryRes.data ?? []) as any[]
+		).map((c) => ({
+			id: c.id,
+			name: c.name,
+			slug: c.slug,
+		}))
 
 		return NextResponse.json({ products, stores, categories })
 	} catch (err) {

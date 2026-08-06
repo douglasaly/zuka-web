@@ -2,7 +2,7 @@
 
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { SegmentedControl } from '@/components/segmented-control'
 import { type ViewMode, ViewModeToggle } from '@/components/view-mode-toggle'
 import { useDebouncedValue } from '@/hooks/use-debounced-value'
@@ -46,10 +46,16 @@ export const ExploreView = () => {
 	const maxPrice = searchParams.get('preco_max') ?? ''
 	const isNew = searchParams.get('recente') ?? ''
 	const sort = searchParams.get('ordenar') ?? 'relevance'
+	const searchFromUrl =
+		searchParams.get('q') ?? searchParams.get('search') ?? ''
 
-	const [search, setSearch] = useState('')
+	const [search, setSearch] = useState(searchFromUrl)
 	const [viewMode, setViewMode] = useState<ViewMode>('grid')
 	const debouncedSearch = useDebouncedValue(search, 350)
+
+	useEffect(() => {
+		setSearch(searchFromUrl)
+	}, [searchFromUrl])
 
 	const updateParams = (updates: Record<string, string | null>) => {
 		const params = new URLSearchParams(searchParams.toString())

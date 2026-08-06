@@ -7,6 +7,7 @@ import {
 	withErrorHandling,
 } from '@/lib/api-response'
 import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
+import { resolveCategoryIds } from '@/lib/categories/resolve-category-ids'
 import { isR2PublicUrl } from '@/lib/storage/r2'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import {
@@ -85,15 +86,10 @@ export const GET = withErrorHandling(async (request) => {
 
 	const supabase = createSupabaseAdmin()
 
-	// Lookup de category e province em paralelo
-	const [catLookup, provLookup] = await Promise.all([
+	const [categoryIds, provLookup] = await Promise.all([
 		filters.categoria && filters.categoria !== 'all'
-			? supabase
-					.from('categories')
-					.select('id')
-					.eq('slug', filters.categoria)
-					.maybeSingle()
-			: Promise.resolve({ data: null }),
+			? resolveCategoryIds(supabase, filters.categoria)
+			: Promise.resolve([] as string[]),
 		filters.provincia && filters.provincia !== 'all'
 			? supabase
 					.from('provinces')
@@ -103,7 +99,6 @@ export const GET = withErrorHandling(async (request) => {
 			: Promise.resolve({ data: null }),
 	])
 
-	const categoryId = catLookup?.data?.id
 	const provinceId = provLookup?.data?.id
 
 	// Construir query com filtros
@@ -116,8 +111,8 @@ export const GET = withErrorHandling(async (request) => {
 		.is('stores.deleted_at', null)
 		.limit(limit + 1)
 
-	if (categoryId) {
-		query = query.eq('category_id', categoryId)
+	if (categoryIds.length > 0) {
+		query = query.in('category_id', categoryIds)
 	}
 
 	if (provinceId) {

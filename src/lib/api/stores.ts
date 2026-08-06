@@ -64,7 +64,10 @@ export async function unfollowStore(storeId: string) {
 	return res.json()
 }
 
-type QueryKey = ['followed-stores', { cursor?: string; limit?: number }]
+type QueryKey = [
+	'followed-stores',
+	{ cursor?: string; limit?: number; userId?: string },
+]
 
 export async function getFollowedStores({
 	queryKey,

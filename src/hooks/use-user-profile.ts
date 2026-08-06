@@ -52,9 +52,12 @@ export function useUserProfile() {
 		{
 			queryKey: [
 				'followed-stores',
-				resolvedProfile?.id,
-				{ limit: 8, cursor: undefined },
-			],
+				{
+					limit: 8,
+					cursor: undefined,
+					userId: resolvedProfile?.id,
+				},
+			] as const,
 			queryFn: getFollowedStores,
 			staleTime: 1000 * 60 * 5,
 			enabled: authReady && Boolean(firebaseUser) && hasValidSession,

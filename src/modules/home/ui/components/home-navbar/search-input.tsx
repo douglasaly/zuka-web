@@ -2,7 +2,7 @@
 
 import { SearchIcon, SlidersHorizontal, XIcon } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -25,13 +25,14 @@ export const SearchInput = () => {
 	const sort = searchParams.get('ordenar') || 'relevance'
 	const [value, setValue] = useState(query)
 
+	useEffect(() => {
+		setValue(query)
+	}, [query])
+
 	const navigateToSearch = (params: URLSearchParams) => {
-		const url = `/pesquisa?${params.toString()}`
-		if (window.location.pathname === '/pesquisa') {
-			window.history.pushState(null, '', url)
-		} else {
-			router.push(url)
-		}
+		const qs = params.toString()
+		const url = qs ? `/pesquisa?${qs}` : '/pesquisa'
+		router.replace(url, { scroll: false })
 	}
 
 	const handleSearch = (event: React.SubmitEvent<HTMLFormElement>) => {

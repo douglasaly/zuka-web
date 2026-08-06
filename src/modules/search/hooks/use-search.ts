@@ -20,6 +20,22 @@ async function fetchSearch(params: URLSearchParams): Promise<SearchResults> {
 	return res.json()
 }
 
+function hasActiveFilters({
+	category,
+	province,
+	minPrice,
+	maxPrice,
+	isNew,
+}: Omit<UseSearchProps, 'query' | 'sort'>) {
+	return Boolean(
+		(category && category !== 'all') ||
+			(province && province !== 'all') ||
+			minPrice ||
+			maxPrice ||
+			isNew === 'true'
+	)
+}
+
 export const useSearch = ({
 	query,
 	category,
@@ -30,17 +46,27 @@ export const useSearch = ({
 	sort,
 }: UseSearchProps) => {
 	const debouncedQuery = useDebouncedValue(query, 350)
+	const isDebouncing = query.trim() !== debouncedQuery.trim()
+	const filtersActive = hasActiveFilters({
+		category,
+		province,
+		minPrice,
+		maxPrice,
+		isNew,
+	})
 
 	const params = new URLSearchParams()
 	if (debouncedQuery) params.set('q', debouncedQuery)
-	if (category) params.set('categoria', category)
-	if (province) params.set('provincia', province)
+	if (category && category !== 'all') params.set('categoria', category)
+	if (province && province !== 'all') params.set('provincia', province)
 	if (minPrice) params.set('preco_min', minPrice)
 	if (maxPrice) params.set('preco_max', maxPrice)
 	if (isNew === 'true') params.set('recente', 'true')
 	if (sort && sort !== 'relevance') params.set('ordenar', sort)
 
-	return useQuery({
+	const enabled = debouncedQuery.length > 0 || filtersActive
+
+	const result = useQuery({
 		queryKey: [
 			'search',
 			debouncedQuery,
@@ -52,7 +78,12 @@ export const useSearch = ({
 			sort,
 		],
 		queryFn: () => fetchSearch(params),
-		enabled: debouncedQuery.length > 0,
-		placeholderData: (prev) => prev,
+		enabled,
 	})
+
+	return {
+		...result,
+		/** True while the query is debouncing or a fetch is in flight. */
+		isSearching: enabled && (isDebouncing || result.isFetching),
+	}
 }

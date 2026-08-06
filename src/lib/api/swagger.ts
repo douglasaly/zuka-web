@@ -1177,12 +1177,15 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Public'],
 			summary: 'Search and filter products (cursor-based)',
+			description:
+				'Public product listing used by `/feed/explorar`. `categoria` matches the category slug and all descendant subcategories.',
 			parameters: [
 				{
 					name: 'categoria',
 					in: 'query',
 					schema: { type: 'string' },
-					description: 'Category slug',
+					description:
+						'Category slug; includes child categories in results',
 				},
 				{
 					name: 'search',
@@ -1489,15 +1492,23 @@ const paths: Record<string, any> = {
 	'/api/search': {
 		get: {
 			tags: ['Public'],
-			summary: 'Search products and stores',
+			summary: 'Search products, stores and categories',
+			description:
+				'Text search (`q`) and/or browse filters. `categoria` matches the category slug and all descendant subcategories. When only filters are provided (no `q`), returns products matching those filters. Stores and categories sections require a text query.',
 			parameters: [
 				{
 					name: 'q',
 					in: 'query',
 					schema: { type: 'string' },
-					description: 'Search term',
+					description: 'Search term (optional if filters are set)',
 				},
-				{ name: 'categoria', in: 'query', schema: { type: 'string' } },
+				{
+					name: 'categoria',
+					in: 'query',
+					schema: { type: 'string' },
+					description:
+						'Category slug; includes child categories in product results',
+				},
 				{ name: 'provincia', in: 'query', schema: { type: 'string' } },
 				{ name: 'preco_min', in: 'query', schema: { type: 'integer' } },
 				{ name: 'preco_max', in: 'query', schema: { type: 'integer' } },
