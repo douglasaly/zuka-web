@@ -7,6 +7,7 @@ import {
 	withErrorHandling,
 } from '@/lib/api-response'
 import { requireAuth } from '@/lib/auth'
+import { getManagedStoreIds } from '@/lib/auth/seller'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import {
 	CreateConversationSchema,
@@ -14,7 +15,8 @@ import {
 } from '@/lib/validations'
 
 // ─── GET /api/conversations ──────────────────────────────
-// Lista conversas do utilizador autenticado. Cursor-based para infinite scroll.
+// Lista conversas do utilizador autenticado (vista buyer).
+// Exclui conversas de lojas que o user gere (dono/membro) — essas ficam no dashboard.
 
 export const GET = withErrorHandling(async (request) => {
 	const auth = await requireAuth()
@@ -26,6 +28,7 @@ export const GET = withErrorHandling(async (request) => {
 	})
 
 	const supabase = createSupabaseAdmin()
+	const managedStoreIds = await getManagedStoreIds(auth.user.id)
 
 	// Cursor-based: filtra por last_message_at < cursor
 	let query = supabase
@@ -42,6 +45,15 @@ export const GET = withErrorHandling(async (request) => {
 		.is('deleted_at', null)
 		.order('last_message_at', { ascending: false })
 		.limit(limit + 1) // +1 para detectar hasMore
+
+	// Não misturar inbox do vendedor com a vista de comprador
+	if (managedStoreIds.length > 0) {
+		query = query.not(
+			'store_id',
+			'in',
+			`(${managedStoreIds.join(',')})`
+		)
+	}
 
 	if (cursor) {
 		query = query.lt('last_message_at', cursor)
@@ -168,6 +180,16 @@ export const POST = withErrorHandling(async (request) => {
 	}
 
 	const storeOwnerId = (product.stores as { owner_id: string }).owner_id
+	const storeId = product.store_id as string
+
+	// Conversas da própria loja (dono/membro) ficam só no dashboard do vendedor
+	const managedStoreIds = await getManagedStoreIds(auth.user.id)
+	if (managedStoreIds.includes(storeId)) {
+		return apiError(
+			ErrorCode.FORBIDDEN,
+			'Não pode iniciar conversa com a sua própria loja neste ecrã. Use o dashboard.'
+		)
+	}
 
 	// Verificar conversa existente
 	const { data: userParticipations } = await supabase
@@ -208,7 +230,7 @@ export const POST = withErrorHandling(async (request) => {
 			.insert({
 				id: conversationId,
 				product_id: productId,
-				store_id: product.store_id,
+				store_id: storeId,
 			})
 
 		if (convError) throw convError

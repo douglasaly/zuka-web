@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getSessionUser } from '@/lib/auth/session'
+import { getManagedStoreIds } from '@/lib/auth/seller'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 
 interface Params {
@@ -45,6 +46,7 @@ export async function GET(_req: Request, { params }: Params) {
 				`
 				id,
 				product_id,
+				store_id,
 				stores (
 					id,
 					name,
@@ -60,6 +62,13 @@ export async function GET(_req: Request, { params }: Params) {
 			.single()
 
 		if (error) throw error
+
+		if (data.store_id) {
+			const managedStoreIds = await getManagedStoreIds(user.id as string)
+			if (managedStoreIds.includes(data.store_id as string)) {
+				return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+			}
+		}
 
 		const store = (data as any).stores
 			? {
