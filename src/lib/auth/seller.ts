@@ -240,3 +240,34 @@ export function hasStorePermission(
 ) {
 	return ctx.permissions.includes(permission)
 }
+
+/**
+ * Store IDs the user owns or belongs to as an active member.
+ * Used to keep seller/dashboard conversations out of the buyer inbox.
+ */
+export async function getManagedStoreIds(userId: string): Promise<string[]> {
+	const supabase = db()
+
+	const [{ data: owned }, { data: memberships }] = await Promise.all([
+		supabase
+			.from('stores')
+			.select('id')
+			.eq('owner_id', userId)
+			.is('deleted_at', null),
+		supabase
+			.from('store_members')
+			.select('store_id')
+			.eq('user_id', userId)
+			.eq('status', 'active')
+			.is('deleted_at', null),
+	])
+
+	const ids = new Set<string>()
+	for (const row of owned ?? []) {
+		if (row.id) ids.add(row.id as string)
+	}
+	for (const row of memberships ?? []) {
+		if (row.store_id) ids.add(row.store_id as string)
+	}
+	return [...ids]
+}

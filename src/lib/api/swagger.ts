@@ -2485,7 +2485,9 @@ const paths: Record<string, any> = {
 	'/api/conversations': {
 		get: {
 			tags: ['Conversations'],
-			summary: 'List conversations for current user (cursor-based)',
+			summary: 'List buyer inbox conversations (cursor-based)',
+			description:
+				'Returns conversations where the current user is a participant as a buyer. Excludes conversations for stores the user owns or belongs to as an active member — those belong to the seller dashboard (`/api/stores/conversations`).',
 			security: [{ CookieAuth: [] }],
 			parameters: [
 				{
@@ -2502,7 +2504,7 @@ const paths: Record<string, any> = {
 			],
 			responses: {
 				'200': {
-					description: 'Conversation list',
+					description: 'Buyer conversation list',
 					content: {
 						'application/json': {
 							schema: {
@@ -2528,7 +2530,9 @@ const paths: Record<string, any> = {
 		},
 		post: {
 			tags: ['Conversations'],
-			summary: 'Create or reuse a conversation with a store',
+			summary: 'Create or reuse a buyer conversation with a store',
+			description:
+				'Opens the existing conversation between the current user and the product\'s store (one thread per buyer+store). Creates a new conversation only if none exists. Soft-deleted threads are revived. Updates `product_id` to the product that triggered the open. Forbidden when the product belongs to a store the user owns or manages.',
 			security: [{ CookieAuth: [] }],
 			requestBody: {
 				content: {
@@ -2538,14 +2542,38 @@ const paths: Record<string, any> = {
 							required: ['productId'],
 							properties: {
 								productId: { type: 'string' },
+								content: {
+									type: 'string',
+									description:
+										'Optional initial message content',
+								},
 							},
 						},
 					},
 				},
 			},
 			responses: {
+				'200': {
+					description: 'Existing conversation reused (and optionally revived)',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									data: {
+										type: 'object',
+										properties: {
+											conversationId: { type: 'string' },
+										},
+									},
+								},
+							},
+						},
+					},
+				},
 				'201': {
-					description: 'Conversation created or reused',
+					description: 'New conversation created',
 					content: {
 						'application/json': {
 							schema: {
@@ -2573,13 +2601,20 @@ const paths: Record<string, any> = {
 						},
 					},
 				},
+				'403': {
+					description:
+						'Cannot start a buyer conversation with a store you own or manage',
+				},
+				'404': { description: 'Product not found' },
 			},
 		},
 	},
 	'/api/conversations/{id}': {
 		get: {
 			tags: ['Conversations'],
-			summary: 'Get conversation details',
+			summary: 'Get buyer conversation details',
+			description:
+				'Returns conversation details for the buyer view. Forbidden when the conversation belongs to a store the user owns or manages (use seller dashboard APIs).',
 			security: [{ CookieAuth: [] }],
 			parameters: [
 				{
@@ -2629,7 +2664,11 @@ const paths: Record<string, any> = {
 						},
 					},
 				},
-				'403': { description: 'Forbidden' },
+				'401': { description: 'Unauthorized' },
+				'403': {
+					description:
+						'Not a participant, or conversation belongs to a managed store (use seller dashboard)',
+				},
 				'404': { description: 'Not found' },
 			},
 		},
@@ -2637,7 +2676,9 @@ const paths: Record<string, any> = {
 	'/api/conversations/{id}/messages': {
 		get: {
 			tags: ['Messages'],
-			summary: 'Get conversation messages (cursor-based)',
+			summary: 'Get buyer conversation messages (cursor-based)',
+			description:
+				'Buyer-view messages only. Forbidden for conversations of stores the user owns or manages — use `/api/stores/conversations/{id}/messages`.',
 			security: [{ CookieAuth: [] }],
 			parameters: [
 				{
@@ -2681,13 +2722,18 @@ const paths: Record<string, any> = {
 						},
 					},
 				},
-				'403': { description: 'Not a conversation participant' },
+				'403': {
+					description:
+						'Not a participant, or conversation belongs to a managed store',
+				},
 				'404': { description: 'Conversation not found' },
 			},
 		},
 		post: {
 			tags: ['Messages'],
-			summary: 'Send a message',
+			summary: 'Send a buyer message',
+			description:
+				'Sends a message as the buyer (`store_id` null). Forbidden for conversations of stores the user owns or manages — use `/api/stores/conversations/{id}/messages`.',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
@@ -2735,14 +2781,19 @@ const paths: Record<string, any> = {
 						},
 					},
 				},
-				'403': { description: 'Not a conversation participant' },
+				'403': {
+					description:
+						'Not a participant, or conversation belongs to a managed store',
+				},
 			},
 		},
 	},
 	'/api/conversations/{id}/read': {
 		patch: {
 			tags: ['Messages'],
-			summary: 'Mark conversation as read',
+			summary: 'Mark buyer conversation as read',
+			description:
+				'Updates `last_read_at` for the current user. Forbidden when the conversation belongs to a store the user owns or manages.',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
@@ -2767,6 +2818,10 @@ const paths: Record<string, any> = {
 					},
 				},
 				'401': { description: 'Unauthorized' },
+				'403': {
+					description:
+						'Conversation belongs to a managed store (use seller dashboard)',
+				},
 			},
 		},
 	},

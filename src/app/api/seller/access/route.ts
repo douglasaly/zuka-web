@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server'
 import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
-import { STORE_ROLE_UI } from '@/lib/auth/store-permissions'
 
-/** Current user's store access + permission catalog for UI gating. */
 export async function GET() {
 	try {
 		const auth = await requireSellerStore({ permission: 'store.read' })
@@ -15,11 +13,10 @@ export async function GET() {
 				name: auth.store.name,
 				slug: auth.store.slug,
 			},
+			isOwner: auth.isOwner,
 			memberRole: auth.memberRole,
 			rbacRole: auth.rbacRole,
-			isOwner: auth.isOwner,
 			permissions: auth.permissions,
-			roleCatalog: STORE_ROLE_UI,
 		})
 	} catch (error) {
 		console.error('[GET /api/seller/access]', error)

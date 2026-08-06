@@ -275,7 +275,7 @@ export const SellerSettingsView = () => {
 		<div className='min-w-0 max-w-6xl space-y-6 pb-8'>
 			<div className='flex min-w-0 flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-8'>
 				<p className='max-w-md text-sm leading-snug text-muted-foreground'>
-					Conta, loja e alertas — tudo num sítio.
+					Conta, loja e alertas. Tudo num único lugar.
 				</p>
 
 				<div className='flex min-w-0 w-full items-center gap-3 rounded-2xl border border-border/60 bg-card px-4 py-3 shadow-[0_1px_2px_rgba(0,0,0,0.04)] lg:max-w-md sm:gap-3.5 sm:px-4'>
@@ -399,8 +399,8 @@ export const SellerSettingsView = () => {
 							</>
 						) : (
 							<div className='flex items-center gap-2 px-4 py-6 text-sm text-muted-foreground'>
-								<Loader2 className='size-4 animate-spin' />
-								A carregar preferências…
+								<Loader2 className='size-4 animate-spin' />A
+								carregar preferências…
 							</div>
 						)}
 					</SettingsBand>

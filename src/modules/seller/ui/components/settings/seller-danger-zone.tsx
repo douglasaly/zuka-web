@@ -55,7 +55,7 @@ export function SellerDangerZone() {
 					Zona de perigo
 				</h2>
 				<p className='mt-1 text-sm text-muted-foreground'>
-					Acções permanentes — confirme com cuidado.
+					Acções permanentes, confirme com cuidado.
 				</p>
 			</div>
 

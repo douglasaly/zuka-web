@@ -7,6 +7,7 @@ import {
 	withErrorHandling,
 } from '@/lib/api-response'
 import { requireAuth } from '@/lib/auth'
+import { getManagedStoreIds } from '@/lib/auth/seller'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import {
 	CreateConversationSchema,
@@ -14,7 +15,8 @@ import {
 } from '@/lib/validations'
 
 // ─── GET /api/conversations ──────────────────────────────
-// Lista conversas do utilizador autenticado. Cursor-based para infinite scroll.
+// Lista conversas do utilizador autenticado (vista buyer).
+// Exclui conversas de lojas que o user gere (dono/membro) — essas ficam no dashboard.
 
 export const GET = withErrorHandling(async (request) => {
 	const auth = await requireAuth()
@@ -26,6 +28,7 @@ export const GET = withErrorHandling(async (request) => {
 	})
 
 	const supabase = createSupabaseAdmin()
+	const managedStoreIds = await getManagedStoreIds(auth.user.id)
 
 	// Cursor-based: filtra por last_message_at < cursor
 	let query = supabase
@@ -42,6 +45,15 @@ export const GET = withErrorHandling(async (request) => {
 		.is('deleted_at', null)
 		.order('last_message_at', { ascending: false })
 		.limit(limit + 1) // +1 para detectar hasMore
+
+	// Não misturar inbox do vendedor com a vista de comprador
+	if (managedStoreIds.length > 0) {
+		query = query.not(
+			'store_id',
+			'in',
+			`(${managedStoreIds.join(',')})`
+		)
+	}
 
 	if (cursor) {
 		query = query.lt('last_message_at', cursor)
@@ -137,7 +149,7 @@ export const GET = withErrorHandling(async (request) => {
 })
 
 // ─── POST /api/conversations ─────────────────────────────
-// Criar ou reutilizar conversa com uma loja.
+// Criar ou reutilizar conversa com uma loja (1 conversa por buyer+loja).
 
 export const POST = withErrorHandling(async (request) => {
 	const auth = await requireAuth()
@@ -168,47 +180,91 @@ export const POST = withErrorHandling(async (request) => {
 	}
 
 	const storeOwnerId = (product.stores as { owner_id: string }).owner_id
+	const storeId = product.store_id as string
 
-	// Verificar conversa existente
-	const { data: userParticipations } = await supabase
-		.from('conversation_participants')
-		.select('conversation_id')
-		.eq('user_id', auth.user.id)
-
-	const userConvIds = (userParticipations ?? []).map((p) => p.conversation_id)
-
-	let conversationId: string | null = null
-
-	if (userConvIds.length > 0) {
-		const { data: shared } = await supabase
-			.from('conversation_participants')
-			.select('conversation_id')
-			.eq('user_id', storeOwnerId)
-			.in('conversation_id', userConvIds)
-			.limit(1)
-
-		if (shared?.[0]?.conversation_id) {
-			const { data: conv } = await supabase
-				.from('conversations')
-				.select('id')
-				.eq('id', shared[0].conversation_id)
-				.is('deleted_at', null)
-				.single()
-
-			if (conv) conversationId = conv.id
-		}
+	// Conversas da própria loja (dono/membro) ficam só no dashboard do vendedor
+	const managedStoreIds = await getManagedStoreIds(auth.user.id)
+	if (managedStoreIds.includes(storeId)) {
+		return apiError(
+			ErrorCode.FORBIDDEN,
+			'Não pode iniciar conversa com a sua própria loja neste ecrã. Use o dashboard.'
+		)
 	}
 
-	// Criar nova conversa se não existe
-	if (!conversationId) {
+	// Uma conversa por buyer + loja: reutilizar a mais recente (activa ou soft-deleted)
+	const { data: existingRows, error: existingError } = await supabase
+		.from('conversations')
+		.select(
+			`
+			id,
+			deleted_at,
+			conversation_participants!inner ( user_id )
+		`
+		)
+		.eq('store_id', storeId)
+		.eq('conversation_participants.user_id', auth.user.id)
+		.order('deleted_at', { ascending: true, nullsFirst: true })
+		.order('last_message_at', { ascending: false, nullsFirst: false })
+		.order('created_at', { ascending: false })
+		.limit(1)
+
+	if (existingError) throw existingError
+
+	const existing = existingRows?.[0] ?? null
+	let conversationId: string
+	let created = false
+
+	if (existing) {
+		conversationId = existing.id as string
+
+		const updates: {
+			product_id: string
+			deleted_at?: null
+			updated_at: string
+		} = {
+			product_id: productId,
+			updated_at: new Date().toISOString(),
+		}
+
+		// Reabrir conversa soft-deleted em vez de criar outra
+		if (existing.deleted_at) {
+			updates.deleted_at = null
+		}
+
+		const { error: reviveError } = await supabase
+			.from('conversations')
+			.update(updates)
+			.eq('id', conversationId)
+
+		if (reviveError) throw reviveError
+
+		// Garantir que o dono da loja continua como participante
+		const { data: ownerPart } = await supabase
+			.from('conversation_participants')
+			.select('user_id')
+			.eq('conversation_id', conversationId)
+			.eq('user_id', storeOwnerId)
+			.maybeSingle()
+
+		if (!ownerPart) {
+			const { error: ownerPartError } = await supabase
+				.from('conversation_participants')
+				.insert({
+					conversation_id: conversationId,
+					user_id: storeOwnerId,
+				})
+			if (ownerPartError) throw ownerPartError
+		}
+	} else {
 		conversationId = uuidv7()
+		created = true
 
 		const { error: convError } = await supabase
 			.from('conversations')
 			.insert({
 				id: conversationId,
 				product_id: productId,
-				store_id: product.store_id,
+				store_id: storeId,
 			})
 
 		if (convError) throw convError
@@ -245,5 +301,5 @@ export const POST = withErrorHandling(async (request) => {
 			.eq('id', conversationId)
 	}
 
-	return apiSuccess({ conversationId }, 201)
+	return apiSuccess({ conversationId }, created ? 201 : 200)
 })

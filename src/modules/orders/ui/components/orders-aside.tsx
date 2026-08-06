@@ -201,18 +201,18 @@ export function OrdersAside({
 					<div className='flex flex-col gap-2 pt-1'>
 						<Button
 							className='min-h-11 w-full rounded-xl bg-secondary text-secondary-foreground hover:bg-secondary/90'
-							render={<Link href='/feed/explorar' />}
-						>
-							Explorar produtos
-							<ArrowRight className='size-4' aria-hidden />
-						</Button>
-						<Button
-							variant='ghost'
-							className='min-h-11 w-full rounded-xl text-background hover:bg-white/10 hover:text-background'
 							render={<Link href='/mensagens' />}
 						>
 							<MessageCircle className='size-4' aria-hidden />
 							Abrir mensagens
+						</Button>
+						<Button
+							variant='ghost'
+							className='min-h-11 w-full rounded-xl text-background hover:bg-white/10 hover:text-background'
+							render={<Link href='/feed/explorar' />}
+						>
+							Explorar produtos
+							<ArrowRight className='size-4' aria-hidden />
 						</Button>
 					</div>
 				</div>

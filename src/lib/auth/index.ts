@@ -12,6 +12,7 @@
  */
 import { cookies } from 'next/headers'
 import { getUserRoles } from '@/lib/auth/roles'
+import { getManagedStoreIds } from '@/lib/auth/seller'
 import { adminAuth } from '@/lib/firebase/firebase-admin'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import type { Database } from '@/lib/supabase/types'
@@ -185,8 +186,9 @@ export async function requireAdmin(): Promise<AdminAuth> {
 }
 
 /**
- * Verifica se o utilizador é participante de uma conversa.
- * Lança 403 se não for participante.
+ * Verifica se o utilizador é participante de uma conversa (vista buyer).
+ * Lança 403 se não for participante, ou se a conversa for de uma loja
+ * que o utilizador gere (deve usar o inbox do dashboard).
  */
 export async function requireConversationParticipant(
 	conversationId: string
@@ -216,6 +218,30 @@ export async function requireConversationParticipant(
 			}),
 			{ status: 403, headers: { 'Content-Type': 'application/json' } }
 		)
+	}
+
+	const { data: conversation } = await supabase
+		.from('conversations')
+		.select('store_id')
+		.eq('id', conversationId)
+		.is('deleted_at', null)
+		.maybeSingle()
+
+	if (conversation?.store_id) {
+		const managedStoreIds = await getManagedStoreIds(auth.user.id)
+		if (managedStoreIds.includes(conversation.store_id as string)) {
+			throw new Response(
+				JSON.stringify({
+					success: false,
+					error: {
+						code: 'FORBIDDEN',
+						message:
+							'Esta conversa pertence à sua loja. Use o dashboard do vendedor.',
+					},
+				}),
+				{ status: 403, headers: { 'Content-Type': 'application/json' } }
+			)
+		}
 	}
 
 	return { ...auth, participant }
