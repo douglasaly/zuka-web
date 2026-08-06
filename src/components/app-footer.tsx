@@ -9,6 +9,7 @@ const exploreLinks = [
 ]
 
 const resourceLinks = [
+	{ label: 'Perguntas frequentes', href: '/perguntas-frequentes' },
 	{ label: 'Abrir uma loja', href: '/onboarding' },
 	{ label: 'Painel da loja', href: '/dashboard/seller' },
 ]
@@ -107,21 +108,30 @@ export const AppFooter = () => {
 					<p>
 						© {new Date().getFullYear()}{' '}
 						<span className='font-semibold text-foreground'>
-							Dotcom TechLabs
+							NORTHBRIDGE LABS
 						</span>
 						. Todos os direitos reservados.
 					</p>
-					<div className='flex gap-4'>
+					<nav
+						aria-label='Documentos legais'
+						className='flex flex-wrap items-center justify-center gap-x-4 gap-y-2'
+					>
+						<Link
+							href='/perguntas-frequentes'
+							className='hover:text-secondary'
+						>
+							Perguntas frequentes
+						</Link>
 						<Link
 							href='/privacidade'
 							className='hover:text-secondary'
 						>
-							Privacidade
+							Política de Privacidade
 						</Link>
 						<Link href='/termos' className='hover:text-secondary'>
-							Termos
+							Termos e Condições
 						</Link>
-					</div>
+					</nav>
 				</div>
 			</div>
 		</footer>
