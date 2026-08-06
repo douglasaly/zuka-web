@@ -14,22 +14,22 @@ export const MessagesView = () => {
 	}
 
 	return (
-		<div className='mb-10 w-full min-w-0 px-4'>
-			<main className='flex flex-col gap-4 space-y-4 px-4'>
+		<div className='mb-10 w-full min-w-0'>
+			<main className='flex flex-col px-4'>
 				<MessagesHeader count={unreadTotal} />
 
 				{isLoading ? (
 					<MessagesSkeleton />
 				) : (
-					<div className='space-y-4 pt-24 md:px-8'>
+					<div className='w-full space-y-4 pt-24'>
 						<ConversationsList conversations={conversations} />
 
-						{hasMore && (
+						{hasMore ? (
 							<LoadMoreMessages
 								onLoadMore={handleLoadMore}
 								isLoading={false}
 							/>
-						)}
+						) : null}
 					</div>
 				)}
 			</main>

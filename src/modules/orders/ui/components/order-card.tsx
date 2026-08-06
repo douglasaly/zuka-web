@@ -166,9 +166,17 @@ export function OrderCard({ order }: OrderCardProps) {
 				<Button
 					size='sm'
 					variant={
-						order.status === 'completed' ? 'default' : 'secondary'
+						action.href.startsWith('/mensagens')
+							? 'secondary'
+							: order.status === 'completed'
+								? 'default'
+								: 'secondary'
 					}
-					className='min-h-9 rounded-full px-3'
+					className={
+						action.href.startsWith('/mensagens')
+							? 'min-h-9 rounded-full px-3 shadow-[0_4px_14px_-6px_color-mix(in_oklch,#e8340a_50%,transparent)]'
+							: 'min-h-9 rounded-full px-3'
+					}
 					render={<Link href={action.href} />}
 				>
 					<ActionIcon className='size-3.5' aria-hidden />
