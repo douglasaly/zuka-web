@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from 'next/server'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { type NextRequest, NextResponse } from 'next/server'
 import { uuidv7 } from 'uuidv7'
 import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
 import { STORE_ROLE_UI } from '@/lib/auth/store-permissions'
@@ -65,16 +65,13 @@ async function notifyMemberInvited(
 		user_id: opts.targetUserId,
 		type: 'system',
 		title: `Foste adicionado a ${opts.store.name}`,
-		body: `Passaste a fazer parte da equipa da loja como ${roleLabel}. Abre o painel do vendedor para começar.`,
+		body: `Passaste a fazer parte da equipe da loja como ${roleLabel}. Abre o painel do vendedor para começar.`,
 		link: '/dashboard/seller',
 		sender_store_id: opts.store.id,
 	})
 
 	if (error) {
-		console.error(
-			'[POST /api/seller/members] invite notification',
-			error
-		)
+		console.error('[POST /api/seller/members] invite notification', error)
 	}
 }
 
@@ -151,8 +148,7 @@ export async function POST(request: NextRequest) {
 		}
 
 		const email = typeof body.email === 'string' ? body.email.trim() : ''
-		const userId =
-			typeof body.userId === 'string' ? body.userId.trim() : ''
+		const userId = typeof body.userId === 'string' ? body.userId.trim() : ''
 
 		if (!userId && !email) {
 			return NextResponse.json(
