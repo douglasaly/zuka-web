@@ -741,8 +741,54 @@ const schemas = {
 			totalOrders: { type: 'integer' },
 			totalOrdersPrev: { type: 'integer' },
 			totalOrdersPct: { type: 'number' },
+			whatsappContacts: {
+				type: 'integer',
+				description:
+					'WhatsApp contact clicks in the current period (anonymous + authenticated)',
+			},
+			whatsappContactsPct: {
+				type: 'number',
+				description:
+					'Percent change of today vs yesterday (Africa/Maputo)',
+			},
+			callContacts: {
+				type: 'integer',
+				description:
+					'Phone call clicks in the current period (anonymous + authenticated)',
+			},
+			callContactsPct: {
+				type: 'number',
+				description:
+					'Percent change of today vs yesterday (Africa/Maputo)',
+			},
 			totalFollowers: { type: 'integer' },
 			productCount: { type: 'integer' },
+		},
+	},
+	ContactEventCreate: {
+		type: 'object',
+		required: ['storeId', 'type', 'source'],
+		properties: {
+			storeId: { type: 'string', format: 'uuid' },
+			productId: {
+				type: 'string',
+				format: 'uuid',
+				description: 'Required when source is product',
+			},
+			type: {
+				type: 'string',
+				enum: ['whatsapp', 'call'],
+			},
+			source: {
+				type: 'string',
+				enum: ['product', 'store'],
+			},
+		},
+	},
+	ContactEventCreated: {
+		type: 'object',
+		properties: {
+			ok: { type: 'boolean', enum: [true] },
 		},
 	},
 	SellerAnalytics: {
@@ -1136,6 +1182,40 @@ const paths: Record<string, any> = {
 						},
 					},
 				},
+			},
+		},
+	},
+	'/api/contact-events': {
+		post: {
+			tags: ['Public'],
+			summary: 'Record WhatsApp or call contact click',
+			description:
+				'Fire-and-forget click tracking for seller interest metrics. Works without authentication; if a session cookie is present, `user_id` is attached. Never returns 401 for missing auth.',
+			security: [],
+			requestBody: {
+				required: true,
+				content: {
+					'application/json': {
+						schema: {
+							$ref: '#/components/schemas/ContactEventCreate',
+						},
+					},
+				},
+			},
+			responses: {
+				'201': {
+					description: 'Event recorded',
+					content: {
+						'application/json': {
+							schema: {
+								$ref: '#/components/schemas/ContactEventCreated',
+							},
+						},
+					},
+				},
+				'400': { description: 'Invalid payload' },
+				'404': { description: 'Store or product not found' },
+				'500': { description: 'Failed to record event' },
 			},
 		},
 	},
@@ -4633,6 +4713,8 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Seller'],
 			summary: 'Store KPIs with period comparison',
+			description:
+				'Includes sales, orders, WhatsApp/call contact clicks, followers and active products. Contact totals use the range window; contact % compares today vs yesterday (Africa/Maputo).',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{

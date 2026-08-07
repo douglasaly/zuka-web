@@ -69,6 +69,60 @@ export async function GET(request: NextRequest) {
 			.eq('status', 'ACTIVE')
 			.is('deleted_at', null)
 
+		// --- Contactos WhatsApp / Chamadas (cliques) ---
+		// Totais no período (range); % vs dia anterior (hoje vs ontem, Africa/Maputo)
+		const countContactEvents = async (
+			type: 'whatsapp' | 'call',
+			from: Date,
+			to?: Date
+		) => {
+			let query = supabase
+				.from('store_contact_events')
+				.select('*', { count: 'exact', head: true })
+				.eq('store_id', store.id)
+				.eq('type', type)
+				.gte('created_at', from.toISOString())
+
+			if (to) {
+				query = query.lt('created_at', to.toISOString())
+			}
+
+			const { count } = await query
+			return count ?? 0
+		}
+
+		const startOfDayMaputo = (date: Date) => {
+			const parts = new Intl.DateTimeFormat('en-CA', {
+				timeZone: 'Africa/Maputo',
+				year: 'numeric',
+				month: '2-digit',
+				day: '2-digit',
+			}).formatToParts(date)
+			const y = parts.find((p) => p.type === 'year')?.value
+			const m = parts.find((p) => p.type === 'month')?.value
+			const d = parts.find((p) => p.type === 'day')?.value
+			return new Date(`${y}-${m}-${d}T00:00:00+02:00`)
+		}
+
+		const todayStart = startOfDayMaputo(now)
+		const yesterdayStart = new Date(todayStart.getTime() - 86400000)
+
+		const [
+			whatsappContacts,
+			whatsappToday,
+			whatsappYesterday,
+			callContacts,
+			callToday,
+			callYesterday,
+		] = await Promise.all([
+			countContactEvents('whatsapp', currentStart),
+			countContactEvents('whatsapp', todayStart),
+			countContactEvents('whatsapp', yesterdayStart, todayStart),
+			countContactEvents('call', currentStart),
+			countContactEvents('call', todayStart),
+			countContactEvents('call', yesterdayStart, todayStart),
+		])
+
 		const calcPct = (current: number, prev: number) => {
 			if (prev === 0) return current > 0 ? 100 : 0
 			return Math.round(((current - prev) / prev) * 100)
@@ -82,6 +136,10 @@ export async function GET(request: NextRequest) {
 				totalOrders: totalOrders ?? 0,
 				totalOrdersPrev: totalOrdersPrev ?? 0,
 				totalOrdersPct: calcPct(totalOrders ?? 0, totalOrdersPrev ?? 0),
+				whatsappContacts,
+				whatsappContactsPct: calcPct(whatsappToday, whatsappYesterday),
+				callContacts,
+				callContactsPct: calcPct(callToday, callYesterday),
 				totalFollowers: totalFollowers ?? 0,
 				productCount: productCount ?? 0,
 			},

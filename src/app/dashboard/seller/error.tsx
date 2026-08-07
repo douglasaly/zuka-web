@@ -10,7 +10,7 @@ export default function SellerDashboardError({
 	reset: () => void
 }) {
 	return (
-		<div className='flex min-h-screen flex-col items-center justify-center px-4 text-center'>
+		<div className='flex  flex-col items-center justify-center px-4 text-center'>
 			<div className='flex size-16 items-center justify-center rounded-full bg-destructive/10'>
 				<AlertTriangle className='size-8 text-destructive' />
 			</div>

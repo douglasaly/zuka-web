@@ -175,8 +175,16 @@ export const ProductDetailView = ({ id }: ProductDetailViewProps) => {
 				<ProductDescription description={product.description} />
 
 				<ProductActions
-					whatsappHref={`https://wa.me/${product.storePhone}?text=${whatsappMessage}`}
-					phoneHref={`tel:${product.storePhone}`}
+					storeId={product.storeId}
+					productId={product.id}
+					whatsappHref={
+						product.storePhone
+							? `https://wa.me/${product.storePhone}?text=${whatsappMessage}`
+							: null
+					}
+					phoneHref={
+						product.storePhone ? `tel:${product.storePhone}` : null
+					}
 					onChat={() => chatMutation.mutate()}
 					isChatting={chatMutation.isPending}
 				/>

@@ -1,31 +1,33 @@
 'use client'
 
-import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
-import type { UserProfile } from '@/types/marketplace'
-import { OrderStatusBadge } from '@/components/order-status-badge'
-import { formatPrice } from '@/utils/format-price'
 import { Package } from 'lucide-react'
+import Link from 'next/link'
+import { useMemo, useState } from 'react'
+import { OrderStatusBadge } from '@/components/order-status-badge'
 import { useUserProfile } from '@/hooks/use-user-profile'
+import type { UserProfile } from '@/types/marketplace'
+import { formatPrice } from '@/utils/format-price'
+import type { SellerProduct } from '../../constants'
+import { SellerDashboardSkeleton } from '../components/seller-dashboard-skeleton'
 import { SellerEmptyState } from '../components/seller-empty-state'
 import { QuickActions } from '../components/seller-quick-actions'
-import { SellerStatsGrid } from '../components/seller-stats-grid'
 import type { SellerStatData } from '../components/seller-stat-card'
+import { SellerStatsGrid } from '../components/seller-stats-grid'
 import { SellerSummaryTab } from '../components/seller-summary-tab'
-import {
-	SellerDashboardSkeleton,
-} from '../components/seller-dashboard-skeleton'
 import { SellerTabs } from '../components/seller-tabs'
 import { SellerWelcomeBanner } from '../components/seller-welcome-banner'
 import { SellerProductsSection } from '../sections/seller-product-section'
-import type { SellerProduct } from '../../constants'
 
 type StatsData = {
 	totalSales: number
 	totalSalesPct: number
 	totalOrders: number
 	totalOrdersPct: number
+	whatsappContacts: number
+	whatsappContactsPct: number
+	callContacts: number
+	callContactsPct: number
 	totalFollowers: number
 	productCount: number
 }
@@ -86,7 +88,10 @@ export const SellerDashboardView = () => {
 	})
 
 	const isLoading =
-		isLoadingProfile || isLoadingStats || isLoadingProducts || isLoadingOrders
+		isLoadingProfile ||
+		isLoadingStats ||
+		isLoadingProducts ||
+		isLoadingOrders
 	const storeName = profile?.profile?.stores?.[0]?.name ?? 'Sua Loja'
 	const storeSlug = profile?.profile?.stores?.[0]?.slug
 	const statsData = statsResponse?.data
@@ -101,23 +106,38 @@ export const SellerDashboardView = () => {
 					change: statsData.totalSalesPct,
 				},
 				{
+					id: 'products',
+					icon: 'eye',
+					value: statsData.productCount.toString(),
+					label: 'Produtos activos',
+				},
+				{
 					id: 'orders',
 					icon: 'package',
 					value: statsData.totalOrders.toString(),
 					label: 'Pedidos',
 					change: statsData.totalOrdersPct,
 				},
+
+				{
+					id: 'whatsapp',
+					icon: 'whatsapp',
+					value: statsData.whatsappContacts.toLocaleString('pt-MZ'),
+					label: 'WhatsApp',
+					change: statsData.whatsappContactsPct,
+				},
+				{
+					id: 'calls',
+					icon: 'phone',
+					value: statsData.callContacts.toLocaleString('pt-MZ'),
+					label: 'Chamadas',
+					change: statsData.callContactsPct,
+				},
 				{
 					id: 'followers',
 					icon: 'users',
 					value: statsData.totalFollowers.toLocaleString('pt-MZ'),
 					label: 'Seguidores',
-				},
-				{
-					id: 'products',
-					icon: 'eye',
-					value: statsData.productCount.toString(),
-					label: 'Produtos activos',
 				},
 			]
 		: []
@@ -193,13 +213,22 @@ export const SellerDashboardView = () => {
 												/>
 											</div>
 											<p className='text-sm text-muted-foreground'>
-												{new Date(order.date).toLocaleDateString('pt-PT')}{' '}
+												{new Date(
+													order.date
+												).toLocaleDateString(
+													'pt-PT'
+												)}{' '}
 												&middot; {order.itemCount}{' '}
-												{order.itemCount === 1 ? 'item' : 'itens'}
+												{order.itemCount === 1
+													? 'item'
+													: 'itens'}
 											</p>
 										</div>
 										<p className='font-semibold'>
-											{formatPrice(order.total, order.currency)}
+											{formatPrice(
+												order.total,
+												order.currency
+											)}
 										</p>
 									</div>
 								))}
