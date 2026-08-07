@@ -16,7 +16,9 @@ export async function GET(request: Request) {
 		.from('stores')
 		.select('id')
 		.eq('slug', slug)
-		.single()
+		.eq('status', 'ACTIVE')
+		.is('deleted_at', null)
+		.maybeSingle()
 
 	if (!store) {
 		return Response.json({ isFollowing: false })

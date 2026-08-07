@@ -13,10 +13,15 @@ import {
 	SidebarMenuSkeleton,
 } from '@/components/ui/sidebar'
 import { useUserProfile } from '@/hooks/use-user-profile'
+import {
+	getSellerPanelPath,
+	isAwaitingSellerApproval,
+	needsSellerOnboarding,
+} from '@/lib/auth/routing'
 
 export const DashboardSection = () => {
 	const pathname = usePathname()
-	const { isAuthenticated, isSeller, isLoading } = useUserProfile()
+	const { profile, isAuthenticated, isSeller, isLoading } = useUserProfile()
 
 	if (isLoading) {
 		return (
@@ -37,6 +42,16 @@ export const DashboardSection = () => {
 		)
 	}
 
+	const sellerPath = getSellerPanelPath(profile)
+	const continueOnboarding = isSeller && needsSellerOnboarding(profile)
+	const awaitingApproval = isAwaitingSellerApproval(profile)
+
+	const sellerLabel = awaitingApproval
+		? 'Aguarda aprovação'
+		: continueOnboarding
+			? 'Continuar registo'
+			: 'Painel do vendedor'
+
 	return (
 		<SidebarGroup>
 			<SidebarGroupLabel className='text-xs font-semibold uppercase tracking-wider text-muted-foreground/70'>
@@ -47,14 +62,15 @@ export const DashboardSection = () => {
 					{isSeller ? (
 						<SidebarMenuItem>
 							<SidebarMenuButton
-								tooltip='Painel do vendedor'
-								isActive={pathname.startsWith(
-									'/dashboard/seller'
-								)}
+								tooltip={sellerLabel}
+								isActive={
+									pathname.startsWith('/dashboard/seller') ||
+									pathname.startsWith('/onboarding/seller')
+								}
 								render={
-									<Link prefetch href='/dashboard/seller'>
+									<Link prefetch href={sellerPath}>
 										<Store className='size-4' />
-										<span>Painel do vendedor</span>
+										<span>{sellerLabel}</span>
 									</Link>
 								}
 							/>
@@ -63,9 +79,14 @@ export const DashboardSection = () => {
 						<SidebarMenuItem>
 							<SidebarMenuButton
 								tooltip='Abrir uma loja'
-								isActive={pathname === '/onboarding'}
+								isActive={pathname.startsWith(
+									'/onboarding/seller'
+								)}
 								render={
-									<Link prefetch href='/onboarding'>
+									<Link
+										prefetch
+										href='/onboarding/seller'
+									>
 										<StoreIcon className='size-4' />
 										<span>Abrir uma loja</span>
 									</Link>

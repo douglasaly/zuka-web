@@ -24,6 +24,7 @@ export async function GET(req: Request, { params }: GetStoreProductsProps) {
 			.from('stores')
 			.select('id, name, slug')
 			.eq('slug', slug)
+			.eq('status', 'ACTIVE')
 			.is('deleted_at', null)
 			.maybeSingle()
 

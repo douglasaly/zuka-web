@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/sidebar'
 import { useUnreadCounts } from '@/hooks/use-unread-counts'
 import type { StorePermission } from '@/lib/auth/store-permissions'
+import { setViewAsBuyerMode } from '@/lib/auth/view-as-buyer'
 import { cn } from '@/lib/utils'
 import { useSellerAccess } from '@/modules/seller/hooks/use-seller-access'
 
@@ -111,17 +112,33 @@ const FOOTER_ITEMS = [
 	{ title: 'Sair', icon: LogOut, href: '/log-out' },
 ]
 
+const ALL_NAV_HREFS = GROUPS.flatMap((group) =>
+	group.items.map((item) => item.href)
+)
+
+/** Exact path, or longest nav href that is a parent of the current path. */
+function resolveActiveHref(pathname: string): string | null {
+	const matches = ALL_NAV_HREFS.filter(
+		(href) => pathname === href || pathname.startsWith(`${href}/`)
+	)
+	if (matches.length === 0) return null
+	return matches.reduce((best, href) =>
+		href.length > best.length ? href : best
+	)
+}
+
 export const SellerSidebar = () => {
 	const pathname = usePathname()
 	const { data: unread } = useUnreadCounts()
 	const { can, isLoading } = useSellerAccess()
+	const activeHref = resolveActiveHref(pathname)
 
 	return (
 		<Sidebar
 			className='border-r border-sidebar-border bg-sidebar'
 			collapsible='icon'
 		>
-			<SidebarHeader className='flex h-[76px] items-center border-b border-sidebar-border px-4'>
+			<SidebarHeader className='flex h-19 items-center border-b border-sidebar-border px-4'>
 				<div className='flex items-center gap-2.5'>
 					<div className='flex min-w-0 group-data-[collapsible=icon]:hidden gap-1 items-center'>
 						<h1 className='truncate font-heading text-3xl font-extrabold tracking-tight'>
@@ -154,8 +171,7 @@ export const SellerSidebar = () => {
 									{items.map((item) => {
 										const Icon = item.icon
 										const isActive =
-											pathname === item.href ||
-											pathname.startsWith(`${item.href}/`)
+											activeHref === item.href
 
 										const badgeCount =
 											item.badgeKey && unread
@@ -202,13 +218,21 @@ export const SellerSidebar = () => {
 				<SidebarMenu>
 					{FOOTER_ITEMS.map((item) => {
 						const Icon = item.icon
+						const isViewAsBuyer = item.href === '/feed/explorar'
 
 						return (
 							<SidebarMenuItem key={item.title}>
 								<SidebarMenuButton
 									tooltip={item.title}
 									render={
-										<Link href={item.href}>
+										<Link
+											href={item.href}
+											onClick={
+												isViewAsBuyer
+													? () => setViewAsBuyerMode()
+													: undefined
+											}
+										>
 											<Icon className='size-4' />
 											<span>{item.title}</span>
 										</Link>

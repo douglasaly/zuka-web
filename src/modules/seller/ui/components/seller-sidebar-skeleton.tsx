@@ -1,4 +1,3 @@
-import { Skeleton } from '@/components/ui/skeleton'
 import {
 	Sidebar,
 	SidebarContent,
@@ -10,11 +9,11 @@ import {
 	SidebarMenu,
 	SidebarMenuSkeleton,
 } from '@/components/ui/sidebar'
+import { Skeleton } from '@/components/ui/skeleton'
 
 const GROUPS = [
 	{ label: 'Principal', items: 3 },
 	{ label: 'Loja', items: 3 },
-	{ label: 'Análises', items: 1 },
 	{ label: 'Configurações', items: 2 },
 ]
 
@@ -24,11 +23,11 @@ export const SellerSidebarSkeleton = () => {
 			className='border-r border-sidebar-border bg-sidebar'
 			collapsible='icon'
 		>
-			<SidebarHeader className='border-b border-sidebar-border p-4 py-5'>
+			<SidebarHeader className='flex h-19 items-center border-b border-sidebar-border px-4'>
 				<div className='flex items-center gap-2.5'>
 					<div className='flex min-w-0 group-data-[collapsible=icon]:hidden gap-1 items-center'>
 						<Skeleton className='h-8 w-20' />
-						<Skeleton className='h-5 w-16 rounded-full' />
+						<Skeleton className='h-5 w-16 rounded-xl' />
 					</div>
 				</div>
 			</SidebarHeader>
@@ -36,7 +35,9 @@ export const SellerSidebarSkeleton = () => {
 			<SidebarContent className='px-2 py-3'>
 				{GROUPS.map((group) => (
 					<SidebarGroup key={group.label}>
-						<SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+						<SidebarGroupLabel>
+							{group.label.toUpperCase()}
+						</SidebarGroupLabel>
 						<SidebarGroupContent>
 							<SidebarMenu>
 								{Array.from({ length: group.items }).map(

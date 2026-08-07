@@ -1,3 +1,4 @@
+import { SellerAccessGate } from './seller-access-gate'
 import { SellerLayoutShell } from './seller-layout-shell'
 
 interface SellerLayoutProps {
@@ -5,5 +6,9 @@ interface SellerLayoutProps {
 }
 
 export const SellerLayout = ({ children }: SellerLayoutProps) => {
-	return <SellerLayoutShell>{children}</SellerLayoutShell>
+	return (
+		<SellerLayoutShell>
+			<SellerAccessGate>{children}</SellerAccessGate>
+		</SellerLayoutShell>
+	)
 }

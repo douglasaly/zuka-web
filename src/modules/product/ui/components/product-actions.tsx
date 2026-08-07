@@ -1,52 +1,82 @@
-/** biome-ignore-all lint/a11y/useAnchorContent: <Allow use anchor a> */
+'use client'
+
 import { MessageCircle, Phone } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { trackContactEvent } from '@/lib/contact-events'
 
 type ProductActionsProps = {
-	whatsappHref: string
-	phoneHref: string
+	storeId: string
+	productId: string
+	whatsappHref: string | null
+	phoneHref: string | null
 	onChat: () => void
 	isChatting?: boolean
 }
 
 export const ProductActions = ({
+	storeId,
+	productId,
 	whatsappHref,
 	phoneHref,
 	onChat,
 	isChatting,
-}: ProductActionsProps) => (
-	<div className='flex gap-2'>
-		<Button
-			render={
-				<a
-					href={whatsappHref}
-					target='_blank'
-					rel='noopener noreferrer'
-				/>
-			}
-			className='flex-1 rounded-xl bg-[#25D366] text-white hover:bg-[#20bd5a]'
-			size='lg'
-		>
-			WhatsApp
-		</Button>
-		<Button
-			render={<a href={phoneHref} />}
-			variant='outline'
-			size='lg'
-			className='rounded-xl'
-		>
-			<Phone className='size-4' />
-			Ligar
-		</Button>
-		<Button
-			variant='outline'
-			size='lg'
-			className='rounded-xl'
-			onClick={onChat}
-			disabled={isChatting}
-		>
-			<MessageCircle className='size-4' />
-			{isChatting ? 'A abrir...' : 'Chat'}
-		</Button>
-	</div>
-)
+}: ProductActionsProps) => {
+	const openWhatsApp = () => {
+		if (!whatsappHref) return
+		trackContactEvent({
+			storeId,
+			productId,
+			type: 'whatsapp',
+			source: 'product',
+		})
+		window.open(whatsappHref, '_blank', 'noopener,noreferrer')
+	}
+
+	const openCall = () => {
+		if (!phoneHref) return
+		trackContactEvent({
+			storeId,
+			productId,
+			type: 'call',
+			source: 'product',
+		})
+		window.location.href = phoneHref
+	}
+
+	return (
+		<div className='flex gap-2'>
+			{whatsappHref && (
+				<Button
+					type='button'
+					onClick={openWhatsApp}
+					className='flex-1 rounded-xl bg-[#25D366] text-white hover:bg-[#20bd5a]'
+					size='lg'
+				>
+					WhatsApp
+				</Button>
+			)}
+			{phoneHref && (
+				<Button
+					type='button'
+					onClick={openCall}
+					variant='outline'
+					size='lg'
+					className='rounded-xl'
+				>
+					<Phone className='size-4' />
+					Ligar
+				</Button>
+			)}
+			<Button
+				variant='outline'
+				size='lg'
+				className='rounded-xl'
+				onClick={onChat}
+				disabled={isChatting}
+			>
+				<MessageCircle className='size-4' />
+				{isChatting ? 'A abrir...' : 'Chat'}
+			</Button>
+		</div>
+	)
+}

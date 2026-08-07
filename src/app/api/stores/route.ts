@@ -19,7 +19,6 @@ export const GET = withErrorHandling(async (request) => {
 	const { searchParams } = new URL(request.url)
 	const params = StoreFiltersSchema.parse({
 		search: searchParams.get('search') ?? undefined,
-		status: searchParams.get('status') ?? undefined,
 	})
 
 	const limit = Math.min(Number(searchParams.get('limit') ?? 50), 100)
@@ -41,15 +40,12 @@ export const GET = withErrorHandling(async (request) => {
 			{ count: 'exact' }
 		)
 		.is('deleted_at', null)
+		.eq('status', 'ACTIVE')
 		.order('created_at', { ascending: false })
 		.range(offset, offset + limit - 1)
 
 	if (params.search) {
 		query = query.ilike('name', `%${params.search}%`)
-	}
-
-	if (params.status) {
-		query = query.eq('status', params.status)
 	}
 
 	const { data, error, count } = await query

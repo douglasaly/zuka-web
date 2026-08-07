@@ -51,6 +51,7 @@ export const StoreInfoCard = ({ store }: StoreInfoCardProps) => {
 			</div>
 
 			<StoreContactActions
+				storeId={store.id}
 				whatsapp={whatsapp || undefined}
 				phone={store.phone}
 				isFollowing={isFollowing}

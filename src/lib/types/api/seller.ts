@@ -281,6 +281,10 @@ export type GetSellerStatsOutput = {
 		totalOrders: number
 		totalOrdersPrev: number
 		totalOrdersPct: number
+		whatsappContacts: number
+		whatsappContactsPct: number
+		callContacts: number
+		callContactsPct: number
 		totalFollowers: number
 		productCount: number
 	}

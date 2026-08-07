@@ -10,7 +10,7 @@ const exploreLinks = [
 
 const resourceLinks = [
 	{ label: 'Perguntas frequentes', href: '/perguntas-frequentes' },
-	{ label: 'Abrir uma loja', href: '/onboarding' },
+	{ label: 'Abrir uma loja', href: '/onboarding/seller' },
 	{ label: 'Painel da loja', href: '/dashboard/seller' },
 ]
 

@@ -1,8 +1,8 @@
-import { Eye, Package, TrendingUp, Users } from 'lucide-react'
+import { Eye, MessageCircle, Package, Phone, TrendingUp, Users } from 'lucide-react'
 
 export type SellerStatData = {
 	id: string
-	icon: 'trending' | 'package' | 'users' | 'eye'
+	icon: 'trending' | 'package' | 'whatsapp' | 'phone' | 'users' | 'eye'
 	value: string
 	label: string
 	change?: number
@@ -11,6 +11,12 @@ export type SellerStatData = {
 const ICONS = {
 	trending: { Icon: TrendingUp, bg: 'bg-rose-100', fg: 'text-rose-500' },
 	package: { Icon: Package, bg: 'bg-blue-100', fg: 'text-blue-500' },
+	whatsapp: {
+		Icon: MessageCircle,
+		bg: 'bg-green-100',
+		fg: 'text-green-600',
+	},
+	phone: { Icon: Phone, bg: 'bg-violet-100', fg: 'text-violet-500' },
 	users: { Icon: Users, bg: 'bg-emerald-100', fg: 'text-emerald-500' },
 	eye: { Icon: Eye, bg: 'bg-amber-100', fg: 'text-amber-500' },
 } as const

@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { CheckCircle2, Clock } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,11 +13,14 @@ import { Textarea } from '@/components/ui/textarea'
 import {
 	createStore,
 	fetchUserProfile,
+	setOnboardingRole,
 	submitVerification,
 	updateSellerStore,
 } from '@/lib/api/marketplace'
+import { setViewAsBuyerMode } from '@/lib/auth/view-as-buyer'
 import { createAppSession } from '@/lib/firebase/create-session'
 import { auth } from '@/lib/firebase/firebase-client'
+import { syncUserToBackend } from '@/lib/firebase/sync-user-to-backend'
 import { FileUploadCard } from '../components/file-upload-card'
 import {
 	OnboardingField,
@@ -71,7 +74,12 @@ export const SellerOnboardingView = () => {
 	const router = useRouter()
 	const queryClient = useQueryClient()
 
-	const { data: profile, isLoading } = useQuery({
+	const {
+		data: profile,
+		isLoading,
+		isFetching,
+		refetch,
+	} = useQuery({
 		queryKey: ['user-profile'],
 		queryFn: async () => {
 			if (!auth.currentUser) return null
@@ -79,6 +87,61 @@ export const SellerOnboardingView = () => {
 			return fetchUserProfile()
 		},
 	})
+
+	const [roleBootstrapError, setRoleBootstrapError] = useState<string | null>(
+		null
+	)
+	const [isBootstrappingRole, setIsBootstrappingRole] = useState(false)
+	const roleBootstrapAttempted = useRef(false)
+
+	// Existing buyers ("Abrir uma loja") land here directly — assign seller role.
+	useEffect(() => {
+		if (isLoading || isFetching || isBootstrappingRole) return
+		if (!auth.currentUser || !profile) return
+		if (profile.roles.includes('seller')) return
+		if (roleBootstrapAttempted.current) return
+
+		roleBootstrapAttempted.current = true
+		setIsBootstrappingRole(true)
+		setRoleBootstrapError(null)
+
+		let cancelled = false
+
+		;(async () => {
+			try {
+				await createAppSession()
+				await syncUserToBackend()
+				await setOnboardingRole('seller')
+				await queryClient.invalidateQueries({
+					predicate: (query) =>
+						Array.isArray(query.queryKey) &&
+						query.queryKey[0] === 'user-profile',
+				})
+				if (!cancelled) await refetch()
+			} catch (err) {
+				if (!cancelled) {
+					setRoleBootstrapError(
+						err instanceof Error
+							? err.message
+							: 'Erro ao activar perfil de vendedor'
+					)
+				}
+			} finally {
+				if (!cancelled) setIsBootstrappingRole(false)
+			}
+		})()
+
+		return () => {
+			cancelled = true
+		}
+	}, [
+		isBootstrappingRole,
+		isFetching,
+		isLoading,
+		profile,
+		queryClient,
+		refetch,
+	])
 
 	const { data: provinces = [] } = useQuery<Province[]>({
 		queryKey: ['provinces'],
@@ -200,7 +263,7 @@ export const SellerOnboardingView = () => {
 		)
 	}
 
-	if (isLoading) {
+	if (isLoading || isBootstrappingRole) {
 		return (
 			<div className='flex flex-1 items-center justify-center text-sm text-muted-foreground'>
 				A carregar...
@@ -208,15 +271,28 @@ export const SellerOnboardingView = () => {
 		)
 	}
 
-	if (!profile?.roles.includes('seller')) {
+	if (roleBootstrapError) {
 		return (
 			<div className='flex flex-1 flex-col items-center justify-center gap-4 px-4 text-center'>
-				<p className='text-muted-foreground'>
-					Ainda não escolheste o perfil de vendedor.
-				</p>
+				<p className='text-sm text-destructive'>{roleBootstrapError}</p>
 				<Button
-					render={<Link href='/onboarding'>Escolher perfil</Link>}
-				/>
+					type='button'
+					onClick={() => {
+						roleBootstrapAttempted.current = false
+						setRoleBootstrapError(null)
+						void refetch()
+					}}
+				>
+					Tentar novamente
+				</Button>
+			</div>
+		)
+	}
+
+	if (!profile?.roles.includes('seller')) {
+		return (
+			<div className='flex flex-1 items-center justify-center text-sm text-muted-foreground'>
+				A preparar a tua loja...
 			</div>
 		)
 	}
@@ -249,10 +325,11 @@ export const SellerOnboardingView = () => {
 	if (step === 1) {
 		return (
 			<OnboardingShell
-				title='Criar conta de loja'
-				subtitle='Preenche os dados da tua loja'
+				title='Dados da tua loja'
+				subtitle='Começa com o essencial. Podes editar tudo depois no painel.'
 				currentStep={1}
-				onBack={() => router.push('/onboarding')}
+				onBack={() => router.push('/')}
+				backLabel='Voltar ao marketplace'
 				footer={
 					<Button
 						type='button'
@@ -270,12 +347,15 @@ export const SellerOnboardingView = () => {
 							})
 						}}
 					>
-						{isPending ? 'A guardar...' : 'Continuar'}
+						{isPending ? 'A criar a loja…' : 'Continuar'}
 					</Button>
 				}
 			>
 				<OnboardingFormCard>
-					<OnboardingField label='Nome da loja'>
+					<OnboardingField
+						label='Nome da loja'
+						hint='Como os clientes vão encontrar-te no Zuka'
+					>
 						<Input
 							required
 							value={accountForm.name}
@@ -290,7 +370,10 @@ export const SellerOnboardingView = () => {
 						/>
 					</OnboardingField>
 
-					<OnboardingField label='Cidade / Bairro'>
+					<OnboardingField
+						label='Cidade / Bairro'
+						hint='Ajuda os clientes a perceber onde estás'
+					>
 						<Input
 							required
 							value={accountForm.neighborhood}
@@ -305,7 +388,7 @@ export const SellerOnboardingView = () => {
 						/>
 					</OnboardingField>
 
-					<OnboardingField label='Email'>
+					<OnboardingField label='Email' optional>
 						<Input
 							type='email'
 							value={accountForm.email}
@@ -362,7 +445,11 @@ export const SellerOnboardingView = () => {
 						</select>
 					</OnboardingField>
 
-					<OnboardingField label='Número de telefone'>
+					<OnboardingField
+						label='Telefone da loja'
+						hint='Com prefixo +258'
+						optional
+					>
 						<PhoneInput
 							value={accountForm.phone}
 							onChange={(phone) =>
@@ -373,7 +460,10 @@ export const SellerOnboardingView = () => {
 				</OnboardingFormCard>
 
 				{error && (
-					<p className='rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-sm text-destructive'>
+					<p
+						role='alert'
+						className='rounded-xl border border-destructive/25 bg-destructive/10 px-3.5 py-2.5 text-sm text-destructive'
+					>
 						{error}
 					</p>
 				)}
@@ -384,8 +474,8 @@ export const SellerOnboardingView = () => {
 	if (step === 2) {
 		return (
 			<OnboardingShell
-				title='Configura a tua loja'
-				subtitle='Personaliza o perfil da tua loja'
+				title='Perfil da loja'
+				subtitle='Imagens e contacto ajudam os clientes a confiar e a falar contigo.'
 				currentStep={2}
 				onBack={() => setStep(1)}
 				footer={
@@ -409,14 +499,17 @@ export const SellerOnboardingView = () => {
 							})
 						}}
 					>
-						{isPending ? 'A guardar...' : 'Continuar'}
+						{isPending ? 'A guardar…' : 'Continuar'}
 					</Button>
 				}
 			>
-				<OnboardingFormCard>
+				<OnboardingFormCard
+					title='Imagem da loja'
+					description='Opcional por agora — podes actualizar depois.'
+				>
 					<FileUploadCard
 						label='Logo da loja'
-						hint='Carregar logo circular'
+						hint='Preferência: imagem quadrada'
 						variant='logo'
 						purpose='store-logo'
 						value={profileForm.logoUrl}
@@ -427,7 +520,7 @@ export const SellerOnboardingView = () => {
 
 					<FileUploadCard
 						label='Banner da loja'
-						hint='Carregar imagem de capa'
+						hint='Imagem larga para o topo da página'
 						variant='banner'
 						purpose='store-banner'
 						value={profileForm.bannerUrl}
@@ -436,7 +529,7 @@ export const SellerOnboardingView = () => {
 						}
 					/>
 
-					<OnboardingField label='Descrição curta'>
+					<OnboardingField label='Descrição curta' optional>
 						<Textarea
 							value={profileForm.description}
 							onChange={(e) =>
@@ -445,20 +538,23 @@ export const SellerOnboardingView = () => {
 									description: e.target.value,
 								}))
 							}
-							placeholder='Descreve a tua loja em poucas palavras...'
+							placeholder='O que vendes e o que te distingue…'
 							className={`${onboardingInputClass} min-h-24 resize-none`}
 						/>
 					</OnboardingField>
 				</OnboardingFormCard>
 
-				<OnboardingFormCard>
+				<OnboardingFormCard
+					title='Contacto e entrega'
+					description='Os clientes usam estes dados para WhatsApp e chamadas.'
+				>
 					<div className='flex items-center justify-between gap-4'>
 						<div>
 							<p className='text-sm font-semibold'>
-								Fazes entregas?
+								Ofereces entrega?
 							</p>
 							<p className='text-xs text-muted-foreground'>
-								Entrega ao domicílio
+								Mostra se fazes entrega ao domicílio
 							</p>
 						</div>
 						<Switch
@@ -469,7 +565,11 @@ export const SellerOnboardingView = () => {
 						/>
 					</div>
 
-					<OnboardingField label='Número WhatsApp'>
+					<OnboardingField
+						label='WhatsApp'
+						hint='Número com +258 para contactos pela plataforma'
+						optional
+					>
 						<PhoneInput
 							value={profileForm.whatsapp}
 							onChange={(whatsapp) =>
@@ -479,8 +579,9 @@ export const SellerOnboardingView = () => {
 					</OnboardingField>
 
 					<OnboardingField
-						label='Número para chamadas'
-						hint='Número de telefone fixo ou móvel para clientes ligarem'
+						label='Telefone para chamadas'
+						hint='Fixo ou móvel para os clientes ligarem'
+						optional
 					>
 						<PhoneInput
 							value={profileForm.phone}
@@ -493,7 +594,10 @@ export const SellerOnboardingView = () => {
 				</OnboardingFormCard>
 
 				{error && (
-					<p className='rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-sm text-destructive'>
+					<p
+						role='alert'
+						className='rounded-xl border border-destructive/25 bg-destructive/10 px-3.5 py-2.5 text-sm text-destructive'
+					>
 						{error}
 					</p>
 				)}
@@ -504,8 +608,8 @@ export const SellerOnboardingView = () => {
 	if (step === 3) {
 		return (
 			<OnboardingShell
-				title='Verificação de identidade'
-				subtitle='Precisamos verificar a tua identidade. A tua conta será aprovada em até 24 horas.'
+				title='Confirma a tua identidade'
+				subtitle='Envia o documento e uma selfie. A equipa Zuka revê o pedido — normalmente em até 24 horas.'
 				currentStep={3}
 				onBack={() => setStep(2)}
 				maxWidth='lg'
@@ -531,14 +635,16 @@ export const SellerOnboardingView = () => {
 							})
 						}}
 					>
-						{isPending ? 'A enviar...' : 'Enviar para revisão'}
+						{isPending
+							? 'A enviar documentos…'
+							: 'Enviar para revisão'}
 					</Button>
 				}
 			>
 				<div className='grid gap-4 sm:grid-cols-2'>
 					<FileUploadCard
-						label=''
-						hint=''
+						label='Documento de identificação'
+						hint='BI ou passaporte, foto nítida da frente'
 						variant='document'
 						purpose='verification-id'
 						value={verificationForm.idCardUrl}
@@ -547,8 +653,8 @@ export const SellerOnboardingView = () => {
 						}
 					/>
 					<FileUploadCard
-						label=''
-						hint=''
+						label='Selfie com o documento'
+						hint='Segura o documento ao lado do rosto'
 						variant='selfie'
 						purpose='verification-selfie'
 						value={verificationForm.selfieUrl}
@@ -558,18 +664,22 @@ export const SellerOnboardingView = () => {
 					/>
 				</div>
 
-				<div className='flex items-start gap-3 rounded-2xl bg-emerald-50 p-4'>
-					<div className='flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white'>
-						<CheckCircle2 className='size-4' />
+				<div className='flex items-start gap-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4'>
+					<div className='flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white'>
+						<CheckCircle2 className='size-4' aria-hidden />
 					</div>
-					<p className='text-sm leading-relaxed text-emerald-900'>
-						Os teus documentos são tratados de forma confidencial e
-						segura. Só são usados para verificar a tua identidade.
+					<p className='text-sm leading-relaxed text-emerald-950'>
+						Os documentos são confidenciais e só servem para
+						verificar a tua identidade. Sem aprovação da equipa, a
+						loja não fica pública no painel.
 					</p>
 				</div>
 
 				{error && (
-					<p className='rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-sm text-destructive'>
+					<p
+						role='alert'
+						className='rounded-xl border border-destructive/25 bg-destructive/10 px-3.5 py-2.5 text-sm text-destructive'
+					>
 						{error}
 					</p>
 				)}
@@ -579,29 +689,45 @@ export const SellerOnboardingView = () => {
 
 	return (
 		<div className='flex flex-1 flex-col items-center justify-center bg-background px-4 py-12'>
-			<div className='w-full max-w-md space-y-6 text-center'>
-				<div className='mx-auto flex size-24 items-center justify-center rounded-full bg-orange-50'>
-					<Clock className='size-12 text-secondary' />
+			<div className='w-full max-w-md space-y-8 text-center'>
+				<div className='mx-auto flex size-20 items-center justify-center rounded-full bg-secondary/10 sm:size-24'>
+					<Clock
+						className='size-10 text-secondary sm:size-12'
+						aria-hidden
+					/>
 				</div>
 
 				<div className='space-y-3'>
-					<h1 className='font-heading text-2xl font-bold sm:text-3xl'>
-						A tua loja está em revisão!
+					<p className='text-sm font-medium text-muted-foreground'>
+						Pedido enviado
+					</p>
+					<h1 className='font-heading text-2xl font-bold tracking-tight text-balance sm:text-3xl'>
+						A tua loja está em revisão
 					</h1>
 					<p className='text-sm leading-relaxed text-muted-foreground sm:text-base'>
-						A nossa Equipe vai verificar os teus dados. Vais receber
-						uma notificação quando a tua conta for aprovada.
+						A equipe Zuka vai confirmar os teus dados. Recebes uma
+						notificação quando fores aprovado, até lá podes
+						continuar a explorar o marketplace.
 					</p>
 				</div>
 
-				<Button
-					render={<Link href='/' />}
-					variant='outline'
-					className='h-12 w-full rounded-full text-base font-semibold'
-					size='lg'
-				>
-					Voltar ao início
-				</Button>
+				<div className='space-y-2'>
+					<Button
+						render={
+							<Link
+								href='/'
+								onClick={() => setViewAsBuyerMode()}
+							/>
+						}
+						className='h-12 w-full rounded-full text-base font-semibold'
+						size='lg'
+					>
+						Ir para o marketplace
+					</Button>
+					<p className='text-xs text-muted-foreground'>
+						O painel do vendedor fica disponível após aprovação.
+					</p>
+				</div>
 			</div>
 		</div>
 	)

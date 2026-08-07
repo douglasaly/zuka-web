@@ -18,6 +18,11 @@ import { Button } from '@/components/ui/button'
 import { UserAvatar } from '@/components/user-avatar'
 import { useSavedItems } from '@/hooks/use-saved-items'
 import { useUserProfile } from '@/hooks/use-user-profile'
+import {
+	getSellerPanelPath,
+	isAwaitingSellerApproval,
+	needsSellerOnboarding,
+} from '@/lib/auth/routing'
 import { normalizeStore } from '@/types/stores'
 import { EmptyState } from '../components/empty-state'
 import { FollowedStoreCard } from '../components/followed-store-card'
@@ -245,15 +250,27 @@ export const ProfileView = () => {
 
 					{isSeller ? (
 						<ProfileActionLink
-							href='/dashboard/seller'
+							href={getSellerPanelPath(profile)}
 							icon={Store}
 							iconClassName='text-emerald-600'
-							title='Painel do vendedor'
-							description='Gerir loja e produtos'
+							title={
+								isAwaitingSellerApproval(profile)
+									? 'Aguarda aprovação'
+									: needsSellerOnboarding(profile)
+										? 'Continuar registo da loja'
+										: 'Painel do vendedor'
+							}
+							description={
+								isAwaitingSellerApproval(profile)
+									? 'A tua loja está em revisão pela equipa Zuka'
+									: needsSellerOnboarding(profile)
+										? 'Concluir a configuração da loja'
+										: 'Gerir loja e produtos'
+							}
 						/>
 					) : (
 						<ProfileActionLink
-							href='/onboarding'
+							href='/onboarding/seller'
 							icon={Package}
 							iconClassName='text-emerald-600'
 							title='Abrir uma loja'

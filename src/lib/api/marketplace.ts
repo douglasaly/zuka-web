@@ -126,7 +126,6 @@ export type InfiniteStoresResponse = {
 export async function fetchStoresInfinite(params: {
 	pageParam: string | null
 	search?: string
-	status?: string
 	limit?: number
 }): Promise<InfiniteStoresResponse> {
 	const url = new URL(
@@ -134,7 +133,6 @@ export async function fetchStoresInfinite(params: {
 		typeof window !== 'undefined' ? window.location.origin : ''
 	)
 	if (params.search) url.searchParams.set('search', params.search)
-	if (params.status) url.searchParams.set('status', params.status)
 	url.searchParams.set('limit', String(params.limit ?? 50))
 	if (params.pageParam) url.searchParams.set('offset', params.pageParam)
 

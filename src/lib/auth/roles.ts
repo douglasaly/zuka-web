@@ -67,31 +67,45 @@ export async function ensureSellerProfile(userId: string) {
 		.maybeSingle()
 
 	if (selectError) throw selectError
-	if (existing) return existing
 
-	const profileId = uuidv7()
-	const { data: profile, error: insertError } = await supabase
-		.from('seller_profiles')
-		.insert({
-			id: profileId,
-			user_id: userId,
-			status: 'PENDING',
-		})
-		.select('*')
-		.single()
+	let profile = existing
 
-	if (insertError) throw insertError
+	if (!profile) {
+		const profileId = uuidv7()
+		const { data: inserted, error: insertError } = await supabase
+			.from('seller_profiles')
+			.insert({
+				id: profileId,
+				user_id: userId,
+				status: 'PENDING',
+			})
+			.select('*')
+			.single()
 
-	const { error: onboardingError } = await supabase
+		if (insertError) throw insertError
+		profile = inserted
+	}
+
+	const { data: onboarding, error: onboardingSelectError } = await supabase
 		.from('seller_onboarding')
-		.insert({
-			id: uuidv7(),
-			seller_profile_id: profileId,
-			status: 'DRAFT',
-			current_step: 'STORE_INFO',
-		})
+		.select('id')
+		.eq('seller_profile_id', profile.id)
+		.maybeSingle()
 
-	if (onboardingError) throw onboardingError
+	if (onboardingSelectError) throw onboardingSelectError
+
+	if (!onboarding) {
+		const { error: onboardingError } = await supabase
+			.from('seller_onboarding')
+			.insert({
+				id: uuidv7(),
+				seller_profile_id: profile.id,
+				status: 'DRAFT',
+				current_step: 'STORE_INFO',
+			})
+
+		if (onboardingError) throw onboardingError
+	}
 
 	return profile
 }

@@ -16,8 +16,8 @@ export const SellerStatCardSkeleton = () => (
 )
 
 export const SellerStatsGridSkeleton = () => (
-	<div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
-		{Array.from({ length: 4 }).map((_, i) => (
+	<div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+		{Array.from({ length: 6 }).map((_, i) => (
 			<SellerStatCardSkeleton key={i} />
 		))}
 	</div>
@@ -27,12 +27,18 @@ export const SellerDashboardSkeleton = () => (
 	<div className='space-y-6'>
 		<SellerWelcomeBannerSkeleton />
 		<SellerStatsGridSkeleton />
+		<div className='flex flex-wrap gap-3'>
+			<Skeleton className='h-10 w-36 rounded-xl' />
+			<Skeleton className='h-10 w-32 rounded-xl' />
+			<Skeleton className='h-10 w-36 rounded-xl' />
+		</div>
 		<Skeleton className='h-12 w-full rounded-xl' />
-		<div className='rounded-2xl border bg-card p-8'>
+		<div className='rounded-2xl border bg-card p-6 sm:p-8'>
 			<div className='space-y-4'>
 				<Skeleton className='h-6 w-32' />
 				<Skeleton className='h-4 w-full' />
 				<Skeleton className='h-4 w-3/4' />
+				<Skeleton className='h-40 w-full rounded-xl' />
 			</div>
 		</div>
 	</div>

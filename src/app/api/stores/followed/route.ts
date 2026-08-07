@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getSessionUser } from '@/lib/auth/session'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
-import { FollowedStores } from '@/types/stores'
+import type { FollowedStores } from '@/types/stores'
 
 export async function GET(req: Request) {
 	const user = await getSessionUser()
@@ -22,13 +22,15 @@ export async function GET(req: Request) {
 		.select(
 			`
 			followed_at,
-			store:store_id (
+			store:store_id!inner (
 				id,
 				name,
 				logo_url,
 				slug,
 				state,
+				status,
 				verified_at,
+				deleted_at,
 				province:province_id (
 					name
 				)
@@ -37,6 +39,8 @@ export async function GET(req: Request) {
 			{ count: 'exact' }
 		)
 		.eq('user_id', user.id)
+		.eq('store.status', 'ACTIVE')
+		.is('store.deleted_at', null)
 		.order('followed_at', { ascending: false })
 		.limit(limit)
 

@@ -13,6 +13,7 @@ interface OnboardingShellProps {
 	currentStep?: number
 	totalSteps?: number
 	onBack?: () => void
+	backLabel?: string
 	children: ReactNode
 	footer?: ReactNode
 	className?: string
@@ -31,6 +32,7 @@ export function OnboardingShell({
 	currentStep,
 	totalSteps = 4,
 	onBack,
+	backLabel = 'Voltar ao passo anterior',
 	children,
 	footer,
 	className,
@@ -48,13 +50,14 @@ export function OnboardingShell({
 
 	return (
 		<div className='flex flex-1 flex-col bg-background'>
-			<div className='mx-auto flex w-full flex-1 flex-col px-4 py-8 sm:px-6 sm:py-10'>
+			<div className='mx-auto flex w-full flex-1 flex-col px-4 py-6 sm:px-6 sm:py-10'>
 				<div className={cn('mx-auto w-full', maxWidthClass[maxWidth])}>
-					<div className='mb-8 flex items-center justify-between'>
+					<div className='mb-6 flex items-center justify-between gap-3 sm:mb-8'>
 						<IconTooltipButton
-							label='Voltar'
+							label={backLabel}
 							size='icon'
 							onClick={handleBack}
+							className='size-10 rounded-full'
 						>
 							<ArrowLeft className='size-5' />
 						</IconTooltipButton>
@@ -66,21 +69,26 @@ export function OnboardingShell({
 							/>
 						)}
 
-						<div className='size-9' aria-hidden />
+						<div className='size-10 shrink-0' aria-hidden />
 					</div>
 
-					<div className='mb-8 space-y-2'>
-						<h1 className='font-heading text-2xl font-bold tracking-tight sm:text-3xl'>
+					<div className='mb-6 space-y-2 sm:mb-8'>
+						{currentStep != null && (
+							<p className='text-xs font-medium tracking-wide text-muted-foreground sm:text-sm'>
+								Passo {currentStep} de {totalSteps}
+							</p>
+						)}
+						<h1 className='font-heading text-2xl font-bold tracking-tight text-balance sm:text-3xl'>
 							{title}
 						</h1>
 						{subtitle && (
-							<p className='text-sm text-muted-foreground sm:text-base'>
+							<p className='max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-base'>
 								{subtitle}
 							</p>
 						)}
 					</div>
 
-					<div className={cn('flex-1 space-y-6', className)}>
+					<div className={cn('flex-1 space-y-5 sm:space-y-6', className)}>
 						{children}
 					</div>
 				</div>

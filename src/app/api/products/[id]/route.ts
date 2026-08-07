@@ -18,10 +18,12 @@ export async function GET(
 		const supabase = createSupabaseAdmin()
 		const { data, error } = await supabase
 			.from('products')
-			.select('*, stores(*), categories(*), product_images(*)')
+			.select('*, stores!inner(*), categories(*), product_images(*)')
 			.eq('id', id)
 			.eq('is_visible', true)
 			.is('deleted_at', null)
+			.eq('stores.status', 'ACTIVE')
+			.is('stores.deleted_at', null)
 			.maybeSingle()
 
 		if (error) {
