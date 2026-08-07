@@ -158,8 +158,6 @@ export type SellerStoreDetail = {
 	verifiedAt: string | null
 	productCount: number
 	hasDelivery: boolean
-	deliveryFee: number | null
-	deliveryEtaMinutes: number | null
 	deliveryZones: string[]
 	documents: SellerStoreDocument[]
 }
@@ -183,8 +181,6 @@ export type UpdateSellerStoreInput = {
 	neighborhood?: string
 	status?: 'ACTIVE' | 'INACTIVE'
 	hasDelivery?: boolean
-	deliveryFee?: number | null
-	deliveryEtaMinutes?: number | null
 	deliveryZones?: string[]
 	currentStep?: string
 }

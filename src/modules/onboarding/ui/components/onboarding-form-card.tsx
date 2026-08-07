@@ -44,6 +44,7 @@ interface OnboardingFieldProps {
 	label: string
 	hint?: string
 	optional?: boolean
+	error?: string | null
 	children: ReactNode
 	className?: string
 }
@@ -52,6 +53,7 @@ export function OnboardingField({
 	label,
 	hint,
 	optional,
+	error,
 	children,
 	className,
 }: OnboardingFieldProps) {
@@ -73,6 +75,11 @@ export function OnboardingField({
 				)}
 			</div>
 			{children}
+			{error ? (
+				<p role='alert' className='text-xs text-destructive'>
+					{error}
+				</p>
+			) : null}
 		</div>
 	)
 }

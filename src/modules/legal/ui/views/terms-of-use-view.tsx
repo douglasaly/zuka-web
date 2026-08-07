@@ -330,7 +330,7 @@ export function TermsOfUseView() {
 									utilizadores;
 								</li>
 								<li>
-									falhas de rede, equipamento ou factores fora
+									falhas de rede, equipemento ou factores fora
 									do nosso controlo razoável.
 								</li>
 							</ul>

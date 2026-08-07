@@ -12,7 +12,7 @@ const features = [
 		icon: CheckCircle2,
 		title: 'Lojas verificadas',
 		description:
-			'A equipa Zuka confirma a identidade das lojas antes de ficarem activas.',
+			'A equipe Zuka confirma a identidade das lojas antes de ficarem activas.',
 		iconClass: 'bg-emerald-500/10 text-emerald-700',
 	},
 	{
@@ -62,10 +62,7 @@ export const BuyerWelcomeView = () => {
 									feature.iconClass
 								)}
 							>
-								<feature.icon
-									className='size-5'
-									aria-hidden
-								/>
+								<feature.icon className='size-5' aria-hidden />
 							</div>
 							<div className='min-w-0 space-y-1'>
 								<p className='font-semibold'>{feature.title}</p>

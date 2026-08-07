@@ -82,7 +82,12 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
 				id: 'abrir-loja',
 				question: 'Como abro uma loja na Zuka?',
 				answer: 'Crie conta e siga o onboarding da loja: nome, contacto (incluindo WhatsApp), categoria e dados necessários. Depois de publicada, a loja fica visível no marketplace e pode receber encomendas.',
-				links: [{ href: '/onboarding/seller', label: 'Começar a abrir loja' }],
+				links: [
+					{
+						href: '/onboarding/seller',
+						label: 'Começar a abrir loja',
+					},
+				],
 			},
 			{
 				id: 'painel',
@@ -154,7 +159,7 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
 			},
 			{
 				id: 'contacto-ajuda',
-				question: 'Como contacto a equipa Zuka?',
+				question: 'Como contacto a equipe Zuka?',
 				answer: 'Para dúvidas sobre a conta, a loja ou este FAQ, envie email para ola@zuka.co.mz. Inclua o email da conta e, se for sobre um pedido, o número do pedido.',
 				links: [
 					{

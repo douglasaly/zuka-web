@@ -1,4 +1,3 @@
-/** In-memory only: survives client navigations, resets on full page reload. */
 let viewAsBuyer = false
 let sellerEntryChecked = false
 

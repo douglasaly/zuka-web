@@ -334,8 +334,8 @@ export async function createStore(input: {
 	provinceId: string
 	categoryId?: string
 	neighborhood: string
-	email?: string
-	phone?: string
+	email: string
+	phone: string
 	whatsapp?: string
 }) {
 	const res = await fetch('/api/stores', {
@@ -366,8 +366,6 @@ export async function updateSellerStore(input: {
 	neighborhood?: string
 	status?: 'ACTIVE' | 'INACTIVE'
 	hasDelivery?: boolean
-	deliveryFee?: number | null
-	deliveryEtaMinutes?: number | null
 	deliveryZones?: string[]
 	currentStep?: string
 }) {

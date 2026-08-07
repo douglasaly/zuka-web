@@ -262,7 +262,7 @@ export const ProfileView = () => {
 							}
 							description={
 								isAwaitingSellerApproval(profile)
-									? 'A tua loja está em revisão pela equipa Zuka'
+									? 'A tua loja está em revisão pela equipe Zuka'
 									: needsSellerOnboarding(profile)
 										? 'Concluir a configuração da loja'
 										: 'Gerir loja e produtos'

@@ -720,8 +720,6 @@ const schemas = {
 			},
 			productCount: { type: 'integer' },
 			hasDelivery: { type: 'boolean' },
-			deliveryFee: { type: 'integer', nullable: true },
-			deliveryEtaMinutes: { type: 'integer', nullable: true },
 			deliveryZones: {
 				type: 'array',
 				items: { type: 'string' },
@@ -3395,11 +3393,6 @@ const paths: Record<string, any> = {
 									enum: ['ACTIVE', 'INACTIVE'],
 								},
 								hasDelivery: { type: 'boolean' },
-								deliveryFee: { type: 'integer', nullable: true },
-								deliveryEtaMinutes: {
-									type: 'integer',
-									nullable: true,
-								},
 								deliveryZones: {
 									type: 'array',
 									items: { type: 'string' },
