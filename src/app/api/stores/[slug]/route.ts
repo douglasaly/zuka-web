@@ -64,6 +64,7 @@ export async function GET(req: Request, { params }: GetStoreProps) {
 			.from('stores')
 			.select('*, provinces(name)')
 			.eq('slug', slug)
+			.eq('status', 'ACTIVE')
 			.is('deleted_at', null)
 			.maybeSingle()
 

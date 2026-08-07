@@ -64,6 +64,7 @@ export async function POST(request: NextRequest) {
 			.from('stores')
 			.select('id')
 			.eq('id', storeId)
+			.eq('status', 'ACTIVE')
 			.is('deleted_at', null)
 			.maybeSingle()
 

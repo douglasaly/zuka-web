@@ -17,7 +17,9 @@ export async function POST(request: Request) {
 		.from('stores')
 		.select('id')
 		.eq('slug', slug)
-		.single()
+		.eq('status', 'ACTIVE')
+		.is('deleted_at', null)
+		.maybeSingle()
 
 	if (!store) {
 		return Response.json({ error: 'Store not found' }, { status: 404 })
@@ -56,7 +58,8 @@ export async function DELETE(request: Request) {
 		.from('stores')
 		.select('id')
 		.eq('slug', slug)
-		.single()
+		.is('deleted_at', null)
+		.maybeSingle()
 
 	if (!store) {
 		return Response.json({ error: 'Store not found' }, { status: 404 })

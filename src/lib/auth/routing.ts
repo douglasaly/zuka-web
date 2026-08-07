@@ -4,13 +4,36 @@ export function hasActiveStore(profile: UserProfile | null | undefined) {
 	return Boolean(profile?.stores?.some((store) => store.status === 'ACTIVE'))
 }
 
+/**
+ * Owner still in the seller setup / review pipeline.
+ * Dashboard is only allowed after admins approve (`APPROVED`).
+ * DRAFT → continue steps; SUBMITTED → wait for admin; REJECTED → stay out of dashboard.
+ */
 export function needsSellerOnboarding(profile: UserProfile | null | undefined) {
 	if (!profile?.roles.includes('seller')) return false
-	return (
-		!profile.stores.length ||
-		profile.onboarding?.status === 'DRAFT' ||
-		profile.onboarding?.status === 'SUBMITTED'
-	)
+	// Store members without an owner seller_profile are not in this pipeline
+	if (!profile.sellerProfile) return false
+
+	const status = profile.onboarding?.status
+	if (status !== 'APPROVED') return true
+
+	if (!profile.stores.length) return true
+
+	return false
+}
+
+export function isAwaitingSellerApproval(
+	profile: UserProfile | null | undefined
+) {
+	return profile?.onboarding?.status === 'SUBMITTED'
+}
+
+/** Destination for "Painel do vendedor" / Abrir loja continuations. */
+export function getSellerPanelPath(profile: UserProfile | null | undefined) {
+	if (!profile?.roles.includes('seller') || needsSellerOnboarding(profile)) {
+		return '/onboarding/seller'
+	}
+	return '/dashboard/seller'
 }
 
 export function getPostLoginPath(
@@ -30,7 +53,7 @@ export function getPostLoginPath(
 			return '/dashboard/seller'
 		}
 
-		// Loja pendente / inactiva / suspensa — interface de comprador
+		// Loja inactiva / suspensa — interface de comprador
 		return '/feed/explorar'
 	}
 

@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from 'next/server'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { type NextRequest, NextResponse } from 'next/server'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 
 /** Reviews tables exist after manual migration; generated Database types may lag. */
@@ -31,7 +31,11 @@ function distributionFromRatings(ratings: number[]): number[] {
 }
 
 function primaryImageUrl(
-	images: Array<{ url: string; is_primary?: boolean; position?: number }> | null
+	images: Array<{
+		url: string
+		is_primary?: boolean
+		position?: number
+	}> | null
 ): string | null {
 	if (!images?.length) return null
 	const sorted = [...images].sort(
@@ -80,18 +84,20 @@ export async function GET(
 				store_id,
 				categories ( name ),
 				product_images ( url, is_primary, position ),
-				stores (
+				stores!inner (
 					id,
 					name,
 					slug,
 					logo_url,
-					verified_at
+					verified_at,
+					status
 				)
 			`
 			)
 			.eq('id', productId)
 			.eq('is_visible', true)
 			.is('deleted_at', null)
+			.eq('stores.status', 'ACTIVE')
 			.maybeSingle()
 
 		if (productError) throw productError
@@ -117,31 +123,32 @@ export async function GET(
 			position?: number
 		}> | null
 
-		const [{ data: productRating }, { data: storeRating }, { data: allRatingsRows }] =
-			await Promise.all([
-				supabase
-					.from('product_ratings')
-					.select('rating_avg, rating_count')
-					.eq('product_id', productId)
-					.maybeSingle(),
-				store?.id
-					? supabase
-							.from('store_ratings')
-							.select('rating_avg, rating_count')
-							.eq('store_id', store.id)
-							.maybeSingle()
-					: Promise.resolve({ data: null }),
-				supabase
-					.from('review_products')
-					.select(
-						'rating, reviews!inner(is_visible, deleted_at)'
-					)
-					.eq('product_id', productId)
-					.eq('is_visible', true)
-					.is('deleted_at', null)
-					.eq('reviews.is_visible', true)
-					.is('reviews.deleted_at', null),
-			])
+		const [
+			{ data: productRating },
+			{ data: storeRating },
+			{ data: allRatingsRows },
+		] = await Promise.all([
+			supabase
+				.from('product_ratings')
+				.select('rating_avg, rating_count')
+				.eq('product_id', productId)
+				.maybeSingle(),
+			store?.id
+				? supabase
+						.from('store_ratings')
+						.select('rating_avg, rating_count')
+						.eq('store_id', store.id)
+						.maybeSingle()
+				: Promise.resolve({ data: null }),
+			supabase
+				.from('review_products')
+				.select('rating, reviews!inner(is_visible, deleted_at)')
+				.eq('product_id', productId)
+				.eq('is_visible', true)
+				.is('deleted_at', null)
+				.eq('reviews.is_visible', true)
+				.is('reviews.deleted_at', null),
+		])
 
 		const allRatings = (
 			(allRatingsRows ?? []) as Array<{ rating: number }>
@@ -260,10 +267,11 @@ export async function GET(
 		const from = (page - 1) * perPage
 		const to = from + perPage - 1
 
-		const { data: rows, error: listError, count } = await query.range(
-			from,
-			to
-		)
+		const {
+			data: rows,
+			error: listError,
+			count,
+		} = await query.range(from, to)
 		if (listError) throw listError
 
 		const reviews = ((rows ?? []) as Array<Record<string, unknown>>).map(

@@ -1,4 +1,3 @@
-import { Skeleton } from '@/components/ui/skeleton'
 import {
 	Sidebar,
 	SidebarContent,
@@ -10,6 +9,7 @@ import {
 	SidebarMenu,
 	SidebarMenuSkeleton,
 } from '@/components/ui/sidebar'
+import { Skeleton } from '@/components/ui/skeleton'
 
 const GROUPS = [
 	{ label: 'Principal', items: 3 },
@@ -35,7 +35,9 @@ export const SellerSidebarSkeleton = () => {
 			<SidebarContent className='px-2 py-3'>
 				{GROUPS.map((group) => (
 					<SidebarGroup key={group.label}>
-						<SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+						<SidebarGroupLabel>
+							{group.label.toUpperCase()}
+						</SidebarGroupLabel>
 						<SidebarGroupContent>
 							<SidebarMenu>
 								{Array.from({ length: group.items }).map(

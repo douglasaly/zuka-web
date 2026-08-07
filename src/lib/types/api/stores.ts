@@ -40,10 +40,9 @@ export type StoreListItem = {
 	productCount: number
 }
 
-/** GET /api/stores */
+/** GET /api/stores — always ACTIVE only */
 export type ListStoresInput = {
 	search?: string
-	status?: 'ACTIVE' | 'PENDING' | 'INACTIVE' | 'SUSPENDED' | 'BANNED'
 	limit?: number
 	offset?: number
 }

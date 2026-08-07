@@ -1853,18 +1853,10 @@ const paths: Record<string, any> = {
 	'/api/stores': {
 		get: {
 			tags: ['Stores'],
-			summary: 'List stores with search and offset pagination',
+			summary:
+				'List ACTIVE stores with search and offset pagination (PENDING and other statuses are never returned)',
 			parameters: [
 				{ name: 'search', in: 'query', schema: { type: 'string' } },
-				{
-					name: 'status',
-					in: 'query',
-					schema: {
-						type: 'string',
-						enum: ['ACTIVE', 'PENDING', 'REJECTED'],
-					},
-					description: 'Filter by store status',
-				},
 				{
 					name: 'offset',
 					in: 'query',
@@ -1966,7 +1958,8 @@ const paths: Record<string, any> = {
 	'/api/stores/{slug}': {
 		get: {
 			tags: ['Stores'],
-			summary: 'Get store details with products',
+			summary:
+				'Get ACTIVE store details with products (PENDING and other statuses return 404)',
 			parameters: [
 				{
 					name: 'slug',
