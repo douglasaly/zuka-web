@@ -24,9 +24,6 @@ export function useUserProfile() {
 			if (prevUid && prevUid !== nextUid) {
 				queryClient.clear()
 				clearViewAsBuyerMode()
-			} else if (!user) {
-				queryClient.clear()
-				clearViewAsBuyerMode()
 			}
 
 			previousUid.current = nextUid
