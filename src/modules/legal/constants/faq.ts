@@ -145,7 +145,12 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
 				id: 'regras',
 				question: 'Quais são as regras de utilização?',
 				answer: 'Os Termos e Condições explicam o que pode e não pode fazer no Zuka, as responsabilidades de compradores e lojas, e como tratamos encomendas e conteúdos.',
-				links: [{ href: '/termos', label: 'Termos e Condições' }],
+				links: [
+					{
+						href: '/termos-e-condicoes',
+						label: 'Termos e Condições',
+					},
+				],
 			},
 			{
 				id: 'contacto-ajuda',

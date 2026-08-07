@@ -152,7 +152,7 @@ export function FaqView() {
 						Enviar email
 					</a>
 					<Link
-						href='/termos'
+						href='/termos-e-condicoes'
 						className={cn(
 							buttonVariants({ variant: 'outline' }),
 							'min-h-11 rounded-xl px-4'

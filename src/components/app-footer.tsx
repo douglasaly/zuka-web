@@ -128,7 +128,10 @@ export const AppFooter = () => {
 						>
 							Política de Privacidade
 						</Link>
-						<Link href='/termos' className='hover:text-secondary'>
+						<Link
+							href='/termos-e-condicoes'
+							className='hover:text-secondary'
+						>
 							Termos e Condições
 						</Link>
 					</nav>

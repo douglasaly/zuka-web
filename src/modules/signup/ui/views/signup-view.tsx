@@ -403,7 +403,7 @@ export function SignupView() {
 					<p className='text-center text-xs leading-relaxed text-muted-foreground'>
 						Ao continuar aceitas os{' '}
 						<Link
-							href='/termos'
+							href='/termos-e-condicoes'
 							className='font-semibold text-foreground hover:underline'
 						>
 							Termos de Uso

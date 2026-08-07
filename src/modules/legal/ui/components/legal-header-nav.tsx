@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
 const navItems = [
 	{ href: '/perguntas-frequentes', label: 'FAQ' },
 	{ href: '/privacidade', label: 'Privacidade' },
-	{ href: '/termos', label: 'Termos' },
+	{ href: '/termos-e-condicoes', label: 'Termos e Condições' },
 ] as const
 
 export function LegalHeaderNav() {

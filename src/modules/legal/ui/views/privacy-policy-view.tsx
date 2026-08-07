@@ -8,7 +8,7 @@ export function PrivacyPolicyView() {
 			title='Política de Privacidade'
 			subtitle='O que o Zuka (NORTHBRIDGE LABS) faz com os seus dados pessoais quando usa a plataforma em Moçambique, e como pode pedir acesso, correcção ou eliminação.'
 			updatedAt={UPDATED_AT}
-			relatedHref='/termos'
+			relatedHref='/termos-e-condicoes'
 			relatedLabel='Termos e Condições de Utilização'
 			sections={[
 				{

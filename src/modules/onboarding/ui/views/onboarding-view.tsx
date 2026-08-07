@@ -135,7 +135,7 @@ export const OnboardingView = () => {
 				<p className='text-center text-xs leading-relaxed text-muted-foreground'>
 					Ao continuar aceitas os{' '}
 					<Button
-						render={<Link href='/termos' />}
+						render={<Link href='/termos-e-condicoes' />}
 						variant='link'
 						className='h-auto p-0 text-xs font-semibold text-foreground'
 					>
