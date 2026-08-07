@@ -3,6 +3,7 @@
 import { signOut } from 'firebase/auth'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
+import { clearViewAsBuyerMode } from '@/lib/auth/view-as-buyer'
 import { auth } from '@/lib/firebase/firebase-client'
 
 export default function LogOutPage() {
@@ -10,6 +11,7 @@ export default function LogOutPage() {
 
 	useEffect(() => {
 		async function logout() {
+			clearViewAsBuyerMode()
 			await fetch('/api/auth/logout', {
 				method: 'POST',
 				credentials: 'include',

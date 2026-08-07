@@ -1,5 +1,18 @@
 import type { UserProfile } from '@/types/marketplace'
 
+export function hasActiveStore(profile: UserProfile | null | undefined) {
+	return Boolean(profile?.stores?.some((store) => store.status === 'ACTIVE'))
+}
+
+export function needsSellerOnboarding(profile: UserProfile | null | undefined) {
+	if (!profile?.roles.includes('seller')) return false
+	return (
+		!profile.stores.length ||
+		profile.onboarding?.status === 'DRAFT' ||
+		profile.onboarding?.status === 'SUBMITTED'
+	)
+}
+
 export function getPostLoginPath(
 	profile: UserProfile | null,
 	next?: string | null
@@ -9,16 +22,16 @@ export function getPostLoginPath(
 	}
 
 	if (profile?.roles.includes('seller')) {
-		const needsOnboarding =
-			!profile.stores.length ||
-			profile.onboarding?.status === 'DRAFT' ||
-			profile.onboarding?.status === 'SUBMITTED'
-
-		if (needsOnboarding) {
+		if (needsSellerOnboarding(profile)) {
 			return '/onboarding/seller'
 		}
 
-		return '/dashboard/seller'
+		if (hasActiveStore(profile)) {
+			return '/dashboard/seller'
+		}
+
+		// Loja pendente / inactiva / suspensa — interface de comprador
+		return '/feed/explorar'
 	}
 
 	return '/feed/explorar'

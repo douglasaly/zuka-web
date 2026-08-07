@@ -10,6 +10,7 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { setViewAsBuyerMode } from '@/lib/auth/view-as-buyer'
 import { NotificationDropdown } from '@/modules/notifications/ui/components/notification-dropdown'
 import { useSellerPageMeta } from './seller-page-meta'
 
@@ -67,7 +68,7 @@ export const SellerTopBar = () => {
 	const crumbTrail = breadcrumbs.slice(0, -1)
 
 	return (
-		<header className='sticky top-0 z-30 flex h-[76px] min-w-0 items-center justify-between gap-2 border-b border-border/60 bg-background/95 px-4 backdrop-blur-sm sm:px-6'>
+		<header className='sticky top-0 z-30 flex h-19 min-w-0 items-center justify-between gap-2 border-b border-border/60 bg-background/95 px-4 backdrop-blur-sm sm:px-6'>
 			<div className='flex min-w-0 items-center gap-2 sm:gap-3'>
 				<Tooltip>
 					<TooltipTrigger
@@ -117,6 +118,7 @@ export const SellerTopBar = () => {
 
 				<Link
 					href='/feed/explorar'
+					onClick={() => setViewAsBuyerMode()}
 					className='hidden items-center gap-1.5 rounded-lg border border-border/60 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground sm:flex'
 				>
 					<ExternalLink className='size-3' />

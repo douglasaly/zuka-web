@@ -5,6 +5,7 @@ import { onAuthStateChanged, type User } from 'firebase/auth'
 import { useEffect, useRef, useState } from 'react'
 import { fetchUserProfile } from '@/lib/api/marketplace'
 import { getFollowedStores } from '@/lib/api/stores'
+import { clearViewAsBuyerMode } from '@/lib/auth/view-as-buyer'
 import { createAppSession } from '@/lib/firebase/create-session'
 import { auth } from '@/lib/firebase/firebase-client'
 import type { UserProfile } from '@/types/marketplace'
@@ -20,12 +21,12 @@ export function useUserProfile() {
 			const nextUid = user?.uid ?? null
 			const prevUid = previousUid.current
 
-			// Logout or account switch: drop cached user data so the next
-			// session never inherits orders/badges from another account.
 			if (prevUid && prevUid !== nextUid) {
 				queryClient.clear()
+				clearViewAsBuyerMode()
 			} else if (!user) {
 				queryClient.clear()
+				clearViewAsBuyerMode()
 			}
 
 			previousUid.current = nextUid

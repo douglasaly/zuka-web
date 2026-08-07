@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/sidebar'
 import { useUnreadCounts } from '@/hooks/use-unread-counts'
 import type { StorePermission } from '@/lib/auth/store-permissions'
+import { setViewAsBuyerMode } from '@/lib/auth/view-as-buyer'
 import { cn } from '@/lib/utils'
 import { useSellerAccess } from '@/modules/seller/hooks/use-seller-access'
 
@@ -217,13 +218,21 @@ export const SellerSidebar = () => {
 				<SidebarMenu>
 					{FOOTER_ITEMS.map((item) => {
 						const Icon = item.icon
+						const isViewAsBuyer = item.href === '/feed/explorar'
 
 						return (
 							<SidebarMenuItem key={item.title}>
 								<SidebarMenuButton
 									tooltip={item.title}
 									render={
-										<Link href={item.href}>
+										<Link
+											href={item.href}
+											onClick={
+												isViewAsBuyer
+													? () => setViewAsBuyerMode()
+													: undefined
+											}
+										>
 											<Icon className='size-4' />
 											<span>{item.title}</span>
 										</Link>

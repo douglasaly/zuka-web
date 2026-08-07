@@ -24,6 +24,7 @@ import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { fetchUserProfile } from '@/lib/api/marketplace'
 import { getPostLoginPath } from '@/lib/auth/routing'
+import { clearViewAsBuyerMode } from '@/lib/auth/view-as-buyer'
 import { auth } from '@/lib/firebase/firebase-client'
 import { syncUserToBackend } from '@/lib/firebase/sync-user-to-backend'
 
@@ -101,6 +102,7 @@ function LoginForm() {
 		logLogin('syncUser:done', { uid: meta.uid })
 
 		const profile = await fetchUserProfile()
+		clearViewAsBuyerMode()
 		const path = getPostLoginPath(profile, next)
 		logLogin('redirect', {
 			path,
