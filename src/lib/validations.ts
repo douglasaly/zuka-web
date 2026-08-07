@@ -1,4 +1,10 @@
 import { z } from 'zod'
+import {
+	isAllowedStoreEmail,
+	isValidMzMobile,
+	STORE_FORM_MESSAGES,
+	toE164Mz,
+} from '@/lib/validations/store-form'
 
 // ─── Paginação ──────────────────────────────────────────
 
@@ -49,21 +55,146 @@ export const StoreFiltersSchema = z.object({
 		.optional(),
 })
 
+const mzPhoneOptional = z
+	.union([z.string(), z.null()])
+	.optional()
+	.refine(
+		(v) => v == null || v === '' || isValidMzMobile(v),
+		STORE_FORM_MESSAGES.phoneInvalid
+	)
+	.transform((v) => {
+		if (v == null || v === '') return undefined
+		return toE164Mz(v) || undefined
+	})
+
+const mzPhoneRequired = z
+	.string()
+	.min(1, STORE_FORM_MESSAGES.phoneInvalid)
+	.refine(isValidMzMobile, STORE_FORM_MESSAGES.phoneInvalid)
+	.transform((v) => toE164Mz(v))
+
+function normalizePatchPhone(
+	v: string | null | undefined
+): string | null | undefined {
+	if (v === undefined) return undefined
+	if (v === null || v === '') return null
+	return toE164Mz(v) || null
+}
+
 export const CreateStoreSchema = z.object({
 	name: z.string().min(1, 'Nome é obrigatório').max(150),
-	description: z.string().max(2000).optional(),
+	description: z
+		.string()
+		.min(20, STORE_FORM_MESSAGES.descriptionMin)
+		.max(2000)
+		.optional(),
 	provinceId: z.string().uuid('Província inválida'),
 	categoryId: z.string().uuid().optional(),
 	neighborhood: z.string().min(1, 'Bairro é obrigatório'),
-	email: z.string().email().optional(),
-	phone: z.string().optional(),
-	whatsapp: z.string().optional(),
+	email: z
+		.string()
+		.min(1, 'E-mail é obrigatório')
+		.email(STORE_FORM_MESSAGES.emailInvalid)
+		.refine(isAllowedStoreEmail, STORE_FORM_MESSAGES.emailPlaceholder),
+	phone: mzPhoneRequired,
+	whatsapp: mzPhoneOptional,
 })
+
+/** Schema for validating contact/profile fields on PATCH /api/seller/store. */
+export const UpdateSellerStoreSchema = z
+	.object({
+		name: z.string().min(1).max(150).optional(),
+		slug: z.string().optional(),
+		logoUrl: z.string().nullable().optional(),
+		bannerUrl: z.string().nullable().optional(),
+		description: z.union([z.string(), z.null()]).optional(),
+		phone: z.union([z.string(), z.null()]).optional(),
+		whatsapp: z.union([z.string(), z.null()]).optional(),
+		email: z.union([z.string(), z.null()]).optional(),
+		provinceId: z.string().uuid().nullable().optional(),
+		neighborhood: z.string().optional(),
+		status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
+		hasDelivery: z.boolean().optional(),
+		deliveryZones: z.array(z.string()).optional(),
+		currentStep: z.string().optional(),
+	})
+	.superRefine((data, ctx) => {
+		if (
+			data.currentStep &&
+			typeof data.description === 'string' &&
+			data.description.trim().length < 20
+		) {
+			ctx.addIssue({
+				code: 'custom',
+				message: STORE_FORM_MESSAGES.descriptionMin,
+				path: ['description'],
+			})
+		}
+
+		for (const key of ['phone', 'whatsapp'] as const) {
+			const value = data[key]
+			if (
+				typeof value === 'string' &&
+				value.length > 0 &&
+				!isValidMzMobile(value)
+			) {
+				ctx.addIssue({
+					code: 'custom',
+					message: STORE_FORM_MESSAGES.phoneInvalid,
+					path: [key],
+				})
+			}
+		}
+
+		if (typeof data.email === 'string' && data.email.trim()) {
+			const email = data.email.trim()
+			const emailCheck = z.string().email().safeParse(email)
+			if (!emailCheck.success) {
+				ctx.addIssue({
+					code: 'custom',
+					message: STORE_FORM_MESSAGES.emailInvalid,
+					path: ['email'],
+				})
+			} else if (!isAllowedStoreEmail(email)) {
+				ctx.addIssue({
+					code: 'custom',
+					message: STORE_FORM_MESSAGES.emailPlaceholder,
+					path: ['email'],
+				})
+			}
+		}
+
+		// Enforce delivery contacts on onboarding step-2 updates
+		if (data.hasDelivery && data.currentStep) {
+			const hasWhatsapp =
+				typeof data.whatsapp === 'string' && data.whatsapp.length > 0
+			const hasPhone =
+				typeof data.phone === 'string' && data.phone.length > 0
+			if (!hasWhatsapp && !hasPhone) {
+				ctx.addIssue({
+					code: 'custom',
+					message: STORE_FORM_MESSAGES.deliveryContactRequired,
+					path: ['whatsapp'],
+				})
+			}
+		}
+	})
+	.transform((data) => ({
+		...data,
+		phone: normalizePatchPhone(data.phone),
+		whatsapp: normalizePatchPhone(data.whatsapp),
+		email:
+			data.email === undefined
+				? undefined
+				: data.email === null || data.email === ''
+					? null
+					: data.email.trim(),
+	}))
 
 // ─── Conversas ──────────────────────────────────────────
 
 export const CreateConversationSchema = z.object({
-	productId: z.string().uuid('Produto inválido'),
+	productId: z.uuid('Produto inválido'),
 	content: z.string().max(2000).optional(),
 })
 

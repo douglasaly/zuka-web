@@ -30,8 +30,6 @@ type StoreRow = {
 	status: string | null
 	verified_at: string | null
 	has_delivery?: boolean | null
-	delivery_fee?: number | null
-	delivery_eta_minutes?: number | null
 	delivery_zones?: string[] | null
 	provinces?: { name: string } | { name: string }[] | null
 }
@@ -86,8 +84,6 @@ export function mapSellerStoreDetail(
 		verifiedAt: store.verified_at,
 		productCount,
 		hasDelivery: Boolean(store.has_delivery),
-		deliveryFee: store.delivery_fee ?? null,
-		deliveryEtaMinutes: store.delivery_eta_minutes ?? null,
 		deliveryZones: store.delivery_zones ?? [],
 		documents: documents.map(mapStoreDocument),
 	}

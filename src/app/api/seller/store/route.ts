@@ -5,12 +5,13 @@ import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
 import { isR2PublicUrl } from '@/lib/storage/r2'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import type { Database } from '@/lib/supabase/types'
+import { UpdateSellerStoreSchema } from '@/lib/validations'
 import { Slug } from '@/utils/slug'
 
 const STORE_SELECT = `
 	id, name, slug, description, logo_url, banner_url, phone, whatsapp, email,
 	province_id, state, status, verified_at,
-	has_delivery, delivery_fee, delivery_eta_minutes, delivery_zones,
+	has_delivery, delivery_zones,
 	provinces ( name )
 `
 
@@ -92,6 +93,14 @@ export async function PATCH(request: Request) {
 
 		const user = auth.user
 		const body = await request.json()
+		const parsed = UpdateSellerStoreSchema.safeParse(body)
+		if (!parsed.success) {
+			return NextResponse.json(
+				{ error: parsed.error.issues[0]?.message ?? 'Dados inválidos' },
+				{ status: 400 }
+			)
+		}
+
 		const {
 			name,
 			slug,
@@ -105,11 +114,9 @@ export async function PATCH(request: Request) {
 			neighborhood,
 			status,
 			hasDelivery,
-			deliveryFee,
-			deliveryEtaMinutes,
 			deliveryZones,
 			currentStep,
-		} = body
+		} = parsed.data
 
 		const { supabase, store } = await fetchStoreDetail(auth.store.id)
 		if (!store) {
@@ -179,10 +186,15 @@ export async function PATCH(request: Request) {
 		if (bannerUrl !== undefined && bannerUrl !== store.banner_url) {
 			updates.banner_url = bannerUrl
 		}
-		if (description !== undefined) updates.description = description
-		if (phone !== undefined) updates.phone = phone
-		if (whatsapp !== undefined) updates.whatsapp = whatsapp
-		if (email !== undefined) updates.email = email
+		if (description !== undefined) {
+			updates.description =
+				description === null || description === '' ? null : description
+		}
+		if (phone !== undefined) updates.phone = phone ?? null
+		if (whatsapp !== undefined) updates.whatsapp = whatsapp ?? null
+		if (email !== undefined) {
+			updates.email = email === null || email === '' ? null : email.trim()
+		}
 		if (provinceId !== undefined) updates.province_id = provinceId
 		if (typeof neighborhood === 'string')
 			updates.state = neighborhood.trim()
@@ -206,18 +218,6 @@ export async function PATCH(request: Request) {
 
 		if (hasDelivery !== undefined)
 			updates.has_delivery = Boolean(hasDelivery)
-		if (deliveryFee !== undefined) {
-			updates.delivery_fee =
-				deliveryFee === null || deliveryFee === ''
-					? null
-					: Number(deliveryFee)
-		}
-		if (deliveryEtaMinutes !== undefined) {
-			updates.delivery_eta_minutes =
-				deliveryEtaMinutes === null || deliveryEtaMinutes === ''
-					? null
-					: Number(deliveryEtaMinutes)
-		}
 		if (Array.isArray(deliveryZones)) {
 			updates.delivery_zones = deliveryZones
 				.map((z: unknown) => String(z).trim())

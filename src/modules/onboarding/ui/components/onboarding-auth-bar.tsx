@@ -23,7 +23,6 @@ export function OnboardingAuthBar() {
 	return (
 		<header className='sticky top-0 z-40 shrink-0 border-b border-border/60 bg-background/95 backdrop-blur-sm'>
 			<div className='mx-auto flex h-14 max-w-2xl items-center justify-between gap-3 px-4 sm:h-16 sm:px-6'>
-				{/* Brand + escape — one destination, clear label */}
 				<div className='flex min-w-0 items-center gap-2 sm:gap-3'>
 					<Link
 						href='/'
@@ -67,7 +66,7 @@ export function OnboardingAuthBar() {
 						aria-label={`Abrir o teu perfil (${displayName})`}
 						className={cn(
 							buttonVariants({ variant: 'ghost', size: 'sm' }),
-							'h-9 max-w-[140px] rounded-full px-3 sm:max-w-[180px]'
+							'h-9 max-w-35 rounded-full px-3 sm:max-w-45'
 						)}
 					>
 						<span className='truncate text-sm font-medium'>

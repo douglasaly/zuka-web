@@ -55,8 +55,6 @@ function formsEqual(a: StoreFormState, b: StoreFormState) {
 		a.neighborhood === b.neighborhood &&
 		a.status === b.status &&
 		a.hasDelivery === b.hasDelivery &&
-		a.deliveryFee === b.deliveryFee &&
-		a.deliveryEtaMinutes === b.deliveryEtaMinutes &&
 		a.deliveryZones.length === b.deliveryZones.length &&
 		a.deliveryZones.every((z, i) => z === b.deliveryZones[i])
 	)
@@ -120,16 +118,6 @@ export function StoreEditorForm({ store }: StoreEditorFormProps) {
 				provinceId: form.provinceId || null,
 				neighborhood: form.neighborhood.trim(),
 				hasDelivery: form.hasDelivery,
-				deliveryFee: form.hasDelivery
-					? form.deliveryFee
-						? Number(form.deliveryFee)
-						: null
-					: null,
-				deliveryEtaMinutes: form.hasDelivery
-					? form.deliveryEtaMinutes
-						? Number(form.deliveryEtaMinutes)
-						: null
-					: null,
 				deliveryZones: form.hasDelivery ? form.deliveryZones : [],
 			}
 

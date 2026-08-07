@@ -30,6 +30,12 @@ import { createAppSession } from '@/lib/firebase/create-session'
 import { auth } from '@/lib/firebase/firebase-client'
 import { syncUserToBackend } from '@/lib/firebase/sync-user-to-backend'
 import { cn } from '@/lib/utils'
+import {
+	isValidMzMobile,
+	isValidStoreEmail,
+	STORE_FORM_MESSAGES,
+	toE164Mz,
+} from '@/lib/validations/store-form'
 import { FileUploadCard } from '@/modules/onboarding/ui/components/file-upload-card'
 import {
 	OnboardingField,
@@ -82,8 +88,7 @@ const buyerFeatures = [
 ]
 
 function formatPhone(v: string) {
-	const d = v.replace(/\D/g, '')
-	return d ? `+258${d}` : ''
+	return toE164Mz(v)
 }
 
 function getErrorCode(error: unknown): string | null {
@@ -104,7 +109,7 @@ function friendlyError(error: unknown) {
 		return 'Este email já está registado. Usa outro ou entra na tua conta.'
 	}
 	if (code === 'auth/weak-password' || msg.includes('weak-password')) {
-		return 'A senha deve ter pelo menos 6 caracteres.'
+		return STORE_FORM_MESSAGES.passwordMin
 	}
 	if (code === 'auth/invalid-email' || msg.includes('invalid-email')) {
 		return 'Endereço de email inválido.'
@@ -133,6 +138,7 @@ export function SignupView() {
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
 	const [showPassword, setShowPassword] = useState(false)
+	const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
 	const [provinces, setProvinces] = useState<Province[]>([])
 	const [categories, setCategories] = useState<Category[]>([])
@@ -165,6 +171,7 @@ export function SignupView() {
 		neighborhood: '',
 		email: '',
 		password: '',
+		confirmPassword: '',
 		categoryId: '',
 		provinceId: '',
 		phone: '',
@@ -215,6 +222,35 @@ export function SignupView() {
 	async function handleSellerStep1() {
 		setLoading(true)
 		setError(null)
+
+		if (s1.password.length < 8) {
+			setError(STORE_FORM_MESSAGES.passwordMin)
+			setLoading(false)
+			return
+		}
+		if (s1.password !== s1.confirmPassword) {
+			setError(STORE_FORM_MESSAGES.passwordMismatch)
+			setLoading(false)
+			return
+		}
+		if (!isValidStoreEmail(s1.email)) {
+			const looksLikeEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+				s1.email.trim()
+			)
+			setError(
+				looksLikeEmail
+					? STORE_FORM_MESSAGES.emailPlaceholder
+					: STORE_FORM_MESSAGES.emailInvalid
+			)
+			setLoading(false)
+			return
+		}
+		if (!isValidMzMobile(s1.phone)) {
+			setError(STORE_FORM_MESSAGES.phoneInvalid)
+			setLoading(false)
+			return
+		}
+
 		try {
 			await createUserWithEmailAndPassword(auth, s1.email, s1.password)
 			await syncUserToBackend()
@@ -226,7 +262,7 @@ export function SignupView() {
 				provinceId: s1.provinceId,
 				categoryId: s1.categoryId || undefined,
 				email: s1.email,
-				phone: formatPhone(s1.phone) || undefined,
+				phone: formatPhone(s1.phone),
 			})
 			setStep('seller-2')
 		} catch (e) {
@@ -239,11 +275,33 @@ export function SignupView() {
 	async function handleSellerStep2() {
 		setLoading(true)
 		setError(null)
+
+		if (s2.description.trim().length < 20) {
+			setError(STORE_FORM_MESSAGES.descriptionMin)
+			setLoading(false)
+			return
+		}
+		if (s2.hasDelivery && !s2.whatsapp.trim() && !s2.phone.trim()) {
+			setError(STORE_FORM_MESSAGES.deliveryContactRequired)
+			setLoading(false)
+			return
+		}
+		if (s2.whatsapp.trim() && !isValidMzMobile(s2.whatsapp)) {
+			setError(STORE_FORM_MESSAGES.phoneInvalid)
+			setLoading(false)
+			return
+		}
+		if (s2.phone.trim() && !isValidMzMobile(s2.phone)) {
+			setError(STORE_FORM_MESSAGES.phoneInvalid)
+			setLoading(false)
+			return
+		}
+
 		try {
 			await updateSellerStore({
 				logoUrl: s2.logoUrl ?? undefined,
 				bannerUrl: s2.bannerUrl ?? undefined,
-				description: s2.description || undefined,
+				description: s2.description.trim(),
 				whatsapp: formatPhone(s2.whatsapp) || undefined,
 				phone: formatPhone(s2.phone) || undefined,
 				hasDelivery: s2.hasDelivery,
@@ -594,12 +652,39 @@ export function SignupView() {
 	// ── Seller step 1: account + store ─────────────────────────────────────────
 
 	if (step === 'seller-1') {
-		const canContinue =
+		const emailOk = isValidStoreEmail(s1.email)
+		const passwordOk = s1.password.length >= 8
+		const confirmOk =
+			s1.confirmPassword.length > 0 && s1.password === s1.confirmPassword
+		const phoneOk = isValidMzMobile(s1.phone)
+		const canContinue = Boolean(
 			s1.storeName.trim() &&
-			s1.neighborhood.trim() &&
-			s1.email.includes('@') &&
-			s1.password.length >= 6 &&
-			s1.provinceId
+				s1.neighborhood.trim() &&
+				emailOk &&
+				passwordOk &&
+				confirmOk &&
+				phoneOk &&
+				s1.provinceId
+		)
+
+		const passwordError =
+			s1.password.length > 0 && !passwordOk
+				? STORE_FORM_MESSAGES.passwordMin
+				: null
+		const confirmError =
+			s1.confirmPassword.length > 0 && !confirmOk
+				? STORE_FORM_MESSAGES.passwordMismatch
+				: null
+		const emailError =
+			s1.email.trim().length > 0 && !emailOk
+				? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s1.email.trim())
+					? STORE_FORM_MESSAGES.emailPlaceholder
+					: STORE_FORM_MESSAGES.emailInvalid
+				: null
+		const phoneError =
+			s1.phone.length > 0 && !phoneOk
+				? STORE_FORM_MESSAGES.phoneInvalid
+				: null
 
 		return (
 			<OnboardingShell
@@ -668,9 +753,9 @@ export function SignupView() {
 
 					<div className='space-y-2'>
 						<div className='flex items-center justify-between'>
-							<label className='text-sm font-semibold'>
+							<span className='text-sm font-semibold'>
 								Endereço da loja
-							</label>
+							</span>
 							<button
 								type='button'
 								disabled={locationLoading}
@@ -706,7 +791,7 @@ export function SignupView() {
 						)}
 					</div>
 
-					<OnboardingField label='Email'>
+					<OnboardingField label='Email' error={emailError}>
 						<Input
 							type='email'
 							required
@@ -720,12 +805,16 @@ export function SignupView() {
 						/>
 					</OnboardingField>
 
-					<OnboardingField label='Senha'>
+					<OnboardingField
+						label='Palavra-passe'
+						hint='Mínimo de 8 caracteres'
+						error={passwordError}
+					>
 						<div className='relative'>
 							<Input
 								type={showPassword ? 'text' : 'password'}
 								required
-								minLength={6}
+								minLength={8}
 								value={s1.password}
 								onChange={(e) =>
 									setS1((f) => ({
@@ -733,7 +822,7 @@ export function SignupView() {
 										password: e.target.value,
 									}))
 								}
-								placeholder='Mínimo 8 caracteres'
+								placeholder='Mínimo de 8 caracteres'
 								className={cn(onboardingInputClass, 'pr-10')}
 								autoComplete='new-password'
 							/>
@@ -747,6 +836,46 @@ export function SignupView() {
 								onClick={() => setShowPassword((v) => !v)}
 							>
 								{showPassword ? (
+									<EyeOff className='size-4' />
+								) : (
+									<Eye className='size-4' />
+								)}
+							</IconTooltipButton>
+						</div>
+					</OnboardingField>
+
+					<OnboardingField
+						label='Confirmar Palavra-passe'
+						error={confirmError}
+					>
+						<div className='relative'>
+							<Input
+								type={showConfirmPassword ? 'text' : 'password'}
+								required
+								minLength={8}
+								value={s1.confirmPassword}
+								onChange={(e) =>
+									setS1((f) => ({
+										...f,
+										confirmPassword: e.target.value,
+									}))
+								}
+								placeholder='Repete a palavra-passe'
+								className={cn(onboardingInputClass, 'pr-10')}
+								autoComplete='new-password'
+							/>
+							<IconTooltipButton
+								label={
+									showConfirmPassword
+										? 'Ocultar senha'
+										: 'Mostrar senha'
+								}
+								className='absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground'
+								onClick={() =>
+									setShowConfirmPassword((v) => !v)
+								}
+							>
+								{showConfirmPassword ? (
 									<EyeOff className='size-4' />
 								) : (
 									<Eye className='size-4' />
@@ -775,7 +904,11 @@ export function SignupView() {
 						</select>
 					</OnboardingField>
 
-					<OnboardingField label='Número de telefone'>
+					<OnboardingField
+						label='Número de Celular'
+						hint='Formato +258 seguido de 9 dígitos (82–88)'
+						error={phoneError}
+					>
 						<PhoneInput
 							value={s1.phone}
 							onChange={(phone) =>
@@ -797,6 +930,31 @@ export function SignupView() {
 	// ── Seller step 2: store profile ───────────────────────────────────────────
 
 	if (step === 'seller-2') {
+		const descriptionOk = s2.description.trim().length >= 20
+		const whatsappOk = !s2.whatsapp.trim() || isValidMzMobile(s2.whatsapp)
+		const callPhoneOk = !s2.phone.trim() || isValidMzMobile(s2.phone)
+		const deliveryContactOk =
+			!s2.hasDelivery || Boolean(s2.whatsapp.trim() || s2.phone.trim())
+		const canContinue =
+			descriptionOk && whatsappOk && callPhoneOk && deliveryContactOk
+
+		const descriptionError =
+			s2.description.length > 0 && !descriptionOk
+				? STORE_FORM_MESSAGES.descriptionMin
+				: null
+		const deliveryError =
+			s2.hasDelivery && !deliveryContactOk
+				? STORE_FORM_MESSAGES.deliveryContactRequired
+				: null
+		const whatsappError =
+			s2.whatsapp.length > 0 && !whatsappOk
+				? STORE_FORM_MESSAGES.phoneInvalid
+				: null
+		const callPhoneError =
+			s2.phone.length > 0 && !callPhoneOk
+				? STORE_FORM_MESSAGES.phoneInvalid
+				: null
+
 		return (
 			<OnboardingShell
 				title='Configura a tua loja'
@@ -807,7 +965,7 @@ export function SignupView() {
 					<Button
 						type='button'
 						className='h-12 w-full rounded-full text-base font-semibold'
-						disabled={loading}
+						disabled={loading || !canContinue}
 						onClick={handleSellerStep2}
 					>
 						{loading ? 'A guardar...' : 'Continuar'}
@@ -833,7 +991,11 @@ export function SignupView() {
 						onChange={(v) => setS2((f) => ({ ...f, bannerUrl: v }))}
 					/>
 
-					<OnboardingField label='Descrição curta'>
+					<OnboardingField
+						label='Descrição curta'
+						hint='Mínimo de 20 caracteres'
+						error={descriptionError}
+					>
 						<Textarea
 							value={s2.description}
 							onChange={(e) =>
@@ -866,7 +1028,17 @@ export function SignupView() {
 						/>
 					</div>
 
-					<OnboardingField label='Número WhatsApp'>
+					{deliveryError ? (
+						<p role='alert' className='text-xs text-destructive'>
+							{deliveryError}
+						</p>
+					) : null}
+
+					<OnboardingField
+						label='Número WhatsApp'
+						optional={!s2.hasDelivery}
+						error={whatsappError}
+					>
 						<PhoneInput
 							value={s2.whatsapp}
 							onChange={(v) =>
@@ -877,12 +1049,13 @@ export function SignupView() {
 
 					<OnboardingField
 						label='Número para chamadas'
-						hint='Número de telefone fixo ou móvel para clientes ligarem'
+						hint='Número móvel moçambicano (82–88)'
+						optional={!s2.hasDelivery}
+						error={callPhoneError}
 					>
 						<PhoneInput
 							value={s2.phone}
 							onChange={(v) => setS2((f) => ({ ...f, phone: v }))}
-							placeholder='21 123 456'
 						/>
 					</OnboardingField>
 				</OnboardingFormCard>

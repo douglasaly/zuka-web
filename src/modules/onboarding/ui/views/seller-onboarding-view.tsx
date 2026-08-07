@@ -21,6 +21,12 @@ import { setViewAsBuyerMode } from '@/lib/auth/view-as-buyer'
 import { createAppSession } from '@/lib/firebase/create-session'
 import { auth } from '@/lib/firebase/firebase-client'
 import { syncUserToBackend } from '@/lib/firebase/sync-user-to-backend'
+import {
+	isValidMzMobile,
+	isValidStoreEmail,
+	STORE_FORM_MESSAGES,
+	toE164Mz,
+} from '@/lib/validations/store-form'
 import { FileUploadCard } from '../components/file-upload-card'
 import {
 	OnboardingField,
@@ -43,8 +49,7 @@ interface Category {
 type SellerStep = 1 | 2 | 3 | 4
 
 function formatPhone(value: string) {
-	const digits = value.replace(/\D/g, '')
-	return digits ? `+258${digits}` : ''
+	return toE164Mz(value)
 }
 
 function resolveStep(
@@ -316,11 +321,54 @@ export const SellerOnboardingView = () => {
 		updateStoreMutation.isPending ||
 		verificationMutation.isPending
 
-	const canContinueStep1 =
+	const canContinueStep1 = Boolean(
 		accountForm.name.trim() &&
-		accountForm.neighborhood.trim() &&
-		accountForm.provinceId &&
-		accountForm.categoryId
+			accountForm.neighborhood.trim() &&
+			accountForm.provinceId &&
+			accountForm.categoryId &&
+			isValidStoreEmail(accountForm.email) &&
+			isValidMzMobile(accountForm.phone)
+	)
+
+	const emailError =
+		accountForm.email.trim().length > 0 &&
+		!isValidStoreEmail(accountForm.email)
+			? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(accountForm.email.trim())
+				? STORE_FORM_MESSAGES.emailPlaceholder
+				: STORE_FORM_MESSAGES.emailInvalid
+			: null
+	const phoneError =
+		accountForm.phone.length > 0 && !isValidMzMobile(accountForm.phone)
+			? STORE_FORM_MESSAGES.phoneInvalid
+			: null
+
+	const descriptionOk = profileForm.description.trim().length >= 20
+	const whatsappOk =
+		!profileForm.whatsapp.trim() || isValidMzMobile(profileForm.whatsapp)
+	const callPhoneOk =
+		!profileForm.phone.trim() || isValidMzMobile(profileForm.phone)
+	const deliveryContactOk =
+		!profileForm.hasDelivery ||
+		Boolean(profileForm.whatsapp.trim() || profileForm.phone.trim())
+	const canContinueStep2 =
+		descriptionOk && whatsappOk && callPhoneOk && deliveryContactOk
+
+	const descriptionError =
+		profileForm.description.length > 0 && !descriptionOk
+			? STORE_FORM_MESSAGES.descriptionMin
+			: null
+	const deliveryError =
+		profileForm.hasDelivery && !deliveryContactOk
+			? STORE_FORM_MESSAGES.deliveryContactRequired
+			: null
+	const whatsappError =
+		profileForm.whatsapp.length > 0 && !whatsappOk
+			? STORE_FORM_MESSAGES.phoneInvalid
+			: null
+	const callPhoneError =
+		profileForm.phone.length > 0 && !callPhoneOk
+			? STORE_FORM_MESSAGES.phoneInvalid
+			: null
 
 	if (step === 1) {
 		return (
@@ -341,9 +389,8 @@ export const SellerOnboardingView = () => {
 								neighborhood: accountForm.neighborhood,
 								provinceId: accountForm.provinceId,
 								categoryId: accountForm.categoryId || undefined,
-								email: accountForm.email || undefined,
-								phone:
-									formatPhone(accountForm.phone) || undefined,
+								email: accountForm.email.trim(),
+								phone: formatPhone(accountForm.phone),
 							})
 						}}
 					>
@@ -388,9 +435,10 @@ export const SellerOnboardingView = () => {
 						/>
 					</OnboardingField>
 
-					<OnboardingField label='Email' optional>
+					<OnboardingField label='Email' error={emailError}>
 						<Input
 							type='email'
+							required
 							value={accountForm.email}
 							onChange={(e) =>
 								setAccountForm((f) => ({
@@ -446,9 +494,9 @@ export const SellerOnboardingView = () => {
 					</OnboardingField>
 
 					<OnboardingField
-						label='Telefone da loja'
-						hint='Com prefixo +258'
-						optional
+						label='Número de Celular'
+						hint='Formato +258 seguido de 9 dígitos (82–88)'
+						error={phoneError}
 					>
 						<PhoneInput
 							value={accountForm.phone}
@@ -482,13 +530,12 @@ export const SellerOnboardingView = () => {
 					<Button
 						type='button'
 						className='h-12 w-full rounded-full text-base font-semibold'
-						disabled={isPending}
+						disabled={isPending || !canContinueStep2}
 						onClick={() => {
 							updateStoreMutation.mutate({
 								logoUrl: profileForm.logoUrl ?? undefined,
 								bannerUrl: profileForm.bannerUrl ?? undefined,
-								description:
-									profileForm.description || undefined,
+								description: profileForm.description.trim(),
 								whatsapp:
 									formatPhone(profileForm.whatsapp) ||
 									undefined,
@@ -529,7 +576,11 @@ export const SellerOnboardingView = () => {
 						}
 					/>
 
-					<OnboardingField label='Descrição curta' optional>
+					<OnboardingField
+						label='Descrição curta'
+						hint='Mínimo de 20 caracteres'
+						error={descriptionError}
+					>
 						<Textarea
 							value={profileForm.description}
 							onChange={(e) =>
@@ -565,10 +616,17 @@ export const SellerOnboardingView = () => {
 						/>
 					</div>
 
+					{deliveryError ? (
+						<p role='alert' className='text-xs text-destructive'>
+							{deliveryError}
+						</p>
+					) : null}
+
 					<OnboardingField
 						label='WhatsApp'
-						hint='Número com +258 para contactos pela plataforma'
-						optional
+						hint='Número móvel moçambicano (82–88)'
+						optional={!profileForm.hasDelivery}
+						error={whatsappError}
 					>
 						<PhoneInput
 							value={profileForm.whatsapp}
@@ -580,15 +638,15 @@ export const SellerOnboardingView = () => {
 
 					<OnboardingField
 						label='Telefone para chamadas'
-						hint='Fixo ou móvel para os clientes ligarem'
-						optional
+						hint='Número móvel moçambicano (82–88)'
+						optional={!profileForm.hasDelivery}
+						error={callPhoneError}
 					>
 						<PhoneInput
 							value={profileForm.phone}
 							onChange={(phone) =>
 								setProfileForm((f) => ({ ...f, phone }))
 							}
-							placeholder='21 123 456'
 						/>
 					</OnboardingField>
 				</OnboardingFormCard>

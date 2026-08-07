@@ -13,8 +13,6 @@ export type StoreFormState = {
 	neighborhood: string
 	status: 'ACTIVE' | 'INACTIVE'
 	hasDelivery: boolean
-	deliveryFee: string
-	deliveryEtaMinutes: string
 	deliveryZones: string[]
 	zoneDraft: string
 }
@@ -38,15 +36,6 @@ export function storeToFormState(store: SellerStoreDetail): StoreFormState {
 		neighborhood: store.neighborhood ?? '',
 		status: editableStatus,
 		hasDelivery: store.hasDelivery,
-		deliveryFee:
-			store.deliveryFee !== null && store.deliveryFee !== undefined
-				? String(store.deliveryFee)
-				: '',
-		deliveryEtaMinutes:
-			store.deliveryEtaMinutes !== null &&
-			store.deliveryEtaMinutes !== undefined
-				? String(store.deliveryEtaMinutes)
-				: '',
 		deliveryZones: store.deliveryZones ?? [],
 		zoneDraft: '',
 	}

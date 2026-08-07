@@ -144,9 +144,9 @@ export const POST = withErrorHandling(async (request) => {
 			province_id: provinceId,
 			main_store_category_id: categoryId ?? null,
 			state: neighborhood,
-			email: email ?? auth.user.email,
-			phone: phone ?? auth.user.phone_number,
-			whatsapp: whatsapp ?? phone ?? auth.user.phone_number,
+			email,
+			phone,
+			whatsapp: whatsapp ?? phone,
 			status: 'PENDING',
 		})
 		.select('*')

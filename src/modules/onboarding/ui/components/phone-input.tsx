@@ -1,5 +1,9 @@
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
+import {
+	formatMzMobileDisplay,
+	normalizeMzDigits,
+} from '@/lib/validations/store-form'
 
 interface PhoneInputProps {
 	value: string
@@ -12,10 +16,12 @@ interface PhoneInputProps {
 export function PhoneInput({
 	value,
 	onChange,
-	placeholder = '84 123 4567',
+	placeholder = '82 123 4567',
 	className,
 	id,
 }: PhoneInputProps) {
+	const display = formatMzMobileDisplay(value)
+
 	return (
 		<div
 			className={cn(
@@ -32,9 +38,12 @@ export function PhoneInput({
 			<Input
 				id={id}
 				type='tel'
-				value={value}
-				onChange={(e) => onChange(e.target.value)}
+				inputMode='numeric'
+				autoComplete='tel-national'
+				value={display}
+				onChange={(e) => onChange(normalizeMzDigits(e.target.value))}
 				placeholder={placeholder}
+				maxLength={11}
 				className='h-auto rounded-none border-0 bg-transparent px-3 py-2.5 shadow-none focus-visible:ring-0'
 			/>
 		</div>

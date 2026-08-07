@@ -162,8 +162,6 @@ CREATE TABLE public.stores (
   phone varchar(30),
   whatsapp varchar(30),
   has_delivery boolean DEFAULT false,
-  delivery_fee integer,
-  delivery_eta_minutes integer,
   delivery_zones text[] DEFAULT '{}',
   verified_at timestamptz,
   status public.store_status DEFAULT 'PENDING',

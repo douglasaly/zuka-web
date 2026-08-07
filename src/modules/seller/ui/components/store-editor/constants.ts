@@ -1,5 +1,31 @@
 export const DESCRIPTION_MAX = 800
 
+/** Zonas rápidas para entrega — “Todo o país” é exclusivo das zonas locais. */
+export const DELIVERY_ZONE_PRESETS = [
+	{
+		id: 'nationwide',
+		label: 'Todo o país',
+		exclusive: true,
+	},
+	{
+		id: 'maputo',
+		label: 'Cidade de Maputo',
+		exclusive: false,
+	},
+	{
+		id: 'matola',
+		label: 'Matola',
+		exclusive: false,
+	},
+	{
+		id: 'marracuene',
+		label: 'Marracuene',
+		exclusive: false,
+	},
+] as const
+
+export const NATIONWIDE_ZONE_LABEL = DELIVERY_ZONE_PRESETS[0].label
+
 export const STATUS_OPTIONS = [
 	{
 		value: 'ACTIVE' as const,
