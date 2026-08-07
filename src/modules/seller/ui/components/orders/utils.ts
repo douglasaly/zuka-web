@@ -64,9 +64,15 @@ export function buildPageList(
 	return result
 }
 
-export function parsePerPage(raw: string | null): number {
-	const n = Number(raw ?? DEFAULT_PER_PAGE)
-	return PER_PAGE_OPTIONS.includes(n as (typeof PER_PAGE_OPTIONS)[number])
-		? n
-		: DEFAULT_PER_PAGE
+export function parsePerPage(
+	raw: string | null,
+	options?: {
+		defaultPerPage?: number
+		perPageOptions?: readonly number[]
+	}
+): number {
+	const defaultPerPage = options?.defaultPerPage ?? DEFAULT_PER_PAGE
+	const perPageOptions = options?.perPageOptions ?? PER_PAGE_OPTIONS
+	const n = Number(raw ?? defaultPerPage)
+	return perPageOptions.includes(n) ? n : defaultPerPage
 }
