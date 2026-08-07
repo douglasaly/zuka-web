@@ -40,7 +40,7 @@ export function FaqView() {
 				</h1>
 				<p className='mt-3 max-w-prose text-base leading-relaxed text-muted-foreground'>
 					Respostas curtas sobre conta, compras, lojas, pagamentos e
-					privacidade. Escolhe um tema e abre a pergunta.
+					privacidade. Escolha um tema e abra a pergunta.
 				</p>
 			</header>
 
@@ -131,14 +131,14 @@ export function FaqView() {
 					Ainda com dúvidas?
 				</h2>
 				<p className='mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground md:text-[15px]'>
-					Escreve para{' '}
+					Escreva para{' '}
 					<a
 						href='mailto:ola@zuka.co.mz'
 						className='font-medium text-secondary underline-offset-2 hover:underline'
 					>
 						ola@zuka.co.mz
 					</a>{' '}
-					com o email da tua conta e, se for o caso, o número do
+					com o email da sua conta e, se for o caso, o número do
 					pedido.
 				</p>
 				<div className='mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap'>

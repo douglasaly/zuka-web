@@ -20,7 +20,7 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
 			{
 				id: 'criar-conta',
 				question: 'Como crio uma conta na Zuka?',
-				answer: 'Abre a página de registo, indica o teu email e uma palavra-passe (mínimo 6 caracteres) e segue os passos. Podes criar conta como comprador ou, se quiseres vender, continuar o fluxo para abrir uma loja.',
+				answer: 'Abra a página de registo, indique o seu email e uma palavra-passe e siga os passos. Pode criar conta como comprador ou, se quiser vender, continuar o fluxo para abrir uma loja.',
 				links: [
 					{ href: '/signup', label: 'Criar conta' },
 					{ href: '/onboarding', label: 'Abrir uma loja' },
@@ -29,13 +29,13 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
 			{
 				id: 'entrar',
 				question: 'Como entro na minha conta?',
-				answer: 'Usa o mesmo email e palavra-passe com que te registaste. Se a sessão expirar, volta a entrar, o Zuka usa autenticação segura para manter a tua conta protegida.',
+				answer: 'Use o mesmo email e palavra-passe com que se registou. Se a sessão expirar, volte a entrar. O Zuka usa autenticação segura para manter a sua conta protegida.',
 				links: [{ href: '/auth/login', label: 'Entrar' }],
 			},
 			{
 				id: 'perfil',
 				question: 'Onde altero o meu perfil?',
-				answer: 'Com sessão iniciada, abre o teu perfil para actualizar nome, foto e dados de contacto. Mantém o telefone e o WhatsApp correctos para as lojas te conseguirem contactar.',
+				answer: 'Com sessão iniciada, abra o seu perfil para actualizar nome, foto e dados de contacto. Mantenha o telefone e o WhatsApp correctos para as lojas o conseguirem contactar.',
 				links: [{ href: '/perfil', label: 'Ir ao perfil' }],
 			},
 		],
@@ -47,7 +47,7 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
 			{
 				id: 'encontrar',
 				question: 'Como encontro produtos ou lojas?',
-				answer: 'No início vês o feed e podes abrir Explorar para filtrar por categoria. Também podes pesquisar pelo nome do produto ou da loja. Cada produto mostra a loja, preço e formas de contacto.',
+				answer: 'No início vê o feed e pode abrir Explorar para filtrar por categoria. Também pode pesquisar pelo nome do produto ou da loja. Cada produto mostra a loja, preço e formas de contacto.',
 				links: [
 					{ href: '/feed/explorar', label: 'Explorar produtos' },
 					{ href: '/feed/explorar?tab=stores', label: 'Ver lojas' },
@@ -56,13 +56,13 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
 			{
 				id: 'contactar',
 				question: 'Como falo com uma loja?',
-				answer: 'Na página do produto podes abrir WhatsApp, ligar ou iniciar o chat na Zuka. O chat fica nas tuas Mensagens e serve para combinar detalhes da compra com a loja.',
+				answer: 'Na página do produto pode abrir WhatsApp, ligar ou iniciar o chat na Zuka. O chat fica nas suas Mensagens e serve para combinar detalhes da compra com a loja.',
 				links: [{ href: '/mensagens', label: 'Abrir mensagens' }],
 			},
 			{
 				id: 'pedido',
 				question: 'Como faço um pedido?',
-				answer: 'Contacta a loja (WhatsApp, telefone ou chat) e confirma o produto, o preço, o pagamento e a entrega. Os teus pedidos aparecem em Pedidos no menu, para acompanhares o estado.',
+				answer: 'Contacte a loja (WhatsApp, telefone ou chat) e confirme o produto, o preço, o pagamento e a entrega. Os seus pedidos aparecem em Pedidos no menu, para acompanhar o estado.',
 				links: [
 					{ href: '/feed/pedidos', label: 'Ver os meus pedidos' },
 				],
@@ -81,13 +81,13 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
 			{
 				id: 'abrir-loja',
 				question: 'Como abro uma loja na Zuka?',
-				answer: 'Cria conta e segue o onboarding da loja: nome, contacto (incluindo WhatsApp), categoria e dados necessários. Depois de publicada, a loja fica visível no marketplace e pode receber encomendas.',
+				answer: 'Crie conta e siga o onboarding da loja: nome, contacto (incluindo WhatsApp), categoria e dados necessários. Depois de publicada, a loja fica visível no marketplace e pode receber encomendas.',
 				links: [{ href: '/onboarding', label: 'Começar a abrir loja' }],
 			},
 			{
 				id: 'painel',
-				question: 'Onde gerencio produtos e pedidos?',
-				answer: 'No painel da loja (dashboard) publicas e editas produtos, respondes a pedidos e acompanhas mensagens dos compradores. Mantém os preços e contactos actualizados.',
+				question: 'Onde faço a gestão de produtos e pedidos?',
+				answer: 'No painel da loja (dashboard) publica e edita produtos, responde a pedidos e acompanha mensagens dos compradores. Mantenha os preços e contactos actualizados.',
 				links: [
 					{
 						href: '/dashboard/seller',
@@ -98,7 +98,7 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
 			{
 				id: 'mensagens-loja',
 				question: 'As mensagens da loja são as mesmas do comprador?',
-				answer: 'Não. As conversas da loja ficam no painel do vendedor. A caixa Mensagens do site (menu principal) é para ti como comprador, assim os pedidos da tua loja não se misturam com as tuas compras.',
+				answer: 'Não. As conversas da loja ficam no painel do vendedor. A caixa Mensagens do site (menu principal) é para si como comprador, assim os pedidos da sua loja não se misturam com as suas compras.',
 			},
 		],
 	},
@@ -109,17 +109,17 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
 			{
 				id: 'metodos',
 				question: 'Que formas de pagamento existem?',
-				answer: 'Cada loja define como recebe (por exemplo M-Pesa, e-Mola, mKesh, cartão ou transferência), no respeito pela lei. Confirma sempre com a loja o valor, o método e o comprovativo antes de pagar.',
+				answer: 'Cada loja define como recebe (por exemplo M-Pesa, e-Mola, Mkesh, cartão ou transferência), no respeito pela lei. Confirme sempre com a loja o valor, o método e o comprovativo antes de pagar.',
 			},
 			{
 				id: 'entrega',
 				question: 'Quem cuida da entrega?',
-				answer: 'A entrega ou o levantamento são combinados contigo e com a loja (prazo, local, custos). O Zuka liga comprador e vendedor; a logística concreta depende do que a loja indicar no anúncio ou na conversa.',
+				answer: 'A entrega ou o levantamento são combinados consigo e com a loja (prazo, local, custos). O Zuka liga comprador e vendedor; a logística concreta depende do que a loja indicar no anúncio ou na conversa.',
 			},
 			{
 				id: 'problema-compra',
 				question: 'E se houver um problema com a compra?',
-				answer: 'Fala primeiro com a loja pelo mesmo canal da encomenda. Se precisares de apoio da plataforma (conta, abuso ou conteúdo), escreve para ola@zuka.co.mz com o número do pedido e uma descrição clara do que aconteceu.',
+				answer: 'Fale primeiro com a loja pelo mesmo canal da encomenda. Se precisar de apoio da plataforma (conta, abuso ou conteúdo), escreva para ola@zuka.co.mz com o número do pedido e uma descrição clara do que aconteceu.',
 				links: [
 					{
 						href: 'mailto:ola@zuka.co.mz',
@@ -136,7 +136,7 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
 			{
 				id: 'dados',
 				question: 'O que acontece aos meus dados?',
-				answer: 'Usamos os teus dados para operar a conta, mostrar produtos, permitir contacto com lojas e melhorar o serviço. Podes ler os detalhes e os teus direitos na página de Políticas de Privacidade.',
+				answer: 'Usamos os seus dados para operar a conta, mostrar produtos, permitir contacto com lojas e melhorar o serviço. Pode ler os detalhes e os seus direitos na página de Política de Privacidade.',
 				links: [
 					{ href: '/privacidade', label: 'Política de Privacidade' },
 				],
@@ -144,13 +144,13 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
 			{
 				id: 'regras',
 				question: 'Quais são as regras de utilização?',
-				answer: 'Os Termos e Condições explicam o que podes e não podes fazer no Zuka, responsabilidades de compradores e lojas, e como tratamos encomendas e conteúdos.',
+				answer: 'Os Termos e Condições explicam o que pode e não pode fazer no Zuka, as responsabilidades de compradores e lojas, e como tratamos encomendas e conteúdos.',
 				links: [{ href: '/termos', label: 'Termos e Condições' }],
 			},
 			{
 				id: 'contacto-ajuda',
-				question: 'Como contacto a equipe Zuka?',
-				answer: 'Para dúvidas sobre a conta, a loja ou este FAQ, envia email para ola@zuka.co.mz. Inclui o email da conta e, se for sobre um pedido, o número do pedido.',
+				question: 'Como contacto a equipa Zuka?',
+				answer: 'Para dúvidas sobre a conta, a loja ou este FAQ, envie email para ola@zuka.co.mz. Inclua o email da conta e, se for sobre um pedido, o número do pedido.',
 				links: [
 					{
 						href: 'mailto:ola@zuka.co.mz',

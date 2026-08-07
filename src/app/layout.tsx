@@ -20,11 +20,11 @@ const jakartaHeading = Plus_Jakarta_Sans({
 
 export const metadata: Metadata = {
 	title: {
-		default: 'Zuka — Marketplace Multi-vendedor',
+		default: 'Zuka | Marketplace Multivendedor',
 		template: '%s | Zuka',
 	},
 	description:
-		'Descubra produtos únicos de vendedores locais em Moçambique. Compre com confiança no marketplace Zuka.',
+		'Descubra produtos únicos de vendedores locais em Moçambique. Compre com confiança no Marketplace Zuka.',
 }
 
 export default function RootLayout({

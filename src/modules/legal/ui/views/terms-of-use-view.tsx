@@ -25,8 +25,8 @@ export function TermsOfUseView() {
 								nossa Política de Privacidade.
 							</p>
 							<p>
-								Se não concordar com alguma disposição, não
-								deve utilizar a Plataforma. Podemos recusar ou
+								Se não concordar com alguma disposição, não deve
+								utilizar a Plataforma. Podemos recusar ou
 								suspender o acesso em caso de incumprimento.
 							</p>
 						</>
@@ -44,17 +44,65 @@ export function TermsOfUseView() {
 								vendedores e efectuarem encomendas.
 							</p>
 							<p>
-								A NORTHBRIDGE LABS disponibiliza a infra-estrutura
-								tecnológica. Salvo indicação expressa em
-								contrário,{' '}
+								A NORTHBRIDGE LABS disponibiliza a
+								infra-estrutura tecnológica. Salvo indicação
+								expressa em contrário,{' '}
 								<strong>
 									não somos parte do contrato de compra e
 									venda
 								</strong>{' '}
-								celebrado entre comprador e loja, nem
-								garantimos stock, qualidade, entrega ou
-								pagamento fora dos fluxos previstos na
-								Plataforma.
+								celebrado entre comprador e loja, nem garantimos
+								stock, qualidade, entrega ou pagamento fora dos
+								fluxos previstos na Plataforma.
+							</p>
+						</>
+					),
+				},
+				{
+					id: 'regime-legal',
+					title: 'Enquadramento legal aplicável',
+					content: (
+						<>
+							<p>
+								Estes Termos e a actividade do Zuka em
+								Moçambique seguem, em particular, os seguintes
+								diplomas:
+							</p>
+							<ul>
+								<li>
+									<strong>Código Comercial:</strong> regula os
+									actos de comércio, os comerciantes e os
+									contratos celebrados entre lojas e
+									compradores na Plataforma.
+								</li>
+								<li>
+									<strong>
+										Lei n.º 3/2017, de 9 de Janeiro:
+									</strong>{' '}
+									regula o comércio electrónico e o governo
+									electrónico, aplicando-se directamente às
+									compras feitas através do Zuka.
+								</li>
+								<li>
+									<strong>
+										Lei n.º 22/2009, de 28 de Setembro (Lei
+										de Defesa do Consumidor):
+									</strong>{' '}
+									atribui direitos aos compradores enquanto
+									consumidores, nomeadamente à qualidade,
+									informação e reparação de danos, e prevê a
+									intervenção do Instituto do Consumidor.
+								</li>
+								<li>
+									<strong>Código Civil:</strong> rege os
+									contratos em geral, a responsabilidade civil
+									e a resolução de litígios entre as partes.
+								</li>
+							</ul>
+							<p>
+								Havendo conflito entre uma cláusula destes
+								Termos e um direito imperativo previsto nestas
+								leis, prevalece a lei.
 							</p>
 						</>
 					),
@@ -77,8 +125,8 @@ export function TermsOfUseView() {
 									Moçambique.
 								</li>
 								<li>
-									Uma pessoa ou entidade não deve criar
-									contas múltiplas com o intuito de contornar
+									Uma pessoa ou entidade não deve criar contas
+									múltiplas com o intuito de contornar
 									limites, sanções ou verificações.
 								</li>
 								<li>
@@ -138,9 +186,9 @@ export function TermsOfUseView() {
 									disponibilidade de forma clara;
 								</li>
 								<li>
-									cumprir a legislação moçambicana aplicável
-									ao comércio, fiscalidade e protecção do
-									consumidor;
+									cumprir a legislação comercial, fiscal e de
+									defesa do consumidor aplicável em
+									Moçambique, incluindo a Lei n.º 22/2009;
 								</li>
 								<li>
 									responder a encomendas e mensagens em prazo
@@ -169,15 +217,18 @@ export function TermsOfUseView() {
 								(pagamento, levantamento, envio, prazos e
 								garantias) são definidas pela loja, no respeito
 								pela lei. O Zuka pode disponibilizar meios de
-								pagamento ou fluxos de confirmação (por
-								exemplo, M-Pesa, e-Mola, cartão ou
-								transferência), sem assumir a qualidade do bem
-								nem a execução logística, excepto quando
-								expressamente indicado.
+								pagamento ou fluxos de confirmação (por exemplo,
+								M-Pesa, e-Mola, cartão ou transferência),
+								sujeitos às regras do Banco de Moçambique
+								aplicáveis a esses meios, sem assumir a
+								qualidade do bem nem a execução logística,
+								excepto quando expressamente indicado.
 							</p>
 							<p>
 								Em caso de litígio entre comprador e vendedor,
-								as partes devem procurar resolução amigável. A
+								as partes devem procurar resolução amigável,
+								podendo o comprador recorrer ainda ao Instituto
+								do Consumidor nos termos da Lei n.º 22/2009. A
 								Zuka pode, a seu critério, mediar ou suspender
 								contas envolvidas em comportamento abusivo, sem
 								obrigação de arbitrar o mérito comercial.
@@ -192,20 +243,19 @@ export function TermsOfUseView() {
 						<>
 							<p>
 								O utilizador mantém os direitos sobre os
-								conteúdos que publica (textos, imagens,
-								marcas), concedendo à NORTHBRIDGE LABS uma
-								licença não exclusiva, mundial e gratuita para
-								hospedar, reproduzir e apresentar esses
-								conteúdos na Plataforma e em materiais de
-								promoção do serviço.
+								conteúdos que publica (textos, imagens, marcas),
+								concedendo à NORTHBRIDGE LABS uma licença não
+								exclusiva, mundial e gratuita para hospedar,
+								reproduzir e apresentar esses conteúdos na
+								Plataforma e em materiais de promoção do
+								serviço.
 							</p>
 							<p>
-								A marca Zuka, o logótipo, o desenho da
-								interface e o software associado são
-								propriedade da NORTHBRIDGE LABS ou dos seus
-								licenciadores. É proibida a cópia, engenharia
-								inversa ou exploração comercial não
-								autorizada.
+								A marca Zuka, o logótipo, o desenho da interface
+								e o software associado são propriedade da
+								NORTHBRIDGE LABS ou dos seus licenciadores. É
+								proibida a cópia, engenharia inversa ou
+								exploração comercial não autorizada.
 							</p>
 						</>
 					),
@@ -249,9 +299,9 @@ export function TermsOfUseView() {
 							<p>
 								Podemos suspender, limitar ou encerrar contas,
 								anúncios ou funcionalidades, com ou sem aviso
-								prévio, quando haja suspeita fundada de
-								fraude, incumprimento, risco de segurança ou
-								exigência legal. O utilizador pode solicitar o
+								prévio, quando haja suspeita fundada de fraude,
+								incumprimento, risco de segurança ou exigência
+								legal. O utilizador pode solicitar o
 								encerramento da conta através das definições ou
 								por contacto connosco.
 							</p>
@@ -264,15 +314,13 @@ export function TermsOfUseView() {
 					content: (
 						<>
 							<p>
-								Na medida máxima permitida pela lei
-								moçambicana, a NORTHBRIDGE LABS não responde por
-								danos indirectos, lucros cessantes, perda de
-								dados ou prejuízos resultantes de:
+								Na medida máxima permitida pela lei moçambicana,
+								a NORTHBRIDGE LABS não responde por danos
+								indirectos, lucros cessantes, perda de dados ou
+								prejuízos resultantes de:
 							</p>
 							<ul>
-								<li>
-									transacções entre compradores e lojas;
-								</li>
+								<li>transacções entre compradores e lojas;</li>
 								<li>
 									indisponibilidade temporária da Plataforma
 									ou de serviços de terceiros;
@@ -282,13 +330,15 @@ export function TermsOfUseView() {
 									utilizadores;
 								</li>
 								<li>
-									falhas de rede, equipamento ou factores
-									fora do nosso controlo razoável.
+									falhas de rede, equipamento ou factores fora
+									do nosso controlo razoável.
 								</li>
 							</ul>
 							<p>
 								Nada nestes Termos exclui responsabilidade que
-								não possa ser limitada por lei.
+								não possa ser limitada por lei, incluindo os
+								direitos imperativos previstos na Lei n.º
+								22/2009.
 							</p>
 						</>
 					),
@@ -300,16 +350,18 @@ export function TermsOfUseView() {
 						<>
 							<p>
 								Podemos rever estes Termos periodicamente. A
-								versão vigente será publicada nesta página com
-								a data de actualização. Em caso de alteração
-								substancial, poderemos notificar os
-								utilizadores registados.
+								versão vigente será publicada nesta página com a
+								data de actualização. Em caso de alteração
+								substancial, poderemos notificar os utilizadores
+								registados.
 							</p>
 							<p>
 								Estes Termos regem-se pela lei da República de
-								Moçambique. Qualquer litígio será submetido
-								aos tribunais competentes em Moçambique, sem
-								prejuízo de direitos imperativos do consumidor.
+								Moçambique. Qualquer litígio será submetido aos
+								tribunais competentes em Moçambique, sem
+								prejuízo de direitos imperativos do consumidor
+								previstos na Lei n.º 22/2009 e demais legislação
+								aplicável.
 							</p>
 							<p>
 								Para questões sobre estes Termos, contacte{' '}

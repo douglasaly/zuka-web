@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { AppFooter } from '@/components/app-footer'
+import { LegalHeaderNav } from '@/modules/legal/ui/components/legal-header-nav'
 
 export default function LegalLayout({ children }: { children: ReactNode }) {
 	return (
@@ -18,36 +19,7 @@ export default function LegalLayout({ children }: { children: ReactNode }) {
 							Zuka
 						</span>
 					</Link>
-					<nav
-						aria-label='Ajuda e documentos'
-						className='flex max-w-[min(100%,18rem)] items-center gap-3 overflow-x-auto text-sm whitespace-nowrap sm:max-w-none sm:gap-4'
-					>
-						<Link
-							href='/perguntas-frequentes'
-							className='shrink-0 text-muted-foreground transition-colors hover:text-foreground'
-						>
-							FAQ
-						</Link>
-						<Link
-							href='/privacidade'
-							className='shrink-0 text-muted-foreground transition-colors hover:text-foreground'
-						>
-							Privacidade
-						</Link>
-						<Link
-							href='/termos'
-							className='shrink-0 text-muted-foreground transition-colors hover:text-foreground'
-						>
-							Termos
-						</Link>
-						<Link
-							href='/'
-							className='shrink-0 font-medium text-secondary transition-colors hover:text-secondary/80'
-						>
-							<span className='sm:hidden'>Loja</span>
-							<span className='hidden sm:inline'>Voltar à loja</span>
-						</Link>
-					</nav>
+					<LegalHeaderNav />
 				</div>
 			</header>
 
