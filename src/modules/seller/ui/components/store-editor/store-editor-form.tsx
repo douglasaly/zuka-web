@@ -31,11 +31,7 @@ import { StoreIdentitySection } from './store-identity-section'
 import { StoreLocationSection } from './store-location-section'
 import { StoreMediaSection } from './store-media-section'
 import { StoreStatusSection } from './store-status-section'
-import {
-	formatPhone,
-	type StoreFormState,
-	storeToFormState,
-} from './types'
+import { formatPhone, type StoreFormState, storeToFormState } from './types'
 
 type StoreEditorFormProps = {
 	store: SellerStoreDetail
@@ -240,13 +236,13 @@ export function StoreEditorForm({ store }: StoreEditorFormProps) {
 						>
 							{mutation.isPending ? (
 								<>
-									<Loader2 className='size-4 animate-spin' />
-									A guardar…
+									<Loader2 className='size-4 animate-spin' />A
+									guardar…
 								</>
 							) : mediaUploading ? (
 								<>
-									<Loader2 className='size-4 animate-spin' />
-									A carregar…
+									<Loader2 className='size-4 animate-spin' />A
+									carregar…
 								</>
 							) : (
 								<>

@@ -1,6 +1,6 @@
 'use client'
 
-import { CheckCircle2, MessageSquareText, PenLine } from 'lucide-react'
+import { MessageSquareText, PenLine } from 'lucide-react'
 import Image from 'next/image'
 import { PRODUCT_PLACEHOLDER, STORE_PLACEHOLDER } from '@/lib/api/marketplace'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
@@ -50,7 +50,9 @@ export function OrderReviewSummary({
 						Atendimento da loja
 					</p>
 					<div className='mt-2 flex flex-wrap items-center gap-2'>
-						<p className='truncate text-sm font-medium'>{storeName}</p>
+						<p className='truncate text-sm font-medium'>
+							{storeName}
+						</p>
 						<StarRating rating={review.rating} size='md' />
 					</div>
 					{review.body ? (
@@ -68,7 +70,9 @@ export function OrderReviewSummary({
 						<div className='flex items-center gap-3'>
 							<div className='relative size-11 shrink-0 overflow-hidden rounded-xl bg-muted'>
 								<Image
-									src={product.imageUrl ?? PRODUCT_PLACEHOLDER}
+									src={
+										product.imageUrl ?? PRODUCT_PLACEHOLDER
+									}
 									alt=''
 									fill
 									placeholder='blur'
@@ -122,7 +126,9 @@ export function OrderReviewSummary({
 										dateTime={review.storeRepliedAt}
 										className='text-xs text-muted-foreground'
 									>
-										{formatLongPtDate(review.storeRepliedAt)}
+										{formatLongPtDate(
+											review.storeRepliedAt
+										)}
 									</time>
 								) : null}
 							</div>

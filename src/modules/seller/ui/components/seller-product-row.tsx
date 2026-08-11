@@ -1,8 +1,8 @@
 import { Pencil, Trash2 } from 'lucide-react'
 import Image from 'next/image'
+import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 import type { SellerProduct } from '../../constants'
-import { IconTooltipButton } from '@/components/icon-tooltip-button'
 
 type SellerProductRowProps = {
 	product: SellerProduct

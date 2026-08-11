@@ -9,8 +9,8 @@
  * FORM: Extend seller dashboard Operate surface.
  */
 
-import { useSellerReviews } from '@/modules/seller/hooks/use-seller-reviews'
 import { useSellerAccess } from '@/modules/seller/hooks/use-seller-access'
+import { useSellerReviews } from '@/modules/seller/hooks/use-seller-reviews'
 import { ReviewsSummary } from '@/modules/seller/ui/components/reviews/reviews-summary'
 import {
 	ProductReviewCard,

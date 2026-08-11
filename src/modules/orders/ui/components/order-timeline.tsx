@@ -59,7 +59,8 @@ export function OrderTimeline({ steps }: OrderTimelineProps) {
 							<p
 								className={cn(
 									'text-sm font-medium',
-									step.state === 'current' && 'text-foreground',
+									step.state === 'current' &&
+										'text-foreground',
 									step.state === 'upcoming' &&
 										'text-muted-foreground'
 								)}

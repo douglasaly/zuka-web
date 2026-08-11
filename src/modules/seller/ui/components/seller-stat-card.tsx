@@ -1,4 +1,11 @@
-import { Eye, MessageCircle, Package, Phone, TrendingUp, Users } from 'lucide-react'
+import {
+	Eye,
+	MessageCircle,
+	Package,
+	Phone,
+	TrendingUp,
+	Users,
+} from 'lucide-react'
 
 export type SellerStatData = {
 	id: string

@@ -1,7 +1,7 @@
 'use client'
 
-import { Dialog, DialogContent, DialogClose } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogClose, DialogContent } from '@/components/ui/dialog'
 
 interface ConfirmDialogProps {
 	open: boolean

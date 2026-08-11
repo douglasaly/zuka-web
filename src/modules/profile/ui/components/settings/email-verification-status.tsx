@@ -1,7 +1,7 @@
 'use client'
 
-import { Loader2, MailCheck, MailWarning } from 'lucide-react'
 import { sendEmailVerification } from 'firebase/auth'
+import { Loader2, MailCheck, MailWarning } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'

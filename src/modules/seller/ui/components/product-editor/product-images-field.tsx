@@ -4,10 +4,10 @@ import { Loader2, Plus, Star, Trash2, Upload } from 'lucide-react'
 import Image from 'next/image'
 import { useRef, useState } from 'react'
 import { toast } from 'sonner'
-import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
-import { uploadImageToR2 } from '@/lib/api/uploads'
-import { cn } from '@/lib/utils'
 import { IconTooltipButton } from '@/components/icon-tooltip-button'
+import { uploadImageToR2 } from '@/lib/api/uploads'
+import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
+import { cn } from '@/lib/utils'
 import { MAX_PRODUCT_IMAGES } from './constants'
 
 type ProductImagesFieldProps = {

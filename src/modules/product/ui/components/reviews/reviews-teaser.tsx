@@ -1,7 +1,7 @@
 'use client'
 
-import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
+import Link from 'next/link'
 import { Skeleton } from '@/components/ui/skeleton'
 import { StarRating } from './star-rating'
 import type { RatingSummary } from './types'
@@ -68,8 +68,6 @@ export function ReviewsTeaser({
 					</span>
 				</div>
 			</div>
-
-			
 
 			<Link
 				href={`/product/${productId}/avaliacoes`}
