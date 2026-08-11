@@ -6,10 +6,7 @@ import Link from 'next/link'
 import { OrderStatusBadge } from '@/components/order-status-badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
-import {
-	PRODUCT_PLACEHOLDER,
-	STORE_PLACEHOLDER,
-} from '@/lib/api/marketplace'
+import { PRODUCT_PLACEHOLDER, STORE_PLACEHOLDER } from '@/lib/api/marketplace'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 import type { BuyerOrder } from '@/modules/orders/types'
 import { formatPrice } from '@/utils/format-price'
@@ -75,8 +72,8 @@ export function OrderCard({ order }: OrderCardProps) {
 		preview.length === 0
 			? order.storeName
 			: preview.length === 1
-				? preview[0]!.productName
-				: `${preview[0]!.productName} +${preview.length - 1}`
+				? preview[0]?.productName
+				: `${preview[0]?.productName} +${preview.length - 1}`
 
 	return (
 		<Card

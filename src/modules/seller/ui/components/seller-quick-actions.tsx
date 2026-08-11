@@ -1,5 +1,5 @@
-import Link from 'next/link'
 import { ExternalLink, Package, Plus, Store } from 'lucide-react'
+import Link from 'next/link'
 
 type QuickActionsProps = {
 	storeSlug?: string

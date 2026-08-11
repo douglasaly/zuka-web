@@ -12,8 +12,8 @@ import {
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
 	PERIOD_FILTERS,
-	STATUS_FILTERS,
 	type PeriodFilter,
+	STATUS_FILTERS,
 	type StatusFilter,
 } from '@/modules/orders/types'
 

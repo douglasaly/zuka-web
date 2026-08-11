@@ -1,22 +1,13 @@
 'use client'
 
-import {
-	ArrowRight,
-	MessageCircle,
-	Package,
-	Star,
-	Truck,
-} from 'lucide-react'
+import { ArrowRight, MessageCircle, Package, Star, Truck } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import {
-	PRODUCT_PLACEHOLDER,
-	STORE_PLACEHOLDER,
-} from '@/lib/api/marketplace'
+import { PRODUCT_PLACEHOLDER, STORE_PLACEHOLDER } from '@/lib/api/marketplace'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
-import type { BuyerOrder, StatusFilter } from '@/modules/orders/types'
 import { cn } from '@/lib/utils'
+import type { BuyerOrder, StatusFilter } from '@/modules/orders/types'
 
 type OrdersAsideProps = {
 	pendingReviews: BuyerOrder[]
@@ -37,7 +28,8 @@ export function OrdersAside({
 }: OrdersAsideProps) {
 	const inTransit = statusCounts.shipping
 	const processing = statusCounts.pending
-	const hasActivity = pendingReviewCount > 0 || inTransit > 0 || processing > 0
+	const hasActivity =
+		pendingReviewCount > 0 || inTransit > 0 || processing > 0
 
 	return (
 		<aside
@@ -195,8 +187,8 @@ export function OrdersAside({
 						Continuar a explorar
 					</h2>
 					<p className='text-sm leading-relaxed text-background/75'>
-							Descobre produtos locais e fala directamente com as
-							lojas, isso tudo sem sair do Zuka.
+						Descobre produtos locais e fala directamente com as
+						lojas, isso tudo sem sair do Zuka.
 					</p>
 					<div className='flex flex-col gap-2 pt-1'>
 						<Button
@@ -222,9 +214,7 @@ export function OrdersAside({
 				<section className='rounded-2xl border border-dashed border-border/80 bg-muted/25 p-4'>
 					<p className='text-xs font-medium text-foreground'>Dica</p>
 					<ul className='mt-2 list-disc space-y-1 pl-4 text-xs leading-relaxed text-muted-foreground'>
-						<li>
-							Depois da entrega, avalia na página do pedido.
-						</li>
+						<li>Depois da entrega, avalia na página do pedido.</li>
 						<li>A resposta da loja aparece aí também.</li>
 					</ul>
 					<div className='mt-3 flex items-center gap-2'>

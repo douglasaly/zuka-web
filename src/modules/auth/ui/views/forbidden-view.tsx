@@ -76,9 +76,7 @@ export function ForbiddenView() {
 							</Button>
 						) : !isLoading ? (
 							<Button
-								render={
-									<Link href='/auth/login?next=/admin' />
-								}
+								render={<Link href='/auth/login?next=/admin' />}
 								variant='ghost'
 								className='h-11 w-full rounded-full text-muted-foreground'
 							>

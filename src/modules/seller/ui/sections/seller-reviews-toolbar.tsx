@@ -2,11 +2,11 @@
 
 import { Search, Star, X } from 'lucide-react'
 import Link from 'next/link'
+import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
-import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import type { ReviewScope } from '../components/reviews/types'
 
 type SellerReviewsToolbarProps = {

@@ -23,12 +23,12 @@ export function ProductStatusField({
 						type='button'
 						aria-pressed={selected}
 						onClick={() => onChange(option.value)}
-			className={cn(
-				'flex w-full items-start gap-3 rounded-xl border px-3.5 py-3 text-left transition-colors duration-150',
-				selected
-					? 'border-foreground/20 bg-foreground/3 shadow-[0_1px_2px_rgba(0,0,0,0.04)]'
-					: 'border-border/60 hover:border-foreground/15 hover:bg-muted/40'
-			)}
+						className={cn(
+							'flex w-full items-start gap-3 rounded-xl border px-3.5 py-3 text-left transition-colors duration-150',
+							selected
+								? 'border-foreground/20 bg-foreground/3 shadow-[0_1px_2px_rgba(0,0,0,0.04)]'
+								: 'border-border/60 hover:border-foreground/15 hover:bg-muted/40'
+						)}
 					>
 						<span
 							className={cn(

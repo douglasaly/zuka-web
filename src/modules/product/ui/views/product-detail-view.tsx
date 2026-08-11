@@ -20,18 +20,16 @@ import { ProductGallery } from '../components/product-gallery'
 import { ProductHeader } from '../components/product-header'
 import { ProductPrice } from '../components/product-price'
 import { ProductStoreCard } from '../components/product-store-card'
+import { RelatedProducts } from '../components/related-products'
 import { ReviewsTeaser } from '../components/reviews/reviews-teaser'
 import type { RatingSummary } from '../components/reviews/types'
-import { RelatedProducts } from '../components/related-products'
 
 interface ProductDetailViewProps {
 	id: string
 }
 
 async function fetchReviewsSummary(productId: string): Promise<RatingSummary> {
-	const res = await fetch(
-		`/api/products/${productId}/reviews?summaryOnly=1`
-	)
+	const res = await fetch(`/api/products/${productId}/reviews?summaryOnly=1`)
 	if (!res.ok) {
 		return { average: 0, count: 0, distribution: [0, 0, 0, 0, 0] }
 	}

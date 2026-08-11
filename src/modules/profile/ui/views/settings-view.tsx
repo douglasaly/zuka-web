@@ -4,8 +4,8 @@ import { ArrowLeft, Globe, Lock, MapPin, Moon, Store } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
 import { IconTooltipButton } from '@/components/icon-tooltip-button'
+import { Button } from '@/components/ui/button'
 import { useUserProfile } from '@/hooks/use-user-profile'
 import {
 	MOCK_NOTIFICATIONS,

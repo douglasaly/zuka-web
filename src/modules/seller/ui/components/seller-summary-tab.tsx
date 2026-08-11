@@ -1,17 +1,17 @@
 'use client'
 
-import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
+import { ArrowUpRight } from 'lucide-react'
+import Link from 'next/link'
 import { useState } from 'react'
 import { Area, AreaChart, XAxis } from 'recharts'
-import { ArrowUpRight } from 'lucide-react'
+import { OrderStatusBadge } from '@/components/order-status-badge'
 import {
+	type ChartConfig,
 	ChartContainer,
 	ChartTooltip,
 	ChartTooltipContent,
-	type ChartConfig,
 } from '@/components/ui/chart'
-import { OrderStatusBadge } from '@/components/order-status-badge'
 import { formatPrice } from '@/utils/format-price'
 
 type DailySale = { date: string; sales: number }
@@ -56,7 +56,9 @@ export const SellerSummaryTab = () => {
 	const { data: dailyData } = useQuery<{ data: DailySale[] }>({
 		queryKey: ['seller-daily-sales', range],
 		queryFn: () =>
-			fetch(`/api/seller/stats/daily?days=${range}`).then((r) => r.json()),
+			fetch(`/api/seller/stats/daily?days=${range}`).then((r) =>
+				r.json()
+			),
 	})
 
 	const { data: topProductsData } = useQuery<{ data: TopProduct[] }>({
@@ -255,7 +257,10 @@ export const SellerSummaryTab = () => {
 										</p>
 									</div>
 									<p className='shrink-0 text-sm font-semibold'>
-										{formatPrice(order.total, order.currency)}
+										{formatPrice(
+											order.total,
+											order.currency
+										)}
 									</p>
 								</div>
 							))}

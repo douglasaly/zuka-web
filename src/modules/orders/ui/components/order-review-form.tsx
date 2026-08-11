@@ -76,7 +76,8 @@ export function OrderReviewForm({
 			const productId = item.productId!
 			const draft = productDrafts[productId]
 			if (!draft || draft.rating < 1) {
-				nextProductErrors[productId] = 'Escolhe uma nota para este produto.'
+				nextProductErrors[productId] =
+					'Escolhe uma nota para este produto.'
 			}
 		}
 
@@ -320,7 +321,8 @@ export function OrderReviewWaitingPanel({
 				mesma página.
 			</p>
 			<p className='mt-4 rounded-xl bg-muted/40 px-3 py-2.5 text-sm text-foreground'>
-				Estado actual: <span className='font-medium'>{statusLabel}</span>
+				Estado actual:{' '}
+				<span className='font-medium'>{statusLabel}</span>
 			</p>
 		</div>
 	)

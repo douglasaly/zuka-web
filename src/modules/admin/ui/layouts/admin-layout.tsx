@@ -1,12 +1,10 @@
 'use client'
 
-import { usePathname } from 'next/navigation'
-import { useState } from 'react'
-import Link from 'next/link'
 import {
 	BarChart3,
 	Bell,
 	ChevronRight,
+	Clock,
 	LayoutDashboard,
 	LogOut,
 	Package,
@@ -14,10 +12,12 @@ import {
 	ShieldCheck,
 	Store,
 	Users,
-	Clock,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 const nav = [
 	{
@@ -85,7 +85,7 @@ function NavItem({
 						{item.children.map((child) => {
 							const active =
 								pathname === child.href ||
-								pathname.startsWith(child.href + '/')
+								pathname.startsWith(`${child.href}/`)
 							return (
 								<Link
 									key={child.href}
@@ -112,7 +112,7 @@ function NavItem({
 		'exact' in item && item.exact
 			? pathname === item.href
 			: pathname === item.href ||
-				pathname.startsWith((item.href ?? '') + '/')
+				pathname.startsWith(`${item.href ?? ''}/`)
 
 	return (
 		<Link

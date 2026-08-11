@@ -30,11 +30,7 @@ function Initials({ name }: { name: string }) {
 	)
 }
 
-export function PublicReviewCard({
-	review,
-}: {
-	review: PublicProductReview
-}) {
+export function PublicReviewCard({ review }: { review: PublicProductReview }) {
 	return (
 		<article className='rounded-2xl border border-border/60 bg-card p-4 sm:p-5'>
 			<header className='flex items-start gap-3'>
@@ -90,11 +86,7 @@ export function PublicReviewCard({
 	)
 }
 
-export function StoreReviewsRef({
-	store,
-}: {
-	store: ProductReviewsStore
-}) {
+export function StoreReviewsRef({ store }: { store: ProductReviewsStore }) {
 	return (
 		<section
 			aria-label='Loja'
