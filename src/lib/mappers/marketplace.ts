@@ -7,6 +7,11 @@ type DbImage = {
 	position?: number | null
 }
 
+type DbRating = {
+	rating_avg?: number | null
+	rating_count?: number | null
+}
+
 type DbStore = {
 	id: string
 	name: string
@@ -20,7 +25,9 @@ type DbStore = {
 	phone?: string | null
 	whatsapp?: string | null
 	email?: string | null
+	has_delivery?: boolean | null
 	provinces?: { name: string } | null
+	store_ratings?: DbRating | DbRating[] | null
 }
 
 type DbProduct = {
@@ -38,6 +45,7 @@ type DbProduct = {
 	stores?: DbStore | null
 	categories?: { id: string; name: string; slug: string } | null
 	product_images?: DbImage[] | null
+	product_ratings?: DbRating | DbRating[] | null
 }
 
 /** Strip invalid or dev-only placeholder URLs so components fall back to local images. */
@@ -61,12 +69,25 @@ function storeLocation(store?: DbStore | null) {
 	return [province, neighborhood].filter(Boolean).join(' · ')
 }
 
+function pickRating(ratings?: DbRating | DbRating[] | null): {
+	avg: number
+	count: number
+} {
+	const row = Array.isArray(ratings) ? ratings[0] : ratings
+	return {
+		avg: Number(row?.rating_avg ?? 0),
+		count: Number(row?.rating_count ?? 0),
+	}
+}
+
 export function mapProductRow(row: DbProduct): Product {
 	const store = row.stores
 	const createdAt = row.created_at ? new Date(row.created_at) : null
 	const isNew =
 		createdAt != null &&
 		Date.now() - createdAt.getTime() < 1000 * 60 * 60 * 24 * 14
+	const productRating = pickRating(row.product_ratings)
+	const storeRating = pickRating(store?.store_ratings)
 
 	return {
 		id: row.id,
@@ -78,12 +99,15 @@ export function mapProductRow(row: DbProduct): Product {
 		image: pickPrimaryImage(row.product_images),
 		slug: row.slug ?? null,
 		negotiable: row.discount_price != null,
-		hasDelivery: row.status === 'ACTIVE',
+		hasDelivery: Boolean(store?.has_delivery),
 		isNew,
+		rating: productRating.count > 0 ? productRating.avg : undefined,
+		reviewCount: productRating.count > 0 ? productRating.count : undefined,
 		storeId: row.store_id,
 		storeName: store?.name ?? 'Loja',
 		storeSlug: store?.slug ?? '',
 		storeLocation: storeLocation(store),
+		storeRating: storeRating.count > 0 ? storeRating.avg : undefined,
 		storeVerified: Boolean(store?.verified_at),
 		storeAvatar: store?.logo_url ?? sanitizeUrl(store?.logo_url),
 		storePhone: store?.phone ?? null,
@@ -110,6 +134,8 @@ export function mapGroupedProduct(item: {
 export function mapStoreRow(
 	store: DbStore & { product_count?: number; follower_count?: number }
 ): StoreProfile {
+	const rating = pickRating(store.store_ratings)
+
 	return {
 		id: store.id,
 		name: store.name,
@@ -117,8 +143,8 @@ export function mapStoreRow(
 		location: store.provinces?.name ?? store.state ?? '',
 		neighborhood: store.state ?? '',
 		verified: Boolean(store.verified_at) || store.status === 'ACTIVE',
-		rating: 4.8,
-		reviewCount: 0,
+		rating: rating.count > 0 ? rating.avg : 0,
+		reviewCount: rating.count,
 		followers: store.follower_count ?? 0,
 		productCount: store.product_count ?? 0,
 		bannerUrl: store.banner_url ?? sanitizeUrl(store.banner_url),

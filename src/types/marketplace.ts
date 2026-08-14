@@ -9,6 +9,8 @@ export interface Product {
 	negotiable?: boolean
 	hasDelivery?: boolean
 	isNew?: boolean
+	rating?: number
+	reviewCount?: number
 	storeId: string
 	storeName: string
 	storeSlug: string

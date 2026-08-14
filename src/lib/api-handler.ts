@@ -13,19 +13,6 @@ type WrappedHandler = (
 	context?: RouteContext
 ) => Promise<NextResponse | Response>
 
-/**
- * Wrapper que centraliza o tratamento de erros em todas as rotas API.
- *
- * - Erros do tipo Response (lançados por requireAuth, etc.) são passados diretamente.
- * - Erros do Supabase são logados e retornados como 500.
- * - Erros desconhecidos são tratados como 500 genérico.
- *
- * @example
- * export const GET = withErrorHandling(async (request) => {
- *   const user = await requireAuth()
- *   // ... lógica da rota
- * })
- */
 export function withErrorHandling(handler: HandlerFn): WrappedHandler {
 	return async (request, context) => {
 		try {

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 
 export async function GET(
-	req: Request,
+	_req: Request,
 	{ params }: { params: Promise<{ id: string }> }
 ) {
 	try {
@@ -18,7 +18,9 @@ export async function GET(
 		const supabase = createSupabaseAdmin()
 		const { data, error } = await supabase
 			.from('products')
-			.select('*, stores!inner(*), categories(*), product_images(*)')
+			.select(
+				'id, store_id, category_id, name, slug, description, status, price, discount_price, currency, created_at, stores!inner(id, name, slug, logo_url, banner_url, verified_at, state, description, whatsapp, phone, email, has_delivery, provinces(name), store_ratings(rating_avg, rating_count)), categories(id, name, slug), product_images(url, is_primary, position), product_ratings(rating_avg, rating_count)'
+			)
 			.eq('id', id)
 			.eq('is_visible', true)
 			.is('deleted_at', null)

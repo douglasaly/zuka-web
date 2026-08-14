@@ -19,9 +19,9 @@ type ProductRow = {
 	currency: string | null
 	created_at: string | null
 	updated_at: string | null
-	deleted_at: string | null
 	categories: Record<string, unknown> | null
 	product_images: Array<Record<string, unknown>> | null
+	product_ratings?: Record<string, unknown> | null
 }
 
 function groupStoreProducts(rows: ProductRow[]) {
@@ -62,7 +62,9 @@ export async function GET(req: Request, { params }: GetStoreProps) {
 
 		const { data: store, error: storeError } = await supabase
 			.from('stores')
-			.select('*, provinces(name)')
+			.select(
+				'id, name, slug, state, status, verified_at, logo_url, banner_url, phone, whatsapp, email, description, has_delivery, provinces(name), store_ratings(rating_avg, rating_count)'
+			)
 			.eq('slug', slug)
 			.eq('status', 'ACTIVE')
 			.is('deleted_at', null)
@@ -87,7 +89,9 @@ export async function GET(req: Request, { params }: GetStoreProps) {
 
 		let productsQuery = supabase
 			.from('products')
-			.select('*, categories(*), product_images(*)')
+			.select(
+				'id, store_id, category_id, name, slug, is_visible, description, status, price, discount_price, currency, created_at, updated_at, categories(id, name, slug), product_images(url, is_primary, position), product_ratings(rating_avg, rating_count)'
+			)
 			.eq('store_id', storeId)
 			.is('deleted_at', null)
 			.order('created_at', { ascending: false })

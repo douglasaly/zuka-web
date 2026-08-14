@@ -32,8 +32,9 @@ export const GET = withErrorHandling(async (request) => {
 			`
 			id, name, slug, description, state, status,
 			logo_url, banner_url, phone, whatsapp, email, verified_at,
-			created_at, updated_at,
+			has_delivery, created_at, updated_at,
 			provinces ( name, slug ),
+			store_ratings ( rating_avg, rating_count ),
 			product_count:products ( count ),
 			follower_count:store_followers ( count )
 		`,

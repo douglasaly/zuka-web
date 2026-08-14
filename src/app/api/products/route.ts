@@ -15,7 +15,7 @@ import {
 	CursorPaginationSchema,
 	ProductFiltersSchema,
 } from '@/lib/validations'
-import { shuffle } from '@/utils/shuffle'
+import { shuffleWithStoreDiversity } from '@/utils/shuffle'
 import { Slug } from '@/utils/slug'
 
 type ProductRow = {
@@ -104,7 +104,9 @@ export const GET = withErrorHandling(async (request) => {
 	// Construir query com filtros
 	let query = supabase
 		.from('products')
-		.select('*, stores!inner(*), categories(*), product_images(*)')
+		.select(
+			'id, store_id, category_id, name, slug, is_visible, description, status, price, discount_price, currency, created_at, stores!inner(id, name, slug, logo_url, verified_at, state, phone, has_delivery, provinces(name), status, store_ratings(rating_avg, rating_count)), categories(id, name, slug), product_images(url, is_primary, position), product_ratings(rating_avg, rating_count)'
+		)
 		.eq('is_visible', true)
 		.is('deleted_at', null)
 		.eq('stores.status', 'ACTIVE')
@@ -163,22 +165,19 @@ export const GET = withErrorHandling(async (request) => {
 		hasMore ? data?.slice(0, limit) : (data ?? [])
 	) as ProductRow[]
 
-	// Agrupar e limitar a 2 produtos por loja (shuffle)
-	let result = groupProductsWithRelations(rows)
+	const grouped = groupProductsWithRelations(rows)
 
-	const groupedByStore: Record<string, typeof result> = {}
-	for (const item of result) {
-		const storeId = item.store?.id as string | undefined
-		if (!storeId) continue
-		if (!groupedByStore[storeId]) groupedByStore[storeId] = []
-		groupedByStore[storeId].push(item)
-	}
+	const shouldShuffle =
+		filters.ordenar !== 'price_asc' &&
+		filters.ordenar !== 'price_desc' &&
+		filters.ordenar !== 'newest'
 
-	const final: typeof result = []
-	for (const storeId in groupedByStore) {
-		final.push(...shuffle(groupedByStore[storeId]).slice(0, 4))
-	}
-	result = shuffle(final)
+	const result = shouldShuffle
+		? shuffleWithStoreDiversity(
+				grouped,
+				(item) => item.store?.id as string | undefined
+			)
+		: grouped
 
 	const lastRow = rows[rows.length - 1]
 	const nextCursor = hasMore ? (lastRow?.created_at ?? null) : null

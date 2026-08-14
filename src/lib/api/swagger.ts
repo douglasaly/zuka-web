@@ -77,6 +77,7 @@ const schemas = {
 	},
 	Product: {
 		type: 'object',
+		description: 'Seller dashboard product row (camelCase)',
 		properties: {
 			id: { type: 'string' },
 			name: { type: 'string' },
@@ -89,8 +90,195 @@ const schemas = {
 			image: { type: 'string', nullable: true },
 		},
 	},
+	DbRatingSummary: {
+		type: 'object',
+		nullable: true,
+		description:
+			'From product_ratings or store_ratings (0/empty when none)',
+		properties: {
+			rating_avg: { type: 'number', format: 'float' },
+			rating_count: { type: 'integer' },
+		},
+	},
+	ProductImagePublic: {
+		type: 'object',
+		properties: {
+			url: { type: 'string' },
+			is_primary: { type: 'boolean', nullable: true },
+			position: { type: 'integer', nullable: true },
+		},
+	},
+	ProductCategoryPublic: {
+		type: 'object',
+		nullable: true,
+		properties: {
+			id: { type: 'string' },
+			name: { type: 'string' },
+			slug: { type: 'string' },
+		},
+	},
+	ProductListStore: {
+		type: 'object',
+		nullable: true,
+		description:
+			'Public store fields for product cards. Contact beyond phone is omitted.',
+		properties: {
+			id: { type: 'string' },
+			name: { type: 'string' },
+			slug: { type: 'string' },
+			logo_url: { type: 'string', nullable: true },
+			verified_at: { type: 'string', nullable: true },
+			state: { type: 'string', nullable: true },
+			phone: { type: 'string', nullable: true },
+			has_delivery: { type: 'boolean', nullable: true },
+			status: { type: 'string' },
+			provinces: {
+				type: 'object',
+				nullable: true,
+				properties: { name: { type: 'string' } },
+			},
+			store_ratings: { $ref: '#/components/schemas/DbRatingSummary' },
+		},
+	},
+	ProductDetailStore: {
+		type: 'object',
+		nullable: true,
+		description:
+			'Public store fields for product detail. Includes contact (whatsapp, phone, email).',
+		properties: {
+			id: { type: 'string' },
+			name: { type: 'string' },
+			slug: { type: 'string' },
+			logo_url: { type: 'string', nullable: true },
+			banner_url: { type: 'string', nullable: true },
+			verified_at: { type: 'string', nullable: true },
+			state: { type: 'string', nullable: true },
+			description: { type: 'string', nullable: true },
+			whatsapp: { type: 'string', nullable: true },
+			phone: { type: 'string', nullable: true },
+			email: { type: 'string', nullable: true },
+			has_delivery: { type: 'boolean', nullable: true },
+			provinces: {
+				type: 'object',
+				nullable: true,
+				properties: { name: { type: 'string' } },
+			},
+			store_ratings: { $ref: '#/components/schemas/DbRatingSummary' },
+		},
+	},
+	ProductListRow: {
+		type: 'object',
+		description:
+			'Explicit product columns for listing. Prices are integers in cents (÷100 on the client).',
+		properties: {
+			id: { type: 'string' },
+			store_id: { type: 'string' },
+			category_id: { type: 'string' },
+			name: { type: 'string' },
+			slug: { type: 'string', nullable: true },
+			is_visible: { type: 'boolean', nullable: true },
+			description: { type: 'string', nullable: true },
+			status: { type: 'string', nullable: true },
+			price: { type: 'integer' },
+			discount_price: { type: 'integer', nullable: true },
+			currency: { type: 'string', nullable: true },
+			created_at: { type: 'string', nullable: true },
+			updated_at: {
+				type: 'string',
+				nullable: true,
+				description: 'Present on GET /api/stores/{slug} products',
+			},
+			product_ratings: { $ref: '#/components/schemas/DbRatingSummary' },
+		},
+	},
+	ProductDetailRow: {
+		type: 'object',
+		description:
+			'Explicit product columns for detail. Prices are integers in cents.',
+		properties: {
+			id: { type: 'string' },
+			store_id: { type: 'string' },
+			category_id: { type: 'string' },
+			name: { type: 'string' },
+			slug: { type: 'string', nullable: true },
+			description: { type: 'string', nullable: true },
+			status: { type: 'string', nullable: true },
+			price: { type: 'integer' },
+			discount_price: { type: 'integer', nullable: true },
+			currency: { type: 'string', nullable: true },
+			created_at: { type: 'string', nullable: true },
+			product_ratings: { $ref: '#/components/schemas/DbRatingSummary' },
+		},
+	},
+	GroupedProductListItem: {
+		type: 'object',
+		description: 'GET /api/products item after relation grouping',
+		properties: {
+			product: { $ref: '#/components/schemas/ProductListRow' },
+			store: { $ref: '#/components/schemas/ProductListStore' },
+			category: { $ref: '#/components/schemas/ProductCategoryPublic' },
+			images: {
+				type: 'array',
+				items: { $ref: '#/components/schemas/ProductImagePublic' },
+			},
+		},
+	},
+	GroupedProductDetail: {
+		type: 'object',
+		description: 'GET /api/products/{id} payload',
+		properties: {
+			product: { $ref: '#/components/schemas/ProductDetailRow' },
+			store: { $ref: '#/components/schemas/ProductDetailStore' },
+			category: { $ref: '#/components/schemas/ProductCategoryPublic' },
+			images: {
+				type: 'array',
+				items: { $ref: '#/components/schemas/ProductImagePublic' },
+			},
+		},
+	},
+	StorePublicRaw: {
+		type: 'object',
+		description:
+			'Public store row from GET /api/stores/{slug} (snake_case, explicit columns only)',
+		properties: {
+			id: { type: 'string' },
+			name: { type: 'string' },
+			slug: { type: 'string' },
+			state: { type: 'string', nullable: true },
+			status: { type: 'string', nullable: true },
+			verified_at: { type: 'string', nullable: true },
+			logo_url: { type: 'string', nullable: true },
+			banner_url: { type: 'string', nullable: true },
+			phone: { type: 'string', nullable: true },
+			whatsapp: { type: 'string', nullable: true },
+			email: { type: 'string', nullable: true },
+			description: { type: 'string', nullable: true },
+			has_delivery: { type: 'boolean', nullable: true },
+			provinces: {
+				type: 'object',
+				nullable: true,
+				properties: { name: { type: 'string' } },
+			},
+			store_ratings: { $ref: '#/components/schemas/DbRatingSummary' },
+			product_count: { type: 'integer' },
+			follower_count: { type: 'integer' },
+		},
+	},
+	StoreProductGrouped: {
+		type: 'object',
+		properties: {
+			product: { $ref: '#/components/schemas/ProductListRow' },
+			category: { $ref: '#/components/schemas/ProductCategoryPublic' },
+			images: {
+				type: 'array',
+				items: { $ref: '#/components/schemas/ProductImagePublic' },
+			},
+		},
+	},
 	Store: {
 		type: 'object',
+		description:
+			'Mapped public store (camelCase) from GET /api/stores. rating/reviewCount come from store_ratings (0 when none).',
 		properties: {
 			id: { type: 'string' },
 			name: { type: 'string' },
@@ -113,8 +301,15 @@ const schemas = {
 			phone: { type: 'string', nullable: true },
 			whatsapp: { type: 'string', nullable: true },
 			verified: { type: 'boolean' },
-			rating: { type: 'number', format: 'float' },
-			reviewCount: { type: 'integer' },
+			rating: {
+				type: 'number',
+				format: 'float',
+				description: 'store_ratings.rating_avg, or 0 if no reviews',
+			},
+			reviewCount: {
+				type: 'integer',
+				description: 'store_ratings.rating_count',
+			},
 			followers: { type: 'integer' },
 			productCount: { type: 'integer' },
 		},
@@ -180,13 +375,17 @@ const schemas = {
 		description: 'Buyer-facing order summary (mapped from DB)',
 		properties: {
 			id: { type: 'string', format: 'uuid' },
-			shortId: { type: 'string', description: 'First 8 chars of id, uppercased' },
+			shortId: {
+				type: 'string',
+				description: 'First 8 chars of id, uppercased',
+			},
 			storeName: { type: 'string' },
 			storeAvatar: { type: 'string', nullable: true },
 			storeSlug: { type: 'string', nullable: true },
 			date: {
 				type: 'string',
-				description: 'Human-readable PT date (e.g. "31 de julho de 2026")',
+				description:
+					'Human-readable PT date (e.g. "31 de julho de 2026")',
 			},
 			createdAt: { type: 'string', format: 'date-time' },
 			itemCount: { type: 'integer' },
@@ -1256,7 +1455,7 @@ const paths: Record<string, any> = {
 			tags: ['Public'],
 			summary: 'Search and filter products (cursor-based)',
 			description:
-				'Public product listing used by `/feed/explorar`. `categoria` matches the category slug and all descendant subcategories.',
+				'Public product listing (home infinite scroll, `/pesquisa`). Returns every matching product in the page — no per-store cap. Default order (`created_at` desc) is shuffled with store diversity (Fisher–Yates + round-robin). Price sorts and `newest` are not shuffled. `categoria` matches the category slug and all descendant subcategories. Payload uses explicit columns only (no SELECT *). Prices are integers in cents.',
 			parameters: [
 				{
 					name: 'categoria',
@@ -1281,13 +1480,15 @@ const paths: Record<string, any> = {
 					name: 'preco_min',
 					in: 'query',
 					schema: { type: 'integer' },
-					description: 'Minimum price',
+					description:
+						'Minimum price in major units (converted to cents server-side)',
 				},
 				{
 					name: 'preco_max',
 					in: 'query',
 					schema: { type: 'integer' },
-					description: 'Maximum price',
+					description:
+						'Maximum price in major units (converted to cents server-side)',
 				},
 				{
 					name: 'recente',
@@ -1300,19 +1501,23 @@ const paths: Record<string, any> = {
 					in: 'query',
 					schema: {
 						type: 'string',
-						enum: ['price_asc', 'price_desc', 'newest'],
+						enum: ['price_asc', 'price_desc', 'newest', 'popular'],
 					},
+					description:
+						'price_* and newest skip shuffle. popular currently falls back to created_at desc + shuffle.',
 				},
 				{
 					name: 'cursor',
 					in: 'query',
 					schema: { type: 'string' },
-					description: 'Cursor for next page (created_at value)',
+					description:
+						'Cursor for next page (created_at ISO value). Ignored for price sorts.',
 				},
 				{
 					name: 'limit',
 					in: 'query',
-					schema: { type: 'integer', default: 50, maximum: 100 },
+					schema: { type: 'integer', default: 20, maximum: 100 },
+					description: 'Page size. Home uses 24.',
 				},
 			],
 			responses: {
@@ -1326,7 +1531,9 @@ const paths: Record<string, any> = {
 									success: { type: 'boolean', enum: [true] },
 									data: {
 										type: 'array',
-										items: { type: 'object' },
+										items: {
+											$ref: '#/components/schemas/GroupedProductListItem',
+										},
 									},
 									pagination: {
 										$ref: '#/components/schemas/CursorPagination',
@@ -1407,6 +1614,8 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Public'],
 			summary: 'Get product details',
+			description:
+				'Public product detail with explicit columns only. Store includes contact (whatsapp, phone, email), has_delivery, and store_ratings. Internal store fields are omitted.',
 			parameters: [
 				{
 					name: 'id',
@@ -1425,44 +1634,7 @@ const paths: Record<string, any> = {
 								properties: {
 									success: { type: 'boolean', enum: [true] },
 									data: {
-										type: 'object',
-										properties: {
-											product: { type: 'object' },
-											store: {
-												type: 'object',
-												nullable: true,
-												properties: {
-													id: { type: 'string' },
-													name: { type: 'string' },
-													slug: { type: 'string' },
-												},
-											},
-											category: {
-												type: 'object',
-												nullable: true,
-												properties: {
-													id: { type: 'string' },
-													name: { type: 'string' },
-													slug: { type: 'string' },
-												},
-											},
-											images: {
-												type: 'array',
-												items: {
-													type: 'object',
-													properties: {
-														id: { type: 'string' },
-														url: { type: 'string' },
-														is_primary: {
-															type: 'boolean',
-														},
-														sort_order: {
-															type: 'integer',
-														},
-													},
-												},
-											},
-										},
+										$ref: '#/components/schemas/GroupedProductDetail',
 									},
 								},
 							},
@@ -1853,6 +2025,8 @@ const paths: Record<string, any> = {
 			tags: ['Stores'],
 			summary:
 				'List ACTIVE stores with search and offset pagination (PENDING and other statuses are never returned)',
+			description:
+				'Mapped StoreProfile list. rating/reviewCount come from store_ratings (0 when none). Explicit store columns only.',
 			parameters: [
 				{ name: 'search', in: 'query', schema: { type: 'string' } },
 				{
@@ -1958,6 +2132,8 @@ const paths: Record<string, any> = {
 			tags: ['Stores'],
 			summary:
 				'Get ACTIVE store details with products (PENDING and other statuses return 404)',
+			description:
+				'Returns explicit public store columns (including has_delivery and store_ratings) plus grouped products with explicit product/image/category fields. Internal store columns are omitted.',
 			parameters: [
 				{
 					name: 'slug',
@@ -1990,66 +2166,13 @@ const paths: Record<string, any> = {
 										type: 'object',
 										properties: {
 											store: {
-												type: 'object',
-												properties: {
-													id: { type: 'string' },
-													name: { type: 'string' },
-													slug: { type: 'string' },
-													description: {
-														type: 'string',
-														nullable: true,
-													},
-													state: { type: 'string' },
-													status: {
-														type: 'string',
-														nullable: true,
-													},
-													logo_url: {
-														type: 'string',
-														nullable: true,
-													},
-													banner_url: {
-														type: 'string',
-														nullable: true,
-													},
-													phone: {
-														type: 'string',
-														nullable: true,
-													},
-													whatsapp: {
-														type: 'string',
-														nullable: true,
-													},
-													email: {
-														type: 'string',
-														nullable: true,
-													},
-													verified_at: {
-														type: 'string',
-														nullable: true,
-													},
-													created_at: {
-														type: 'string',
-													},
-													provinces: {
-														type: 'object',
-														properties: {
-															name: {
-																type: 'string',
-															},
-														},
-													},
-													product_count: {
-														type: 'integer',
-													},
-													follower_count: {
-														type: 'integer',
-													},
-												},
+												$ref: '#/components/schemas/StorePublicRaw',
 											},
 											products: {
 												type: 'array',
-												items: { type: 'object' },
+												items: {
+													$ref: '#/components/schemas/StoreProductGrouped',
+												},
 											},
 											page: { type: 'integer' },
 											limit: { type: 'integer' },
@@ -2622,7 +2745,7 @@ const paths: Record<string, any> = {
 			tags: ['Conversations'],
 			summary: 'Create or reuse a buyer conversation with a store',
 			description:
-				'Opens the existing conversation between the current user and the product\'s store (one thread per buyer+store). Creates a new conversation only if none exists. Soft-deleted threads are revived. Updates `product_id` to the product that triggered the open. Forbidden when the product belongs to a store the user owns or manages.',
+				"Opens the existing conversation between the current user and the product's store (one thread per buyer+store). Creates a new conversation only if none exists. Soft-deleted threads are revived. Updates `product_id` to the product that triggered the open. Forbidden when the product belongs to a store the user owns or manages.",
 			security: [{ CookieAuth: [] }],
 			requestBody: {
 				content: {
@@ -2644,7 +2767,8 @@ const paths: Record<string, any> = {
 			},
 			responses: {
 				'200': {
-					description: 'Existing conversation reused (and optionally revived)',
+					description:
+						'Existing conversation reused (and optionally revived)',
 					content: {
 						'application/json': {
 							schema: {
@@ -3466,7 +3590,9 @@ const paths: Record<string, any> = {
 						},
 					},
 				},
-				'400': { description: 'Invalid input or documents already approved' },
+				'400': {
+					description: 'Invalid input or documents already approved',
+				},
 				'401': { description: 'Unauthorized' },
 				'403': { description: 'Not a seller' },
 				'404': { description: 'Store not found' },
@@ -3492,12 +3618,7 @@ const paths: Record<string, any> = {
 					required: false,
 					schema: {
 						type: 'string',
-						enum: [
-							'all',
-							'DRAFT',
-							'ACTIVE',
-							'INACTIVE',
-						],
+						enum: ['all', 'DRAFT', 'ACTIVE', 'INACTIVE'],
 					},
 				},
 				{
@@ -3526,7 +3647,8 @@ const paths: Record<string, any> = {
 					in: 'query',
 					required: false,
 					schema: { type: 'integer', minimum: 1, default: 1 },
-					description: '1-based page index for traditional pagination',
+					description:
+						'1-based page index for traditional pagination',
 				},
 				{
 					name: 'perPage',
@@ -3720,11 +3842,7 @@ const paths: Record<string, any> = {
 								},
 								status: {
 									type: 'string',
-									enum: [
-										'DRAFT',
-										'ACTIVE',
-										'INACTIVE',
-									],
+									enum: ['DRAFT', 'ACTIVE', 'INACTIVE'],
 								},
 								isVisible: { type: 'boolean' },
 								imageUrl: { type: 'string' },
@@ -4021,7 +4139,8 @@ const paths: Record<string, any> = {
 					in: 'query',
 					required: false,
 					schema: { type: 'integer', minimum: 1, default: 1 },
-					description: '1-based page index for traditional pagination',
+					description:
+						'1-based page index for traditional pagination',
 				},
 				{
 					name: 'perPage',
@@ -4284,7 +4403,8 @@ const paths: Record<string, any> = {
 			],
 			responses: {
 				'200': {
-					description: 'Reviews + summary for the authenticated store',
+					description:
+						'Reviews + summary for the authenticated store',
 					content: {
 						'application/json': {
 							schema: {
@@ -4746,7 +4866,8 @@ const paths: Record<string, any> = {
 						enum: ['7d', '30d', '90d'],
 						default: '30d',
 					},
-					description: 'Lookback period. Numeric 7/30/90 also accepted.',
+					description:
+						'Lookback period. Numeric 7/30/90 also accepted.',
 				},
 			],
 			responses: {
@@ -4794,7 +4915,12 @@ const paths: Record<string, any> = {
 				{
 					name: 'days',
 					in: 'query',
-					schema: { type: 'integer', default: 7, minimum: 7, maximum: 30 },
+					schema: {
+						type: 'integer',
+						default: 7,
+						minimum: 7,
+						maximum: 30,
+					},
 					description: 'Number of days to return',
 				},
 			],
@@ -4811,7 +4937,10 @@ const paths: Record<string, any> = {
 										items: {
 											type: 'object',
 											properties: {
-												date: { type: 'string', format: 'date' },
+												date: {
+													type: 'string',
+													format: 'date',
+												},
 												sales: { type: 'number' },
 											},
 										},
@@ -4834,7 +4963,12 @@ const paths: Record<string, any> = {
 				{
 					name: 'limit',
 					in: 'query',
-					schema: { type: 'integer', default: 5, minimum: 1, maximum: 10 },
+					schema: {
+						type: 'integer',
+						default: 5,
+						minimum: 1,
+						maximum: 10,
+					},
 					description: 'Number of products to return',
 				},
 			],
