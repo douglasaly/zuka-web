@@ -3,13 +3,17 @@
 export type SearchProductResult = {
 	id: string
 	name: string
-	slug: string
+	slug: string | null
 	price: number
 	discountPrice: number | null
 	currency: string
 	image: string | null
+	hasDelivery?: boolean
+	rating?: number
+	reviewCount?: number
 	storeName: string
 	storeSlug: string
+	storeAvatar: string | null
 }
 
 export type SearchStoreResult = {

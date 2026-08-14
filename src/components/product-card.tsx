@@ -1,180 +1,196 @@
 'use client'
 
-import { Heart, Store, Truck } from 'lucide-react'
+import { Heart, Star, Truck } from 'lucide-react'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { IconTooltipButton } from '@/components/icon-tooltip-button'
+import { StoreAvatar } from '@/components/store-avatar'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
 import { useSavedItems } from '@/hooks/use-saved-items'
 import { PRODUCT_PLACEHOLDER } from '@/lib/api/marketplace'
-import type { Product } from '@/lib/api/Product'
-import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
+import { BLUR_PLACEHOLDER, STORE_PLACEHOLDER } from '@/lib/constants/images'
 import { cn } from '@/lib/utils'
+import type { Product } from '@/types/marketplace'
 import { formatPrice } from '@/utils/format-price'
 
 type ProductCardProps = {
 	product: Product
-	variant?: 'default' | 'horizontal'
+	className?: string
+	variant?: 'default' | 'compact'
+	showStore?: boolean
+	showFavorite?: boolean
+}
+
+function ProductCardFavoriteButton({
+	productId,
+	alwaysVisible,
+}: {
+	productId: string
+	alwaysVisible: boolean
+}) {
+	const { toggleSavedItem, isSaving, isRemoving, isSaved } = useSavedItems()
+	const saved = isSaved(productId)
+
+	return (
+		<IconTooltipButton
+			label={saved ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+			variant='secondary'
+			disabled={isSaving || isRemoving}
+			aria-pressed={saved}
+			onClick={(e) => {
+				e.preventDefault()
+				e.stopPropagation()
+				toggleSavedItem(productId)
+			}}
+			className={cn(
+				'absolute top-2 right-2 z-20 size-8 border border-border/50 bg-background/90 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100 hover:[&svg]:text-white',
+				(saved || alwaysVisible) && 'opacity-100'
+			)}
+		>
+			<Heart
+				className={cn(
+					'size-3.5 text-foreground',
+					saved && 'size-4 fill-red-500 text-red-500'
+				)}
+			/>
+		</IconTooltipButton>
+	)
 }
 
 export const ProductCard = ({
 	product,
+	className,
 	variant = 'default',
+	showStore = true,
+	showFavorite = false,
 }: ProductCardProps) => {
-	const router = useRouter()
-	const { toggleSavedItem, isSaving, isSaved } = useSavedItems()
-
-	function handleSaveItem(itemId: string) {
-		toggleSavedItem(itemId)
-	}
-
-	const saved = isSaved(product.id)
-	const isHorizontal = variant === 'horizontal'
-
-	const finalPrice = product.discountPrice ?? product.price
-	const hasDiscount =
-		product.discountPrice != null && product.discountPrice < product.price
-	const discountPercent = hasDiscount
-		? Math.round(
-				((product.price - (product.discountPrice ?? 0)) /
-					product.price) *
-					100
-			)
-		: null
+	const isCompact = variant === 'compact'
+	const reviewCount = product.reviewCount ?? 0
+	const hasRating = reviewCount > 0 && product.rating != null
+	const ratingLabel = hasRating
+		? `${product.rating?.toFixed(1)} de 5, ${reviewCount === 1 ? '1 avaliação' : `${reviewCount} avaliações`}`
+		: undefined
 
 	return (
-		<Card
-			onClick={() => router.push(`/product/${product.id}`)}
+		<div
 			className={cn(
-				'group cursor-pointer gap-0 overflow-hidden rounded-2xl border border-border/60 bg-card p-0 transition-all duration-300 hover:border-border',
-				isHorizontal
-					? 'flex flex-row items-stretch'
-					: 'hover:-translate-y-0.5'
+				'group relative overflow-hidden rounded-2xl border border-border/60 bg-card transition-all duration-300 hover:border-border',
+				isCompact
+					? 'flex flex-row items-stretch hover:translate-y-0'
+					: 'flex flex-col hover:-translate-y-0.5',
+				className
 			)}
 		>
+			<Link
+				href={`/product/${product.id}`}
+				className='absolute inset-0 z-10'
+				aria-label={product.name}
+			/>
+
 			<div
 				className={cn(
-					'relative overflow-hidden',
-					isHorizontal ? 'h-auto w-28 shrink-0 sm:w-32' : 'w-full'
+					'relative overflow-hidden bg-muted',
+					isCompact
+						? 'h-auto w-28 shrink-0 sm:w-32'
+						: 'aspect-4/5 w-full'
 				)}
 			>
-				<div
-					className={cn(
-						'relative w-full bg-muted',
-						isHorizontal ? 'h-full' : 'aspect-4/5'
-					)}
-				>
-					<Image
-						src={product.image ?? PRODUCT_PLACEHOLDER}
-						alt={product.name}
-						fill
-						placeholder='blur'
-						blurDataURL={BLUR_PLACEHOLDER}
-						sizes={
-							isHorizontal
-								? '128px'
-								: '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw'
-						}
-						className='object-cover transition-transform duration-500 group-hover:scale-[1.03]'
-					/>
-				</div>
+				<Image
+					src={product.image ?? PRODUCT_PLACEHOLDER}
+					alt={product.name}
+					fill
+					placeholder='blur'
+					blurDataURL={BLUR_PLACEHOLDER}
+					sizes={
+						isCompact ? '128px' : '(max-width: 640px) 50vw, 25vw'
+					}
+					className='object-cover transition-transform duration-500 group-hover:scale-[1.03]'
+				/>
 
-				{hasDiscount && discountPercent && (
-					<Badge className='absolute left-2 top-2 border-0 bg-secondary px-2 py-0.5 text-[11px] font-bold text-secondary-foreground'>
-						-{discountPercent}%
+				{product.hasDelivery && !isCompact && (
+					<Badge className='absolute bottom-3 left-3 z-20 gap-1 border-0 bg-emerald-600 px-2 py-0.5 text-[11px] font-semibold text-white'>
+						<Truck className='size-3' />
+						Entrega
 					</Badge>
 				)}
 
-				<IconTooltipButton
-					label={
-						saved
-							? 'Remover dos favoritos'
-							: 'Adicionar aos favoritos'
-					}
-					variant='secondary'
-					disabled={isSaving}
-					onClick={(e) => {
-						e.stopPropagation()
-						handleSaveItem(product.id)
-					}}
-					className={cn(
-						'absolute right-2 top-2 size-8 border border-border/50 bg-background/90 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100 hover:[&svg]:text-white',
-						(saved || isHorizontal) && 'opacity-100'
-					)}
-				>
-					<Heart
-						className={cn(
-							'size-3.5 text-foreground',
-							saved && 'size-4 fill-red-500 text-red-500'
-						)}
+				{showFavorite && (
+					<ProductCardFavoriteButton
+						productId={product.id}
+						alwaysVisible={isCompact}
 					/>
-				</IconTooltipButton>
-
-				{!isHorizontal && (
-					<Badge
-						className={
-							product.hasDelivery
-								? 'absolute bottom-3 left-3 gap-1 border-0 bg-emerald-600 px-2 py-0.5 text-[11px] font-semibold text-white'
-								: 'absolute bottom-3 left-3 gap-1 border border-border bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground'
-						}
-					>
-						{product.hasDelivery ? (
-							<>
-								<Truck className='size-3' />
-								Entrega
-							</>
-						) : (
-							<>
-								<Store className='size-3' />
-								Levantamento
-							</>
-						)}
-					</Badge>
 				)}
 			</div>
 
-			<CardContent
+			<div
 				className={cn(
-					isHorizontal
-						? 'flex flex-1 flex-col justify-center gap-1.5 px-4 py-3'
-						: 'space-y-2 px-4 pb-4 pt-3.5'
+					isCompact
+						? 'flex min-w-0 flex-1 flex-col justify-center gap-1.5 px-4 py-3'
+						: 'space-y-1.5 p-3.5'
 				)}
 			>
-				<h3
-					className={cn(
-						'font-semibold leading-snug text-foreground transition-colors group-hover:text-secondary',
-						isHorizontal
-							? 'line-clamp-1 text-sm'
-							: 'line-clamp-2 text-sm'
-					)}
-				>
-					{product.name}
-				</h3>
-
-				<div className='flex items-baseline gap-2'>
-					<span
+				<div className='flex items-start justify-between gap-2'>
+					<h3
 						className={cn(
-							'font-bold text-foreground',
-							isHorizontal ? 'text-sm' : 'text-base'
+							'min-w-0 flex-1 font-semibold leading-snug text-foreground transition-colors group-hover:text-secondary',
+							isCompact
+								? 'line-clamp-1 text-sm'
+								: 'line-clamp-2 text-sm'
 						)}
 					>
-						{formatPrice(finalPrice, product.currency)}
-					</span>
-					{hasDiscount && (
-						<span className='text-xs text-muted-foreground line-through'>
-							{formatPrice(product.price, product.currency)}
+						{product.name}
+					</h3>
+
+					{hasRating && (
+						<span className='flex shrink-0 items-center gap-0.5 text-xs text-muted-foreground'>
+							<span className='sr-only'>{ratingLabel}</span>
+							<Star
+								className='size-3 fill-amber-400 text-amber-400'
+								aria-hidden
+							/>
+							<span className='font-medium text-foreground'>
+								{product.rating?.toFixed(1)}
+							</span>
+							{isCompact && <span>({reviewCount})</span>}
 						</span>
 					)}
 				</div>
 
-				{isHorizontal && product.hasDelivery && (
+				{showStore && (
+					<Link
+						href={`/lojas/${product.storeSlug}`}
+						className='relative z-20 flex w-fit items-center gap-1 hover:underline'
+					>
+						<StoreAvatar
+							name={product.storeName}
+							imageUrl={product.storeAvatar ?? STORE_PLACEHOLDER}
+							size='xs'
+							fClassName='text-[8px]'
+						/>
+						<p className='line-clamp-1 text-xs text-muted-foreground'>
+							{product.storeName}
+						</p>
+					</Link>
+				)}
+
+				<div className='flex flex-wrap items-baseline gap-1.5'>
+					<span className='text-sm font-bold text-foreground'>
+						{formatPrice(product.price, product.currency)}
+					</span>
+					{product.negotiable && !isCompact && (
+						<span className='text-xs text-muted-foreground'>
+							negociável
+						</span>
+					)}
+				</div>
+
+				{isCompact && product.hasDelivery && (
 					<span className='flex items-center gap-1 text-xs text-emerald-700'>
 						<Truck className='size-3' />
 						Entrega disponível
 					</span>
 				)}
-			</CardContent>
-		</Card>
+			</div>
+		</div>
 	)
 }

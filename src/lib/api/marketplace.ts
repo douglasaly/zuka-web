@@ -401,18 +401,6 @@ export async function submitVerification(input: {
 	}
 }
 
-export function toProductCard(product: Product) {
-	return {
-		id: product.id,
-		name: product.name,
-		price: product.price,
-		discountPrice: product.discountPrice,
-		currency: product.currency,
-		image: product.image ?? PRODUCT_PLACEHOLDER,
-		hasDelivery: product.hasDelivery ?? false,
-	}
-}
-
 export async function startConversation(productId: string) {
 	const res = await fetch('/api/conversations', {
 		method: 'POST',

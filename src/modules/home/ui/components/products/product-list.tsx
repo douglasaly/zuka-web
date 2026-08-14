@@ -1,5 +1,4 @@
 import { ProductCard } from '@/components/product-card'
-import { toProductCard } from '@/lib/api/marketplace'
 import { cn } from '@/lib/utils'
 import type { Product } from '@/types/marketplace'
 import type { ProductsViewMode } from './products-section-header'
@@ -20,8 +19,9 @@ export const ProductsList = ({ products, viewMode }: ProductsListProps) => (
 		{products.map((p) => (
 			<ProductCard
 				key={p.id}
-				product={toProductCard(p)}
-				variant={viewMode === 'list' ? 'horizontal' : 'default'}
+				product={p}
+				variant={viewMode === 'list' ? 'compact' : 'default'}
+				showFavorite
 			/>
 		))}
 	</div>
