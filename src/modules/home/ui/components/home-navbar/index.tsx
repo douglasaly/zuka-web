@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/tooltip'
 import { UserAvatar } from '@/components/user-avatar'
 import { useUserProfile } from '@/hooks/use-user-profile'
+import { CartDropdown } from '@/modules/cart/ui/components/cart-dropdown'
 import { NotificationDropdown } from '@/modules/notifications/ui/components/notification-dropdown'
 import { SearchInput } from './search-input'
 
@@ -142,6 +143,7 @@ export const HomeNavbar = () => {
 						>
 							<Heart className='size-4' />
 						</IconTooltipButton>
+						<CartDropdown />
 						<NotificationDropdown />
 						<NavbarOrdersLink />
 						<NavbarAuth />

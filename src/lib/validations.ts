@@ -198,6 +198,19 @@ export const CreateConversationSchema = z.object({
 	content: z.string().max(2000).optional(),
 })
 
+export const CreateBuyerOrderSchema = z.object({
+	storeId: z.uuid('Loja inválida'),
+	items: z
+		.array(
+			z.object({
+				productId: z.uuid('Produto inválido'),
+				quantity: z.number().int().min(1).max(99),
+			})
+		)
+		.min(1, 'Adiciona pelo menos um produto')
+		.max(50, 'Demasiados itens neste pedido'),
+})
+
 export const SendMessageSchema = z.object({
 	content: z
 		.string()

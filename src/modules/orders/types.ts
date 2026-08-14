@@ -82,3 +82,12 @@ export const PERIOD_FILTERS = [
 
 export type StatusFilter = (typeof STATUS_FILTERS)[number]['value']
 export type PeriodFilter = (typeof PERIOD_FILTERS)[number]['value']
+
+export type CreatedBuyerOrder = {
+	orderId: string
+	shortId: string
+	conversationId: string
+	storeName: string
+	storePhone: string | null
+	whatsappMessage: string
+}

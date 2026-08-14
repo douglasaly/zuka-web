@@ -3236,6 +3236,95 @@ const paths: Record<string, any> = {
 				'500': { description: 'Failed to load orders' },
 			},
 		},
+		post: {
+			tags: ['Orders'],
+			summary: 'Create a buyer order from one store cart',
+			description:
+				'Validates products against the database (does not trust client prices), inserts the order and line items, reuses or creates the buyer–store conversation, posts a chat message with the order number, and notifies buyer and store owner. WhatsApp is opened by the client.',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			requestBody: {
+				required: true,
+				content: {
+					'application/json': {
+						schema: {
+							type: 'object',
+							required: ['storeId', 'items'],
+							properties: {
+								storeId: { type: 'string', format: 'uuid' },
+								items: {
+									type: 'array',
+									minItems: 1,
+									maxItems: 50,
+									items: {
+										type: 'object',
+										required: ['productId', 'quantity'],
+										properties: {
+											productId: {
+												type: 'string',
+												format: 'uuid',
+											},
+											quantity: {
+												type: 'integer',
+												minimum: 1,
+												maximum: 99,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			responses: {
+				'201': {
+					description: 'Order created',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								required: ['success', 'data'],
+								properties: {
+									success: {
+										type: 'boolean',
+										enum: [true],
+									},
+									data: {
+										type: 'object',
+										required: [
+											'orderId',
+											'shortId',
+											'conversationId',
+											'storeName',
+											'whatsappMessage',
+										],
+										properties: {
+											orderId: { type: 'string' },
+											shortId: { type: 'string' },
+											conversationId: {
+												type: 'string',
+											},
+											storeName: { type: 'string' },
+											storePhone: {
+												type: 'string',
+												nullable: true,
+											},
+											whatsappMessage: {
+												type: 'string',
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'400': { description: 'Invalid items or unavailable product' },
+				'401': { description: 'Unauthorized' },
+				'403': { description: 'Cannot order from own store' },
+				'404': { description: 'Store not found or inactive' },
+			},
+		},
 	},
 	'/api/orders/{id}': {
 		get: {

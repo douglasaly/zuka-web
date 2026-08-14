@@ -1,15 +1,18 @@
 'use client'
 
-import { Heart, Star, Truck } from 'lucide-react'
+import { Heart, ShoppingCart, Star, Truck } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { toast } from 'sonner'
 import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { StoreAvatar } from '@/components/store-avatar'
 import { Badge } from '@/components/ui/badge'
+import { useCart } from '@/hooks/use-cart'
 import { useSavedItems } from '@/hooks/use-saved-items'
 import { PRODUCT_PLACEHOLDER } from '@/lib/api/marketplace'
 import { BLUR_PLACEHOLDER, STORE_PLACEHOLDER } from '@/lib/constants/images'
 import { cn } from '@/lib/utils'
+import { toCartProductInput } from '@/modules/cart/lib/cart-utils'
 import type { Product } from '@/types/marketplace'
 import { formatPrice } from '@/utils/format-price'
 
@@ -53,6 +56,34 @@ function ProductCardFavoriteButton({
 					saved && 'size-4 fill-red-500 text-red-500'
 				)}
 			/>
+		</IconTooltipButton>
+	)
+}
+
+function ProductCardCartButton({
+	product,
+	alwaysVisible,
+}: {
+	product: Product
+	alwaysVisible: boolean
+}) {
+	const { addItem } = useCart()
+
+	return (
+		<IconTooltipButton
+			label='Adicionar ao carrinho'
+			variant='secondary'
+			onClick={(e) => {
+				e.preventDefault()
+				e.stopPropagation()
+				addItem(toCartProductInput(product))
+			}}
+			className={cn(
+				'absolute top-2 left-2 z-20 size-8 border border-border/50 bg-background/90 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100 hover:[&svg]:text-white',
+				alwaysVisible && 'opacity-100'
+			)}
+		>
+			<ShoppingCart className='size-3.5 text-foreground' />
 		</IconTooltipButton>
 	)
 }
@@ -113,6 +144,11 @@ export const ProductCard = ({
 						Entrega
 					</Badge>
 				)}
+
+				<ProductCardCartButton
+					product={product}
+					alwaysVisible={isCompact}
+				/>
 
 				{showFavorite && (
 					<ProductCardFavoriteButton

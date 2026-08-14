@@ -24,7 +24,7 @@ export function OrderDetailDesktopActions({
 		>
 			{order.conversationId ? (
 				<Button
-					className='min-h-11 flex-1 rounded-xl bg-secondary text-secondary-foreground shadow-[0_6px_18px_-8px_color-mix(in_oklch,#e8340a_55%,transparent)] hover:bg-secondary/90'
+					className='min-h-11 flex-1 rounded-xl  text-secondary-foreground'
 					render={
 						<Link href={`/mensagens/${order.conversationId}`} />
 					}
@@ -60,7 +60,8 @@ export function OrderDetailMobileActions({
 			<div className='mx-auto flex max-w-7xl gap-2 pb-[env(safe-area-inset-bottom)]'>
 				{order.conversationId ? (
 					<Button
-						className='min-h-12 flex-1 rounded-xl bg-secondary text-secondary-foreground shadow-[0_6px_18px_-8px_color-mix(in_oklch,#e8340a_55%,transparent)] hover:bg-secondary/90'
+						variant='default'
+						className='min-h-12 flex-1 rounded-xl  text-secondary-foreground'
 						render={
 							<Link href={`/mensagens/${order.conversationId}`} />
 						}

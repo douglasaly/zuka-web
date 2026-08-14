@@ -3,6 +3,7 @@ import {
 	mapProductRow,
 	mapStoreRow,
 } from '@/lib/mappers/marketplace'
+import type { CreatedBuyerOrder } from '@/modules/orders/types'
 import type {
 	OrderSummary,
 	Product,
@@ -236,6 +237,25 @@ export async function fetchOrders(): Promise<
 
 	const json = await res.json()
 	return (json.orders ?? []) as import('@/modules/orders/types').BuyerOrder[]
+}
+
+export async function createBuyerOrder(input: {
+	storeId: string
+	items: Array<{ productId: string; quantity: number }>
+}): Promise<CreatedBuyerOrder> {
+	const res = await fetch('/api/orders', {
+		method: 'POST',
+		credentials: 'include',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify(input),
+	})
+	const json = await res.json()
+	if (!res.ok) {
+		throw new Error(
+			json.error?.message ?? 'Não foi possível criar o pedido.'
+		)
+	}
+	return json.data as CreatedBuyerOrder
 }
 
 export async function fetchOrder(id: string) {
