@@ -1,13 +1,10 @@
 import { NextResponse } from 'next/server'
-import type { Product } from '@/lib/api/Product'
 import { resolveCategoryIds } from '@/lib/categories/resolve-category-ids'
+import { mapProductRow } from '@/lib/mappers/marketplace'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
-import type { StoreProfile } from '@/types/marketplace'
+import type { Product, StoreProfile } from '@/types/marketplace'
 
-export type SearchProduct = Product & {
-	storeName: string
-	storeSlug: string
-}
+export type SearchProduct = Product
 
 export type SearchStore = StoreProfile
 
@@ -38,10 +35,8 @@ export async function GET(req: Request) {
 		const normalizedMaxPrice = maxPrice ? Number(maxPrice) * 100 : undefined
 
 		const hasTextQuery = q.length > 0
-		const hasCategory =
-			Boolean(categorySlug) && categorySlug !== 'all'
-		const hasProvince =
-			Boolean(provinceSlug) && provinceSlug !== 'all'
+		const hasCategory = Boolean(categorySlug) && categorySlug !== 'all'
+		const hasProvince = Boolean(provinceSlug) && provinceSlug !== 'all'
 		const hasOtherFilters = Boolean(
 			minPrice || maxPrice || isNew === 'true'
 		)
@@ -77,9 +72,10 @@ export async function GET(req: Request) {
 			.from('products')
 			.select(
 				`
-				id, name, slug, price, discount_price, currency,
-				stores!inner ( id, name, slug ),
-				product_images ( url, is_primary )
+				id, store_id, category_id, name, slug, price, discount_price, currency,
+				stores!inner ( id, name, slug, logo_url, has_delivery ),
+				product_images ( url, is_primary ),
+				product_ratings ( rating_avg, rating_count )
 			`
 			)
 			.eq('is_visible', true)
@@ -160,21 +156,8 @@ export async function GET(req: Request) {
 
 		if (productRes.error) throw productRes.error
 
-		const products: SearchProduct[] = (productRes.data ?? []).map(
-			(p: any) => ({
-				id: p.id,
-				name: p.name,
-				slug: p.slug,
-				price: p.price / 100,
-				discountPrice:
-					p.discount_price != null ? p.discount_price / 100 : null,
-				currency: p.currency ?? 'MZN',
-				image:
-					p.product_images?.find((i: any) => i.is_primary)?.url ??
-					null,
-				storeName: p.stores?.name ?? '',
-				storeSlug: p.stores?.slug ?? '',
-			})
+		const products: SearchProduct[] = (productRes.data ?? []).map((p) =>
+			mapProductRow(p as Parameters<typeof mapProductRow>[0])
 		)
 
 		const stores: SearchStore[] = ((storeRes.data ?? []) as any[]).map(

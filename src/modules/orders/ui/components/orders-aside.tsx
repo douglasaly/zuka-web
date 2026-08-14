@@ -192,7 +192,8 @@ export function OrdersAside({
 					</p>
 					<div className='flex flex-col gap-2 pt-1'>
 						<Button
-							className='min-h-11 w-full rounded-xl bg-secondary text-secondary-foreground hover:bg-secondary/90'
+							variant='secondary'
+							className='min-h-11 w-full rounded-xl  text-secondary-foreground'
 							render={<Link href='/mensagens' />}
 						>
 							<MessageCircle className='size-4' aria-hidden />

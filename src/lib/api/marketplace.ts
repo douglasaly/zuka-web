@@ -3,6 +3,7 @@ import {
 	mapProductRow,
 	mapStoreRow,
 } from '@/lib/mappers/marketplace'
+import type { CreatedBuyerOrder } from '@/modules/orders/types'
 import type {
 	OrderSummary,
 	Product,
@@ -238,6 +239,25 @@ export async function fetchOrders(): Promise<
 	return (json.orders ?? []) as import('@/modules/orders/types').BuyerOrder[]
 }
 
+export async function createBuyerOrder(input: {
+	storeId: string
+	items: Array<{ productId: string; quantity: number }>
+}): Promise<CreatedBuyerOrder> {
+	const res = await fetch('/api/orders', {
+		method: 'POST',
+		credentials: 'include',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify(input),
+	})
+	const json = await res.json()
+	if (!res.ok) {
+		throw new Error(
+			json.error?.message ?? 'Não foi possível criar o pedido.'
+		)
+	}
+	return json.data as CreatedBuyerOrder
+}
+
 export async function fetchOrder(id: string) {
 	const res = await fetch(`/api/orders/${id}`, { credentials: 'include' })
 	if (res.status === 404) return null
@@ -398,18 +418,6 @@ export async function submitVerification(input: {
 	const json = await res.json()
 	if (!res.ok) {
 		throw new Error(json.error ?? 'Failed to submit verification')
-	}
-}
-
-export function toProductCard(product: Product) {
-	return {
-		id: product.id,
-		name: product.name,
-		price: product.price,
-		discountPrice: product.discountPrice,
-		currency: product.currency,
-		image: product.image ?? PRODUCT_PLACEHOLDER,
-		hasDelivery: product.hasDelivery ?? false,
 	}
 }
 

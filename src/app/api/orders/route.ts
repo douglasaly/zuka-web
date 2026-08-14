@@ -1,8 +1,19 @@
 import { type NextRequest, NextResponse } from 'next/server'
+import {
+	apiError,
+	apiSuccess,
+	ErrorCode,
+	withErrorHandling,
+} from '@/lib/api-response'
+import { requireAuth } from '@/lib/auth'
 import { getSessionUser } from '@/lib/auth/session'
 import type { OrderStatus } from '@/lib/orders/status-transitions'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
-import { CursorPaginationSchema } from '@/lib/validations'
+import {
+	CreateBuyerOrderSchema,
+	CursorPaginationSchema,
+} from '@/lib/validations'
+import { createBuyerOrder } from '@/modules/orders/lib/create-buyer-order'
 import { mapBuyerOrder } from '@/modules/orders/lib/map-buyer-order'
 import type { BuyerOrderStatus } from '@/modules/orders/types'
 
@@ -207,3 +218,45 @@ export async function GET(request: NextRequest) {
 		)
 	}
 }
+
+export const POST = withErrorHandling(async (request) => {
+	const auth = await requireAuth()
+	const body = await request.json()
+	const parsed = CreateBuyerOrderSchema.safeParse(body)
+
+	if (!parsed.success) {
+		return apiError(
+			ErrorCode.VALIDATION_ERROR,
+			parsed.error.issues[0]?.message ?? 'Pedido inválido'
+		)
+	}
+
+	const supabase = createSupabaseAdmin()
+	const result = await createBuyerOrder(supabase, {
+		buyerId: auth.user.id,
+		storeId: parsed.data.storeId,
+		items: parsed.data.items,
+	})
+
+	if (!result.ok) {
+		const code =
+			result.status === 403
+				? ErrorCode.FORBIDDEN
+				: result.status === 404
+					? ErrorCode.NOT_FOUND
+					: ErrorCode.VALIDATION_ERROR
+		return apiError(code, result.message, result.status)
+	}
+
+	return apiSuccess(
+		{
+			orderId: result.orderId,
+			shortId: result.shortId,
+			conversationId: result.conversationId,
+			storeName: result.storeName,
+			storePhone: result.storePhone,
+			whatsappMessage: result.whatsappMessage,
+		},
+		201
+	)
+})

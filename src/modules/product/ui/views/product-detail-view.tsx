@@ -175,6 +175,7 @@ export const ProductDetailView = ({ id }: ProductDetailViewProps) => {
 				<ProductActions
 					storeId={product.storeId}
 					productId={product.id}
+					product={product}
 					whatsappHref={
 						product.storePhone
 							? `https://wa.me/${product.storePhone}?text=${whatsappMessage}`

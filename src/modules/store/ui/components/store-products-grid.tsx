@@ -1,5 +1,5 @@
 import { PackageOpen } from 'lucide-react'
-import { ProductCard } from '@/components/explore-product-card'
+import { ProductCard } from '@/components/product-card'
 import type { Product } from '@/types/marketplace'
 
 type StoreProductsGridProps = {
@@ -26,7 +26,7 @@ export const StoreProductsGrid = ({ products }: StoreProductsGridProps) => {
 				<ProductCard
 					key={product.id}
 					product={product}
-					variant='compact'
+					showStore={false}
 				/>
 			))}
 		</div>
