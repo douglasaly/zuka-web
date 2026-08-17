@@ -1,6 +1,14 @@
 import { FileQuestion } from 'lucide-react'
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { noIndexRobots } from '@/lib/seo/metadata'
+
+export const metadata: Metadata = {
+	title: 'Página não encontrada',
+	robots: noIndexRobots,
+}
+
 export default function NotFound() {
 	return (
 		<div className='flex min-h-screen flex-col items-center justify-center px-4 text-center'>

@@ -1,4 +1,8 @@
+import { noIndexMetadata } from '@/lib/seo/metadata'
 import { OnboardingAuthBar } from '@/modules/onboarding/ui/components/onboarding-auth-bar'
+
+export const metadata = noIndexMetadata
+
 export default function OnboardingLayout({
 	children,
 }: {

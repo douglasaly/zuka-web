@@ -1,7 +1,11 @@
 import { redirect } from 'next/navigation'
 import { getAdminUser } from '@/lib/auth/admin'
 import { getSessionUser } from '@/lib/auth/session'
+import { noIndexMetadata } from '@/lib/seo/metadata'
 import { AdminLayout } from '@/modules/admin/ui/layouts/admin-layout'
+
+export const metadata = noIndexMetadata
+
 export default async function Layout({
 	children,
 }: {

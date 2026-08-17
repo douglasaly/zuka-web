@@ -1,4 +1,14 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
+import { pageMetadata } from '@/lib/seo/metadata'
+
+export const metadata: Metadata = pageMetadata({
+	title: 'Criar conta',
+	description:
+		'Crie uma conta Zuka para comprar ou abrir a sua loja em Moçambique.',
+	path: '/signup',
+})
+
 export default function SignupLayout({
 	children,
 }: {
