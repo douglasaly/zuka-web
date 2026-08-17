@@ -22,7 +22,7 @@ import { NOTIFICATION_TYPE_ORDER, type NotificationFilter } from '../constants'
 
 const PAGE_SIZE = 20
 const FEED_KEY = ['notifications', 'feed']
-type FeedData = InfiniteData<ListNotificationsOutput, number>
+type FeedData = InfiniteData<ListNotificationsOutput, string>
 function patchFeed(
 	data: FeedData | undefined,
 	update: (notification: Notification) => Notification | null
@@ -65,10 +65,10 @@ export function useNotificationsFeed() {
 	const query = useInfiniteQuery({
 		queryKey: FEED_KEY,
 		queryFn: ({ pageParam }) => getNotifications(PAGE_SIZE, pageParam),
-		initialPageParam: 0,
-		getNextPageParam: (lastPage, allPages) =>
+		initialPageParam: '',
+		getNextPageParam: (lastPage) =>
 			lastPage.pagination.hasMore
-				? allPages.length * PAGE_SIZE
+				? (lastPage.pagination.nextCursor ?? undefined)
 				: undefined,
 		enabled: isAuthenticated,
 	})

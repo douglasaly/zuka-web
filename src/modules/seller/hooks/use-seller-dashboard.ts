@@ -51,6 +51,7 @@ export function useSellerDashboard() {
 	}>({
 		queryKey: ['seller-stats', userKey],
 		queryFn: () => fetch('/api/seller/stats').then((r) => r.json()),
+		staleTime: 60_000,
 	})
 	const { data: productsData, isLoading: isLoadingProducts } = useQuery<{
 		products: ApiProduct[]

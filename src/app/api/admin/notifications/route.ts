@@ -1,18 +1,35 @@
+import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { uuidv7 } from 'uuidv7'
 import { requireAdminUser } from '@/lib/auth/admin'
+import {
+	apiError,
+	ErrorCode,
+	withErrorHandling,
+} from '@/lib/axios/api-response'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
-export async function GET() {
-	await requireAdminUser()
-	const supabase = createSupabaseAdmin()
+import { SendAdminNotificationSchema } from '@/lib/validations'
+
+type BatchRow = {
+	id: string
+	title: string
+	body: string
+	type: string
+	created_at: string
+	recipient_count: number | string
+	read_count: number | string
+}
+
+async function listBatchesFallback(
+	supabase: ReturnType<typeof createSupabaseAdmin>
+) {
 	const { data, error } = await supabase
 		.from('notifications')
-		.select('*')
+		.select('id, batch_id, title, body, type, created_at, read_at')
+		.is('deleted_at', null)
 		.order('created_at', { ascending: false })
 		.limit(1000)
-	if (error) {
-		return NextResponse.json({ notifications: [] })
-	}
+	if (error) throw error
 	const grouped = new Map<
 		string,
 		{
@@ -43,20 +60,47 @@ export async function GET() {
 			})
 		}
 	}
-	const notifications = Array.from(grouped.values())
+	return Array.from(grouped.values())
 		.sort((a, b) => b.created_at.localeCompare(a.created_at))
 		.slice(0, 50)
-	return NextResponse.json({ notifications })
 }
-export async function POST(req: Request) {
+
+export const GET = withErrorHandling(async () => {
+	await requireAdminUser()
+	const supabase = createSupabaseAdmin()
+	const { data, error } = await supabase.rpc('list_notification_batches', {
+		p_limit: 50,
+	})
+	if (!error && data) {
+		return NextResponse.json({
+			notifications: (data as BatchRow[]).map((row) => ({
+				id: row.id,
+				title: row.title,
+				body: row.body,
+				type: row.type,
+				created_at: row.created_at,
+				recipientCount: Number(row.recipient_count) || 0,
+				readCount: Number(row.read_count) || 0,
+			})),
+		})
+	}
+	if (error) {
+		console.error('[list_notification_batches]', error.message)
+	}
+	const notifications = await listBatchesFallback(supabase)
+	return NextResponse.json({ notifications })
+})
+
+export const POST = withErrorHandling(async (request: NextRequest) => {
 	const admin = await requireAdminUser()
-	const { target, title, body } = await req.json()
-	if (!title || !body || !target) {
-		return NextResponse.json(
-			{ error: 'Missing required fields' },
-			{ status: 400 }
+	const parsed = SendAdminNotificationSchema.safeParse(await request.json())
+	if (!parsed.success) {
+		return apiError(
+			ErrorCode.VALIDATION_ERROR,
+			parsed.error.issues[0]?.message ?? 'Dados inválidos'
 		)
 	}
+	const { target, title, body } = parsed.data
 	const supabase = createSupabaseAdmin()
 	let userIds: string[]
 	if (target === 'buyers' || target === 'sellers') {
@@ -70,10 +114,8 @@ export async function POST(req: Request) {
 			const { data: userRoles } = await supabase
 				.from('user_roles')
 				.select('user_id')
-				.eq('role_id', roleData.id as string)
-			userIds = (userRoles ?? []).map(
-				(r: { user_id: string }) => r.user_id as string
-			)
+				.eq('role_id', roleData.id)
+			userIds = (userRoles ?? []).map((r) => r.user_id)
 		} else {
 			userIds = []
 		}
@@ -82,24 +124,24 @@ export async function POST(req: Request) {
 			.from('users')
 			.select('id')
 			.is('deleted_at', null)
-		userIds = (users ?? []).map((u: { id: string }) => u.id as string)
+		userIds = (users ?? []).map((u) => u.id)
 	}
+	const now = new Date().toISOString()
+	const notificationId = uuidv7()
 	if (userIds.length === 0) {
 		return NextResponse.json({
 			success: true,
 			notification: {
-				id: uuidv7(),
+				id: notificationId,
 				target,
 				title,
 				body,
-				sentAt: new Date().toISOString(),
-				sentBy: admin.id,
+				sentAt: now,
+				sentBy: (admin as { id: string }).id,
 			},
 			message: 'Nenhum utilizador encontrado para o alvo selecionado.',
 		})
 	}
-	const now = new Date().toISOString()
-	const notificationId = uuidv7()
 	const rows = userIds.map((userId) => ({
 		id: uuidv7(),
 		batch_id: notificationId,
@@ -114,13 +156,7 @@ export async function POST(req: Request) {
 		created_at: now,
 	}))
 	const { error } = await supabase.from('notifications').insert(rows)
-	if (error) {
-		console.error(error)
-		return NextResponse.json(
-			{ error: 'Falha ao enviar notificações' },
-			{ status: 500 }
-		)
-	}
+	if (error) throw error
 	return NextResponse.json({
 		success: true,
 		notification: {
@@ -129,8 +165,8 @@ export async function POST(req: Request) {
 			title,
 			body,
 			sentAt: now,
-			sentBy: admin.id,
+			sentBy: (admin as { id: string }).id,
 		},
 		recipientCount: userIds.length,
 	})
-}
+})

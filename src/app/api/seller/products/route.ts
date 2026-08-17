@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
+import { sanitizeIlikeTerm } from '@/lib/validations'
 
 const PER_PAGE_OPTIONS = [5, 10, 25, 50, 100] as const
 const DEFAULT_PER_PAGE = 5
@@ -43,8 +44,9 @@ export async function GET(request: NextRequest) {
 				status.toUpperCase() as 'DRAFT' | 'ACTIVE' | 'INACTIVE'
 			)
 		}
-		if (search) {
-			query = query.ilike('name', `%${search}%`)
+		const searchTerm = sanitizeIlikeTerm(search)
+		if (searchTerm) {
+			query = query.ilike('name', `%${searchTerm}%`)
 		}
 		if (category !== 'all') {
 			query = query.eq('category_id', category)

@@ -3,6 +3,7 @@ export type { Notification, NotificationSender }
 export type ListNotificationsInput = {
 	limit?: number
 	offset?: number
+	cursor?: string
 }
 export type ListNotificationsOutput = {
 	success: true
@@ -12,6 +13,7 @@ export type ListNotificationsOutput = {
 		limit: number
 		offset: number
 		hasMore: boolean
+		nextCursor: string | null
 	}
 }
 export type UpdateNotificationsInput =

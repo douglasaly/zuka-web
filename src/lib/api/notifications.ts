@@ -2,11 +2,15 @@ import type {
 	ListNotificationsOutput,
 	UpdateNotificationsInput,
 } from '@/lib/types/api/notifications'
-export async function getNotifications(limit = 5, offset = 0) {
+export async function getNotifications(limit = 5, page: number | string = 0) {
 	const params = new URLSearchParams({
 		limit: String(limit),
-		offset: String(offset),
 	})
+	if (typeof page === 'string' && page) {
+		params.set('cursor', page)
+	} else {
+		params.set('offset', String(typeof page === 'number' ? page : 0))
+	}
 	const res = await fetch(`/api/notifications?${params}`, {
 		credentials: 'include',
 	})

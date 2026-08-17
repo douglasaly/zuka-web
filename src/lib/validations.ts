@@ -81,6 +81,11 @@ export function sanitizeFtsTerm(value: string): string {
 		.trim()
 		.slice(0, 80)
 }
+export const SendAdminNotificationSchema = z.object({
+	target: z.enum(['buyers', 'sellers', 'all']),
+	title: z.string().min(1, 'Título é obrigatório').max(200),
+	body: z.string().min(1, 'Mensagem é obrigatória').max(2000),
+})
 export const UpdateProfileSchema = z.object({
 	firstName: z.string().max(80).optional(),
 	lastName: z.string().max(80).optional(),

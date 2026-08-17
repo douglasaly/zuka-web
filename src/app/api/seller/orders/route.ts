@@ -8,6 +8,7 @@ import {
 	type OrderStatus,
 } from '@/lib/orders/status-transitions'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
+import { sanitizeIlikeTerm } from '@/lib/validations'
 
 type BuyerRow = {
 	id: string
@@ -80,18 +81,55 @@ function mapOrder(row: Record<string, unknown>) {
 		},
 	}
 }
-function matchesSearch(
-	order: ReturnType<typeof mapOrder>,
+async function findMatchingOrderIds(
+	supabase: ReturnType<typeof createSupabaseAdmin>,
+	storeId: string,
 	search: string
-): boolean {
-	const q = search.toLowerCase()
-	return (
-		order.id.toLowerCase().includes(q) ||
-		order.shortId.toLowerCase().includes(q) ||
-		order.customerName.toLowerCase().includes(q) ||
-		(order.customerEmail?.toLowerCase().includes(q) ?? false) ||
-		order.itemsSummary.toLowerCase().includes(q)
-	)
+): Promise<string[] | null> {
+	const term = sanitizeIlikeTerm(search)
+	if (!term) return null
+	const { data, error } = await supabase.rpc('search_store_order_ids', {
+		p_store_id: storeId,
+		p_term: term,
+		p_limit: 300,
+	})
+	if (!error && data) {
+		return data.map((row) => row.id)
+	}
+	if (error) {
+		console.error('[search_store_order_ids]', error.message)
+	}
+	const like = `%${term}%`
+	const { data: users, error: usersError } = await supabase
+		.from('users')
+		.select('id')
+		.or(
+			`email.ilike.${like},first_name.ilike.${like},last_name.ilike.${like}`
+		)
+		.limit(200)
+	if (usersError) throw usersError
+	const buyerIds = (users ?? []).map((row) => row.id)
+	const parts: string[] = []
+	if (
+		/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+			term
+		)
+	) {
+		parts.push(`id.eq.${term}`)
+	}
+	if (buyerIds.length > 0) {
+		parts.push(`buyer_id.in.(${buyerIds.join(',')})`)
+	}
+	if (parts.length === 0) return []
+	const { data: rows, error: ordersError } = await supabase
+		.from('orders')
+		.select('id')
+		.eq('store_id', storeId)
+		.is('deleted_at', null)
+		.or(parts.join(','))
+		.limit(300)
+	if (ordersError) throw ordersError
+	return (rows ?? []).map((row) => row.id)
 }
 export async function GET(request: NextRequest) {
 	try {
@@ -101,12 +139,28 @@ export async function GET(request: NextRequest) {
 		const { searchParams } = new URL(request.url)
 		const status = searchParams.get('status') ?? 'all'
 		const date = searchParams.get('date') ?? 'all'
-		const search = (searchParams.get('search') ?? '').trim().toLowerCase()
+		const search = searchParams.get('search') ?? ''
 		const page = Math.max(Number(searchParams.get('page')) || 1, 1)
 		const perPage = parsePerPage(
 			searchParams.get('perPage') ?? searchParams.get('limit')
 		)
 		const supabase = createSupabaseAdmin()
+		const matchingIds = await findMatchingOrderIds(
+			supabase,
+			store.id as string,
+			search
+		)
+		if (matchingIds && matchingIds.length === 0) {
+			return NextResponse.json({
+				success: true,
+				orders: [],
+				page: 1,
+				perPage,
+				total: 0,
+				totalPages: 1,
+				hasMore: false,
+			})
+		}
 		let query = supabase
 			.from('orders')
 			.select(
@@ -120,6 +174,9 @@ export async function GET(request: NextRequest) {
 			)
 			.eq('store_id', store.id as string)
 			.is('deleted_at', null)
+		if (matchingIds) {
+			query = query.in('id', matchingIds)
+		}
 		if (status !== 'all') {
 			query = query.eq('status', status.toUpperCase() as OrderStatus)
 		}
@@ -133,27 +190,6 @@ export async function GET(request: NextRequest) {
 			}
 		}
 		query = query.order('created_at', { ascending: false })
-		if (search) {
-			const { data, error } = await query.limit(2000)
-			if (error) throw error
-			const filtered = ((data ?? []) as Array<Record<string, unknown>>)
-				.map(mapOrder)
-				.filter((o) => matchesSearch(o, search))
-			const total = filtered.length
-			const totalPages = Math.max(1, Math.ceil(total / perPage))
-			const safePage = Math.min(page, totalPages)
-			const from = (safePage - 1) * perPage
-			const orders = filtered.slice(from, from + perPage)
-			return NextResponse.json({
-				success: true,
-				orders,
-				page: safePage,
-				perPage,
-				total,
-				totalPages,
-				hasMore: safePage < totalPages,
-			})
-		}
 		const from = (page - 1) * perPage
 		const rangeEnd = from + perPage
 		const { data, error, count } = await query.range(from, rangeEnd)

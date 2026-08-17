@@ -1,7 +1,12 @@
+import { revalidateTag } from 'next/cache'
 import { NextResponse } from 'next/server'
 import { uuidv7 } from 'uuidv7'
 import { requireAdminUser } from '@/lib/auth/admin'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
+
+function bustCategoryCache() {
+	revalidateTag('categories', 'max')
+}
 export async function GET() {
 	await requireAdminUser()
 	const supabase = createSupabaseAdmin()
@@ -30,6 +35,7 @@ export async function POST(req: Request) {
 		.single()
 	if (error)
 		return NextResponse.json({ error: error.message }, { status: 500 })
+	bustCategoryCache()
 	return NextResponse.json({ category: data })
 }
 export async function PATCH(req: Request) {
@@ -43,6 +49,7 @@ export async function PATCH(req: Request) {
 		.eq('id', id)
 	if (error)
 		return NextResponse.json({ error: error.message }, { status: 500 })
+	bustCategoryCache()
 	return NextResponse.json({ success: true })
 }
 export async function DELETE(req: Request) {
@@ -53,5 +60,6 @@ export async function DELETE(req: Request) {
 	const { error } = await supabase.from('categories').delete().eq('id', id)
 	if (error)
 		return NextResponse.json({ error: error.message }, { status: 500 })
+	bustCategoryCache()
 	return NextResponse.json({ success: true })
 }

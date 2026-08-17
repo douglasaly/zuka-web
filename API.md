@@ -56,7 +56,7 @@
 - [x] **2.5** Tabela `orders` — idx_orders_buyer_created, idx_orders_store_status
 - [x] **2.6** Tabela `stores` — idx_stores_status_created, idx_stores_province
 - [x] **2.7** Soft-Delete indexes — users, categories, conversations, verification_documents
-- [ ] **2.8** Triggers `updated_at` ausentes — seller_profiles, seller_onboarding, product_images, store_members
+- [x] **2.8** Triggers `updated_at` — `seller_profiles`, `seller_onboarding`, `product_images` (migration `20260817152407_notification_batches_and_updated_at.sql`); `store_members` já tinha trigger
 
 ---
 
@@ -107,7 +107,11 @@
 
 ### 3.8 🟡 `GET /api/admin/notifications` — Fetch 1000 rows → group in JS
 
-- [ ] Usar `GROUP BY batch_id` no SQL
+- [x] RPC `list_notification_batches` com `GROUP BY COALESCE(batch_id, id)`
+- [x] Fallback JS (1000 rows) se a função ainda não estiver aplicada
+- [x] POST validado com `SendAdminNotificationSchema`
+- [x] Swagger `GET|POST /api/admin/notifications` actualizado
+- [ ] Aplicar migration `supabase/migrations/20260817152407_notification_batches_and_updated_at.sql`
 
 ---
 
@@ -143,7 +147,7 @@
 | **Alta** | `POST /api/conversations` | ✅ Convertido — validação zod |
 | **Alta** | `GET /api/conversations/[id]/messages` | ✅ Convertido — cursor-based |
 | **Alta** | `POST /api/conversations/[id]/messages` | ✅ Convertido — validação zod |
-| **Média** | `GET /api/notifications` | ❌ Pendente |
+| **Média** | `GET /api/notifications` | ✅ Convertido — cursor + offset |
 | **Média** | `GET /api/orders` | ✅ Convertido — cursor-based |
 | **Média** | `GET /api/seller/*` | 🟡 Parcial — `GET /api/seller/unread-counts` (RPC COUNT) |
 | **Baixa** | `GET /api/admin/*` | 🟡 Parcial — `GET /api/admin/stores`, `GET /api/admin/users`, `PATCH|DELETE /api/admin/products/[id]` |
@@ -152,7 +156,7 @@
 
 ### 4.5 Validção com zod schemas
 
-- [x] Criado `src/lib/validations.ts` com: `OffsetPaginationSchema`, `CursorPaginationSchema`, `ProductFiltersSchema`, `CreateProductSchema`, `AdminUpdateProductSchema`, `AdminListQuerySchema`, `StoreFiltersSchema`, `CreateStoreSchema`, `CreateConversationSchema`, `SendMessageSchema`, `MarkNotificationsReadSchema`, `UpdateProfileSchema`
+- [x] Criado `src/lib/validations.ts` com: `OffsetPaginationSchema`, `CursorPaginationSchema`, `ProductFiltersSchema`, `CreateProductSchema`, `AdminUpdateProductSchema`, `AdminListQuerySchema`, `StoreFiltersSchema`, `CreateStoreSchema`, `CreateConversationSchema`, `SendMessageSchema`, `MarkNotificationsReadSchema`, `UpdateProfileSchema`, `SendAdminNotificationSchema`
 - [x] Helpers `parseQueryParams`, `parseBody` e `sanitizeIlikeTerm`
 
 ### 4.6 Auth unificada
@@ -181,10 +185,10 @@
 | `GET /api/conversations/[id]/messages` | `created_at` | ✅ Convertido |
 | `GET /api/stores` | offset-based | ✅ Convertido (offset com `hasMore`) |
 | `GET /api/stores/[slug]/products` | Já usa cursor | ✅ |
-| `GET /api/notifications` | `created_at` | ❌ Pendente |
+| `GET /api/notifications` | `created_at` | ✅ Convertido (cursor + offset no widget) |
 | `GET /api/orders` | `created_at` | ✅ Convertido |
 | `GET /api/seller/products` | `created_at` | ❌ Pendente |
-| `GET /api/seller/orders` | `created_at` | ❌ Pendente |
+| `GET /api/seller/orders` | `created_at` | ❌ Pendente (pesquisa SQL; paginação ainda por página) |
 | `GET /api/saved-items` | `created_at` | ❌ Pendente |
 
 ### 5.3 Frontend: Criar hooks `useInfiniteQuery`
@@ -201,7 +205,7 @@
 | `useInfiniteStores` (explore) | `GET /api/stores` | ✅ via `fetchStoresInfinite` no explore-view |
 | `useInfiniteConversations` | `GET /api/conversations` | ❌ Pendente |
 | `useInfiniteMessages` | `GET /api/conversations/[id]/messages` | ❌ Pendente |
-| `useInfiniteNotifications` | `GET /api/notifications` | ❌ Pendente |
+| `useInfiniteNotifications` | `GET /api/notifications` | ✅ `useNotificationsFeed` (cursor) |
 | `useInfiniteOrders` | `GET /api/orders` | ❌ Pendente |
 | `useInfiniteSellerProducts` | `GET /api/seller/products` | ❌ Pendente |
 | `useInfiniteSellerOrders` | `GET /api/seller/orders` | ❌ Pendente |
@@ -254,13 +258,13 @@
 
 - [x] Criado `src/lib/validations.ts` com schemas para products, stores, conversations, messages
 - [x] Rotas convertidas usam `safeParse` + `apiError(ErrorCode.VALIDATION_ERROR, ...)`
-- [x] Admin products PATCH e `PATCH /api/me/profile` validados; falta notifications, resto do admin
+- [x] Admin products PATCH, `PATCH /api/me/profile` e `POST /api/admin/notifications` validados; falta resto do admin
 
 ### 6.3 Validação de query params
 
 - [x] `OffsetPaginationSchema` e `CursorPaginationSchema` com `z.coerce`
 - [x] `ProductFiltersSchema`, `StoreFiltersSchema` e `AdminListQuerySchema`
-- [ ] Falta schemas para orders, notifications, resto do admin
+- [x] `GET /api/notifications` usa cursor + offset schemas; falta orders, resto do admin
 
 ### 6.4 Autenticação: Padronizar helpers
 
@@ -276,11 +280,11 @@
 
 ### 7.1 Cache de dados estáticos (server-side)
 
-- [ ] Implementar `unstable_cache` para categorias e províncias
+- [x] Implementar `unstable_cache` para categorias e províncias (`src/lib/cache/lookups.ts`, 1h, tags `categories`/`provinces`)
 
 ### 7.2 Cache de stats dashboard
 
-- [ ] Adicionar `staleTime: 60_000` nos queries de stats
+- [x] Adicionar `staleTime: 60_000` nos queries de stats (`use-seller-dashboard`)
 
 ### 7.3 Paralelizar queries sequenciais
 
@@ -317,7 +321,7 @@
 - [x] Criar índices GIN (parciais, `WHERE deleted_at IS NULL`)
 - [ ] Criar função RPC `search_marketplace`
 - [x] Route handler usa `textSearch` (config `portuguese`) com fallback ILIKE
-- [ ] Aplicar a migration no Supabase
+- [x] Aplicar a migration no Supabase
 
 ---
 
@@ -349,13 +353,13 @@
 |---|--------|------|--------|
 | 11 | Implementar cursor-based pagination em rotas principais | API | ✅ Feito (products, conversations, messages, orders) |
 | 12 | Criar `useInfiniteList` hook genérico | Frontend | ✅ Feito |
-| 13 | Criar hooks `useInfinite*` específicos | Frontend | ✅ 2/8 feitos (products, stores no explore) |
+| 13 | Criar hooks `useInfinite*` específicos | Frontend | ✅ 3/8 feitos (products, stores, notifications) |
 | 14 | Adicionar `InfiniteScrollTrigger` component | Frontend | ✅ Feito |
 | 15 | Refatorar `admin/analytics` → RPC | API + DB | ✅ Feito (4 queries + nested counts) |
 | 16 | Refatorar `me/profile` → Promise.all + RPC | API | ✅ Feito (Promise.all + nested counts) |
-| 17 | Full-text search com tsvector + GIN | DB + API | 🟡 Parcial — migration + textSearch; falta aplicar e RPC |
+| 17 | Full-text search com tsvector + GIN | DB + API | ✅ Hybrid ILIKE + FTS; falta RPC `search_marketplace` |
 | 18 | Validar todos os inputs com zod schemas | API | ✅ Feito (rotas principais) |
-| 19 | Cache de categorias/províncias | API | ❌ Pendente |
+| 19 | Cache de categorias/províncias | API | ✅ Feito (`unstable_cache` 1h) |
 
 ### Sprint 4 (Longo prazo — 2-4 semanas)
 
@@ -364,8 +368,8 @@
 | 20 | Autenticação unificada (4 helpers → hierarquia) | API | ✅ Feito |
 | 21 | Converter offset → cursor em admin routes | API | ❌ Pendente |
 | 22 | Select específicos em todos os queries | API | ✅ Feito (rotas convertidas) |
-| 23 | Triggers `updated_at` nas 7 tabelas | DB | ❌ Pendente |
-| 24 | Refatorar `admin/notifications` → SQL GROUP BY | API | ❌ Pendente |
+| 23 | Triggers `updated_at` nas 7 tabelas | DB | ✅ Feito (`seller_profiles`, `seller_onboarding`, `product_images`; aplicar migration) |
+| 24 | Refatorar `admin/notifications` → SQL GROUP BY | API | ✅ Feito (RPC + fallback) |
 | 25 | Refatorar `stores/conversations` unread → COUNT | API | ✅ Feito (last_message store_id vs last_read_at) |
 
 ---
@@ -400,12 +404,14 @@ Toda nova rota DEVE seguir:
 | `GET /api/stores/conversations` | Unread via last_message | Fase 2 | ✅ Feito |
 | `GET /api/conversations` | Cursor-based + useInfiniteQuery | Fase 4 | ✅ Feito |
 | `GET /api/conversations/[id]/messages` | Cursor-based | Fase 4 | ✅ Feito |
-| `GET /api/notifications` | 🟡 Offset-based | Fase 4 | ❌ Pendente |
+| `GET /api/notifications` | Cursor + offset (widget) | Fase 4 | ✅ Feito |
 | `GET /api/products` | Cursor-based + useInfiniteQuery | Fase 4 | ✅ Feito |
 | `GET /api/orders` | Cursor-based | Fase 4 | ✅ Feito |
-| `GET /api/seller/products` | 🟡 Category filter in JS | Fase 2 | ❌ Pendente |
-| `GET /api/search` | FTS + GIN (fallback ILIKE) | Fase 7 | 🟡 Parcial (aplicar migration) |
+| `GET /api/seller/products` | Filtro de categoria em SQL (`eq('category_id')`) | Fase 2 | ✅ Feito |
+| `GET /api/search` | FTS + GIN (fallback ILIKE) | Fase 7 | ✅ Feito |
 | `PATCH /api/admin/products/[id]` | Allowlist zod | Fase 5 | ✅ Feito |
 | `GET /api/stores/[slug]/products` | ✅ Cursor-based | — | ✅ |
-| `GET /api/categories` | ✅ Lookup table + apiSuccess | — | ✅ |
-| `GET /api/provinces` | ✅ Lookup table | — | ✅ |
+| `GET /api/categories` | ✅ Lookup cache + apiSuccess | — | ✅ |
+| `GET /api/provinces` | ✅ Lookup cache (array cru) | — | ✅ |
+| `GET /api/admin/notifications` | RPC GROUP BY batches | Fase 2 | ✅ Feito |
+| `GET /api/seller/orders` | Pesquisa SQL (`search_store_order_ids`) | Fase 2 | ✅ Feito |

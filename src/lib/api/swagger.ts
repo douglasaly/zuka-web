@@ -824,6 +824,7 @@ const schemas = {
 			limit: { type: 'integer', minimum: 1, maximum: 100 },
 			offset: { type: 'integer', minimum: 0 },
 			hasMore: { type: 'boolean' },
+			nextCursor: { type: 'string', nullable: true },
 		},
 	},
 	UpdateNotificationsInput: {
@@ -1518,6 +1519,8 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Public'],
 			summary: 'List all product categories',
+			description:
+				'Cached lookup (`unstable_cache`, 1h, tag `categories`). Invalidated when admin creates, updates, or deletes a category.',
 			responses: {
 				'200': {
 					description: 'Category list',
@@ -1579,6 +1582,8 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Public'],
 			summary: 'List all provinces',
+			description:
+				'Cached lookup (`unstable_cache`, 1h, tag `provinces`). Response is a raw array (not wrapped in `{ success, data }`).',
 			responses: {
 				'200': {
 					description: 'Province list',
@@ -3200,7 +3205,7 @@ const paths: Record<string, any> = {
 			tags: ['Notifications'],
 			summary: 'List user notifications',
 			description:
-				'Offset-paginated inbox for the authenticated user. Excludes soft-deleted rows (`deleted_at IS NULL`). Legacy order links stored as `/pedidos/:id` are normalized to `/feed/pedidos/:id` in the response.',
+				'Inbox for the authenticated user. Supports cursor pagination (`cursor` = `created_at` of the last item, `limit+1` for `hasMore`) and keeps `offset` for the header widget. Excludes soft-deleted rows (`deleted_at IS NULL`). Legacy order links stored as `/pedidos/:id` are normalized to `/feed/pedidos/:id` in the response.',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
@@ -3217,6 +3222,13 @@ const paths: Record<string, any> = {
 					name: 'offset',
 					in: 'query',
 					schema: { type: 'integer', default: 0, minimum: 0 },
+				},
+				{
+					name: 'cursor',
+					in: 'query',
+					schema: { type: 'string' },
+					description:
+						'ISO `created_at` of the last notification from the previous page. When set, `offset` is ignored.',
 				},
 			],
 			responses: {
@@ -4440,7 +4452,7 @@ const paths: Record<string, any> = {
 					required: false,
 					schema: { type: 'string' },
 					description:
-						'Filter by order id, short id, customer name/email, or items summary. When set, matching is applied then the result is paginated (total reflects filtered count).',
+						'Filter by order id, short id, customer name/email, or product name. Matching runs in SQL (`search_store_order_ids`); the page is then filtered with `range` (total reflects the filtered count). Falls back to buyer ILIKE if the RPC is not applied.',
 				},
 				{
 					name: 'page',
@@ -6427,6 +6439,8 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Admin'],
 			summary: 'List sent notifications',
+			description:
+				'Batches grouped in SQL via RPC `list_notification_batches` (`GROUP BY COALESCE(batch_id, id)`). Falls back to fetching up to 1000 rows and grouping in JS if the function is not applied.',
 			security: [{ CookieAuth: [] }],
 			responses: {
 				'200': {
@@ -6464,6 +6478,8 @@ const paths: Record<string, any> = {
 		post: {
 			tags: ['Admin'],
 			summary: 'Send notification to users',
+			description:
+				'Validated with `SendAdminNotificationSchema` (target, title, body). Inserts one row per recipient sharing a `batch_id`.',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			requestBody: {
 				content: {
