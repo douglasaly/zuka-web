@@ -5,6 +5,7 @@ import {
 	STORE_FORM_MESSAGES,
 	toE164Mz,
 } from '@/lib/validations/store-form'
+
 export const OffsetPaginationSchema = z.object({
 	limit: z.coerce.number().int().min(1).max(100).default(20),
 	offset: z.coerce.number().int().min(0).default(0),
@@ -28,13 +29,14 @@ export const CreateProductSchema = z.object({
 	name: z.string().min(1, 'Nome é obrigatório').max(255),
 	description: z.string().max(5000).optional(),
 	categoryId: z.uuid('Categoria inválida'),
-	price: z.number().positive('Preço deve ser positivo'),
-	discountPrice: z.number().positive().optional(),
+	price: z.number().positive('O valor do produto deve ser maior que 0'),
+	discountPrice: z.number().positive('O valor do desconto do produto deve ser maior que 0').optional(),
 	currency: z.string().length(3).default('MZN'),
-	imageUrl: z.string().url().optional(),
-	imageUrls: z.array(z.string().url()).max(8).optional(),
+	imageUrl: z.url().optional(),
+	imageUrls: z.array(z.url()).max(8).optional(),
 	status: z.enum(['DRAFT', 'ACTIVE', 'INACTIVE']).optional(),
 })
+
 export const StoreFiltersSchema = z.object({
 	search: z.string().optional(),
 	status: z
