@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server'
-import { apiSuccess, withErrorHandling } from '@/lib/api-response'
+import { apiSuccess, withErrorHandling } from '@/lib/axios/api-response'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 export const GET = withErrorHandling(async (_request: NextRequest) => {
 	const supabase = createSupabaseAdmin()

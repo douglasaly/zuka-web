@@ -1,11 +1,11 @@
+import { requireConversationParticipant } from '@/lib/auth'
 import {
 	apiCursorList,
 	apiError,
 	apiSuccess,
 	ErrorCode,
 	withErrorHandling,
-} from '@/lib/api-response'
-import { requireConversationParticipant } from '@/lib/auth'
+} from '@/lib/axios/api-response'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import { CursorPaginationSchema, SendMessageSchema } from '@/lib/validations'
 export const GET = withErrorHandling(async (request, { params }) => {

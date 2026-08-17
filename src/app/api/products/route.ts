@@ -1,12 +1,12 @@
 import { uuidv7 } from 'uuidv7'
+import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
 import {
 	apiCursorList,
 	apiError,
 	apiSuccess,
 	ErrorCode,
 	withErrorHandling,
-} from '@/lib/api-response'
-import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
+} from '@/lib/axios/api-response'
 import { resolveCategoryIds } from '@/lib/categories/resolve-category-ids'
 import { isR2PublicUrl } from '@/lib/storage/r2'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'

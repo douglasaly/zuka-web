@@ -1,14 +1,14 @@
 import type { NextRequest } from 'next/server'
 import { uuidv7 } from 'uuidv7'
-import type { RouteContext } from '@/lib/api-handler'
+import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
+import type { RouteContext } from '@/lib/axios/api-handler'
 import {
 	apiCursorList,
 	apiError,
 	apiSuccess,
 	ErrorCode,
 	withErrorHandling,
-} from '@/lib/api-response'
-import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
+} from '@/lib/axios/api-response'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import { CursorPaginationSchema, SendMessageSchema } from '@/lib/validations'
 export const GET = withErrorHandling(

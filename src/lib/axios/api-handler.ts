@@ -1,5 +1,5 @@
 import type { NextRequest, NextResponse } from 'next/server'
-import { apiError, ErrorCode } from '@/lib/api-response'
+import { apiError, ErrorCode } from '@/lib/axios/api-response'
 
 type RouteContext = {
 	params: Promise<Record<string, string>>

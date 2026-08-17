@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server'
-import { apiCursorList, withErrorHandling } from '@/lib/api-response'
 import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
+import { apiCursorList, withErrorHandling } from '@/lib/axios/api-response'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import { CursorPaginationSchema } from '@/lib/validations'
 export const GET = withErrorHandling(async (request: NextRequest) => {

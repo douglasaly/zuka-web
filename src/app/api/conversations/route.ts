@@ -1,13 +1,13 @@
 import { uuidv7 } from 'uuidv7'
+import { requireAuth } from '@/lib/auth'
+import { getManagedStoreIds } from '@/lib/auth/seller'
 import {
 	apiCursorList,
 	apiError,
 	apiSuccess,
 	ErrorCode,
 	withErrorHandling,
-} from '@/lib/api-response'
-import { requireAuth } from '@/lib/auth'
-import { getManagedStoreIds } from '@/lib/auth/seller'
+} from '@/lib/axios/api-response'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import {
 	CreateConversationSchema,

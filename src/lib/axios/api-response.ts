@@ -86,4 +86,4 @@ export const ErrorCode = {
 	CONFLICT: 'CONFLICT',
 	INTERNAL_ERROR: 'INTERNAL_ERROR',
 } as const
-export { withErrorHandling } from '@/lib/api-handler'
+export { withErrorHandling } from '@/lib/axios/api-handler'

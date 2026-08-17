@@ -1,12 +1,12 @@
 import { uuidv7 } from 'uuidv7'
+import { requireAuth } from '@/lib/auth'
+import { ensureSellerProfile, getUserRoles } from '@/lib/auth/roles'
 import {
 	apiError,
 	apiSuccess,
 	ErrorCode,
 	withErrorHandling,
-} from '@/lib/api-response'
-import { requireAuth } from '@/lib/auth'
-import { ensureSellerProfile, getUserRoles } from '@/lib/auth/roles'
+} from '@/lib/axios/api-response'
 import { mapStoreRow } from '@/lib/mappers/marketplace'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import { CreateStoreSchema, StoreFiltersSchema } from '@/lib/validations'

@@ -1,10 +1,5 @@
-import { api } from '@/lib/axios'
-
 interface LoginProps {
 	provider: 'google' | 'emailAndPassword'
-}
-interface LoginResponse {
-	status: string | null
 }
 export const login = async ({ provider }: LoginProps) => {
 	if (provider === 'google') {

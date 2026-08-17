@@ -1,12 +1,12 @@
 import { type NextRequest, NextResponse } from 'next/server'
+import { requireAuth } from '@/lib/auth'
+import { getSessionUser } from '@/lib/auth/session'
 import {
 	apiError,
 	apiSuccess,
 	ErrorCode,
 	withErrorHandling,
-} from '@/lib/api-response'
-import { requireAuth } from '@/lib/auth'
-import { getSessionUser } from '@/lib/auth/session'
+} from '@/lib/axios/api-response'
 import type { OrderStatus } from '@/lib/orders/status-transitions'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import {
