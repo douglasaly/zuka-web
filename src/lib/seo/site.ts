@@ -25,9 +25,7 @@ export const SITE_KEYWORDS = [
 ]
 
 const FALLBACK_SITE_URL =
-	process.env.VERCEL_URL ||
-	process.env.NEXT_PUBLIC_APP_URL ||
-	'http://localhost:3000'
+	process.env.VERCEL_URL! || process.env.NEXT_PUBLIC_APP_URL!
 
 export function getSiteUrl() {
 	const raw = process.env.NEXT_PUBLIC_APP_URL?.trim() || FALLBACK_SITE_URL
