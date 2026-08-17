@@ -1,130 +1,137 @@
+import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getUserRoles } from '@/lib/auth/roles'
 import { getSessionUser } from '@/lib/auth/session'
+import {
+	apiError,
+	ErrorCode,
+	withErrorHandling,
+} from '@/lib/axios/api-response'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
+import { UpdateProfileSchema } from '@/lib/validations'
 import type { UserProfile } from '@/types/marketplace'
-export async function PATCH(request: Request) {
-	try {
-		const user = await getSessionUser()
-		if (!user) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-		}
-		const body = await request.json()
-		const { firstName, lastName, phoneNumber, avatarUrl } = body
-		const supabase = createSupabaseAdmin()
-		const updates: Record<string, unknown> = {}
-		if (typeof firstName === 'string') updates.first_name = firstName
-		if (typeof lastName === 'string') updates.last_name = lastName
-		if (typeof phoneNumber === 'string') updates.phone_number = phoneNumber
-		if (typeof avatarUrl === 'string') updates.avatar_url = avatarUrl
-		updates.updated_at = new Date().toISOString()
-		const { data: updatedUser, error } = await supabase
-			.from('users')
-			.update(updates as never)
-			.eq('id', user.id as string)
-			.select('*')
-			.single()
-		if (error) {
-			console.error('[PATCH /api/me/profile]', error)
-			return NextResponse.json(
-				{ error: 'Failed to update profile' },
-				{ status: 500 }
-			)
-		}
-		return NextResponse.json({
-			success: true,
-			profile: {
-				id: updatedUser.id as string,
-				email: updatedUser.email as string | null,
-				firstName: updatedUser.first_name as string | null,
-				lastName: updatedUser.last_name as string | null,
-				avatarUrl: updatedUser.avatar_url as string | null,
-				phoneNumber: updatedUser.phone_number,
-			},
-		})
-	} catch (error) {
-		console.error('[PATCH /api/me/profile]', error)
-		return NextResponse.json(
-			{ error: 'Failed to update profile' },
-			{ status: 500 }
+
+function nestedCount(value: unknown): number {
+	if (!Array.isArray(value)) return 0
+	const first = value[0] as { count?: number } | undefined
+	return first?.count ?? 0
+}
+
+export const PATCH = withErrorHandling(async (request: NextRequest) => {
+	const user = await getSessionUser()
+	if (!user) {
+		return apiError(ErrorCode.UNAUTHORIZED, 'Não autenticado', 401)
+	}
+	const parsed = UpdateProfileSchema.safeParse(await request.json())
+	if (!parsed.success) {
+		return apiError(
+			ErrorCode.VALIDATION_ERROR,
+			parsed.error.issues[0]?.message ?? 'Dados inválidos'
 		)
 	}
-}
-export async function GET() {
-	try {
-		const user = await getSessionUser()
-		if (!user) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-		}
-		const supabase = createSupabaseAdmin()
-		const roles = await getUserRoles(user.id as string)
-		const { data: sellerProfile } = await supabase
+	const { firstName, lastName, phoneNumber, avatarUrl } = parsed.data
+	const updates: Record<string, unknown> = {
+		updated_at: new Date().toISOString(),
+	}
+	if (firstName !== undefined) updates.first_name = firstName
+	if (lastName !== undefined) updates.last_name = lastName
+	if (phoneNumber !== undefined) updates.phone_number = phoneNumber
+	if (avatarUrl !== undefined) updates.avatar_url = avatarUrl
+	const hasField = Object.keys(updates).some((key) => key !== 'updated_at')
+	if (!hasField) {
+		return apiError(
+			ErrorCode.VALIDATION_ERROR,
+			'Nenhum campo válido para actualizar'
+		)
+	}
+	const supabase = createSupabaseAdmin()
+	const { data: updatedUser, error } = await supabase
+		.from('users')
+		.update(updates as never)
+		.eq('id', user.id as string)
+		.select('id, email, first_name, last_name, avatar_url, phone_number')
+		.single()
+	if (error) throw error
+	return NextResponse.json({
+		success: true,
+		profile: {
+			id: updatedUser.id as string,
+			email: updatedUser.email as string | null,
+			firstName: updatedUser.first_name as string | null,
+			lastName: updatedUser.last_name as string | null,
+			avatarUrl: updatedUser.avatar_url as string | null,
+			phoneNumber: updatedUser.phone_number,
+		},
+	})
+})
+
+export const GET = withErrorHandling(async () => {
+	const user = await getSessionUser()
+	if (!user) {
+		return apiError(ErrorCode.UNAUTHORIZED, 'Não autenticado', 401)
+	}
+	const supabase = createSupabaseAdmin()
+	const [roles, sellerResult] = await Promise.all([
+		getUserRoles(user.id as string),
+		supabase
 			.from('seller_profiles')
 			.select('id, status')
 			.eq('user_id', user.id as string)
-			.maybeSingle()
-		let onboarding = null
-		if (sellerProfile) {
-			const { data } = await supabase
+			.maybeSingle(),
+	])
+	if (sellerResult.error) throw sellerResult.error
+	const sellerProfile = sellerResult.data
+	let onboarding: UserProfile['onboarding'] = null
+	let storesWithCounts: UserProfile['stores'] = []
+	if (sellerProfile) {
+		const [onboardingResult, storesResult] = await Promise.all([
+			supabase
 				.from('seller_onboarding')
 				.select('status, current_step')
-				.eq('seller_profile_id', sellerProfile.id as string)
-				.maybeSingle()
-			if (data) {
-				onboarding = {
-					status: data.status as string,
-					currentStep: data.current_step as string | null,
-				}
+				.eq('seller_profile_id', sellerProfile.id)
+				.maybeSingle(),
+			supabase
+				.from('stores')
+				.select('id, name, slug, status, product_count:products(count)')
+				.eq('seller_profile_id', sellerProfile.id)
+				.is('deleted_at', null),
+		])
+		if (onboardingResult.error) throw onboardingResult.error
+		if (storesResult.error) throw storesResult.error
+		if (onboardingResult.data) {
+			onboarding = {
+				status: onboardingResult.data.status as string,
+				currentStep: onboardingResult.data.current_step as
+					| string
+					| null,
 			}
 		}
-		const { data: stores } = sellerProfile
-			? await supabase
-					.from('stores')
-					.select('id, name, slug, status')
-					.eq('seller_profile_id', sellerProfile.id as string)
-					.is('deleted_at', null)
-			: { data: [] }
-		const storesWithCounts = await Promise.all(
-			(stores ?? []).map(async (store) => {
-				const { count } = await supabase
-					.from('products')
-					.select('*', { count: 'exact', head: true })
-					.eq('store_id', store.id as string)
-					.is('deleted_at', null)
-				return {
-					id: store.id as string,
-					name: store.name as string,
-					slug: store.slug as string,
-					status: store.status as string | null,
-					productCount: count ?? 0,
-				}
-			})
-		)
-		const profile: UserProfile = {
-			id: user.id as string,
-			email: user.email as string | null,
-			firstName: user.first_name as string | null,
-			lastName: user.last_name as string | null,
-			avatarUrl: user.avatar_url as string | null,
-			phoneNumber: user.phone_number,
-			emailVerified: user.email_verified,
-			phoneVerified: user.phone_verified,
-			roles,
-			sellerProfile: sellerProfile
-				? {
-						id: sellerProfile.id as string,
-						status: sellerProfile.status as string,
-					}
-				: null,
-			stores: storesWithCounts,
-			onboarding,
-		}
-		return NextResponse.json({ success: true, profile })
-	} catch (error) {
-		console.error(error)
-		return NextResponse.json(
-			{ error: 'Failed to load profile' },
-			{ status: 500 }
-		)
+		storesWithCounts = (storesResult.data ?? []).map((store) => ({
+			id: store.id,
+			name: store.name,
+			slug: store.slug,
+			status: store.status,
+			productCount: nestedCount(store.product_count),
+		}))
 	}
-}
+	const profile: UserProfile = {
+		id: user.id as string,
+		email: user.email as string | null,
+		firstName: user.first_name as string | null,
+		lastName: user.last_name as string | null,
+		avatarUrl: user.avatar_url as string | null,
+		phoneNumber: user.phone_number,
+		emailVerified: user.email_verified,
+		phoneVerified: user.phone_verified,
+		roles,
+		sellerProfile: sellerProfile
+			? {
+					id: sellerProfile.id,
+					status: sellerProfile.status as string,
+				}
+			: null,
+		stores: storesWithCounts,
+		onboarding,
+	}
+	return NextResponse.json({ success: true, profile })
+})

@@ -64,27 +64,22 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 	const lastMessageIds = pageItems
 		.map((c) => c.last_message_id)
 		.filter(Boolean) as string[]
-	const lastMessageContentMap = new Map<string, string>()
+	const lastMessageById = new Map<
+		string,
+		{ content: string; store_id: string | null; created_at: string | null }
+	>()
 	if (lastMessageIds.length > 0) {
 		const { data: lastMessages } = await supabase
 			.from('messages')
-			.select('id, content')
+			.select('id, content, store_id, created_at')
 			.in('id', lastMessageIds)
+			.is('deleted_at', null)
 		for (const m of lastMessages ?? []) {
-			lastMessageContentMap.set(m.id, m.content)
-		}
-	}
-	const unreadConvs = new Set<string>()
-	const { data: buyerMessages } = await supabase
-		.from('messages')
-		.select('conversation_id, created_at')
-		.in('conversation_id', conversationIds)
-		.is('store_id', null)
-		.is('deleted_at', null)
-	for (const msg of buyerMessages ?? []) {
-		const lastRead = storeOwnerLastRead.get(msg.conversation_id)
-		if (msg.created_at && (!lastRead || msg.created_at > lastRead)) {
-			unreadConvs.add(msg.conversation_id)
+			lastMessageById.set(m.id, {
+				content: m.content,
+				store_id: m.store_id,
+				created_at: m.created_at,
+			})
 		}
 	}
 	const data = pageItems.map((conv) => {
@@ -97,15 +92,23 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 		const lastName = buyerUser?.last_name ?? ''
 		const name =
 			[firstName, lastName].filter(Boolean).join(' ') || 'Cliente'
+		const lastMessage = conv.last_message_id
+			? lastMessageById.get(conv.last_message_id)
+			: undefined
+		const lastRead = storeOwnerLastRead.get(conv.id)
+		const unread = Boolean(
+			lastMessage &&
+				lastMessage.store_id == null &&
+				lastMessage.created_at &&
+				(!lastRead || lastMessage.created_at > lastRead)
+		)
 		return {
 			id: conv.id,
 			otherUserName: name,
 			otherUserAvatar: buyerUser?.avatar_url ?? null,
-			lastMessage: conv.last_message_id
-				? (lastMessageContentMap.get(conv.last_message_id) ?? null)
-				: null,
+			lastMessage: lastMessage?.content ?? null,
 			lastMessageAt: conv.last_message_at,
-			unread: unreadConvs.has(conv.id),
+			unread,
 		}
 	})
 	const nextCursor = hasMore

@@ -1,55 +1,70 @@
+import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { requireAdminUser } from '@/lib/auth/admin'
+import { withErrorHandling } from '@/lib/axios/api-response'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import type { Database } from '@/lib/supabase/types'
-export async function GET(req: Request) {
+import { AdminListQuerySchema, sanitizeIlikeTerm } from '@/lib/validations'
+
+type StoreStatus = Database['public']['Enums']['store_status']
+
+const STORE_STATUSES = new Set<StoreStatus>([
+	'ACTIVE',
+	'INACTIVE',
+	'BANNED',
+	'PENDING',
+	'SUSPENDED',
+])
+
+function nestedCount(value: unknown): number {
+	if (!Array.isArray(value)) return 0
+	const first = value[0] as { count?: number } | undefined
+	return first?.count ?? 0
+}
+
+export const GET = withErrorHandling(async (request: NextRequest) => {
 	await requireAdminUser()
-	const { searchParams } = new URL(req.url)
-	const status = searchParams.get('status')
-	const search = searchParams.get('search') ?? ''
-	const page = Number(searchParams.get('page') ?? 1)
-	const limit = Math.min(Number(searchParams.get('limit') ?? 50), 100)
-	const offset = (page - 1) * limit
+	const { searchParams } = new URL(request.url)
+	const parsed = AdminListQuerySchema.safeParse({
+		search: searchParams.get('search') ?? undefined,
+		status: searchParams.get('status') ?? undefined,
+		page: searchParams.get('page') ?? undefined,
+		limit: searchParams.get('limit') ?? undefined,
+	})
+	const params = parsed.success
+		? parsed.data
+		: { search: '', status: '', page: 1, limit: 50 }
+	const search = sanitizeIlikeTerm(params.search)
+	const offset = (params.page - 1) * params.limit
 	const supabase = createSupabaseAdmin()
 	let query = supabase
 		.from('stores')
-		.select(`
+		.select(
+			`
 			id, name, slug, status, description, logo_url, banner_url, phone, whatsapp, email, state, created_at,
 			provinces(name),
 			categories:main_store_category_id(id, name),
-			users:owner_id(id, first_name, last_name, email, phone_number, created_at)
-		`)
+			users:owner_id(id, first_name, last_name, email, phone_number, created_at),
+			product_count:products(count),
+			follower_count:store_followers(count)
+		`
+		)
 		.is('deleted_at', null)
 		.order('created_at', { ascending: false })
-		.range(offset, offset + limit - 1)
-	if (status)
-		query = query.eq(
-			'status',
-			status as Database['public']['Enums']['store_status']
-		)
+		.range(offset, offset + params.limit - 1)
+	if (params.status && STORE_STATUSES.has(params.status as StoreStatus)) {
+		query = query.eq('status', params.status as StoreStatus)
+	}
 	if (search) query = query.ilike('name', `%${search}%`)
 	const { data, error } = await query
-	if (error)
-		return NextResponse.json({ error: error.message }, { status: 500 })
-	const storesWithCounts = await Promise.all(
-		(data ?? []).map(async (store) => {
-			const sid = (store as unknown as Record<string, unknown>)
-				.id as string
-			const { count: productCount } = await supabase
-				.from('products')
-				.select('*', { count: 'exact', head: true })
-				.eq('store_id', sid)
-				.is('deleted_at', null)
-			const { count: followerCount } = await supabase
-				.from('store_followers')
-				.select('*', { count: 'exact', head: true })
-				.eq('store_id', sid)
-			return {
-				...(store as object),
-				productCount: productCount ?? 0,
-				followerCount: followerCount ?? 0,
-			}
-		})
-	)
-	return NextResponse.json({ stores: storesWithCounts })
-}
+	if (error) throw error
+	const stores = (data ?? []).map((store) => {
+		const { product_count, follower_count, ...rest } = store
+		return {
+			...rest,
+			productCount: nestedCount(product_count),
+			followerCount: nestedCount(follower_count),
+		}
+	})
+	return NextResponse.json({ stores })
+})

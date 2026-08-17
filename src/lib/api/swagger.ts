@@ -912,12 +912,79 @@ const schemas = {
 			pendingOrders: {
 				type: 'integer',
 				description:
-					'Number of store orders with status PENDING or CONTACTED (soft-deleted excluded)',
+					'Number of store orders with status PENDING or CONTACTED (soft-deleted excluded). SQL COUNT, not a row scan.',
 			},
 			unreadMessages: {
 				type: 'integer',
 				description:
-					'Number of store conversations with unread buyer messages',
+					'Number of store conversations with at least one unread buyer message (store_id IS NULL, created_at > owner last_read_at). Counted via RPC count_store_unread_conversations; falls back to last_message_id if the function is not applied.',
+			},
+		},
+	},
+	ApiSuccessOk: {
+		type: 'object',
+		required: ['success', 'data'],
+		properties: {
+			success: { type: 'boolean', enum: [true] },
+			data: {
+				type: 'object',
+				properties: {
+					ok: { type: 'boolean', enum: [true] },
+				},
+			},
+		},
+	},
+	AdminUpdateProductInput: {
+		type: 'object',
+		additionalProperties: false,
+		description:
+			'Allowlist only. Unknown fields (id, store_id, deleted_at, slug, created_at) are ignored. price/discount are major units (MZN) and stored as cents.',
+		properties: {
+			name: { type: 'string', minLength: 1, maxLength: 255 },
+			description: {
+				type: 'string',
+				maxLength: 5000,
+				nullable: true,
+			},
+			category_id: { type: 'string', format: 'uuid' },
+			categoryId: {
+				type: 'string',
+				format: 'uuid',
+				description: 'Alias of category_id',
+			},
+			price: {
+				type: 'number',
+				minimum: 0,
+				description: 'Major units (MZN); multiplied by 100 on write',
+			},
+			discount_price: {
+				type: 'number',
+				minimum: 0,
+				nullable: true,
+			},
+			discountPrice: {
+				type: 'number',
+				minimum: 0,
+				nullable: true,
+				description: 'Alias of discount_price',
+			},
+			currency: { type: 'string', minLength: 3, maxLength: 3 },
+			status: {
+				type: 'string',
+				enum: [
+					'DRAFT',
+					'PENDING_REVIEW',
+					'ACTIVE',
+					'INACTIVE',
+					'OUT_OF_STOCK',
+					'ARCHIVED',
+					'DELETED',
+				],
+			},
+			is_visible: { type: 'boolean' },
+			isVisible: {
+				type: 'boolean',
+				description: 'Alias of is_visible',
 			},
 		},
 	},
@@ -1347,6 +1414,8 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Profile'],
 			summary: 'Get full user profile with roles, stores, seller info',
+			description:
+				'Two parallel rounds: (1) roles + seller_profiles, (2) onboarding + stores with nested product_count. Response `{ success, profile }` is unchanged.',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			responses: {
 				'200': {
@@ -1371,16 +1440,20 @@ const paths: Record<string, any> = {
 		patch: {
 			tags: ['Profile'],
 			summary: 'Update user profile fields',
+			description:
+				'Allowlisted PATCH via UpdateProfileSchema (firstName, lastName, phoneNumber, avatarUrl). Unknown fields are ignored.',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			requestBody: {
+				required: true,
 				content: {
 					'application/json': {
 						schema: {
 							type: 'object',
+							additionalProperties: false,
 							properties: {
-								firstName: { type: 'string' },
-								lastName: { type: 'string' },
-								phoneNumber: { type: 'string' },
+								firstName: { type: 'string', maxLength: 80 },
+								lastName: { type: 'string', maxLength: 80 },
+								phoneNumber: { type: 'string', maxLength: 30 },
 								avatarUrl: { type: 'string' },
 							},
 						},
@@ -1394,7 +1467,45 @@ const paths: Record<string, any> = {
 						'application/json': {
 							schema: {
 								type: 'object',
-								properties: { success: { type: 'boolean' } },
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+									profile: {
+										type: 'object',
+										properties: {
+											id: { type: 'string' },
+											email: {
+												type: 'string',
+												nullable: true,
+											},
+											firstName: {
+												type: 'string',
+												nullable: true,
+											},
+											lastName: {
+												type: 'string',
+												nullable: true,
+											},
+											avatarUrl: {
+												type: 'string',
+												nullable: true,
+											},
+											phoneNumber: {
+												type: 'string',
+												nullable: true,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				'400': {
+					description: 'Validation error',
+					content: {
+						'application/json': {
+							schema: {
+								$ref: '#/components/schemas/ErrorResponse',
 							},
 						},
 					},
@@ -1792,7 +1903,7 @@ const paths: Record<string, any> = {
 			tags: ['Public'],
 			summary: 'Search products, stores and categories',
 			description:
-				'Text search (`q`) and/or browse filters. `categoria` matches the category slug and all descendant subcategories. When only filters are provided (no `q`), returns products matching those filters. Stores and categories sections require a text query.',
+				'Text search (`q`) matches product/store/category `name` with ILIKE (substring, including 1–2 character queries). Terms with 2+ characters also match `search_vector` via prefix FTS (`portuguese`). Falls back to ILIKE-only if the FTS filter errors. `categoria` matches the category slug and descendant subcategories. Stores and categories sections require a text query.',
 			parameters: [
 				{
 					name: 'q',
@@ -2514,6 +2625,8 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Stores'],
 			summary: 'List store conversations (seller inbox, cursor-based)',
+			description:
+				'Unread flag uses the last message (`store_id` IS NULL and created_at > owner last_read_at). Does not scan all buyer messages in the page.',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
@@ -4993,7 +5106,7 @@ const paths: Record<string, any> = {
 			tags: ['Seller'],
 			summary: 'Get unread counts for sidebar badges',
 			description:
-				'Returns `pendingOrders` (orders in PENDING or CONTACTED for the current store) and `unreadMessages` (store conversations with unread buyer messages, based on the store owner `last_read_at`). Returns zeros when the user has no store access.',
+				'Returns `pendingOrders` via SQL COUNT on orders (PENDING or CONTACTED) and `unreadMessages` via RPC `count_store_unread_conversations` (COUNT + EXISTS on buyer messages after owner `last_read_at`). Does not load message rows. Returns zeros when the user has no store access, or if the RPC is missing (fallback uses last_message_id, still O(conversations)).',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			responses: {
 				'200': {
@@ -5314,12 +5427,19 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Admin'],
 			summary: 'Get analytics data (signups, products, stores)',
+			description:
+				'Four parallel queries. Top stores use nested product/follower counts (no N+1). `days` is clamped to 1–90. Response shape is unchanged.',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'days',
 					in: 'query',
-					schema: { type: 'integer', default: 30 },
+					schema: {
+						type: 'integer',
+						default: 30,
+						minimum: 1,
+						maximum: 90,
+					},
 				},
 			],
 			responses: {
@@ -5388,19 +5508,32 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Admin'],
 			summary: 'List users with search and pagination',
+			description:
+				'Three queries total (users page + user_roles + stores batched with `.in()`), not N+1 per row. Search is sanitised (ILIKE wildcards stripped, max 80 chars). Response shape `{ users }` is unchanged.',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
-				{ name: 'search', in: 'query', schema: { type: 'string' } },
+				{
+					name: 'search',
+					in: 'query',
+					schema: { type: 'string', maxLength: 120 },
+					description:
+						'Matches email, first_name, last_name (ILIKE). Special chars % _ * , . ( ) are stripped.',
+				},
 				{ name: 'status', in: 'query', schema: { type: 'string' } },
 				{
 					name: 'page',
 					in: 'query',
-					schema: { type: 'integer', default: 1 },
+					schema: { type: 'integer', default: 1, minimum: 1 },
 				},
 				{
 					name: 'limit',
 					in: 'query',
-					schema: { type: 'integer', default: 50, maximum: 100 },
+					schema: {
+						type: 'integer',
+						default: 50,
+						minimum: 1,
+						maximum: 100,
+					},
 				},
 			],
 			responses: {
@@ -5468,6 +5601,7 @@ const paths: Record<string, any> = {
 					},
 				},
 				'401': { description: 'Unauthorized' },
+				'403': { description: 'Forbidden' },
 			},
 		},
 	},
@@ -5650,19 +5784,45 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Admin'],
 			summary: 'List stores with filters',
+			description:
+				'Single query with nested counts (`product_count:products(count)`, `follower_count:store_followers(count)`), mapped to `productCount` / `followerCount`. Invalid `status` values are ignored. Search is sanitised. Response shape `{ stores }` is unchanged.',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
-				{ name: 'status', in: 'query', schema: { type: 'string' } },
-				{ name: 'search', in: 'query', schema: { type: 'string' } },
+				{
+					name: 'status',
+					in: 'query',
+					schema: {
+						type: 'string',
+						enum: [
+							'ACTIVE',
+							'INACTIVE',
+							'BANNED',
+							'PENDING',
+							'SUSPENDED',
+						],
+					},
+				},
+				{
+					name: 'search',
+					in: 'query',
+					schema: { type: 'string', maxLength: 120 },
+					description:
+						'Matches store name (ILIKE). Special chars % _ * , . ( ) are stripped.',
+				},
 				{
 					name: 'page',
 					in: 'query',
-					schema: { type: 'integer', default: 1 },
+					schema: { type: 'integer', default: 1, minimum: 1 },
 				},
 				{
 					name: 'limit',
 					in: 'query',
-					schema: { type: 'integer', default: 50, maximum: 100 },
+					schema: {
+						type: 'integer',
+						default: 50,
+						minimum: 1,
+						maximum: 100,
+					},
 				},
 			],
 			responses: {
@@ -5766,6 +5926,7 @@ const paths: Record<string, any> = {
 					},
 				},
 				'401': { description: 'Unauthorized' },
+				'403': { description: 'Forbidden' },
 			},
 		},
 	},
@@ -6014,30 +6175,23 @@ const paths: Record<string, any> = {
 		patch: {
 			tags: ['Admin'],
 			summary: 'Update a product',
+			description:
+				'Allowlisted PATCH via AdminUpdateProductSchema. Does not spread the request body. Requires at least one allowed field. Soft-deleted products return 404.',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'id',
 					in: 'path',
 					required: true,
-					schema: { type: 'string' },
+					schema: { type: 'string', format: 'uuid' },
 				},
 			],
 			requestBody: {
+				required: true,
 				content: {
 					'application/json': {
 						schema: {
-							type: 'object',
-							properties: {
-								name: { type: 'string' },
-								description: { type: 'string' },
-								price: { type: 'number' },
-								discount_price: { type: 'number' },
-								currency: { type: 'string' },
-								status: { type: 'string' },
-								is_visible: { type: 'boolean' },
-								category_id: { type: 'string' },
-							},
+							$ref: '#/components/schemas/AdminUpdateProductInput',
 						},
 					},
 				},
@@ -6048,27 +6202,57 @@ const paths: Record<string, any> = {
 					content: {
 						'application/json': {
 							schema: {
-								type: 'object',
-								properties: {
-									success: { type: 'boolean', enum: [true] },
-								},
+								$ref: '#/components/schemas/ApiSuccessOk',
+							},
+						},
+					},
+				},
+				'400': {
+					description:
+						'Validation error or no allowed fields to update',
+					content: {
+						'application/json': {
+							schema: {
+								$ref: '#/components/schemas/ErrorResponse',
 							},
 						},
 					},
 				},
 				'401': { description: 'Unauthorized' },
+				'403': {
+					description: 'Forbidden',
+					content: {
+						'application/json': {
+							schema: {
+								$ref: '#/components/schemas/ErrorResponse',
+							},
+						},
+					},
+				},
+				'404': {
+					description: 'Product not found or already deleted',
+					content: {
+						'application/json': {
+							schema: {
+								$ref: '#/components/schemas/ErrorResponse',
+							},
+						},
+					},
+				},
 			},
 		},
 		delete: {
 			tags: ['Admin'],
 			summary: 'Soft-delete a product',
+			description:
+				'Sets deleted_at. Already-deleted or missing products return 404.',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'id',
 					in: 'path',
 					required: true,
-					schema: { type: 'string' },
+					schema: { type: 'string', format: 'uuid' },
 				},
 			],
 			responses: {
@@ -6077,15 +6261,32 @@ const paths: Record<string, any> = {
 					content: {
 						'application/json': {
 							schema: {
-								type: 'object',
-								properties: {
-									success: { type: 'boolean', enum: [true] },
-								},
+								$ref: '#/components/schemas/ApiSuccessOk',
 							},
 						},
 					},
 				},
 				'401': { description: 'Unauthorized' },
+				'403': {
+					description: 'Forbidden',
+					content: {
+						'application/json': {
+							schema: {
+								$ref: '#/components/schemas/ErrorResponse',
+							},
+						},
+					},
+				},
+				'404': {
+					description: 'Product not found or already deleted',
+					content: {
+						'application/json': {
+							schema: {
+								$ref: '#/components/schemas/ErrorResponse',
+							},
+						},
+					},
+				},
 			},
 		},
 	},

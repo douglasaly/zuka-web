@@ -30,11 +30,62 @@ export const CreateProductSchema = z.object({
 	description: z.string().max(5000).optional(),
 	categoryId: z.uuid('Categoria inválida'),
 	price: z.number().positive('O valor do produto deve ser maior que 0'),
-	discountPrice: z.number().positive('O valor do desconto do produto deve ser maior que 0').optional(),
+	discountPrice: z
+		.number()
+		.positive('O valor do desconto do produto deve ser maior que 0')
+		.optional(),
 	currency: z.string().length(3).default('MZN'),
 	imageUrl: z.url().optional(),
 	imageUrls: z.array(z.url()).max(8).optional(),
 	status: z.enum(['DRAFT', 'ACTIVE', 'INACTIVE']).optional(),
+})
+const PRODUCT_STATUS = [
+	'DRAFT',
+	'PENDING_REVIEW',
+	'ACTIVE',
+	'INACTIVE',
+	'OUT_OF_STOCK',
+	'ARCHIVED',
+	'DELETED',
+] as const
+export const AdminUpdateProductSchema = z.object({
+	name: z.string().min(1, 'Nome é obrigatório').max(255).optional(),
+	description: z.string().max(5000).nullable().optional(),
+	category_id: z.uuid('Categoria inválida').optional(),
+	categoryId: z.uuid('Categoria inválida').optional(),
+	price: z.coerce.number().nonnegative().optional(),
+	discount_price: z.coerce.number().nonnegative().nullable().optional(),
+	discountPrice: z.coerce.number().nonnegative().nullable().optional(),
+	currency: z.string().length(3).optional(),
+	status: z.enum(PRODUCT_STATUS).optional(),
+	is_visible: z.boolean().optional(),
+	isVisible: z.boolean().optional(),
+})
+export const AdminListQuerySchema = z.object({
+	search: z.string().max(120).optional().default(''),
+	status: z.string().optional().default(''),
+	page: z.coerce.number().int().min(1).default(1),
+	limit: z.coerce.number().int().min(1).max(100).default(50),
+})
+export function sanitizeIlikeTerm(value: string): string {
+	return value
+		.replace(/[%_*,.()]/g, ' ')
+		.replace(/\s+/g, ' ')
+		.trim()
+		.slice(0, 80)
+}
+export function sanitizeFtsTerm(value: string): string {
+	return value
+		.replace(/[^\p{L}\p{N}\s]/gu, ' ')
+		.replace(/\s+/g, ' ')
+		.trim()
+		.slice(0, 80)
+}
+export const UpdateProfileSchema = z.object({
+	firstName: z.string().max(80).optional(),
+	lastName: z.string().max(80).optional(),
+	phoneNumber: z.string().max(30).optional(),
+	avatarUrl: z.union([z.url(), z.literal('')]).optional(),
 })
 
 export const StoreFiltersSchema = z.object({

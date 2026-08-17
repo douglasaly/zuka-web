@@ -1,15 +1,31 @@
+import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { requireAdminUser } from '@/lib/auth/admin'
-import { assignUserRole, getUserRoles } from '@/lib/auth/roles'
+import { withErrorHandling } from '@/lib/axios/api-response'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
-export async function GET(req: Request) {
+import { AdminListQuerySchema, sanitizeIlikeTerm } from '@/lib/validations'
+
+type RoleEmbed = { name?: string } | { name?: string }[] | null
+
+function embedRoleName(roles: RoleEmbed): string | undefined {
+	if (Array.isArray(roles)) return roles[0]?.name
+	return roles?.name
+}
+
+export const GET = withErrorHandling(async (request: NextRequest) => {
 	await requireAdminUser()
-	const { searchParams } = new URL(req.url)
-	const search = searchParams.get('search') ?? ''
-	const statusFilter = searchParams.get('status') ?? ''
-	const page = Number(searchParams.get('page') ?? 1)
-	const limit = Math.min(Number(searchParams.get('limit') ?? 50), 100)
-	const offset = (page - 1) * limit
+	const { searchParams } = new URL(request.url)
+	const parsed = AdminListQuerySchema.safeParse({
+		search: searchParams.get('search') ?? undefined,
+		status: searchParams.get('status') ?? undefined,
+		page: searchParams.get('page') ?? undefined,
+		limit: searchParams.get('limit') ?? undefined,
+	})
+	const params = parsed.success
+		? parsed.data
+		: { search: '', status: '', page: 1, limit: 50 }
+	const search = sanitizeIlikeTerm(params.search)
+	const offset = (params.page - 1) * params.limit
 	const supabase = createSupabaseAdmin()
 	let query = supabase
 		.from('users')
@@ -18,26 +34,52 @@ export async function GET(req: Request) {
 		)
 		.is('deleted_at', null)
 		.order('created_at', { ascending: false })
-		.range(offset, offset + limit - 1)
-	if (search)
+		.range(offset, offset + params.limit - 1)
+	if (search) {
 		query = query.or(
 			`email.ilike.%${search}%,first_name.ilike.%${search}%,last_name.ilike.%${search}%`
 		)
-	if (statusFilter) query = query.eq('status', statusFilter)
+	}
+	if (params.status) query = query.eq('status', params.status)
 	const { data, error } = await query
-	if (error)
-		return NextResponse.json({ error: error.message }, { status: 500 })
-	const users = await Promise.all(
-		(data ?? []).map(async (user) => {
-			const roles = await getUserRoles(user.id as string)
-			const { data: store } = await supabase
-				.from('stores')
-				.select('id, name, slug, status')
-				.eq('owner_id', user.id as string)
-				.is('deleted_at', null)
-				.maybeSingle()
-			return { ...user, roles, store: store ?? null }
-		})
-	)
-	return NextResponse.json({ users })
-}
+	if (error) throw error
+	const users = data ?? []
+	const userIds = users.map((user) => user.id)
+	if (userIds.length === 0) {
+		return NextResponse.json({ users: [] })
+	}
+	const [rolesResult, storesResult] = await Promise.all([
+		supabase
+			.from('user_roles')
+			.select('user_id, roles(name)')
+			.in('user_id', userIds),
+		supabase
+			.from('stores')
+			.select('id, name, slug, status, owner_id')
+			.in('owner_id', userIds)
+			.is('deleted_at', null),
+	])
+	if (rolesResult.error) throw rolesResult.error
+	if (storesResult.error) throw storesResult.error
+	const rolesByUser = new Map<string, string[]>()
+	for (const row of rolesResult.data ?? []) {
+		const name = embedRoleName(row.roles as RoleEmbed)
+		if (!name) continue
+		const list = rolesByUser.get(row.user_id) ?? []
+		list.push(name)
+		rolesByUser.set(row.user_id, list)
+	}
+	const storeByOwner = new Map<string, (typeof storesResult.data)[number]>()
+	for (const store of storesResult.data ?? []) {
+		if (!storeByOwner.has(store.owner_id)) {
+			storeByOwner.set(store.owner_id, store)
+		}
+	}
+	return NextResponse.json({
+		users: users.map((user) => ({
+			...user,
+			roles: rolesByUser.get(user.id) ?? [],
+			store: storeByOwner.get(user.id) ?? null,
+		})),
+	})
+})

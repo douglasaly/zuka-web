@@ -70,31 +70,40 @@
 
 - [x] Fix N+1 com subqueries inline (`product_count:products(count)`, `follower_count:store_followers(count)`)
 - [x] Adicionado `verified_at` ao select
-- [x] Usando `mapStoreRow` para返回 `StoreProfile` correto com `location`, `neighborhood`, etc.
+- [x] Usando `mapStoreRow` para retornar `StoreProfile` correto com `location`, `neighborhood`, etc.
 
 ### 3.2 🔴 `GET /api/admin/stores` — mesmo problema
 
-- [ ] Refatorar — reutilizar padrão de subqueries ou criar RPC
+- [x] Refatorar — reutilizar padrão de subqueries (`product_count:products(count)`, `follower_count:store_followers(count)`)
+- [x] Swagger `GET /api/admin/stores` actualizado
 
 ### 3.3 🔴 `GET /api/admin/users` — 100+ queries
 
-- [ ] Refatorar com joins/subqueries para roles + store
+- [x] Refatorar com 3 queries em lote: users + `user_roles` + `stores` via `.in('user_id' / 'owner_id')`
+- [x] Swagger `GET /api/admin/users` actualizado
 
 ### 3.4 🟠 `GET /api/admin/analytics` — 23 queries
 
-- [ ] Refatorar com uma única query usando subqueries correlacionadas
+- [x] 4 queries em paralelo (`Promise.all`) + nested counts nas top stores
+- [x] Swagger `GET /api/admin/analytics` actualizado
 
 ### 3.5 🟠 `GET /api/me/profile` — 4+ queries sequenciais + N+1 stores
 
-- [ ] Paralelizar com `Promise.all` e usar RPC para product counts
+- [x] Paralelizar com `Promise.all` e nested `product_count:products(count)`
+- [x] PATCH com `UpdateProfileSchema` (allowlist)
+- [x] Swagger `GET|PATCH /api/me/profile` actualizado
 
 ### 3.6 🟠 `GET /api/seller/unread-counts` — Carrega todas as messages na memória
 
-- [ ] Substituir por SQL COUNT com filtro
+- [x] Substituir por RPC `count_store_unread_conversations` (SQL `COUNT` + `EXISTS`)
+- [x] Fallback: 3 queries com `last_message_id` se a função ainda não estiver aplicada
+- [x] Swagger `GET /api/seller/unread-counts` actualizado
+- [ ] Aplicar migration `supabase/migrations/20260817144125_count_store_unread_conversations.sql` no Supabase (SQL editor ou `supabase db query --linked -f ...`)
 
 ### 3.7 🟡 `GET /api/stores/conversations` — Fetch de todas as buyer messages
 
-- [ ] Substituir por COUNT com filtro `created_at > last_read_at`
+- [x] Unread via última mensagem (`store_id` + `created_at` vs `last_read_at`) — sem scan de todas as mensagens da página
+- [x] Swagger `GET /api/stores/conversations` actualizado
 
 ### 3.8 🟡 `GET /api/admin/notifications` — Fetch 1000 rows → group in JS
 
@@ -135,16 +144,16 @@
 | **Alta** | `GET /api/conversations/[id]/messages` | ✅ Convertido — cursor-based |
 | **Alta** | `POST /api/conversations/[id]/messages` | ✅ Convertido — validação zod |
 | **Média** | `GET /api/notifications` | ❌ Pendente |
-| **Média** | `GET /api/orders` | ❌ Pendente |
-| **Média** | `GET /api/seller/*` | ❌ Pendente |
-| **Baixa** | `GET /api/admin/*` | ❌ Pendente |
+| **Média** | `GET /api/orders` | ✅ Convertido — cursor-based |
+| **Média** | `GET /api/seller/*` | 🟡 Parcial — `GET /api/seller/unread-counts` (RPC COUNT) |
+| **Baixa** | `GET /api/admin/*` | 🟡 Parcial — `GET /api/admin/stores`, `GET /api/admin/users`, `PATCH|DELETE /api/admin/products/[id]` |
 | **Baixa** | `GET /api/auth/*` | ❌ Pendente |
 | **Baixa** | `POST /api/uploads/*` | ❌ Pendente |
 
 ### 4.5 Validção com zod schemas
 
-- [x] Criado `src/lib/validations.ts` com: `OffsetPaginationSchema`, `CursorPaginationSchema`, `ProductFiltersSchema`, `CreateProductSchema`, `StoreFiltersSchema`, `CreateStoreSchema`, `CreateConversationSchema`, `SendMessageSchema`, `MarkNotificationsReadSchema`
-- [x] Helpers `parseQueryParams` e `parseBody`
+- [x] Criado `src/lib/validations.ts` com: `OffsetPaginationSchema`, `CursorPaginationSchema`, `ProductFiltersSchema`, `CreateProductSchema`, `AdminUpdateProductSchema`, `AdminListQuerySchema`, `StoreFiltersSchema`, `CreateStoreSchema`, `CreateConversationSchema`, `SendMessageSchema`, `MarkNotificationsReadSchema`, `UpdateProfileSchema`
+- [x] Helpers `parseQueryParams`, `parseBody` e `sanitizeIlikeTerm`
 
 ### 4.6 Auth unificada
 
@@ -173,7 +182,7 @@
 | `GET /api/stores` | offset-based | ✅ Convertido (offset com `hasMore`) |
 | `GET /api/stores/[slug]/products` | Já usa cursor | ✅ |
 | `GET /api/notifications` | `created_at` | ❌ Pendente |
-| `GET /api/orders` | `created_at` | ❌ Pendente |
+| `GET /api/orders` | `created_at` | ✅ Convertido |
 | `GET /api/seller/products` | `created_at` | ❌ Pendente |
 | `GET /api/seller/orders` | `created_at` | ❌ Pendente |
 | `GET /api/saved-items` | `created_at` | ❌ Pendente |
@@ -237,19 +246,21 @@
 
 ### 6.1 🔴 `PATCH /api/admin/products/[id]` — Mass-Assignment
 
-- [ ] Allowlist explícita de campos
+- [x] Allowlist explícita via `AdminUpdateProductSchema` (ignora `id`, `store_id`, `deleted_at`, etc.)
+- [x] `PATCH`/`DELETE` com `requireAdmin` + `withErrorHandling`
+- [x] Swagger `PATCH|DELETE /api/admin/products/{id}` actualizado (`AdminUpdateProductInput`, `{ success, data: { ok } }`)
 
 ### 6.2 Validação de inputs com zod
 
 - [x] Criado `src/lib/validations.ts` com schemas para products, stores, conversations, messages
 - [x] Rotas convertidas usam `safeParse` + `apiError(ErrorCode.VALIDATION_ERROR, ...)`
-- [ ] Falta validar rotas de notifications, orders, admin
+- [x] Admin products PATCH e `PATCH /api/me/profile` validados; falta notifications, resto do admin
 
 ### 6.3 Validação de query params
 
 - [x] `OffsetPaginationSchema` e `CursorPaginationSchema` com `z.coerce`
-- [x] `ProductFiltersSchema` e `StoreFiltersSchema`
-- [ ] Falta schemas para orders, notifications, admin routes
+- [x] `ProductFiltersSchema`, `StoreFiltersSchema` e `AdminListQuerySchema`
+- [ ] Falta schemas para orders, notifications, resto do admin
 
 ### 6.4 Autenticação: Padronizar helpers
 
@@ -274,7 +285,7 @@
 ### 7.3 Paralelizar queries sequenciais
 
 - [x] `GET /api/conversations/[id]/messages` — usa `Promise.all` para batch unread counts
-- [ ] Falta aplicar em `me/profile`, `onboarding/verification`
+- [x] `GET /api/me/profile` — `Promise.all` (roles + seller, depois onboarding + stores)
 
 ### 7.4 Select específicos (não usar `*`)
 
@@ -283,6 +294,8 @@
 - [x] `GET /api/conversations` — select explícito com joins
 - [x] `GET /api/conversations/[id]/messages` — select explícito
 - [x] `GET /api/categories` — select explícito
+- [x] `GET /api/admin/stores` — select explícito + nested counts
+- [x] `GET /api/admin/users` — select explícito (users + batch roles/stores)
 
 ### 7.5 Pagination com `count: 'exact'`
 
@@ -296,14 +309,15 @@
 
 ### 8.1 Problema atual
 
-- [ ] `GET /api/search` usa `ILIKE('%term%')` — full table scan
+- [x] `GET /api/search` combina ILIKE no `name` (substring) com FTS prefixado no `search_vector`; fallback ILIKE se o filtro FTS falhar
 
 ### 8.2 Solução: PostgreSQL Full-Text Search com tsvector
 
-- [ ] Criar coluna `search_vector` em products, stores, categories
-- [ ] Criar índices GIN
+- [x] Criar coluna `search_vector` em products, stores, categories — migration `20260817150223_marketplace_search_vector.sql`
+- [x] Criar índices GIN (parciais, `WHERE deleted_at IS NULL`)
 - [ ] Criar função RPC `search_marketplace`
-- [ ] Simplificar route handler
+- [x] Route handler usa `textSearch` (config `portuguese`) com fallback ILIKE
+- [ ] Aplicar a migration no Supabase
 
 ---
 
@@ -314,18 +328,18 @@
 | # | Tarefa | Tipo | Estado |
 |---|--------|------|--------|
 | 1 | Criar migration de índices (Fase 2.1–2.7) | DB | ✅ Feito (aplicado direto no Supabase) |
-| 2 | Fix mass-assignment em `admin/products/[id]` | Security | ❌ Pendente |
+| 2 | Fix mass-assignment em `admin/products/[id]` | Security | ✅ Feito (`AdminUpdateProductSchema`) |
 | 3 | Adicionar paginação a `conversations/[id]/messages` | API | ✅ Feito (cursor-based) |
-| 4 | Adicionar paginação a `orders` (buyer) | API | ❌ Pendente |
+| 4 | Adicionar paginação a `orders` (buyer) | API | ✅ Feito (cursor-based) |
 
 ### Sprint 2 (Curto prazo — 3-5 dias)
 
 | # | Tarefa | Tipo | Estado |
 |---|--------|------|--------|
 | 5 | Refatorar `GET /api/stores` N+1 | API + DB | ✅ Feito (subqueries inline) |
-| 6 | Refatorar `GET /api/admin/stores` N+1 | API + DB | ❌ Pendente |
-| 7 | Refatorar `GET /api/admin/users` N+1 | API + DB | ❌ Pendente |
-| 8 | Refatorar `GET /api/seller/unread-counts` → SQL COUNT | API | ❌ Pendente |
+| 6 | Refatorar `GET /api/admin/stores` N+1 | API + DB | ✅ Feito (subqueries inline) |
+| 7 | Refatorar `GET /api/admin/users` N+1 | API + DB | ✅ Feito (batch `.in()`) |
+| 8 | Refatorar `GET /api/seller/unread-counts` → SQL COUNT | API | ✅ Feito (RPC + fallback) |
 | 9 | Padronizar formato de resposta + criar helpers | API | ✅ Feito (api-response.ts, api-handler.ts) |
 | 10 | Centralizar error handling | API | ✅ Feito (withErrorHandling) |
 
@@ -333,13 +347,13 @@
 
 | # | Tarefa | Tipo | Estado |
 |---|--------|------|--------|
-| 11 | Implementar cursor-based pagination em rotas principais | API | ✅ Feito (products, conversations, messages) |
+| 11 | Implementar cursor-based pagination em rotas principais | API | ✅ Feito (products, conversations, messages, orders) |
 | 12 | Criar `useInfiniteList` hook genérico | Frontend | ✅ Feito |
 | 13 | Criar hooks `useInfinite*` específicos | Frontend | ✅ 2/8 feitos (products, stores no explore) |
 | 14 | Adicionar `InfiniteScrollTrigger` component | Frontend | ✅ Feito |
-| 15 | Refatorar `admin/analytics` → RPC | API + DB | ❌ Pendente |
-| 16 | Refatorar `me/profile` → Promise.all + RPC | API | ❌ Pendente |
-| 17 | Full-text search com tsvector + GIN | DB + API | ❌ Pendente |
+| 15 | Refatorar `admin/analytics` → RPC | API + DB | ✅ Feito (4 queries + nested counts) |
+| 16 | Refatorar `me/profile` → Promise.all + RPC | API | ✅ Feito (Promise.all + nested counts) |
+| 17 | Full-text search com tsvector + GIN | DB + API | 🟡 Parcial — migration + textSearch; falta aplicar e RPC |
 | 18 | Validar todos os inputs com zod schemas | API | ✅ Feito (rotas principais) |
 | 19 | Cache de categorias/províncias | API | ❌ Pendente |
 
@@ -352,7 +366,7 @@
 | 22 | Select específicos em todos os queries | API | ✅ Feito (rotas convertidas) |
 | 23 | Triggers `updated_at` nas 7 tabelas | DB | ❌ Pendente |
 | 24 | Refatorar `admin/notifications` → SQL GROUP BY | API | ❌ Pendente |
-| 25 | Refatorar `stores/conversations` unread → COUNT | API | ❌ Pendente |
+| 25 | Refatorar `stores/conversations` unread → COUNT | API | ✅ Feito (last_message store_id vs last_read_at) |
 
 ---
 
@@ -378,19 +392,20 @@ Toda nova rota DEVE seguir:
 | Rota | Estado Atual | Fase | Estado |
 |------|-------------|------|--------|
 | `GET /api/stores` | N+1 → subqueries inline | Fase 2 | ✅ Feito |
-| `GET /api/admin/stores` | 🔴 N+1 (100+ queries) | Fase 2 | ❌ Pendente |
-| `GET /api/admin/users` | 🔴 N+1 (100+ queries) | Fase 2 | ❌ Pendente |
-| `GET /api/admin/analytics` | 🔴 23 queries | Fase 2 | ❌ Pendente |
-| `GET /api/me/profile` | 🟡 4+ seq queries + N+1 | Fase 2 | ❌ Pendente |
-| `GET /api/seller/unread-counts` | 🟠 Fetch all messages | Fase 2 | ❌ Pendente |
+| `GET /api/admin/stores` | N+1 → subqueries inline | Fase 2 | ✅ Feito |
+| `GET /api/admin/users` | N+1 → 3 queries em lote | Fase 2 | ✅ Feito |
+| `GET /api/admin/analytics` | 4 queries + nested counts | Fase 2 | ✅ Feito |
+| `GET /api/me/profile` | Promise.all + nested counts | Fase 2 | ✅ Feito |
+| `GET /api/seller/unread-counts` | RPC COUNT + EXISTS | Fase 2 | ✅ Feito |
+| `GET /api/stores/conversations` | Unread via last_message | Fase 2 | ✅ Feito |
 | `GET /api/conversations` | Cursor-based + useInfiniteQuery | Fase 4 | ✅ Feito |
 | `GET /api/conversations/[id]/messages` | Cursor-based | Fase 4 | ✅ Feito |
 | `GET /api/notifications` | 🟡 Offset-based | Fase 4 | ❌ Pendente |
 | `GET /api/products` | Cursor-based + useInfiniteQuery | Fase 4 | ✅ Feito |
-| `GET /api/orders` | 🟠 No pagination | Fase 4 | ❌ Pendente |
+| `GET /api/orders` | Cursor-based | Fase 4 | ✅ Feito |
 | `GET /api/seller/products` | 🟡 Category filter in JS | Fase 2 | ❌ Pendente |
-| `GET /api/search` | 🟠 ILIKE full scan | Fase 7 | ❌ Pendente |
-| `PATCH /api/admin/products/[id]` | 🔴 Mass-assignment | Fase 5 | ❌ Pendente |
+| `GET /api/search` | FTS + GIN (fallback ILIKE) | Fase 7 | 🟡 Parcial (aplicar migration) |
+| `PATCH /api/admin/products/[id]` | Allowlist zod | Fase 5 | ✅ Feito |
 | `GET /api/stores/[slug]/products` | ✅ Cursor-based | — | ✅ |
 | `GET /api/categories` | ✅ Lookup table + apiSuccess | — | ✅ |
 | `GET /api/provinces` | ✅ Lookup table | — | ✅ |
