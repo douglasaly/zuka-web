@@ -8,7 +8,6 @@ type SettingsRowProps = {
 	onClick?: () => void
 	destructive?: boolean
 }
-
 export const SettingsRow = ({
 	icon: Icon,
 	title,
@@ -18,7 +17,6 @@ export const SettingsRow = ({
 	destructive = false,
 }: SettingsRowProps) => {
 	const Wrapper = onClick ? 'button' : 'div'
-
 	return (
 		<Wrapper
 			type={onClick ? 'button' : undefined}
@@ -41,9 +39,7 @@ export const SettingsRow = ({
 
 			<div className='flex-1 min-w-0'>
 				<p
-					className={`text-sm font-medium ${
-						destructive ? 'text-destructive' : ''
-					}`}
+					className={`text-sm font-medium ${destructive ? 'text-destructive' : ''}`}
 				>
 					{title}
 				</p>

@@ -1,10 +1,4 @@
 'use client'
-
-/**
- * Order detail Sheet — matches product preview shell: sticky header,
- * scroll body, sticky footer actions. Operate grammar only.
- */
-
 import { useQuery } from '@tanstack/react-query'
 import {
 	CheckCircle2,
@@ -31,13 +25,11 @@ import { cn } from '@/lib/utils'
 import { formatPrice } from '@/utils/format-price'
 import { ReviewBadge } from './orders/review-badge'
 import type { ReviewState } from './orders/types'
-
 export type OrderSheetPendingAction = {
 	orderId: string
 	shortId: string
 	nextStatus: Extract<OrderStatus, 'SHIPPING' | 'COMPLETED' | 'CANCELLED'>
 }
-
 type OrderDetail = {
 	id: string
 	status: OrderStatus
@@ -70,7 +62,6 @@ type OrderDetail = {
 		note?: string
 	}>
 }
-
 function formatDateTime(iso: string) {
 	return new Date(iso).toLocaleString('pt-PT', {
 		day: 'numeric',
@@ -80,7 +71,6 @@ function formatDateTime(iso: string) {
 		minute: '2-digit',
 	})
 }
-
 function formatOrderDate(iso: string) {
 	return new Date(iso).toLocaleDateString('pt-PT', {
 		day: 'numeric',
@@ -88,7 +78,6 @@ function formatOrderDate(iso: string) {
 		year: 'numeric',
 	})
 }
-
 function timelineDotClass(status: OrderStatus) {
 	switch (status) {
 		case 'COMPLETED':
@@ -101,7 +90,6 @@ function timelineDotClass(status: OrderStatus) {
 			return 'bg-amber-500'
 	}
 }
-
 function SheetSkeleton() {
 	return (
 		<>
@@ -124,7 +112,6 @@ function SheetSkeleton() {
 		</>
 	)
 }
-
 export function SellerOrderDetailSheetContent({
 	orderId,
 	onAction,
@@ -144,9 +131,7 @@ export function SellerOrderDetailSheetContent({
 			return json.order as OrderDetail
 		},
 	})
-
 	if (isLoading) return <SheetSkeleton />
-
 	if (isError || !data) {
 		return (
 			<>
@@ -177,7 +162,6 @@ export function SellerOrderDetailSheetContent({
 			</>
 		)
 	}
-
 	const shortId = data.id.slice(0, 8)
 	const canShip = data.status === 'PENDING' || data.status === 'CONTACTED'
 	const canComplete = data.status === 'SHIPPING'
@@ -186,7 +170,6 @@ export function SellerOrderDetailSheetContent({
 		data.status === 'CONTACTED' ||
 		data.status === 'SHIPPING'
 	const hasActions = canShip || canComplete || canCancel
-
 	return (
 		<>
 			<SheetHeader className='shrink-0 border-b border-border px-6 py-4'>

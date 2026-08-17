@@ -1,5 +1,4 @@
 'use client'
-
 import type { Address } from '@/app/api/addresses/types'
 import { AddressCard } from '../components/addresses/address-card'
 
@@ -9,7 +8,6 @@ type AddressesListProps = {
 	onSetDefault: (id: string) => void
 	onDelete: (id: string) => void
 }
-
 export function AddressesList({
 	addresses,
 	deleting,

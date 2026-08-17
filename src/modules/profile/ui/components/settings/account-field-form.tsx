@@ -1,5 +1,4 @@
 'use client'
-
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
@@ -11,20 +10,16 @@ import type { SettingField } from '../../../constants'
 type AccountFieldsFormProps = {
 	fields: SettingField[]
 }
-
 export const AccountFieldsForm = ({ fields }: AccountFieldsFormProps) => {
 	const queryClient = useQueryClient()
 	const [values, setValues] = useState<Record<string, string>>({})
 	const [isSaving, setIsSaving] = useState(false)
-
 	useEffect(() => {
 		setValues(Object.fromEntries(fields.map((f) => [f.id, f.value])))
 	}, [fields])
-
 	const handleChange = (id: string, value: string) => {
 		setValues((prev) => ({ ...prev, [id]: value }))
 	}
-
 	const handleSave = async () => {
 		setIsSaving(true)
 		try {
@@ -37,12 +32,10 @@ export const AccountFieldsForm = ({ fields }: AccountFieldsFormProps) => {
 					phoneNumber: values.phone,
 				}),
 			})
-
 			if (!res.ok) {
 				const err = await res.json().catch(() => ({}))
 				throw new Error(err.error ?? 'Erro ao guardar')
 			}
-
 			await queryClient.invalidateQueries({ queryKey: ['user-profile'] })
 			toast.success('Perfil atualizado com sucesso')
 		} catch (err) {
@@ -55,7 +48,6 @@ export const AccountFieldsForm = ({ fields }: AccountFieldsFormProps) => {
 			setIsSaving(false)
 		}
 	}
-
 	if (fields.length === 0) {
 		return (
 			<div className='space-y-4 p-4'>
@@ -70,7 +62,6 @@ export const AccountFieldsForm = ({ fields }: AccountFieldsFormProps) => {
 			</div>
 		)
 	}
-
 	return (
 		<div className='space-y-4 p-4'>
 			<div className='grid gap-4 sm:grid-cols-2'>

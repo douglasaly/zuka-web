@@ -1,5 +1,4 @@
 'use client'
-
 import {
 	Table,
 	TableBody,
@@ -14,7 +13,6 @@ type PendingStoresListProps = {
 	stores: StoreRow[]
 	onReview: (id: string) => void
 }
-
 export function PendingStoresList({
 	stores,
 	onReview,

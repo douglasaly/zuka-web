@@ -17,7 +17,6 @@ function Pagination({ className, ...props }: React.ComponentProps<'nav'>) {
 		/>
 	)
 }
-
 function PaginationContent({
 	className,
 	...props
@@ -30,16 +29,13 @@ function PaginationContent({
 		/>
 	)
 }
-
 function PaginationItem({ ...props }: React.ComponentProps<'li'>) {
 	return <li data-slot='pagination-item' {...props} />
 }
-
 type PaginationLinkProps = {
 	isActive?: boolean
 } & Pick<React.ComponentProps<typeof Button>, 'size'> &
 	React.ComponentProps<'a'>
-
 function PaginationLink({
 	className,
 	isActive,
@@ -63,12 +59,13 @@ function PaginationLink({
 		/>
 	)
 }
-
 function PaginationPrevious({
 	className,
 	text = 'Anterior',
 	...props
-}: React.ComponentProps<typeof PaginationLink> & { text?: string }) {
+}: React.ComponentProps<typeof PaginationLink> & {
+	text?: string
+}) {
 	return (
 		<PaginationLink
 			aria-label='Ir para página anterior'
@@ -81,12 +78,13 @@ function PaginationPrevious({
 		</PaginationLink>
 	)
 }
-
 function PaginationNext({
 	className,
 	text = 'Seguinte',
 	...props
-}: React.ComponentProps<typeof PaginationLink> & { text?: string }) {
+}: React.ComponentProps<typeof PaginationLink> & {
+	text?: string
+}) {
 	return (
 		<PaginationLink
 			aria-label='Ir para página seguinte'
@@ -99,7 +97,6 @@ function PaginationNext({
 		</PaginationLink>
 	)
 }
-
 function PaginationEllipsis({
 	className,
 	...props
@@ -119,7 +116,6 @@ function PaginationEllipsis({
 		</span>
 	)
 }
-
 export {
 	Pagination,
 	PaginationContent,

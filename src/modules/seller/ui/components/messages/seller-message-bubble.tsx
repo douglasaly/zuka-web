@@ -1,5 +1,4 @@
 'use client'
-
 import { cn } from '@/lib/utils'
 import { formatTime } from '@/utils/format-time'
 
@@ -8,7 +7,6 @@ type SellerMessageBubbleProps = {
 	createdAt: string
 	isStore: boolean
 }
-
 export function SellerMessageBubble({
 	content,
 	createdAt,

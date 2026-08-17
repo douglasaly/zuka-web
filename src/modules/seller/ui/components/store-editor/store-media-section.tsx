@@ -1,5 +1,4 @@
 'use client'
-
 import { Loader2, Upload, X } from 'lucide-react'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
@@ -18,10 +17,8 @@ type StoreMediaSectionProps = {
 	onChange: (patch: Partial<StoreFormState>) => void
 	onUploadingChange?: (uploading: boolean) => void
 }
-
 const ACCEPTED = new Set(['image/jpeg', 'image/png', 'image/webp'])
 const MAX_SIZE = 5 * 1024 * 1024
-
 export function StoreMediaSection({
 	form,
 	onChange,
@@ -32,13 +29,10 @@ export function StoreMediaSection({
 	const [cropOpen, setCropOpen] = useState(false)
 	const [logoUploading, setLogoUploading] = useState(false)
 	const [bannerUploading, setBannerUploading] = useState(false)
-
 	const mediaBusy = logoUploading || bannerUploading || cropOpen
-
 	useEffect(() => {
 		onUploadingChange?.(mediaBusy)
 	}, [mediaBusy, onUploadingChange])
-
 	async function handleRawFile(file: File | null) {
 		if (!file) return
 		if (!ACCEPTED.has(file.type)) {
@@ -52,7 +46,6 @@ export function StoreMediaSection({
 		setCropFile(file)
 		setCropOpen(true)
 	}
-
 	async function handleCropped(blob: Blob) {
 		setCropOpen(false)
 		setLogoUploading(true)
@@ -75,7 +68,6 @@ export function StoreMediaSection({
 			if (inputRef.current) inputRef.current.value = ''
 		}
 	}
-
 	return (
 		<>
 			<StoreSection

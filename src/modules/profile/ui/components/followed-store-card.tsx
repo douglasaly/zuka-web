@@ -1,7 +1,6 @@
 import { BadgeCheck, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { StoreAvatar } from '@/components/store-avatar'
-
 export type FollowedStore = {
 	followedAt: string | null
 	id: string
@@ -12,11 +11,9 @@ export type FollowedStore = {
 	verifiedAt: string | null
 	location: string
 }
-
 type FollowedStoreCardProps = {
 	store: FollowedStore
 }
-
 export const FollowedStoreCard = ({ store }: FollowedStoreCardProps) => {
 	return (
 		<Link

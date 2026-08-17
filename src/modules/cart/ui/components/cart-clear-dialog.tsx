@@ -1,5 +1,4 @@
 'use client'
-
 import {
 	AlertDialog,
 	AlertDialogCancel,
@@ -19,7 +18,6 @@ type CartClearDialogProps = {
 	confirmLabel: string
 	onConfirm: () => void
 }
-
 export function CartClearDialog({
 	open,
 	onOpenChange,

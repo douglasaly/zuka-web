@@ -35,7 +35,6 @@ type ProductRow = {
 	categories: Record<string, unknown> | null
 	product_images: Array<Record<string, unknown>> | null
 }
-
 function groupProductsWithRelations(rows: ProductRow[]) {
 	const map = new Map<
 		string,
@@ -46,7 +45,6 @@ function groupProductsWithRelations(rows: ProductRow[]) {
 			images: Array<Record<string, unknown>>
 		}
 	>()
-
 	for (const row of rows) {
 		if (!map.has(row.id)) {
 			const { stores, categories, product_images, ...product } = row
@@ -58,17 +56,10 @@ function groupProductsWithRelations(rows: ProductRow[]) {
 			})
 		}
 	}
-
 	return Array.from(map.values())
 }
-
-// ─── GET /api/products ──────────────────────────────────
-// Lista pública de produtos com filtros. Cursor-based.
-
 export const GET = withErrorHandling(async (request) => {
 	const { searchParams } = new URL(request.url)
-
-	// Parse filtros
 	const filters = ProductFiltersSchema.parse({
 		categoria: searchParams.get('categoria') ?? undefined,
 		search: searchParams.get('search') ?? undefined,
@@ -78,14 +69,11 @@ export const GET = withErrorHandling(async (request) => {
 		recente: searchParams.get('recente') ?? undefined,
 		ordenar: searchParams.get('ordenar') ?? undefined,
 	})
-
 	const { limit, cursor } = CursorPaginationSchema.parse({
 		limit: searchParams.get('limit') ?? undefined,
 		cursor: searchParams.get('cursor') ?? undefined,
 	})
-
 	const supabase = createSupabaseAdmin()
-
 	const [categoryIds, provLookup] = await Promise.all([
 		filters.categoria && filters.categoria !== 'all'
 			? resolveCategoryIds(supabase, filters.categoria)
@@ -98,10 +86,7 @@ export const GET = withErrorHandling(async (request) => {
 					.maybeSingle()
 			: Promise.resolve({ data: null }),
 	])
-
 	const provinceId = provLookup?.data?.id
-
-	// Construir query com filtros
 	let query = supabase
 		.from('products')
 		.select(
@@ -112,35 +97,27 @@ export const GET = withErrorHandling(async (request) => {
 		.eq('stores.status', 'ACTIVE')
 		.is('stores.deleted_at', null)
 		.limit(limit + 1)
-
 	if (categoryIds.length > 0) {
 		query = query.in('category_id', categoryIds)
 	}
-
 	if (provinceId) {
 		query = query.eq('stores.province_id', provinceId)
 	}
-
 	if (filters.search) {
 		query = query.ilike('name', `%${filters.search}%`)
 	}
-
 	if (filters.preco_min) {
 		query = query.gte('price', Math.round(filters.preco_min * 100))
 	}
-
 	if (filters.preco_max) {
 		query = query.lte('price', Math.round(filters.preco_max * 100))
 	}
-
 	if (filters.recente === 'true') {
 		const fourteenDaysAgo = new Date(
 			Date.now() - 14 * 24 * 60 * 60 * 1000
 		).toISOString()
 		query = query.gte('created_at', fourteenDaysAgo)
 	}
-
-	// Cursor-based ordering
 	if (filters.ordenar === 'price_asc') {
 		query = query.order('price', { ascending: true })
 	} else if (filters.ordenar === 'price_desc') {
@@ -148,7 +125,6 @@ export const GET = withErrorHandling(async (request) => {
 	} else {
 		query = query.order('created_at', { ascending: false })
 	}
-
 	if (
 		cursor &&
 		filters.ordenar !== 'price_asc' &&
@@ -156,52 +132,38 @@ export const GET = withErrorHandling(async (request) => {
 	) {
 		query = query.lt('created_at', cursor)
 	}
-
 	const { data, error } = await query
 	if (error) throw error
-
 	const hasMore = (data?.length ?? 0) > limit
 	const rows = (
 		hasMore ? data?.slice(0, limit) : (data ?? [])
 	) as ProductRow[]
-
 	const grouped = groupProductsWithRelations(rows)
-
 	const shouldShuffle =
 		filters.ordenar !== 'price_asc' &&
 		filters.ordenar !== 'price_desc' &&
 		filters.ordenar !== 'newest'
-
 	const result = shouldShuffle
 		? shuffleWithStoreDiversity(
 				grouped,
 				(item) => item.store?.id as string | undefined
 			)
 		: grouped
-
 	const lastRow = rows[rows.length - 1]
 	const nextCursor = hasMore ? (lastRow?.created_at ?? null) : null
-
 	return apiCursorList(result, { hasMore, nextCursor, limit })
 })
-
-// ─── POST /api/products ─────────────────────────────────
-// Criar produto (vendedor autenticado).
-
 export const POST = withErrorHandling(async (request) => {
 	const auth = await requireSellerStore({ permission: 'product.create' })
 	if (isSellerStoreAuthError(auth)) throw auth.error
-
 	const body = await request.json()
 	const parsed = CreateProductSchema.safeParse(body)
-
 	if (!parsed.success) {
 		return apiError(
 			ErrorCode.VALIDATION_ERROR,
 			parsed.error.issues[0].message
 		)
 	}
-
 	const {
 		name,
 		description,
@@ -213,39 +175,31 @@ export const POST = withErrorHandling(async (request) => {
 		imageUrls,
 		status,
 	} = parsed.data
-
 	const urls =
 		imageUrls && imageUrls.length > 0
 			? imageUrls
 			: imageUrl
 				? [imageUrl]
 				: []
-
 	if (urls.some((url) => !isR2PublicUrl(url))) {
 		return apiError(
 			ErrorCode.VALIDATION_ERROR,
 			'A imagem deve ser carregada para o armazenamento'
 		)
 	}
-
 	const nextStatus = status ?? 'ACTIVE'
 	const isVisible = nextStatus === 'ACTIVE'
-
 	const supabase = createSupabaseAdmin()
 	const productId = uuidv7()
 	let slug = Slug(name)
-
-	// Slug único
 	const { data: slugConflict } = await supabase
 		.from('products')
 		.select('id')
 		.eq('slug', slug)
 		.maybeSingle()
-
 	if (slugConflict) {
 		slug = `${slug}-${uuidv7().slice(0, 6)}`
 	}
-
 	const { data: product, error: productError } = await supabase
 		.from('products')
 		.insert({
@@ -264,9 +218,7 @@ export const POST = withErrorHandling(async (request) => {
 		})
 		.select('*')
 		.single()
-
 	if (productError) throw productError
-
 	if (urls.length > 0) {
 		await supabase.from('product_images').insert(
 			urls.map((url, index) => ({
@@ -279,6 +231,5 @@ export const POST = withErrorHandling(async (request) => {
 			}))
 		)
 	}
-
 	return apiSuccess({ product }, 201)
 })

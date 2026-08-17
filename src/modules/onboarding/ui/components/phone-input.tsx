@@ -12,7 +12,6 @@ interface PhoneInputProps {
 	className?: string
 	id?: string
 }
-
 export function PhoneInput({
 	value,
 	onChange,
@@ -21,7 +20,6 @@ export function PhoneInput({
 	id,
 }: PhoneInputProps) {
 	const display = formatMzMobileDisplay(value)
-
 	return (
 		<div
 			className={cn(

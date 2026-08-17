@@ -17,7 +17,6 @@ const avatarVariants = cva('', {
 		size: 'default',
 	},
 })
-
 interface UserAvatarProps extends VariantProps<typeof avatarVariants> {
 	imageUrl?: string | null
 	name: string
@@ -25,7 +24,6 @@ interface UserAvatarProps extends VariantProps<typeof avatarVariants> {
 	fClassName?: string
 	onClick?: () => void
 }
-
 export const UserAvatar = ({
 	imageUrl,
 	name,
@@ -35,7 +33,6 @@ export const UserAvatar = ({
 	size,
 }: UserAvatarProps) => {
 	const nameFallback = getInitials(name)
-
 	return (
 		<Avatar
 			className={cn(

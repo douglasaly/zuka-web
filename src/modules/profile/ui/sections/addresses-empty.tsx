@@ -1,12 +1,10 @@
 'use client'
-
 import { MapPin, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 type AddressesEmptyProps = {
 	onAdd: () => void
 }
-
 export function AddressesEmpty({ onAdd }: AddressesEmptyProps) {
 	return (
 		<div className='flex flex-col items-center gap-4 rounded-2xl border border-dashed border-border/60 px-4 py-16 text-center'>

@@ -1,13 +1,4 @@
 'use client'
-
-/**
- * THESIS: Store team roster — see who can act, invite by email, remove safely.
- * OWN-WORLD: Seller Operate (rounded-2xl, meta, full-bleed mobile).
- * STORY: Scan owner + Equipe → convidar → alterar função ou remover.
- * FIRST VIEWPORT: Count + Convidar + lista.
- * FORM: Extension of seller dashboard; store_members + RBAC seed.
- */
-
 import { useSellerMembers } from '@/modules/seller/hooks/use-seller-members'
 import { InviteMemberDialog } from '@/modules/seller/ui/components/members/invite-member-dialog'
 import { RemoveMemberDialog } from '@/modules/seller/ui/components/members/remove-member-dialog'
@@ -18,17 +9,13 @@ import {
 } from '@/modules/seller/ui/sections/seller-members-empty'
 import { SellerMembersListSection } from '@/modules/seller/ui/sections/seller-members-list-section'
 import { SellerMembersToolbar } from '@/modules/seller/ui/sections/seller-members-toolbar'
-
 export const SellerMembersView = () => {
 	useSetSellerPageMeta({
 		title: 'Membros',
 		crumbs: ['Dashboard', 'Loja', 'Membros'],
 	})
-
 	const m = useSellerMembers()
-
 	if (m.isLoading) return <SellerMembersLoading />
-
 	if (m.isError) {
 		return (
 			<SellerMembersError
@@ -37,7 +24,6 @@ export const SellerMembersView = () => {
 			/>
 		)
 	}
-
 	return (
 		<div className='w-full min-w-0 space-y-8 pb-10'>
 			<SellerMembersToolbar

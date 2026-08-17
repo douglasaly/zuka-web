@@ -1,5 +1,4 @@
 'use client'
-
 import { CheckCircle2, XCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -14,7 +13,6 @@ type StoreReviewActionsProps = {
 	onApprove: () => void
 	onReject: () => void
 }
-
 export function StoreReviewActions({
 	showReject,
 	rejectionReason,

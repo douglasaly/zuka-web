@@ -3,7 +3,6 @@ import { SearchX } from 'lucide-react'
 type SearchEmptyProps = {
 	query: string
 }
-
 export function SearchEmpty({ query }: SearchEmptyProps) {
 	return (
 		<div className='flex flex-col items-center justify-center gap-3 py-20'>

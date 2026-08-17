@@ -14,7 +14,6 @@ import { StatusBadge } from '../components/status-badge'
 type StoreDetailProductsProps = {
 	products: Record<string, unknown>[]
 }
-
 export function StoreDetailProducts({ products }: StoreDetailProductsProps) {
 	return (
 		<div className='rounded-2xl border border-border/60 bg-card overflow-hidden'>

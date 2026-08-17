@@ -1,5 +1,4 @@
 import { OnboardingAuthBar } from '@/modules/onboarding/ui/components/onboarding-auth-bar'
-
 export default function OnboardingLayout({
 	children,
 }: {

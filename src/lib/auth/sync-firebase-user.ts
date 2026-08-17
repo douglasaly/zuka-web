@@ -2,10 +2,8 @@ import type { DecodedIdToken } from 'firebase-admin/auth'
 import { uuidv7 } from 'uuidv7'
 import { assignUserRole } from '@/lib/auth/roles'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
-
 export async function syncFirebaseUser(decodedToken: DecodedIdToken) {
 	const supabase = createSupabaseAdmin()
-
 	const {
 		uid: firebaseUid,
 		email,
@@ -14,22 +12,18 @@ export async function syncFirebaseUser(decodedToken: DecodedIdToken) {
 		phone_number,
 		email_verified,
 	} = decodedToken
-
 	const fullName = name || decodedToken.name || 'Usuário'
 	const nameParts = fullName.trim().split(' ')
 	const firstName = nameParts[0]
 	const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : ''
-
 	const { data: existingUser, error: selectError } = await supabase
 		.from('users')
 		.select('*')
 		.eq('firebase_uid', firebaseUid)
 		.maybeSingle()
-
 	if (selectError) {
 		throw selectError
 	}
-
 	if (existingUser) {
 		const { data: updatedUser, error: updateError } = await supabase
 			.from('users')
@@ -45,14 +39,11 @@ export async function syncFirebaseUser(decodedToken: DecodedIdToken) {
 			.eq('firebase_uid', firebaseUid)
 			.select('*')
 			.single()
-
 		if (updateError) {
 			throw updateError
 		}
-
 		return updatedUser
 	}
-
 	const { data: newUser, error: insertError } = await supabase
 		.from('users')
 		.insert({
@@ -68,13 +59,10 @@ export async function syncFirebaseUser(decodedToken: DecodedIdToken) {
 		})
 		.select('*')
 		.single()
-
 	if (insertError) {
 		throw insertError
 	}
-
 	await assignUserRole(newUser.id as string, 'buyer')
-
 	await supabase.from('notifications').insert({
 		user_id: newUser.id,
 		type: 'system',
@@ -82,6 +70,5 @@ export async function syncFirebaseUser(decodedToken: DecodedIdToken) {
 		body: 'Estamos muito felizes por ter-te connosco. Explora os produtos, segue as tuas lojas favoritas e começa a comprar.',
 		link: '/',
 	})
-
 	return newUser
 }

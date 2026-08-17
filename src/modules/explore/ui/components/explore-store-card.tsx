@@ -8,7 +8,6 @@ import type { StoreProfile } from '@/types/marketplace'
 type ExploreStoreCardProps = {
 	store: StoreProfile
 }
-
 export const ExploreStoreCard = ({ store }: ExploreStoreCardProps) => (
 	<Link
 		href={`/lojas/${store.slug}`}

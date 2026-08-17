@@ -6,7 +6,6 @@ import {
 	TrendingUp,
 	Users,
 } from 'lucide-react'
-
 export type SellerStatData = {
 	id: string
 	icon: 'trending' | 'package' | 'whatsapp' | 'phone' | 'users' | 'eye'
@@ -14,7 +13,6 @@ export type SellerStatData = {
 	label: string
 	change?: number
 }
-
 const ICONS = {
 	trending: { Icon: TrendingUp, bg: 'bg-rose-100', fg: 'text-rose-500' },
 	package: { Icon: Package, bg: 'bg-blue-100', fg: 'text-blue-500' },
@@ -27,15 +25,12 @@ const ICONS = {
 	users: { Icon: Users, bg: 'bg-emerald-100', fg: 'text-emerald-500' },
 	eye: { Icon: Eye, bg: 'bg-amber-100', fg: 'text-amber-500' },
 } as const
-
 type SellerStatCardProps = {
 	stat: SellerStatData
 }
-
 export const SellerStatCard = ({ stat }: SellerStatCardProps) => {
 	const { Icon, bg, fg } = ICONS[stat.icon]
 	const isPositive = (stat.change ?? 0) >= 0
-
 	return (
 		<div className='rounded-2xl border bg-white p-5'>
 			<div

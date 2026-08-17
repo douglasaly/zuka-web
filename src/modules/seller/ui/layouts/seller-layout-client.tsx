@@ -1,16 +1,12 @@
 'use client'
-
 import { useRouter } from 'next/navigation'
 import { useNotificationPush } from '@/hooks/use-notification-push'
 import { useShortcuts } from '@/hooks/use-shortcut'
 import { useSellerAccess } from '@/modules/seller/hooks/use-seller-access'
-
 export const SellerLayoutClient = () => {
 	const router = useRouter()
 	const { can } = useSellerAccess()
-
 	useNotificationPush()
-
 	useShortcuts({
 		...(can('product.read')
 			? { p: () => router.push('/dashboard/seller/produtos') }
@@ -25,6 +21,5 @@ export const SellerLayoutClient = () => {
 			? { n: () => router.push('/dashboard/seller/produtos/novo') }
 			: {}),
 	})
-
 	return null
 }

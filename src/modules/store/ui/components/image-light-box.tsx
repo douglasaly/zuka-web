@@ -3,7 +3,6 @@ import Image from 'next/image'
 import { useEffect } from 'react'
 import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
-
 export const ImageLightbox = ({
 	src,
 	alt,
@@ -24,7 +23,6 @@ export const ImageLightbox = ({
 			document.body.style.overflow = ''
 		}
 	}, [onClose])
-
 	return (
 		<div
 			className='fixed inset-0 z-50 flex items-center justify-center bg-black/90'

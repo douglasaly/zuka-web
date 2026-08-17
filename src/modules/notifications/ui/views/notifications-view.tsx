@@ -1,135 +1,113 @@
 'use client'
-
-import { useQuery } from '@tanstack/react-query'
-import { ArrowLeft, Bell, CheckCheck } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { useMemo, useState } from 'react'
-import { IconTooltipButton } from '@/components/icon-tooltip-button'
-import { Button } from '@/components/ui/button'
-import { useNotifications } from '@/hooks/use-notifications'
-import { getNotifications } from '@/lib/api/notifications'
-import { EmptyState } from '@/modules/profile/ui/components/empty-state'
-import type { Notification, NotificationType } from '@/types/notifications'
-import { groupByDate } from '@/utils/group-by-date'
-import { NotificationsDateGroup } from '../components/notification-date-group'
+import { Skeleton } from '@/components/ui/skeleton'
+import { cn } from '@/lib/utils'
+import type { Notification } from '@/types/notifications'
+import { useNotificationsFeed } from '../../hooks/use-notifications-feed'
+import { NotificationsFilterBar } from '../components/notification-filter-bar'
+import { NotificationsAside } from '../components/notifications-aside'
 import {
-	type NotificationFilter,
-	NotificationsFilterBar,
-} from '../components/notification-filter-bar'
-import { NotificationsPageSkeleton } from '../components/notification-page-skeleton'
-
+	NotificationsError,
+	NotificationsLoading,
+	NotificationsSignedOut,
+} from '../sections/notifications-gates'
+import { NotificationsHeader } from '../sections/notifications-header'
+import { NotificationsListSection } from '../sections/notifications-list-section'
 export function NotificationsView() {
-	const router = useRouter()
-	const [filter, setFilter] = useState<NotificationFilter>('all')
-	const { markRead } = useNotifications()
-
-	const { data, isLoading } = useQuery({
-		queryKey: ['notifications', 'all'],
-		queryFn: () => getNotifications(20),
-	})
-
-	const notifications: Notification[] = data?.notifications ?? []
-	const unread = notifications.filter((n) => !n.readAt)
-
-	const unreadCounts = useMemo(() => {
-		const counts: Partial<Record<NotificationFilter, number>> = {
-			all: unread.length,
-		}
-		for (const n of unread) {
-			counts[n.type as NotificationType] =
-				(counts[n.type as NotificationType] ?? 0) + 1
-		}
-		return counts
-	}, [unread])
-
-	const filtered = useMemo(
-		() =>
-			filter === 'all'
-				? notifications
-				: notifications.filter((n) => n.type === filter),
-		[notifications, filter]
-	)
-
-	const groups = useMemo(() => groupByDate(filtered), [filtered])
-
+	const feed = useNotificationsFeed()
+	const openNotification = (notification: Notification) => {
+		if (notification.readAt) return
+		feed.setRead.mutate({ ids: [notification.id], read: true })
+	}
+	const toggleRead = (notification: Notification) => {
+		feed.setRead.mutate({
+			ids: [notification.id],
+			read: !notification.readAt,
+		})
+	}
+	const isLoading = feed.isLoadingSession || feed.isLoading
+	const isReady = feed.isAuthenticated && !isLoading && !feed.isError
+	const hasItems = isReady && feed.items.length > 0
+	const isSingleCard = !isLoading && !hasItems
 	return (
-		<div className='mx-auto max-w-2xl px-4 py-8 md:py-12'>
-			{/* HEADER */}
-			<div className='mb-8 flex items-start justify-between gap-4'>
-				<div className='flex gap-1 items-start'>
-					<IconTooltipButton
-						label='Voltar'
-						onClick={() => router.back()}
-					>
-						<ArrowLeft className='size-4' />
-					</IconTooltipButton>
+		<>
+			<div className='sticky top-0 z-30 bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/80'>
+				<div className='w-full max-w-7xl px-4 pt-5 pb-3 md:px-6 md:pt-7'>
+					<NotificationsHeader
+						unreadCount={feed.unreadCount}
+						isReady={isReady}
+						isMarkingAll={feed.markAllRead.isPending}
+						onMarkAllRead={() => feed.markAllRead.mutate()}
+						isFetching={feed.isFetching}
+						onRefresh={() => void feed.refetch()}
+					/>
 
-					<div>
-						<h1 className='font-heading text-2xl font-bold md:text-3xl'>
-							Notificações
-						</h1>
-						{!isLoading && (
-							<p className='mt-1 text-sm text-muted-foreground'>
-								{unread.length > 0
-									? `${unread.length} não ${unread.length === 1 ? 'lida' : 'lidas'}`
-									: 'Tudo em dia'}
-							</p>
-						)}
-					</div>
+					{isLoading ? (
+						<div className='mt-3 flex gap-2' aria-hidden>
+							{['todas', 'nao-lidas', 'pedidos'].map((chip) => (
+								<Skeleton
+									key={chip}
+									className='h-11 w-28 rounded-full'
+								/>
+							))}
+						</div>
+					) : null}
+
+					{hasItems ? (
+						<div className='mt-3'>
+							<NotificationsFilterBar
+								value={feed.filter}
+								onChange={feed.setFilter}
+								availableTypes={feed.availableTypes}
+								unreadCounts={feed.unreadCounts}
+							/>
+						</div>
+					) : null}
 				</div>
-
-				{unread.length > 0 && (
-					<Button
-						variant='outline'
-						size='sm'
-						className='shrink-0 gap-1.5'
-						onClick={() => markRead.mutate(unread.map((n) => n.id))}
-						disabled={markRead.isPending}
-					>
-						<CheckCheck className='size-4' />
-						Marcar todas como lidas
-					</Button>
-				)}
 			</div>
 
-			{/* FILTROS */}
-			{!isLoading && notifications.length > 0 && (
-				<div className='mb-6'>
-					<NotificationsFilterBar
-						value={filter}
-						onChange={setFilter}
-						unreadCounts={unreadCounts}
-					/>
-				</div>
-			)}
-
-			{/* CONTEÚDO */}
-			{isLoading ? (
-				<NotificationsPageSkeleton />
-			) : notifications.length === 0 ? (
-				<EmptyState
-					icon={Bell}
-					title='Tudo em dia'
-					description='Não tem notificações de momento'
-				/>
-			) : filtered.length === 0 ? (
-				<EmptyState
-					icon={Bell}
-					title='Sem notificações nesta categoria'
-					description='Selecione outro filtro para ver mais'
-				/>
-			) : (
-				<div className='space-y-8'>
-					{groups.map(([label, items]) => (
-						<NotificationsDateGroup
-							key={label}
-							label={label}
-							notifications={items}
-							onMarkRead={(id) => markRead.mutate([id])}
+			<div className='mx-auto flex w-full max-w-7xl items-start gap-8 px-4 pt-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] md:px-6 md:pt-6'>
+				<div
+					className={cn(
+						'min-w-0 flex-1',
+						isSingleCard && 'mx-auto max-w-2xl'
+					)}
+				>
+					{isLoading ? (
+						<NotificationsLoading />
+					) : !feed.isAuthenticated ? (
+						<NotificationsSignedOut />
+					) : feed.isError ? (
+						<NotificationsError
+							isFetching={feed.isFetching}
+							onRetry={() => void feed.refetch()}
 						/>
-					))}
+					) : (
+						<NotificationsListSection
+							groups={feed.groups}
+							total={feed.filtered.length}
+							isEmptyAll={feed.items.length === 0}
+							isFilterEmpty={feed.isFilterEmpty}
+							onClearFilter={() => feed.setFilter('all')}
+							onOpen={openNotification}
+							onToggleRead={toggleRead}
+							onRemove={(notification) =>
+								feed.remove.mutate(notification)
+							}
+							hasNextPage={feed.hasNextPage}
+							isFetchingNextPage={feed.isFetchingNextPage}
+							onLoadMore={() => void feed.fetchNextPage()}
+						/>
+					)}
 				</div>
-			)}
-		</div>
+
+				{isLoading || hasItems ? (
+					<NotificationsAside
+						filter={feed.filter}
+						unreadCounts={feed.unreadCounts}
+						onFilterChange={feed.setFilter}
+					/>
+				) : null}
+			</div>
+		</>
 	)
 }

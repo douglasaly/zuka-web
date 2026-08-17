@@ -1,5 +1,4 @@
 'use client'
-
 import { Minus, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { MAX_CART_QUANTITY } from '@/modules/cart/types'
@@ -9,7 +8,6 @@ type CartQtyStepperProps = {
 	disabled?: boolean
 	onChange: (quantity: number) => void
 }
-
 export function CartQtyStepper({
 	value,
 	disabled,

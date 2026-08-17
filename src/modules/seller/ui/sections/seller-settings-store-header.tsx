@@ -1,5 +1,4 @@
 'use client'
-
 import { Store } from 'lucide-react'
 
 type SellerSettingsHeaderProps = {
@@ -7,7 +6,6 @@ type SellerSettingsHeaderProps = {
 	email: string | null
 	storeSlug?: string | null
 }
-
 export function SellerSettingsHeader({
 	storeName,
 	email,

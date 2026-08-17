@@ -1,5 +1,4 @@
 'use client'
-
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { FileCheck2, RotateCcw } from 'lucide-react'
 import { useState } from 'react'
@@ -14,13 +13,11 @@ type StoreDocumentsSectionProps = {
 	documents: SellerStoreDocument[]
 	verifiedAt: string | null
 }
-
 function docLabel(doc: SellerStoreDocument) {
 	if (doc.kind === 'selfie_with_document') return 'Selfie com documento'
 	if (doc.type === 'ID_CARD') return 'Documento de identidade'
 	return doc.type
 }
-
 export function StoreDocumentsSection({
 	documents,
 	verifiedAt,
@@ -29,12 +26,10 @@ export function StoreDocumentsSection({
 	const [resubmitting, setResubmitting] = useState(false)
 	const [idCardUrl, setIdCardUrl] = useState<string | null>(null)
 	const [selfieUrl, setSelfieUrl] = useState<string | null>(null)
-
 	const hasRejected = documents.some((d) => d.status === 'REJECTED')
 	const allApproved =
 		documents.length > 0 && documents.every((d) => d.status === 'APPROVED')
 	const canResubmit = !allApproved || hasRejected
-
 	const mutation = useMutation({
 		mutationFn: async () => {
 			if (!idCardUrl || !selfieUrl) {
@@ -58,7 +53,6 @@ export function StoreDocumentsSection({
 		},
 		onError: (error: Error) => toast.error(error.message),
 	})
-
 	return (
 		<StoreSection
 			title='Documentos'

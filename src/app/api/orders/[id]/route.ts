@@ -8,24 +8,26 @@ import {
 	pickProductImage,
 } from '@/modules/orders/lib/map-buyer-order'
 import type { BuyerOrderReview } from '@/modules/orders/types'
-
 export async function GET(
 	_req: Request,
-	{ params }: { params: Promise<{ id: string }> }
+	{
+		params,
+	}: {
+		params: Promise<{
+			id: string
+		}>
+	}
 ) {
 	try {
 		const user = await getSessionUser()
 		if (!user) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 		}
-
 		const { id } = await params
 		const supabase = createSupabaseAdmin()
-
 		const { data, error } = await supabase
 			.from('orders')
-			.select(
-				`
+			.select(`
 				*,
 				stores(name, logo_url, slug),
 				order_items(
@@ -41,41 +43,39 @@ export async function GET(
 						product_images(url, is_primary, position, deleted_at)
 					)
 				)
-			`
-			)
+			`)
 			.eq('id', id)
 			.eq('buyer_id', user.id as string)
 			.is('deleted_at', null)
 			.maybeSingle()
-
 		if (error) throw error
 		if (!data) {
 			return NextResponse.json({ error: 'Not found' }, { status: 404 })
 		}
-
 		const row = data as Parameters<typeof mapBuyerOrder>[0] & {
 			updated_at?: string | null
 			completed_at?: string | null
 			notes?: string | null
 			order_items?: Parameters<typeof mapBuyerOrderItem>[0][]
 		}
-
 		const order = mapBuyerOrder(row)
 		const items = (row.order_items ?? []).map(mapBuyerOrderItem)
 		const timeline = buildBuyerTimeline({
-			status: (data as { status: string }).status,
+			status: (
+				data as {
+					status: string
+				}
+			).status,
 			created_at: row.created_at,
 			updated_at: row.updated_at,
 			completed_at: row.completed_at,
 		})
-
 		const review = await loadBuyerOrderReview({
 			supabase,
 			orderId: id,
 			buyerId: user.id as string,
 			items,
 		})
-
 		return NextResponse.json({
 			success: true,
 			order,
@@ -93,7 +93,6 @@ export async function GET(
 		)
 	}
 }
-
 async function loadBuyerOrderReview({
 	supabase,
 	orderId,
@@ -107,8 +106,7 @@ async function loadBuyerOrderReview({
 }): Promise<BuyerOrderReview | null> {
 	const { data: reviewRow, error: reviewError } = await supabase
 		.from('reviews')
-		.select(
-			`
+		.select(`
 			id,
 			rating,
 			body,
@@ -126,16 +124,13 @@ async function loadBuyerOrderReview({
 					product_images ( url, is_primary, position, deleted_at )
 				)
 			)
-		`
-		)
+		`)
 		.eq('order_id', orderId)
 		.eq('buyer_id', buyerId)
 		.is('deleted_at', null)
 		.maybeSingle()
-
 	if (reviewError) throw reviewError
 	if (!reviewRow) return null
-
 	const productNameById = new Map(
 		items
 			.filter((item) => item.productId)
@@ -146,7 +141,6 @@ async function loadBuyerOrderReview({
 			.filter((item) => item.productId)
 			.map((item) => [item.productId!, item.imageUrl] as const)
 	)
-
 	const productRows = (
 		(reviewRow.review_products ?? []) as Array<{
 			product_id: string
@@ -165,7 +159,6 @@ async function loadBuyerOrderReview({
 			} | null
 		}>
 	).filter((row) => !row.deleted_at)
-
 	return {
 		id: reviewRow.id as string,
 		rating: reviewRow.rating as number,

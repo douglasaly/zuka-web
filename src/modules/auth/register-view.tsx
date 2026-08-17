@@ -1,5 +1,4 @@
 'use client'
-
 import {
 	createUserWithEmailAndPassword,
 	GoogleAuthProvider,
@@ -25,7 +24,6 @@ import { Separator } from '@/components/ui/separator'
 import { createAppSession } from '@/lib/firebase/create-session'
 import { auth } from '@/lib/firebase/firebase-client'
 import { syncUserToBackend } from '@/lib/firebase/sync-user-to-backend'
-
 export const RegisterView = () => {
 	const router = useRouter()
 	const [email, setEmail] = useState('')
@@ -33,25 +31,21 @@ export const RegisterView = () => {
 	const [name, setName] = useState('')
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
-
 	async function handleEmailRegister(e: React.FormEvent) {
 		e.preventDefault()
 		setLoading(true)
 		setError(null)
-
 		try {
 			const userCredential = await createUserWithEmailAndPassword(
 				auth,
 				email,
 				password
 			)
-
 			if (name) {
 				await updateProfile(userCredential.user, {
 					displayName: name,
 				})
 			}
-
 			await syncUserToBackend()
 			await createAppSession()
 			router.push('/onboarding')
@@ -61,11 +55,9 @@ export const RegisterView = () => {
 			setLoading(false)
 		}
 	}
-
 	async function handleGoogleRegister() {
 		setLoading(true)
 		setError(null)
-
 		try {
 			const provider = new GoogleAuthProvider()
 			await signInWithPopup(auth, provider)
@@ -78,7 +70,6 @@ export const RegisterView = () => {
 			setLoading(false)
 		}
 	}
-
 	return (
 		<div className='flex min-h-screen items-center justify-center bg-muted/25 px-4 py-12'>
 			<div className='w-full max-w-md space-y-6'>

@@ -1,5 +1,4 @@
 'use client'
-
 import { Package } from 'lucide-react'
 import Link from 'next/link'
 import { OrderStatusBadge } from '@/components/order-status-badge'
@@ -10,7 +9,6 @@ import { SellerEmptyState } from '../components/seller-empty-state'
 interface Props {
 	orders: DashboardOrder[]
 }
-
 export function SellerOrdersSection({ orders }: Props) {
 	if (orders.length === 0) {
 		return (
@@ -25,7 +23,6 @@ export function SellerOrdersSection({ orders }: Props) {
 			/>
 		)
 	}
-
 	return (
 		<div className='space-y-4'>
 			<div className='space-y-2'>

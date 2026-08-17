@@ -4,43 +4,34 @@ import { createSupabaseAdmin } from '../lib/supabase/admin'
 import type { Database } from '../lib/supabase/types'
 
 const supabase = createSupabaseAdmin()
-
 async function clearTable(table: string) {
 	const { error } = await supabase
 		.from(table as never)
 		.delete()
 		.neq('id' as never, '00000000-0000-0000-0000-000000000000')
-
 	if (!error) return
 	if (error.message.includes('Could not find')) return
-
 	const compositeKeyColumn: Record<string, string> = {
 		conversation_participants: 'conversation_id',
 		role_permissions: 'role_id',
 		user_roles: 'user_id',
 	}
-
 	const column = compositeKeyColumn[table]
 	if (column) {
 		const { error: compositeError } = await supabase
 			.from(table as never)
 			.delete()
 			.gte(column as never, '00000000-0000-0000-0000-000000000000')
-
 		if (compositeError) {
 			console.warn(`Could not clear ${table}:`, compositeError.message)
 		}
 		return
 	}
-
 	console.warn(`Could not clear ${table}:`, error.message)
 }
-
 async function seed() {
 	try {
 		console.log('🌱 Starting Supabase seed...')
-
-		// Clear in dependency order
 		for (const table of [
 			'order_items',
 			'orders',
@@ -66,7 +57,6 @@ async function seed() {
 		]) {
 			await clearTable(table)
 		}
-
 		const roles = [
 			{
 				id: uuidv7(),
@@ -90,7 +80,6 @@ async function seed() {
 				description: 'Atendimento ao cliente',
 			},
 		]
-
 		const permissions = [
 			{
 				id: uuidv7(),
@@ -135,13 +124,10 @@ async function seed() {
 				description: 'Gerenciar disputas',
 			},
 		]
-
 		await supabase.from('roles').insert(roles)
 		await supabase.from('permissions').insert(permissions)
-
 		const perm = Object.fromEntries(permissions.map((p) => [p.key, p.id]))
 		const role = Object.fromEntries(roles.map((r) => [r.name, r.id]))
-
 		await supabase.from('role_permissions').insert([
 			...permissions.map((p) => ({
 				role_id: role.admin,
@@ -166,7 +152,6 @@ async function seed() {
 				permission_id: perm['dispute.manage'],
 			},
 		])
-
 		const users = [
 			{
 				id: uuidv7(),
@@ -235,9 +220,7 @@ async function seed() {
 				status: 'ACTIVE',
 			},
 		]
-
 		await supabase.from('users').insert(users)
-
 		await supabase.from('user_roles').insert([
 			{ user_id: users[0].id, role_id: role.admin },
 			{ user_id: users[1].id, role_id: role.seller },
@@ -246,7 +229,6 @@ async function seed() {
 			{ user_id: users[4].id, role_id: role.buyer },
 			{ user_id: users[5].id, role_id: role.support },
 		])
-
 		const categories = [
 			{ id: uuidv7(), name: 'Eletrônicos', slug: 'eletronicos' },
 			{
@@ -291,9 +273,7 @@ async function seed() {
 				slug: 'tecnologia-acessorios',
 			},
 		]
-
 		await supabase.from('categories').insert(categories)
-
 		const provinces = [
 			{ id: uuidv7(), name: 'Maputo Cidade', slug: 'maputo-cidade' },
 			{
@@ -311,9 +291,7 @@ async function seed() {
 			{ id: uuidv7(), name: 'Cabo Delgado', slug: 'cabo-delgado' },
 			{ id: uuidv7(), name: 'Niassa', slug: 'niassa' },
 		]
-
 		await supabase.from('provinces').insert(provinces)
-
 		const sellerProfiles = [
 			{
 				id: uuidv7(),
@@ -324,15 +302,12 @@ async function seed() {
 			},
 			{ id: uuidv7(), user_id: users[2].id, status: 'PENDING' as const },
 		]
-
 		await supabase.from('seller_profiles').insert(sellerProfiles)
-
 		const maputo = provinces[0]
 		const gaza = provinces[2]
 		const electronics = categories[0]
 		const fashion = categories[1]
 		const food = categories[5]
-
 		const stores = [
 			{
 				id: uuidv7(),
@@ -382,9 +357,7 @@ async function seed() {
 				status: 'PENDING' as const,
 			},
 		]
-
 		await supabase.from('stores').insert(stores)
-
 		const products = [
 			{
 				id: uuidv7(),
@@ -451,9 +424,7 @@ async function seed() {
 				currency: 'MZN',
 			},
 		]
-
 		await supabase.from('products').insert(products)
-
 		await supabase.from('product_images').insert([
 			{
 				id: uuidv7(),
@@ -464,14 +435,12 @@ async function seed() {
 				alt: 'Galaxy S24',
 			},
 		])
-
 		const conversationId = uuidv7()
 		await supabase.from('conversations').insert({ id: conversationId })
 		await supabase.from('conversation_participants').insert([
 			{ conversation_id: conversationId, user_id: users[1].id },
 			{ conversation_id: conversationId, user_id: users[3].id },
 		])
-
 		const messageId = uuidv7()
 		await supabase.from('messages').insert({
 			id: messageId,
@@ -479,19 +448,16 @@ async function seed() {
 			user_id: users[1].id,
 			content: 'Olá, o produto ainda está disponível?',
 		})
-
 		await supabase.from('message_products').insert({
 			id: uuidv7(),
 			message_id: messageId,
 			product_id: products[0].id,
 		})
-
 		await supabase.from('store_followers').insert({
 			id: uuidv7(),
 			user_id: users[3].id,
 			store_id: stores[0].id,
 		})
-
 		const onboardingId = uuidv7()
 		await supabase.from('seller_onboarding').insert({
 			id: onboardingId,
@@ -501,7 +467,6 @@ async function seed() {
 			submitted_at: new Date().toISOString(),
 			approved_at: new Date().toISOString(),
 		})
-
 		await supabase.from('seller_onboarding_steps').insert({
 			id: uuidv7(),
 			onboarding_id: onboardingId,
@@ -509,7 +474,6 @@ async function seed() {
 			data: { ok: true },
 			completed: true,
 		})
-
 		await supabase.from('verification_documents').insert({
 			id: uuidv7(),
 			owner_id: users[1].id,
@@ -520,7 +484,6 @@ async function seed() {
 			metadata: JSON.stringify({ number: '123' }),
 			reviewed_at: new Date().toISOString(),
 		})
-
 		const orders = [
 			{
 				id: uuidv7(),
@@ -550,9 +513,7 @@ async function seed() {
 				item_count: 1,
 			},
 		]
-
 		await supabase.from('orders').insert(orders)
-
 		await supabase.from('order_items').insert([
 			{
 				id: uuidv7(),
@@ -579,7 +540,6 @@ async function seed() {
 				currency: 'MZN',
 			},
 		])
-
 		console.log('✨ Supabase seed completed successfully!')
 		process.exit(0)
 	} catch (error) {
@@ -587,5 +547,4 @@ async function seed() {
 		process.exit(1)
 	}
 }
-
 seed()

@@ -1,5 +1,4 @@
 'use client'
-
 import { MessageCircle, RotateCcw, Store } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -11,7 +10,6 @@ type OrderDetailActionsProps = {
 	firstProductId: string | null | undefined
 	hasMobileActions: boolean
 }
-
 export function OrderDetailDesktopActions({
 	order,
 	showBuyAgain,
@@ -46,7 +44,6 @@ export function OrderDetailDesktopActions({
 		</section>
 	)
 }
-
 export function OrderDetailMobileActions({
 	order,
 	showBuyAgain,
@@ -54,7 +51,6 @@ export function OrderDetailMobileActions({
 	hasMobileActions,
 }: OrderDetailActionsProps) {
 	if (!hasMobileActions) return null
-
 	return (
 		<div className='fixed inset-x-0 bottom-0 z-20 border-t border-border/60 bg-background/95 p-3 backdrop-blur-md supports-backdrop-filter:bg-background/85 sm:hidden'>
 			<div className='mx-auto flex max-w-7xl gap-2 pb-[env(safe-area-inset-bottom)]'>

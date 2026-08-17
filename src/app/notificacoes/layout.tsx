@@ -1,7 +1,10 @@
-export default function NotificacoesLayout({
-	children,
-}: {
+import { BaseLayout } from '@/modules/base/base-layout'
+
+interface LayoutProps {
 	children: React.ReactNode
-}) {
-	return <div className='min-h-screen bg-neutral-50'>{children}</div>
 }
+export const dynamic = 'force-dynamic'
+const Layout = ({ children }: LayoutProps) => {
+	return <BaseLayout>{children}</BaseLayout>
+}
+export default Layout

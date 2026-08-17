@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button'
 type UserDetailHeaderProps = {
 	user: Record<string, unknown>
 }
-
 export function UserDetailHeader({ user }: UserDetailHeaderProps) {
 	return (
 		<div className='flex items-center gap-3'>

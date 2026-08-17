@@ -1,5 +1,4 @@
 'use client'
-
 import { Check, Circle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { PRODUCT_STATUS_OPTIONS, type ProductStatusValue } from './constants'
@@ -8,7 +7,6 @@ type ProductStatusFieldProps = {
 	value: ProductStatusValue
 	onChange: (value: ProductStatusValue) => void
 }
-
 export function ProductStatusField({
 	value,
 	onChange,

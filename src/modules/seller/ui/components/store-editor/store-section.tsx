@@ -8,7 +8,6 @@ type StoreSectionProps = {
 	children: ReactNode
 	className?: string
 }
-
 export function StoreSection({
 	title,
 	description,

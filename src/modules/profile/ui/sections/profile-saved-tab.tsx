@@ -10,7 +10,6 @@ type ProfileSavedTabProps = {
 	isRemoving: boolean
 	onRemove: (itemId: string) => void
 }
-
 export function ProfileSavedTab({
 	savedItems,
 	isLoading,

@@ -4,7 +4,6 @@ type StoreReviewsPanelProps = {
 	rating: number
 	reviewCount: number
 }
-
 export const StoreReviewsPanel = ({
 	rating,
 	reviewCount,

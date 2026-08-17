@@ -2,21 +2,17 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { requireSessionUser } from '@/lib/auth/session'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import type { CreateAddressInput } from './types'
-
 export async function GET() {
 	try {
 		const user = await requireSessionUser()
 		const supabase = createSupabaseAdmin()
-
 		const { data, error } = await supabase
 			.from('addresses')
 			.select('*')
 			.eq('user_id', user.id)
 			.is('deleted_at', null)
 			.order('created_at', { ascending: false })
-
 		if (error) throw error
-
 		const addresses = (data ?? []).map((a) => {
 			const row = a as unknown as {
 				id: string
@@ -47,7 +43,6 @@ export async function GET() {
 				updatedAt: row.updated_at,
 			}
 		})
-
 		return NextResponse.json({ addresses, success: true })
 	} catch (error) {
 		if (error instanceof Response) return error
@@ -57,13 +52,11 @@ export async function GET() {
 		)
 	}
 }
-
 export async function POST(request: NextRequest) {
 	try {
 		const user = await requireSessionUser()
 		const supabase = createSupabaseAdmin()
 		const body: CreateAddressInput = await request.json()
-
 		if (
 			!body.label?.trim() ||
 			!body.street?.trim() ||
@@ -80,7 +73,6 @@ export async function POST(request: NextRequest) {
 				{ status: 400 }
 			)
 		}
-
 		let provinceName: string | null = null
 		if (body.provinceSlug) {
 			const { data: province } = await supabase
@@ -88,10 +80,8 @@ export async function POST(request: NextRequest) {
 				.select('name')
 				.eq('slug', body.provinceSlug)
 				.maybeSingle()
-
 			provinceName = province?.name ?? null
 		}
-
 		if (body.isDefault) {
 			await supabase
 				.from('addresses')
@@ -99,7 +89,6 @@ export async function POST(request: NextRequest) {
 				.eq('user_id', user.id)
 				.is('deleted_at', null)
 		}
-
 		const { data, error } = await supabase
 			.from('addresses')
 			.insert({
@@ -115,9 +104,7 @@ export async function POST(request: NextRequest) {
 			})
 			.select('*')
 			.single()
-
 		if (error) throw error
-
 		return NextResponse.json(
 			{
 				address: {

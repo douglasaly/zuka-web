@@ -1,5 +1,4 @@
 import { Skeleton } from '@/components/ui/skeleton'
-
 export const FeaturedStoresSkeleton = () => (
 	<div className='flex gap-4 overflow-x-hidden py-1 sm:gap-5'>
 		{Array.from({ length: 6 }).map((_, i) => (

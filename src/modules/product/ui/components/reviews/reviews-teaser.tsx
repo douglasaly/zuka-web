@@ -1,5 +1,4 @@
 'use client'
-
 import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -11,7 +10,6 @@ type ReviewsTeaserProps = {
 	summary: RatingSummary | null
 	isLoading?: boolean
 }
-
 export function ReviewsTeaser({
 	productId,
 	summary,
@@ -24,7 +22,6 @@ export function ReviewsTeaser({
 			</div>
 		)
 	}
-
 	if (!summary || summary.count === 0) {
 		return (
 			<section
@@ -43,7 +40,6 @@ export function ReviewsTeaser({
 			</section>
 		)
 	}
-
 	return (
 		<section
 			aria-labelledby='reviews-teaser-heading'

@@ -1,7 +1,5 @@
 'use client'
-
 import { Skeleton } from '@/components/ui/skeleton'
-
 export function SellerProductsSkeleton() {
 	return (
 		<div className='space-y-5'>

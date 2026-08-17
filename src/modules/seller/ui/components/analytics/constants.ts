@@ -4,15 +4,15 @@ import type {
 	SellerAnalyticsMock,
 } from '@/modules/seller/ui/components/analytics/mock-data'
 import { formatPrice } from '@/utils/format-price'
-
-export const RANGE_OPTIONS: { value: AnalyticsRange; label: string }[] = [
+export const RANGE_OPTIONS: {
+	value: AnalyticsRange
+	label: string
+}[] = [
 	{ value: '7d', label: '7 dias' },
 	{ value: '30d', label: '30 dias' },
 	{ value: '90d', label: '90 dias' },
 ]
-
 export type KpiKey = keyof Omit<SellerAnalyticsMock, 'changes' | 'dailySales'>
-
 export const KPI_CARDS: Array<{
 	key: KpiKey
 	icon: typeof TrendingUp
@@ -56,7 +56,6 @@ export const KPI_CARDS: Array<{
 		format: (v) => v.toLocaleString('pt-MZ'),
 	},
 ]
-
 export function formatChange(pct: number): string {
 	const abs = Math.abs(pct).toFixed(1).replace('.', ',')
 	if (pct > 0) return `+${abs}%`

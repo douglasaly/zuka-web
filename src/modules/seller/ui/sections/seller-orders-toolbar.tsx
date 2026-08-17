@@ -1,5 +1,4 @@
 'use client'
-
 import { Search, X } from 'lucide-react'
 import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { Input } from '@/components/ui/input'
@@ -27,7 +26,6 @@ type SellerOrdersToolbarProps = {
 	onPerPageChange: (value: string) => void
 	rangeLabel: string
 }
-
 export function SellerOrdersToolbar({
 	searchInput,
 	onSearchChange,

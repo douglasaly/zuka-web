@@ -1,5 +1,4 @@
 'use client'
-
 import { Trash2 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -19,7 +18,6 @@ type CartItemRowProps = {
 	onRemove: () => void
 	onApplyCurrentPrice: (unitPrice: number) => void
 }
-
 export function CartItemRow({
 	item,
 	reconcile,
@@ -30,7 +28,6 @@ export function CartItemRow({
 	const unavailable = Boolean(reconcile?.unavailable)
 	const priceChanged = Boolean(reconcile?.priceChanged)
 	const currentPrice = reconcile?.currentPrice
-
 	return (
 		<div
 			className={cn(

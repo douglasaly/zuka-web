@@ -1,5 +1,4 @@
 'use client'
-
 import { MessageSquare, Package } from 'lucide-react'
 import Image from 'next/image'
 import { useState } from 'react'
@@ -17,7 +16,6 @@ function formatReviewDate(iso: string) {
 		year: 'numeric',
 	})
 }
-
 function Initials({ name }: { name: string }) {
 	const initials = name
 		.split(' ')
@@ -34,17 +32,14 @@ function Initials({ name }: { name: string }) {
 		</div>
 	)
 }
-
 type ReplyFormProps = {
 	reviewId: string
 	onSuccess: (reply: string) => void
 	onCancel: () => void
 }
-
 function ReplyForm({ reviewId, onSuccess, onCancel }: ReplyFormProps) {
 	const [reply, setReply] = useState('')
 	const [pending, setPending] = useState(false)
-
 	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault()
 		const trimmed = reply.trim()
@@ -72,7 +67,6 @@ function ReplyForm({ reviewId, onSuccess, onCancel }: ReplyFormProps) {
 			setPending(false)
 		}
 	}
-
 	return (
 		<form
 			onSubmit={handleSubmit}
@@ -118,19 +112,18 @@ function ReplyForm({ reviewId, onSuccess, onCancel }: ReplyFormProps) {
 		</form>
 	)
 }
-
 type StoreReviewCardProps = {
 	review: SellerStoreReview
 	onReplied: (reviewId: string, reply: string) => void
 }
-
 export function StoreReviewCard({
 	review,
 	onReplied,
 	canReply = true,
-}: StoreReviewCardProps & { canReply?: boolean }) {
+}: StoreReviewCardProps & {
+	canReply?: boolean
+}) {
 	const [replying, setReplying] = useState(false)
-
 	return (
 		<article className='rounded-2xl border border-border/60 bg-card p-4 sm:p-5'>
 			<div className='flex items-start justify-between gap-3'>
@@ -237,11 +230,9 @@ export function StoreReviewCard({
 		</article>
 	)
 }
-
 type ProductReviewCardProps = {
 	review: SellerProductReview
 }
-
 export function ProductReviewCard({ review }: ProductReviewCardProps) {
 	return (
 		<article className='flex gap-3 rounded-2xl border border-border/60 bg-card p-4 sm:gap-4 sm:p-5'>

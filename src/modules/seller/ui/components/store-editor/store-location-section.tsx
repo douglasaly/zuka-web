@@ -1,5 +1,4 @@
 'use client'
-
 import { useQuery } from '@tanstack/react-query'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -17,12 +16,10 @@ type Province = {
 	id: string
 	name: string
 }
-
 type StoreLocationSectionProps = {
 	form: StoreFormState
 	onChange: (patch: Partial<StoreFormState>) => void
 }
-
 export function StoreLocationSection({
 	form,
 	onChange,
@@ -39,12 +36,10 @@ export function StoreLocationSection({
 			return rows
 		},
 	})
-
 	const provinceItems = provinces.map((p) => ({
 		value: p.id,
 		label: p.name,
 	}))
-
 	return (
 		<StoreSection
 			title='Localização'

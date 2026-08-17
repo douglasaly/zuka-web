@@ -1,5 +1,4 @@
 'use client'
-
 import { cn } from '@/lib/utils'
 import { useOrderDetail } from '../../hooks/use-order-detail'
 import {
@@ -16,7 +15,6 @@ import { OrderDetailSummary } from '../sections/order-detail-summary'
 interface OrderDetailViewProps {
 	id: string
 }
-
 export const OrderDetailView = ({ id }: OrderDetailViewProps) => {
 	const {
 		data,
@@ -39,7 +37,6 @@ export const OrderDetailView = ({ id }: OrderDetailViewProps) => {
 		hasMobileActions,
 		onReviewSubmitted,
 	} = useOrderDetail(id)
-
 	if (isLoading || isError || !data || !order || !guidance || !tone) {
 		return (
 			<OrderDetailGates
@@ -51,7 +48,6 @@ export const OrderDetailView = ({ id }: OrderDetailViewProps) => {
 			/>
 		)
 	}
-
 	return (
 		<div
 			className={cn(

@@ -1,5 +1,4 @@
 'use client'
-
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { ChatMessage } from '@/modules/messages/constants'
 
@@ -14,7 +13,6 @@ type ApiMessage = {
 	updated_at: string | null
 	deleted_at: string | null
 }
-
 function mapApiMessage(msg: ApiMessage): ChatMessage {
 	return {
 		id: msg.id,
@@ -28,13 +26,10 @@ function mapApiMessage(msg: ApiMessage): ChatMessage {
 		deletedAt: msg.deleted_at,
 	}
 }
-
 type UseConversationProps = {
 	conversationId: string
 }
-
 const MESSAGES_KEY = (id: string) => ['messages', id]
-
 async function fetchMessages(conversationId: string): Promise<ChatMessage[]> {
 	const res = await fetch(`/api/conversations/${conversationId}/messages`, {
 		credentials: 'include',
@@ -43,7 +38,6 @@ async function fetchMessages(conversationId: string): Promise<ChatMessage[]> {
 	const { data } = await res.json()
 	return (data ?? []).map(mapApiMessage)
 }
-
 async function postMessage(
 	conversationId: string,
 	content: string
@@ -58,7 +52,6 @@ async function postMessage(
 	const { data } = await res.json()
 	return mapApiMessage(data)
 }
-
 async function markConversationRead(conversationId: string): Promise<void> {
 	const res = await fetch(`/api/conversations/${conversationId}/read`, {
 		method: 'PATCH',
@@ -66,7 +59,6 @@ async function markConversationRead(conversationId: string): Promise<void> {
 	})
 	if (!res.ok) throw new Error('Failed to mark as read')
 }
-
 export type ConversationStore = {
 	id: string
 	name: string
@@ -75,15 +67,12 @@ export type ConversationStore = {
 	state: string | null
 	provinceName: string | null
 }
-
 export type ConversationDetails = {
 	conversationId: string
 	productId: string | null
 	store: ConversationStore | null
 }
-
 const CONVERSATION_KEY = (id: string) => ['conversation', id]
-
 async function fetchConversation(
 	conversationId: string
 ): Promise<ConversationDetails> {
@@ -94,45 +83,41 @@ async function fetchConversation(
 	const { data } = await res.json()
 	return data
 }
-
 export const useConversation = ({ conversationId }: UseConversationProps) => {
 	const queryClient = useQueryClient()
-
 	const { data: messages = [], isLoading } = useQuery({
 		queryKey: MESSAGES_KEY(conversationId),
 		queryFn: () => fetchMessages(conversationId),
 		refetchInterval: 3000,
 	})
-
 	const { data: conversation } = useQuery({
 		queryKey: CONVERSATION_KEY(conversationId),
 		queryFn: () => fetchConversation(conversationId),
 	})
-
 	const markRead = useMutation({
 		mutationFn: () => markConversationRead(conversationId),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['inbox'] })
 		},
 	})
-
 	const sendMessage = useMutation<
 		ChatMessage,
 		Error,
 		string,
-		{ previous: ChatMessage[]; tempId: string }
+		{
+			previous: ChatMessage[]
+			tempId: string
+		}
 	>({
 		mutationFn: (content: string) => postMessage(conversationId, content),
 		onMutate: async (content) => {
 			await queryClient.cancelQueries({
 				queryKey: MESSAGES_KEY(conversationId),
 			})
-
 			const previous =
 				queryClient.getQueryData<ChatMessage[]>(
 					MESSAGES_KEY(conversationId)
 				) ?? []
-
 			const tempId = `temp-${Date.now()}`
 			const optimisticMessage: ChatMessage = {
 				id: tempId,
@@ -145,12 +130,10 @@ export const useConversation = ({ conversationId }: UseConversationProps) => {
 				updatedAt: new Date().toISOString(),
 				deletedAt: null,
 			}
-
 			queryClient.setQueryData<ChatMessage[]>(
 				MESSAGES_KEY(conversationId),
 				(prev = []) => [...prev, optimisticMessage]
 			)
-
 			return { previous, tempId }
 		},
 		onSuccess: (newMessage, _content, context) => {
@@ -173,7 +156,6 @@ export const useConversation = ({ conversationId }: UseConversationProps) => {
 			}
 		},
 	})
-
 	return {
 		messages,
 		isLoading,

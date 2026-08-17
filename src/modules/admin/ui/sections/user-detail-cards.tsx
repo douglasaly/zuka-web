@@ -10,7 +10,6 @@ type UserDetailCardsProps = {
 	store?: Record<string, unknown>
 	roles: string[]
 }
-
 export function UserDetailCards({ user, store, roles }: UserDetailCardsProps) {
 	return (
 		<>

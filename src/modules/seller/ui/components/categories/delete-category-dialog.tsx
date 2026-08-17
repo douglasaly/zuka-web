@@ -1,5 +1,4 @@
 'use client'
-
 import { Button } from '@/components/ui/button'
 import {
 	Dialog,
@@ -10,7 +9,6 @@ import {
 	DialogTitle,
 } from '@/components/ui/dialog'
 import type { Category } from './types'
-
 export function DeleteCategoryDialog({
 	target,
 	pending,

@@ -1,10 +1,9 @@
 'use client'
-
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import type { Notification } from '@/types/notifications'
 import { formatLongPtDateTime } from '@/utils/format-date'
-import { NOTIFICATION_META } from '../../constants'
+import { NOTIFICATION_META, NOTIFICATION_UNREAD_SURFACE } from '../../constants'
 import { NotificationAvatar } from './notification-avatar'
 
 interface NotificationItemProps {
@@ -13,7 +12,6 @@ interface NotificationItemProps {
 	variant?: 'dropdown' | 'full'
 	className?: string
 }
-
 export function NotificationItem({
 	notification,
 	onClick,
@@ -22,7 +20,6 @@ export function NotificationItem({
 }: NotificationItemProps) {
 	const isUnread = !notification.readAt
 	const meta = NOTIFICATION_META[notification.type]
-
 	const content = (
 		<div
 			className={cn(
@@ -61,8 +58,7 @@ export function NotificationItem({
 					<span
 						className={cn(
 							'rounded-full px-1.5 py-0.5 text-[10px] font-semibold',
-							meta.bg,
-							meta.fg
+							meta.tint
 						)}
 					>
 						{meta.label}
@@ -74,13 +70,11 @@ export function NotificationItem({
 			</div>
 		</div>
 	)
-
 	const baseClass = cn(
 		'w-full text-left transition-colors hover:bg-muted/50',
-		isUnread && 'bg-primary/5',
+		isUnread && NOTIFICATION_UNREAD_SURFACE,
 		className
 	)
-
 	if (notification.link) {
 		return (
 			<Link
@@ -92,7 +86,6 @@ export function NotificationItem({
 			</Link>
 		)
 	}
-
 	return (
 		<button type='button' onClick={onClick} className={baseClass}>
 			{content}

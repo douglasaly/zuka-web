@@ -1,5 +1,4 @@
 'use client'
-
 import { FolderTree, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -20,7 +19,6 @@ type SellerProductsToolbarProps = {
 	canCreate: boolean
 	onPerPageChange: (value: string) => void
 }
-
 export function SellerProductsToolbar({
 	rangeLabel,
 	isFetching,

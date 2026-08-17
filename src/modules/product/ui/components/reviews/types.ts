@@ -1,11 +1,9 @@
 export type ProductReviewSort = 'recent' | 'highest' | 'lowest'
-
 export type RatingSummary = {
 	average: number
 	count: number
 	distribution: number[]
 }
-
 export type ProductReviewsProduct = {
 	id: string
 	name: string
@@ -15,7 +13,6 @@ export type ProductReviewsProduct = {
 	image: string | null
 	categoryName: string | null
 }
-
 export type ProductReviewsStore = {
 	id: string
 	name: string
@@ -25,7 +22,6 @@ export type ProductReviewsStore = {
 	rating: number | null
 	reviewCount: number
 }
-
 export type PublicProductReview = {
 	id: string
 	reviewId: string
@@ -38,7 +34,6 @@ export type PublicProductReview = {
 	storeReply: string | null
 	storeRepliedAt: string | null
 }
-
 export type ProductReviewsResponse = {
 	success: true
 	product: ProductReviewsProduct

@@ -7,7 +7,6 @@ interface EmptyStateProps {
 	cta?: React.ReactNode
 	className?: string
 }
-
 export function EmptyState({
 	icon: Icon,
 	message,

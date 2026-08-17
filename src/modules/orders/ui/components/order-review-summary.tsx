@@ -1,5 +1,4 @@
 'use client'
-
 import { MessageSquareText, PenLine } from 'lucide-react'
 import Image from 'next/image'
 import { PRODUCT_PLACEHOLDER, STORE_PLACEHOLDER } from '@/lib/api/marketplace'
@@ -13,7 +12,6 @@ type OrderReviewSummaryProps = {
 	storeAvatar: string | null
 	review: BuyerOrderReview
 }
-
 export function OrderReviewSummary({
 	storeName,
 	storeAvatar,

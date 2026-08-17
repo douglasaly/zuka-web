@@ -7,7 +7,6 @@ interface OnboardingFormCardProps {
 	title?: string
 	description?: string
 }
-
 export function OnboardingFormCard({
 	children,
 	className,
@@ -39,7 +38,6 @@ export function OnboardingFormCard({
 		</div>
 	)
 }
-
 interface OnboardingFieldProps {
 	label: string
 	hint?: string
@@ -48,7 +46,6 @@ interface OnboardingFieldProps {
 	children: ReactNode
 	className?: string
 }
-
 export function OnboardingField({
 	label,
 	hint,
@@ -83,6 +80,5 @@ export function OnboardingField({
 		</div>
 	)
 }
-
 export const onboardingInputClass =
 	'h-auto rounded-xl border-0 bg-muted px-3 py-2.5 shadow-none focus-visible:ring-2 focus-visible:ring-ring/50'

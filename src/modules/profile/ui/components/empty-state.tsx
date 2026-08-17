@@ -9,7 +9,6 @@ type EmptyStateProps = {
 	className?: string
 	action?: ReactNode
 }
-
 export const EmptyState = ({
 	icon: Icon,
 	title,
@@ -19,7 +18,7 @@ export const EmptyState = ({
 }: EmptyStateProps) => (
 	<div
 		className={cn(
-			'flex flex-col items-center justify-center gap-2 rounded-xl border bg-white py-12 text-center',
+			'flex flex-col items-center justify-center gap-2 rounded-xl border bg-card py-12 text-center',
 			className
 		)}
 	>

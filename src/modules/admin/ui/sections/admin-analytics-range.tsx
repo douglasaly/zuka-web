@@ -1,12 +1,10 @@
 'use client'
-
 import { ANALYTICS_RANGES } from '@/modules/admin/ui/components/analytics/constants'
 
 type AdminAnalyticsRangeProps = {
 	days: number
 	onDaysChange: (days: number) => void
 }
-
 export function AdminAnalyticsRange({
 	days,
 	onDaysChange,

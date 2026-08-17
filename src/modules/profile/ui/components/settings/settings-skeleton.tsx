@@ -1,11 +1,9 @@
 import { Skeleton } from '@/components/ui/skeleton'
-
 export const SettingsSkeleton = () => {
 	return (
 		<div className='mx-auto max-w-2xl space-y-8 px-4 py-8 md:py-12'>
 			<Skeleton className='h-8 w-40 rounded-md' />
 
-			{/* CONTA */}
 			<section className='space-y-3'>
 				<div className='space-y-1.5'>
 					<Skeleton className='h-5 w-24 rounded-md' />
@@ -28,7 +26,6 @@ export const SettingsSkeleton = () => {
 				</div>
 			</section>
 
-			{/* GERAL */}
 			<section className='space-y-3'>
 				<Skeleton className='h-5 w-16 rounded-md' />
 
@@ -49,7 +46,6 @@ export const SettingsSkeleton = () => {
 				</div>
 			</section>
 
-			{/* NOTIFICAÇÕES */}
 			<section className='space-y-3'>
 				<div className='space-y-1.5'>
 					<Skeleton className='h-5 w-32 rounded-md' />
@@ -72,7 +68,6 @@ export const SettingsSkeleton = () => {
 				</div>
 			</section>
 
-			{/* PRIVACIDADE */}
 			<section className='space-y-3'>
 				<Skeleton className='h-5 w-28 rounded-md' />
 
@@ -92,7 +87,6 @@ export const SettingsSkeleton = () => {
 				</div>
 			</section>
 
-			{/* SEGURANÇA */}
 			<section className='space-y-3'>
 				<Skeleton className='h-5 w-24 rounded-md' />
 
@@ -113,7 +107,6 @@ export const SettingsSkeleton = () => {
 				</div>
 			</section>
 
-			{/* ZONA DE PERIGO */}
 			<section className='space-y-3'>
 				<div className='space-y-1.5'>
 					<Skeleton className='h-5 w-32 rounded-md' />

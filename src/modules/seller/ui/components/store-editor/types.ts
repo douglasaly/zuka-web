@@ -1,5 +1,4 @@
 import type { SellerStoreDetail } from '@/lib/types/api/seller'
-
 export type StoreFormState = {
 	name: string
 	slug: string
@@ -16,13 +15,11 @@ export type StoreFormState = {
 	deliveryZones: string[]
 	zoneDraft: string
 }
-
 export function storeToFormState(store: SellerStoreDetail): StoreFormState {
 	const editableStatus =
 		store.status === 'ACTIVE' || store.status === 'INACTIVE'
 			? store.status
 			: 'INACTIVE'
-
 	return {
 		name: store.name,
 		slug: store.slug,
@@ -40,14 +37,12 @@ export function storeToFormState(store: SellerStoreDetail): StoreFormState {
 		zoneDraft: '',
 	}
 }
-
 export function formatPhone(value: string) {
 	const digits = value.replace(/\D/g, '')
 	if (!digits) return ''
 	if (digits.startsWith('258')) return `+${digits}`
 	return `+258${digits}`
 }
-
 function stripCountryCode(value: string) {
 	const digits = value.replace(/\D/g, '')
 	if (digits.startsWith('258')) return digits.slice(3)

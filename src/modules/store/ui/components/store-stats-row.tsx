@@ -4,7 +4,6 @@ import type { StoreProfile } from '@/types/marketplace'
 type StoreStatsRowProps = {
 	store: StoreProfile
 }
-
 export const StoreStatsRow = ({ store }: StoreStatsRowProps) => (
 	<div className='mt-2 flex flex-wrap gap-3 text-sm text-muted-foreground'>
 		<span className='flex items-center gap-1'>

@@ -1,5 +1,4 @@
 'use client'
-
 import { Loader2 } from 'lucide-react'
 import type { NotificationPrefs } from '@/modules/seller/hooks/use-seller-settings'
 import { SellerDangerZone } from '@/modules/seller/ui/components/settings/seller-danger-zone'
@@ -11,7 +10,6 @@ type SellerSettingsAlertsProps = {
 	prefsReady: boolean
 	onUpdatePref: (key: keyof NotificationPrefs, value: boolean) => void
 }
-
 export function SellerSettingsAlerts({
 	prefs,
 	prefsReady,

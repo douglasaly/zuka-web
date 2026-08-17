@@ -1,17 +1,10 @@
-/**
- * Mock seller analytics until real event instrumentation ships.
- * Prices in major MZN units (same as formatPrice consumers).
- */
-
 export type AnalyticsRange = '7d' | '30d' | '90d'
-
 export type SellerAnalyticsMock = {
 	totalSales: number
 	totalOrders: number
 	totalViews: number
 	totalFollowers: number
 	productCount: number
-	/** Percentage change vs previous period (positive = up). */
 	changes: {
 		totalSales: number
 		totalOrders: number
@@ -19,10 +12,11 @@ export type SellerAnalyticsMock = {
 		totalFollowers: number
 		productCount: number
 	}
-	/** Daily sales for the spark/list chart (major units). */
-	dailySales: Array<{ date: string; sales: number }>
+	dailySales: Array<{
+		date: string
+		sales: number
+	}>
 }
-
 const MOCK_BY_RANGE: Record<AnalyticsRange, SellerAnalyticsMock> = {
 	'7d': {
 		totalSales: 18450,
@@ -94,13 +88,11 @@ const MOCK_BY_RANGE: Record<AnalyticsRange, SellerAnalyticsMock> = {
 		],
 	},
 }
-
 export function getMockSellerAnalytics(
 	range: AnalyticsRange
 ): SellerAnalyticsMock {
 	return MOCK_BY_RANGE[range] ?? MOCK_BY_RANGE['30d']
 }
-
 export function parseAnalyticsRange(raw: string | null): AnalyticsRange {
 	if (raw === '7d' || raw === '30d' || raw === '90d') return raw
 	const days = Number(raw)

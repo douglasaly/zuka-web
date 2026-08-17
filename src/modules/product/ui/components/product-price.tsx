@@ -8,7 +8,6 @@ type ProductPriceProps = {
 	negotiable?: boolean
 	hasDelivery?: boolean
 }
-
 export const ProductPrice = ({
 	price,
 	discountPrice,

@@ -5,11 +5,9 @@ type ProfileStat = {
 	value: number
 	isLoading?: boolean
 }
-
 type ProfileStatsProps = {
 	stats: ProfileStat[]
 }
-
 export const ProfileStats = ({ stats }: ProfileStatsProps) => (
 	<div className='pt-10 mb-2 flex gap-4'>
 		{stats.map((s) => (

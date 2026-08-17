@@ -4,10 +4,8 @@ import type { Product } from '@/types/marketplace'
 type RelatedProductsProps = {
 	products: Product[]
 }
-
 export const RelatedProducts = ({ products }: RelatedProductsProps) => {
 	if (products.length === 0) return null
-
 	return (
 		<div className='space-y-4 pt-4'>
 			<h2 className='font-heading text-lg font-bold'>

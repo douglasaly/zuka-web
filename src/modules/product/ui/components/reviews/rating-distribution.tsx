@@ -1,5 +1,4 @@
 'use client'
-
 import { cn } from '@/lib/utils'
 import type { RatingSummary } from './types'
 
@@ -10,7 +9,6 @@ type RatingDistributionProps = {
 	interactive?: boolean
 	className?: string
 }
-
 export function RatingDistribution({
 	summary,
 	activeRating = null,
@@ -19,7 +17,6 @@ export function RatingDistribution({
 	className,
 }: RatingDistributionProps) {
 	const maxCount = Math.max(...summary.distribution, 1)
-
 	return (
 		<div className={cn('space-y-2', className)}>
 			<p className='text-sm font-medium text-foreground'>

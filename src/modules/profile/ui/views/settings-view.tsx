@@ -1,5 +1,4 @@
 'use client'
-
 import { ArrowLeft, Globe, Lock, MapPin, Moon, Store } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -19,32 +18,24 @@ import { SettingsLinkRow } from '../components/settings/settings-link-row'
 import { SettingsSkeleton } from '../components/settings/settings-skeleton'
 import { SettingsToggleRow } from '../components/settings/settings-toggle-row'
 import { SettingsSection } from '../sections/settings-section'
-
 export const SettingsView = () => {
 	const router = useRouter()
 	const { profile, isSeller, isLoading, isAuthenticated } = useUserProfile()
-
 	const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS)
 	const [privacy, setPrivacy] = useState(MOCK_PRIVACY)
-
 	const toggleNotification = (id: string) => {
 		setNotifications((prev) =>
 			prev.map((n) => (n.id === id ? { ...n, enabled: !n.enabled } : n))
 		)
-		// TODO: chamar API para guardar preferência
 	}
-
 	const togglePrivacy = (id: string) => {
 		setPrivacy((prev) =>
 			prev.map((p) => (p.id === id ? { ...p, enabled: !p.enabled } : p))
 		)
-		// TODO: chamar API para guardar preferência
 	}
-
 	if (isLoading) {
 		return <SettingsSkeleton />
 	}
-
 	if (!isAuthenticated || !profile) {
 		return (
 			<div className='mx-auto flex min-h-[50vh] max-w-lg flex-col items-center justify-center gap-4 px-4 text-center'>
@@ -59,7 +50,6 @@ export const SettingsView = () => {
 			</div>
 		)
 	}
-
 	const accountFields: SettingField[] = profile
 		? [
 				{
@@ -88,7 +78,6 @@ export const SettingsView = () => {
 				},
 			]
 		: []
-
 	return (
 		<div className='mx-auto max-w-4xl space-y-8 px-4 py-8 md:py-12'>
 			<div className='flex gap-1 items-center'>

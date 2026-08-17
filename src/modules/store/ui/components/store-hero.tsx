@@ -1,5 +1,4 @@
 'use client'
-
 import { ArrowLeft, Expand, Heart, Share2 } from 'lucide-react'
 import Image from 'next/image'
 import { useCallback, useState } from 'react'
@@ -17,7 +16,6 @@ type StoreHeroProps = {
 	onToggleSave: () => void
 	onShare: () => void
 }
-
 export const StoreHero = ({
 	store,
 	onBack,
@@ -26,9 +24,7 @@ export const StoreHero = ({
 	onShare,
 }: StoreHeroProps) => {
 	const [lightboxOpen, setLightboxOpen] = useState(false)
-
 	const closeLightbox = useCallback(() => setLightboxOpen(false), [])
-
 	return (
 		<>
 			<div className='relative h-48 overflow-hidden md:h-56'>

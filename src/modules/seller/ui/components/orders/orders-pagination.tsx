@@ -1,5 +1,4 @@
 'use client'
-
 import {
 	ChevronLeft,
 	ChevronRight,
@@ -20,14 +19,12 @@ type OrdersPaginationProps = {
 	totalPages: number
 	onPageChange: (page: number) => void
 }
-
 export function OrdersPagination({
 	currentPage,
 	totalPages,
 	onPageChange,
 }: OrdersPaginationProps) {
 	const pageList = buildPageList(currentPage, totalPages)
-
 	return (
 		<div className='flex w-full flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between'>
 			<p
@@ -37,7 +34,6 @@ export function OrdersPagination({
 				Página {currentPage} de {totalPages}
 			</p>
 
-			{/* Mobile: primeira / anterior / seguinte / última */}
 			<div className='flex items-center justify-center gap-1.5 md:hidden'>
 				<Button
 					variant='outline'
@@ -81,7 +77,6 @@ export function OrdersPagination({
 				</Button>
 			</div>
 
-			{/* Desktop: primeira + anterior + números + seguinte + última */}
 			<Pagination className='hidden justify-end md:flex'>
 				<PaginationContent>
 					<PaginationItem>

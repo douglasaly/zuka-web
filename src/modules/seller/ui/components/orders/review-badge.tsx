@@ -1,8 +1,6 @@
 'use client'
-
 import { Badge } from '@/components/ui/badge'
 import type { ReviewState } from './types'
-
 export function ReviewBadge({ state }: { state: ReviewState }) {
 	if (state === 'awaiting') {
 		return (

@@ -1,5 +1,4 @@
 import { Skeleton } from '@/components/ui/skeleton'
-
 export function StoreDetailLoading() {
 	return (
 		<div className='space-y-6'>

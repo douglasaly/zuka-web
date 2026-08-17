@@ -1,5 +1,4 @@
 import { cva, type VariantProps } from 'class-variance-authority'
-
 import { cn } from '@/lib/utils'
 
 function Empty({ className, ...props }: React.ComponentProps<'div'>) {
@@ -14,7 +13,6 @@ function Empty({ className, ...props }: React.ComponentProps<'div'>) {
 		/>
 	)
 }
-
 function EmptyHeader({ className, ...props }: React.ComponentProps<'div'>) {
 	return (
 		<div
@@ -27,7 +25,6 @@ function EmptyHeader({ className, ...props }: React.ComponentProps<'div'>) {
 		/>
 	)
 }
-
 const emptyMediaVariants = cva(
 	'mb-2 flex shrink-0 items-center justify-center [&_svg]:pointer-events-none [&_svg]:shrink-0',
 	{
@@ -42,7 +39,6 @@ const emptyMediaVariants = cva(
 		},
 	}
 )
-
 function EmptyMedia({
 	className,
 	variant = 'default',
@@ -57,7 +53,6 @@ function EmptyMedia({
 		/>
 	)
 }
-
 function EmptyTitle({ className, ...props }: React.ComponentProps<'div'>) {
 	return (
 		<div
@@ -70,7 +65,6 @@ function EmptyTitle({ className, ...props }: React.ComponentProps<'div'>) {
 		/>
 	)
 }
-
 function EmptyDescription({ className, ...props }: React.ComponentProps<'p'>) {
 	return (
 		<div
@@ -83,7 +77,6 @@ function EmptyDescription({ className, ...props }: React.ComponentProps<'p'>) {
 		/>
 	)
 }
-
 function EmptyContent({ className, ...props }: React.ComponentProps<'div'>) {
 	return (
 		<div
@@ -96,7 +89,6 @@ function EmptyContent({ className, ...props }: React.ComponentProps<'div'>) {
 		/>
 	)
 }
-
 export {
 	Empty,
 	EmptyHeader,

@@ -1,5 +1,4 @@
 'use client'
-
 import { ArrowLeft } from 'lucide-react'
 import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { OrderStatusBadge } from '@/components/order-status-badge'
@@ -11,7 +10,6 @@ type SellerOrderDetailHeaderProps = {
 	statusLabel: string
 	reviewState: 'none' | 'awaiting' | 'done'
 }
-
 export function SellerOrderDetailHeader({
 	shortId,
 	status,

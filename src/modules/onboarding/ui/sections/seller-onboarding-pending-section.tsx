@@ -1,10 +1,8 @@
 'use client'
-
 import { Clock } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { setViewAsBuyerMode } from '@/lib/auth/view-as-buyer'
-
 export function SellerOnboardingPendingSection() {
 	return (
 		<div className='flex flex-1 flex-col items-center justify-center bg-background px-4 py-12'>

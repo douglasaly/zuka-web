@@ -1,5 +1,3 @@
-// ─── Seller routes ─────────────────────────────────────
-
 export type SellerProduct = {
 	id: string
 	name: string
@@ -13,14 +11,11 @@ export type SellerProduct = {
 	images: string[]
 	description: string | null
 }
-
 export type SellerStore = {
 	id: string
 	name: string
 	slug: string
 }
-
-/** GET /api/seller/products */
 export type ListSellerProductsInput = {
 	search?: string
 	status?: 'all' | 'DRAFT' | 'ACTIVE' | 'INACTIVE'
@@ -29,10 +24,8 @@ export type ListSellerProductsInput = {
 	maxPrice?: number
 	page?: number
 	perPage?: number
-	/** @deprecated use perPage */
 	limit?: number
 }
-
 export type ListSellerProductsOutput = {
 	success: true
 	products: SellerProduct[]
@@ -43,8 +36,6 @@ export type ListSellerProductsOutput = {
 	totalPages: number
 	hasMore: boolean
 }
-
-/** PATCH /api/seller/products/[id] */
 export type UpdateSellerProductInput = {
 	name?: string
 	description?: string
@@ -56,8 +47,6 @@ export type UpdateSellerProductInput = {
 	imageUrl?: string
 	imageUrls?: string[]
 }
-
-/** GET /api/seller/products/[id] */
 export type SellerProductDetail = {
 	id: string
 	name: string
@@ -76,40 +65,30 @@ export type SellerProductDetail = {
 		isPrimary: boolean
 	}>
 }
-
 export type GetSellerProductOutput = {
 	success: true
 	product: SellerProductDetail
 }
-
 export type UpdateSellerProductOutput = {
 	success: true
 }
-
-/** DELETE /api/seller/products/[id] */
 export type DeleteSellerProductOutput = {
 	success: true
 }
-
-/** POST /api/seller/products/bulk */
 export type BulkProductActionInput = {
 	action: 'delete' | 'activate' | 'deactivate'
 	ids: string[]
 }
-
 export type BulkProductActionOutput = {
 	success: true
 	affected: number
 }
-
-/** GET /api/seller/orders */
 export type ListSellerOrdersInput = {
 	status?: 'all' | 'PENDING' | 'SHIPPING' | 'COMPLETED' | 'CANCELLED'
 	date?: string
 	page?: number
 	limit?: number
 }
-
 export type ListSellerOrdersOutput = {
 	success: true
 	orders: {
@@ -126,8 +105,6 @@ export type ListSellerOrdersOutput = {
 	hasMore: boolean
 	total: number
 }
-
-/** Seller store document (verification) */
 export type SellerStoreDocument = {
 	id: string
 	type: string
@@ -139,8 +116,6 @@ export type SellerStoreDocument = {
 	createdAt: string | null
 	kind: string | null
 }
-
-/** GET /api/seller/store */
 export type SellerStoreDetail = {
 	id: string
 	name: string
@@ -161,13 +136,10 @@ export type SellerStoreDetail = {
 	deliveryZones: string[]
 	documents: SellerStoreDocument[]
 }
-
 export type GetSellerStoreOutput = {
 	success: true
 	store: SellerStoreDetail
 }
-
-/** PATCH /api/seller/store */
 export type UpdateSellerStoreInput = {
 	name?: string
 	slug?: string
@@ -184,24 +156,18 @@ export type UpdateSellerStoreInput = {
 	deliveryZones?: string[]
 	currentStep?: string
 }
-
 export type UpdateSellerStoreOutput = {
 	success: true
 	store: SellerStoreDetail
 }
-
-/** POST /api/seller/store/documents */
 export type ResubmitStoreDocumentsInput = {
 	idCardUrl: string
 	selfieUrl: string
 }
-
 export type ResubmitStoreDocumentsOutput = {
 	success: true
 	documents: SellerStoreDocument[]
 }
-
-/** GET /api/seller/members */
 export type StoreMember = {
 	id: string
 	role: 'owner' | 'manager' | 'staff' | 'viewer' | string
@@ -216,13 +182,11 @@ export type StoreMember = {
 		avatarUrl: string | null
 	}
 }
-
 export type StoreRoleCatalogEntry = {
 	label: string
 	summary: string
 	permissions: string[]
 }
-
 export type ListSellerMembersOutput = {
 	success?: true
 	members: StoreMember[]
@@ -234,41 +198,33 @@ export type ListSellerMembersOutput = {
 		permissions: string[]
 		canManage: boolean
 	}
-	roleCatalog?: Record<
-		'manager' | 'staff' | 'viewer',
-		StoreRoleCatalogEntry
-	>
+	roleCatalog?: Record<'manager' | 'staff' | 'viewer', StoreRoleCatalogEntry>
 }
-
-/** GET /api/seller/access */
 export type GetSellerAccessOutput = {
 	success: true
-	store: { id: string; name: string; slug: string }
+	store: {
+		id: string
+		name: string
+		slug: string
+	}
 	memberRole: string
 	rbacRole: string
 	isOwner: boolean
 	permissions: string[]
 	roleCatalog: Record<'manager' | 'staff' | 'viewer', StoreRoleCatalogEntry>
 }
-
-/** POST /api/seller/members */
 export type InviteMemberInput = {
 	userId?: string
 	email?: string
 	role?: 'manager' | 'staff' | 'viewer' | string
 }
-
 export type InviteMemberOutput = {
 	success: true
-	/** True when a soft-deleted membership was restored */
 	revived?: boolean
 }
-
-/** GET /api/seller/stats */
 export type GetSellerStatsInput = {
 	range?: number
 }
-
 export type GetSellerStatsOutput = {
 	data: {
 		totalSales: number
@@ -285,8 +241,6 @@ export type GetSellerStatsOutput = {
 		productCount: number
 	}
 }
-
-/** GET /api/seller/stats/analytics (mock until view events exist) */
 export type GetSellerAnalyticsOutput = {
 	success: true
 	mock: true
@@ -304,11 +258,12 @@ export type GetSellerAnalyticsOutput = {
 			totalFollowers: number
 			productCount: number
 		}
-		dailySales: Array<{ date: string; sales: number }>
+		dailySales: Array<{
+			date: string
+			sales: number
+		}>
 	}
 }
-
-/** GET /api/seller/unread-counts */
 export type GetSellerUnreadCountsOutput = {
 	pendingOrders: number
 	unreadMessages: number

@@ -1,5 +1,4 @@
 'use client'
-
 import { Switch } from '@/components/ui/switch'
 
 type SettingsPrefRowProps = {
@@ -9,7 +8,6 @@ type SettingsPrefRowProps = {
 	checked: boolean
 	onCheckedChange: (v: boolean) => void
 }
-
 export function SettingsPrefRow({
 	id,
 	title,

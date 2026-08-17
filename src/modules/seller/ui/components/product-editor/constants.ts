@@ -15,10 +15,8 @@ export const PRODUCT_STATUS_OPTIONS = [
 		description: 'Oculto temporariamente. Pode reactivar depois.',
 	},
 ] as const
-
 export type ProductStatusValue =
 	(typeof PRODUCT_STATUS_OPTIONS)[number]['value']
-
 export const PRODUCT_STATUS_STYLES: Record<string, string> = {
 	DRAFT: 'bg-muted text-muted-foreground',
 	ACTIVE: 'bg-emerald-500/10 text-emerald-700',
@@ -26,7 +24,6 @@ export const PRODUCT_STATUS_STYLES: Record<string, string> = {
 	PENDING_REVIEW: 'bg-blue-500/10 text-blue-700',
 	ARCHIVED: 'bg-muted text-muted-foreground',
 }
-
 export const PRODUCT_STATUS_LABELS: Record<string, string> = {
 	DRAFT: 'Rascunho',
 	ACTIVE: 'Activo',
@@ -34,5 +31,4 @@ export const PRODUCT_STATUS_LABELS: Record<string, string> = {
 	PENDING_REVIEW: 'Em revisão',
 	ARCHIVED: 'Arquivado',
 }
-
 export const MAX_PRODUCT_IMAGES = 8

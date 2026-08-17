@@ -1,5 +1,4 @@
 'use client'
-
 import { RANGE_OPTIONS } from '@/modules/seller/ui/components/analytics/constants'
 import type {
 	AnalyticsRange,
@@ -12,7 +11,6 @@ type SellerAnalyticsTrendProps = {
 	dailySales: SellerAnalyticsMock['dailySales']
 	maxDaily: number
 }
-
 export function SellerAnalyticsTrend({
 	range,
 	dailySales,

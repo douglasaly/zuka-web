@@ -1,5 +1,4 @@
 'use client'
-
 import { formatPrice } from '@/utils/format-price'
 
 type SellerOrderDetailItemsProps = {
@@ -13,7 +12,6 @@ type SellerOrderDetailItemsProps = {
 	total: number
 	currency: string
 }
-
 export function SellerOrderDetailItems({
 	items,
 	total,

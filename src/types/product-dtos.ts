@@ -9,12 +9,10 @@ export type ProductStoreSummary = {
 	reviewCount?: number
 	hasDelivery?: boolean
 }
-
 export type ProductCategorySummary = {
 	id: string
 	name: string
 }
-
 export type ProductListItem = {
 	id: string
 	name: string
@@ -31,7 +29,6 @@ export type ProductListItem = {
 	store: ProductStoreSummary
 	category: ProductCategorySummary | null
 }
-
 export type ProductDetail = ProductListItem & {
 	description: string
 	images: string[]

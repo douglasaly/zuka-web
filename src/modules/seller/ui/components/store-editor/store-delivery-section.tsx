@@ -1,5 +1,4 @@
 'use client'
-
 import { Check, MapPinned, Plus, X } from 'lucide-react'
 import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { Input } from '@/components/ui/input'
@@ -19,11 +18,9 @@ type StoreDeliverySectionProps = {
 	form: StoreFormState
 	onChange: (patch: Partial<StoreFormState>) => void
 }
-
 function zoneSelected(zones: string[], label: string) {
 	return zones.some((z) => z.toLowerCase() === label.toLowerCase())
 }
-
 export function StoreDeliverySection({
 	form,
 	onChange,
@@ -38,14 +35,11 @@ export function StoreDeliverySection({
 				(p) => p.label.toLowerCase() === z.toLowerCase()
 			)
 	)
-
 	function setZones(next: string[]) {
 		onChange({ deliveryZones: next })
 	}
-
 	function togglePreset(label: string, exclusive: boolean) {
 		const selected = zoneSelected(form.deliveryZones, label)
-
 		if (selected) {
 			setZones(
 				form.deliveryZones.filter(
@@ -54,27 +48,22 @@ export function StoreDeliverySection({
 			)
 			return
 		}
-
 		if (exclusive) {
 			setZones([label])
 			return
 		}
-
 		const withoutNationwide = form.deliveryZones.filter(
 			(z) => z.toLowerCase() !== NATIONWIDE_ZONE_LABEL.toLowerCase()
 		)
 		setZones([...withoutNationwide, label])
 	}
-
 	function addCustomZone() {
 		const zone = form.zoneDraft.trim()
 		if (!zone) return
-
 		if (zoneSelected(form.deliveryZones, zone)) {
 			onChange({ zoneDraft: '' })
 			return
 		}
-
 		const withoutNationwide = form.deliveryZones.filter(
 			(z) => z.toLowerCase() !== NATIONWIDE_ZONE_LABEL.toLowerCase()
 		)
@@ -83,11 +72,9 @@ export function StoreDeliverySection({
 			zoneDraft: '',
 		})
 	}
-
 	function removeZone(zone: string) {
 		setZones(form.deliveryZones.filter((z) => z !== zone))
 	}
-
 	return (
 		<StoreSection
 			title='Entrega'

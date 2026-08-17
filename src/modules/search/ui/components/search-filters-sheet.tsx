@@ -1,13 +1,12 @@
 'use client'
-
 import { useQuery } from '@tanstack/react-query'
 import {
+	ArrowUpDown,
+	CalendarClock,
 	FilterX,
 	ListFilter,
 	MapPin,
 	Tag,
-	CalendarClock,
-	ArrowUpDown,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -28,6 +27,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
 import {
 	Sheet,
 	SheetContent,
@@ -37,7 +37,6 @@ import {
 	SheetTrigger,
 } from '@/components/ui/sheet'
 import { Switch } from '@/components/ui/switch'
-import { Separator } from '@/components/ui/separator'
 import {
 	Tooltip,
 	TooltipContent,
@@ -55,7 +54,6 @@ type FilterValues = {
 	province: string
 	isNew: string
 }
-
 type SearchFiltersSheetProps = {
 	values: FilterValues
 	onApply: (values: FilterValues) => void
@@ -63,38 +61,31 @@ type SearchFiltersSheetProps = {
 	trigger?: React.ReactElement
 	triggerLabel?: string
 }
-
 const SORT_OPTIONS = [
 	{ value: 'relevance', label: 'Relevância' },
 	{ value: 'price_asc', label: 'Preço: menor para maior' },
 	{ value: 'price_desc', label: 'Preço: maior para menor' },
 	{ value: 'newest', label: 'Mais recentes' },
 ]
-
 export function SearchFiltersSheet(props: SearchFiltersSheetProps) {
 	const [mounted, setMounted] = useState(false)
 	const isDesktop = useMediaQuery('(min-width: 768px)')
 	const [open, setOpen] = useState(false)
 	const triggerLabel = props.triggerLabel ?? 'Filtros'
-
 	useEffect(() => {
 		setMounted(true)
 	}, [])
-
 	const handleApply = (values: FilterValues) => {
 		props.onApply(values)
 		setOpen(false)
 	}
-
 	const handleClear = () => {
 		props.onClear()
 		setOpen(false)
 	}
-
 	if (!mounted) {
 		return props.trigger ?? null
 	}
-
 	if (isDesktop) {
 		return (
 			<Dialog open={open} onOpenChange={setOpen}>
@@ -102,7 +93,9 @@ export function SearchFiltersSheet(props: SearchFiltersSheetProps) {
 					<TooltipTrigger
 						render={<DialogTrigger render={props.trigger} />}
 					/>
-					<TooltipContent side='bottom'>{triggerLabel}</TooltipContent>
+					<TooltipContent side='bottom'>
+						{triggerLabel}
+					</TooltipContent>
 				</Tooltip>
 				<DialogContent className='sm:max-w-md'>
 					<DialogHeader>
@@ -120,7 +113,6 @@ export function SearchFiltersSheet(props: SearchFiltersSheetProps) {
 			</Dialog>
 		)
 	}
-
 	return (
 		<Sheet open={open} onOpenChange={setOpen}>
 			<Tooltip>
@@ -147,7 +139,6 @@ export function SearchFiltersSheet(props: SearchFiltersSheetProps) {
 		</Sheet>
 	)
 }
-
 function FiltersContent({
 	values,
 	onApply,
@@ -161,19 +152,16 @@ function FiltersContent({
 		queryKey: ['categories'],
 		queryFn: getCategories,
 	})
-
 	const { data: provinces = [] } = useQuery({
 		queryKey: ['provinces'],
 		queryFn: getProvinces,
 	})
-
 	const [category, setCategory] = useState(values.category)
 	const [province, setProvince] = useState(values.province)
 	const [minPrice, setMinPrice] = useState(values.minPrice)
 	const [maxPrice, setMaxPrice] = useState(values.maxPrice)
 	const [isNew, setIsNew] = useState(values.isNew === 'true')
 	const [sort, setSort] = useState(values.sort)
-
 	const hasActiveFilters =
 		values.category ||
 		values.province ||
@@ -181,7 +169,6 @@ function FiltersContent({
 		values.maxPrice ||
 		values.isNew === 'true' ||
 		values.sort !== 'relevance'
-
 	const activeFilterCount = [
 		values.category,
 		values.province,
@@ -189,10 +176,8 @@ function FiltersContent({
 		values.isNew === 'true',
 		values.sort !== 'relevance',
 	].filter(Boolean).length
-
 	return (
 		<div className='flex flex-col gap-5'>
-			{/* Categoria */}
 			<div className='space-y-2'>
 				<div className='flex items-center gap-1.5 text-sm font-medium text-foreground'>
 					<Tag className='size-3.5 text-muted-foreground' />
@@ -225,7 +210,6 @@ function FiltersContent({
 
 			<Separator />
 
-			{/* Província */}
 			<div className='space-y-2'>
 				<div className='flex items-center gap-1.5 text-sm font-medium text-foreground'>
 					<MapPin className='size-3.5 text-muted-foreground' />
@@ -264,7 +248,6 @@ function FiltersContent({
 
 			<Separator />
 
-			{/* Faixa de preço */}
 			<div className='space-y-2'>
 				<div className='flex items-center gap-1.5 text-sm font-medium text-foreground'>
 					<span className='text-muted-foreground text-xs'>MZN</span>
@@ -298,7 +281,6 @@ function FiltersContent({
 
 			<Separator />
 
-			{/* Produtos recentes */}
 			<div className='flex items-center justify-between'>
 				<div className='flex items-center gap-1.5 text-sm font-medium text-foreground'>
 					<CalendarClock className='size-3.5 text-muted-foreground' />
@@ -323,7 +305,6 @@ function FiltersContent({
 
 			<Separator />
 
-			{/* Ordenar */}
 			<div className='space-y-2'>
 				<div className='flex items-center gap-1.5 text-sm font-medium text-foreground'>
 					<ArrowUpDown className='size-3.5 text-muted-foreground' />
@@ -355,7 +336,6 @@ function FiltersContent({
 
 			<Separator />
 
-			{/* Botões */}
 			<div className='flex items-center gap-3 pt-1'>
 				<Button variant='outline' className='flex-1' onClick={onClear}>
 					<FilterX className='mr-1.5 size-4' />
@@ -393,5 +373,4 @@ function FiltersContent({
 		</div>
 	)
 }
-
 export type { FilterValues }

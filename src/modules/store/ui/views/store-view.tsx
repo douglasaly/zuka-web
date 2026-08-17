@@ -1,5 +1,4 @@
 'use client'
-
 import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -17,21 +16,17 @@ import { StoreTabs } from '../components/store-tabs'
 interface StoreViewProps {
 	slug: string
 }
-
 export const StoreView = ({ slug }: StoreViewProps) => {
 	const router = useRouter()
 	const [activeTab, setActiveTab] = useState('products')
 	const [isSaved, setIsSaved] = useState(false)
-
 	const { data, isLoading } = useQuery({
 		queryKey: ['store', slug],
 		queryFn: () => fetchStoreBySlug(slug),
 	})
-
 	if (isLoading) {
 		return <StoreSkeleton />
 	}
-
 	if (!data) {
 		return (
 			<div className='flex min-h-[50vh] flex-col items-center justify-center gap-4 px-4'>
@@ -45,30 +40,20 @@ export const StoreView = ({ slug }: StoreViewProps) => {
 			</div>
 		)
 	}
-
 	const { store, products } = data
-
 	const handleToggleSave = () => {
 		setIsSaved((prev) => !prev)
-		// TODO: chamar API para guardar/remover loja dos guardados
 	}
-
 	const handleShare = async () => {
 		const url = typeof window !== 'undefined' ? window.location.href : ''
-
 		if (navigator.share) {
 			try {
 				await navigator.share({ title: store.name, url })
-			} catch {
-				// utilizador cancelou a partilha
-			}
+			} catch {}
 			return
 		}
-
 		await navigator.clipboard.writeText(url)
-		// TODO: mostrar toast "Link copiado"
 	}
-
 	return (
 		<div className='pb-10'>
 			<StoreHero

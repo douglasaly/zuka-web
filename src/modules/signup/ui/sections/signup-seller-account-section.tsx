@@ -1,5 +1,4 @@
 'use client'
-
 import { Loader2, MapPin } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -37,7 +36,6 @@ type SignupSellerAccountSectionProps = {
 	onBack: () => void
 	onContinue: () => void
 }
-
 export function SignupSellerAccountSection({
 	form,
 	onChange,
@@ -66,7 +64,6 @@ export function SignupSellerAccountSection({
 			phoneOk &&
 			form.provinceId
 	)
-
 	const passwordError =
 		form.password.length > 0 && !passwordOk
 			? STORE_FORM_MESSAGES.passwordMin
@@ -85,7 +82,6 @@ export function SignupSellerAccountSection({
 		form.phone.length > 0 && !phoneOk
 			? STORE_FORM_MESSAGES.phoneInvalid
 			: null
-
 	return (
 		<OnboardingShell
 			title='Criar conta de loja'

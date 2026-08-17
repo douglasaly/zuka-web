@@ -1,5 +1,4 @@
 'use client'
-
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -7,7 +6,6 @@ import type { OrderStatus } from '@/lib/orders/status-transitions'
 import { useSellerAccess } from '@/modules/seller/hooks/use-seller-access'
 import type { PendingAction } from '@/modules/seller/ui/components/orders/types'
 import { confirmCopy } from '@/modules/seller/ui/components/orders/utils'
-
 export type SellerOrderDetail = {
 	id: string
 	status: OrderStatus
@@ -40,13 +38,11 @@ export type SellerOrderDetail = {
 		note?: string
 	}>
 }
-
 export function useSellerOrderDetail(id: string) {
 	const queryClient = useQueryClient()
 	const [pending, setPending] = useState<PendingAction | null>(null)
 	const { can } = useSellerAccess()
 	const canUpdateOrder = can('order.update')
-
 	const { data, isLoading, isError, refetch } = useQuery({
 		queryKey: ['seller-order', id],
 		queryFn: async () => {
@@ -60,7 +56,6 @@ export function useSellerOrderDetail(id: string) {
 			return json.order as SellerOrderDetail
 		},
 	})
-
 	const mutation = useMutation({
 		mutationFn: async (action: PendingAction) => {
 			const res = await fetch(`/api/seller/orders/${action.orderId}`, {
@@ -91,9 +86,7 @@ export function useSellerOrderDetail(id: string) {
 			})
 		},
 	})
-
 	const shortId = data?.id.slice(0, 8) ?? id.slice(0, 8)
-
 	function requestStatus(nextStatus: PendingAction['nextStatus']) {
 		if (!data) return
 		setPending({
@@ -102,7 +95,6 @@ export function useSellerOrderDetail(id: string) {
 			nextStatus,
 		})
 	}
-
 	return {
 		data,
 		isLoading,

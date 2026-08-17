@@ -6,7 +6,6 @@ import { StatusBadge } from '../components/status-badge'
 type StoreDetailHeaderProps = {
 	store: Record<string, unknown>
 }
-
 export function StoreDetailHeader({ store }: StoreDetailHeaderProps) {
 	return (
 		<div className='flex items-center gap-3'>

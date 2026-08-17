@@ -12,7 +12,6 @@ type OrdersListSectionProps = {
 	isFetchingNextPage: boolean
 	onLoadMore: () => void
 }
-
 export function OrdersListSection({
 	isEmptyAll,
 	filtered,
@@ -25,7 +24,6 @@ export function OrdersListSection({
 	if (isEmptyAll) {
 		return <OrdersEmptyAll />
 	}
-
 	if (filtered.length === 0) {
 		return (
 			<OrdersEmptyFiltered
@@ -34,7 +32,6 @@ export function OrdersListSection({
 			/>
 		)
 	}
-
 	return (
 		<div className='space-y-3'>
 			<p className='text-sm text-muted-foreground' aria-live='polite'>

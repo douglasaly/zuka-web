@@ -1,5 +1,4 @@
 'use client'
-
 import { Button } from '@/components/ui/button'
 
 type AdminAccountRowProps = {
@@ -7,7 +6,6 @@ type AdminAccountRowProps = {
 	removePending: boolean
 	onRemove: (id: string) => void
 }
-
 export function AdminAccountRow({
 	user,
 	removePending,
@@ -15,7 +13,6 @@ export function AdminAccountRow({
 }: AdminAccountRowProps) {
 	const roles = (user.roles as string[]) ?? []
 	const hasAdminRole = roles.includes('admin')
-
 	return (
 		<div className='flex items-center justify-between gap-2 px-4 py-2.5'>
 			<div className='flex items-center gap-2'>

@@ -1,12 +1,12 @@
 'use client'
-
 import { AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-
 export default function DashboardError({
 	reset,
 }: {
-	error: Error & { digest?: string }
+	error: Error & {
+		digest?: string
+	}
 	reset: () => void
 }) {
 	return (

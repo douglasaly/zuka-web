@@ -2,7 +2,6 @@ type PendingStoresToolbarProps = {
 	isLoading: boolean
 	count: number
 }
-
 export function PendingStoresToolbar({
 	isLoading,
 	count,

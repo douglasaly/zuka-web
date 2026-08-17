@@ -23,7 +23,6 @@ export interface Product {
 	categoryId: string
 	categoryName?: string
 }
-
 export interface StoreProfile {
 	id: string
 	name: string
@@ -43,7 +42,6 @@ export interface StoreProfile {
 	email: string | null
 	status: string | null
 }
-
 export interface OrderSummary {
 	id: string
 	storeName: string
@@ -55,7 +53,6 @@ export interface OrderSummary {
 	status: 'shipping' | 'pending' | 'completed' | 'cancelled'
 	statusLabel: string
 }
-
 export interface UserProfile {
 	id: string
 	email: string | null

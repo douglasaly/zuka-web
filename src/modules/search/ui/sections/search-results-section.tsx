@@ -1,5 +1,4 @@
 'use client'
-
 import { ChevronRight, Tag } from 'lucide-react'
 import Link from 'next/link'
 import type { SearchResults } from '@/app/api/search/route'
@@ -13,7 +12,6 @@ interface Props {
 	category: string
 	resultLabel: React.ReactNode
 }
-
 export function SearchResultsSection({
 	data,
 	q,

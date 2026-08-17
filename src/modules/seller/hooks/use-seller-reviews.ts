@@ -1,5 +1,4 @@
 'use client'
-
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useDeferredValue, useMemo, useState } from 'react'
 import type {
@@ -7,21 +6,18 @@ import type {
 	SellerReviewsResponse,
 	SellerStoreReview,
 } from '@/modules/seller/ui/components/reviews/types'
-
 export function useSellerReviews() {
 	const [scope, setScope] = useState<ReviewScope>('store')
 	const [search, setSearch] = useState('')
 	const deferredSearch = useDeferredValue(search.trim())
 	const [needsReplyOnly, setNeedsReplyOnly] = useState(false)
 	const queryClient = useQueryClient()
-
 	const queryKey = [
 		'seller-reviews',
 		scope,
 		deferredSearch,
 		needsReplyOnly,
 	] as const
-
 	const { data, isLoading, isError, isFetching, refetch } =
 		useQuery<SellerReviewsResponse>({
 			queryKey,
@@ -35,25 +31,20 @@ export function useSellerReviews() {
 				return res.json()
 			},
 		})
-
 	const storeReviews = data?.storeReviews ?? []
 	const productReviews = data?.productReviews ?? []
-
 	const summary = data?.summary ?? {
 		store: { average: 0, count: 0, distribution: [0, 0, 0, 0, 0] },
 		products: { average: 0, count: 0, distribution: [0, 0, 0, 0, 0] },
 	}
-
 	const isEmptyStore =
 		!isLoading &&
 		summary.store.count === 0 &&
 		summary.products.count === 0 &&
 		!deferredSearch &&
 		!needsReplyOnly
-
 	const visibleCount =
 		scope === 'store' ? storeReviews.length : productReviews.length
-
 	const resultLabel = useMemo(() => {
 		if (visibleCount === 0) return 'Nenhuma avaliação encontrada'
 		if (scope === 'store') {
@@ -65,7 +56,6 @@ export function useSellerReviews() {
 			? '1 avaliação de produto'
 			: `${visibleCount} avaliações de produtos`
 	}, [scope, visibleCount])
-
 	function markReplied(reviewId: string, reply: string) {
 		queryClient.setQueriesData<SellerReviewsResponse>(
 			{ queryKey: ['seller-reviews'] },
@@ -93,12 +83,10 @@ export function useSellerReviews() {
 			}
 		)
 	}
-
 	function clearFilters() {
 		setSearch('')
 		setNeedsReplyOnly(false)
 	}
-
 	return {
 		scope,
 		setScope,

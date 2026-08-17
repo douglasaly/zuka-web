@@ -1,6 +1,6 @@
 'use client'
-
 import {
+	Bell,
 	Compass,
 	HomeIcon,
 	MessageSquare,
@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/sidebar'
 import { useCartItemCount, useHasHydrated } from '@/hooks/use-cart'
 import { useInbox } from '@/hooks/use-inbox'
+import { useNotifications } from '@/hooks/use-notifications'
 import { useUserProfile } from '@/hooks/use-user-profile'
 import { cn } from '@/lib/utils'
 
@@ -30,23 +31,56 @@ const publicItems = [
 	{ title: 'Explorar', url: '/feed/explorar', icon: Compass },
 	{ title: 'Carrinho', url: '/carrinho', icon: ShoppingCart },
 ]
-
 const authItems = [
 	{ title: 'Pedidos', url: '/feed/pedidos', icon: ShoppingBag },
 	{ title: 'Mensagens', url: '/mensagens', icon: MessageSquare },
+	{ title: 'Notificações', url: '/notificacoes', icon: Bell },
 	{ title: 'Perfil', url: '/perfil', icon: User },
 ]
-
+type SidebarBadge = {
+	count: number
+	aria: string
+	hint: string
+	emphasise: boolean
+}
+const badge = (
+	count: number,
+	aria: string,
+	hint: string,
+	emphasise = true
+): SidebarBadge | undefined =>
+	count > 0 ? { count, aria, hint, emphasise } : undefined
 export const MainSection = () => {
 	const pathname = usePathname()
 	const { isAuthenticated, isLoading } = useUserProfile()
 	const { unreadTotal } = useInbox()
+	const { unreadCount } = useNotifications()
 	const hasHydrated = useHasHydrated()
 	const cartCount = useCartItemCount()
 	const visibleCartCount = hasHydrated ? cartCount : 0
-
 	const items = [...publicItems, ...(isAuthenticated ? authItems : [])]
-
+	const badges: Record<string, SidebarBadge | undefined> = {
+		'/carrinho': badge(
+			visibleCartCount,
+			`${visibleCartCount} itens no carrinho`,
+			`${visibleCartCount} ${visibleCartCount === 1 ? 'item' : 'itens'}`,
+			false
+		),
+		'/mensagens': isAuthenticated
+			? badge(
+					unreadTotal,
+					`${unreadTotal} mensagens por ler`,
+					`${unreadTotal} por ler`
+				)
+			: undefined,
+		'/notificacoes': isAuthenticated
+			? badge(
+					unreadCount,
+					`${unreadCount} notificações por ler`,
+					`${unreadCount} por ler`
+				)
+			: undefined,
+	}
 	if (isLoading) {
 		return (
 			<SidebarGroup>
@@ -65,7 +99,6 @@ export const MainSection = () => {
 			</SidebarGroup>
 		)
 	}
-
 	return (
 		<SidebarGroup>
 			<SidebarGroupLabel className='text-xs font-semibold uppercase tracking-wider text-muted-foreground/70'>
@@ -79,37 +112,30 @@ export const MainSection = () => {
 								? pathname === '/'
 								: pathname === item.url ||
 									pathname.startsWith(`${item.url}/`)
-						const isMessages = item.url === '/mensagens'
-						const isCart = item.url === '/carrinho'
-						const showUnread =
-							isMessages && isAuthenticated && unreadTotal > 0
-						const showCartBadge = isCart && visibleCartCount > 0
-						const tooltip = showUnread
-							? `Mensagens (${unreadTotal} por ler)`
-							: showCartBadge
-								? `Carrinho (${visibleCartCount} itens)`
-								: item.title
-
+						const itemBadge = badges[item.url]
+						const isPending = Boolean(itemBadge?.emphasise)
 						return (
 							<SidebarMenuItem key={item.title}>
 								<SidebarMenuButton
-									tooltip={tooltip}
+									tooltip={
+										itemBadge
+											? `${item.title} (${itemBadge.hint})`
+											: item.title
+									}
 									isActive={isActive}
 									className={cn(
-										(showUnread || showCartBadge) && 'pr-8',
-										isMessages &&
+										itemBadge && 'pr-8',
+										isPending &&
 											!isActive &&
-											'text-foreground',
-										showUnread &&
-											!isActive &&
-											'bg-secondary/8 font-medium hover:bg-secondary/12'
+											'bg-secondary/8 font-medium text-foreground hover:bg-secondary/12'
 									)}
 									render={
 										<Link prefetch href={item.url}>
 											<item.icon
 												className={cn(
 													'size-4',
-													showUnread &&
+													isPending &&
+														!isActive &&
 														'text-secondary'
 												)}
 											/>
@@ -117,21 +143,14 @@ export const MainSection = () => {
 										</Link>
 									}
 								/>
-								{showUnread ? (
+								{itemBadge ? (
 									<SidebarMenuBadge
 										className='rounded-full bg-secondary text-[10px] font-bold text-secondary-foreground peer-data-active/menu-button:bg-secondary peer-data-active/menu-button:text-secondary-foreground'
-										aria-label={`${unreadTotal} mensagens por ler`}
+										aria-label={itemBadge.aria}
 									>
-										{unreadTotal > 99 ? '99+' : unreadTotal}
-									</SidebarMenuBadge>
-								) : showCartBadge ? (
-									<SidebarMenuBadge
-										className='rounded-full bg-secondary text-[10px] font-bold text-secondary-foreground peer-data-active/menu-button:bg-secondary peer-data-active/menu-button:text-secondary-foreground'
-										aria-label={`${visibleCartCount} itens no carrinho`}
-									>
-										{visibleCartCount > 99
+										{itemBadge.count > 99
 											? '99+'
-											: visibleCartCount}
+											: itemBadge.count}
 									</SidebarMenuBadge>
 								) : null}
 							</SidebarMenuItem>

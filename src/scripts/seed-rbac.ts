@@ -8,10 +8,8 @@ import {
 import { createSupabaseAdmin } from '../lib/supabase/admin'
 
 const supabase = createSupabaseAdmin()
-
 async function seed() {
 	console.log('🌱 Iniciando seed de RBAC...')
-
 	const roleDefs = [
 		{
 			name: 'admin',
@@ -55,11 +53,14 @@ async function seed() {
 		},
 		{
 			name: 'store_viewer',
-			description: 'Visualizador. Pode consultar apenas os dados da loja e os produtos',
+			description:
+				'Visualizador. Pode consultar apenas os dados da loja e os produtos',
 		},
 	]
-
-	const permissionDefs: Array<{ key: string; description: string }> = [
+	const permissionDefs: Array<{
+		key: string
+		description: string
+	}> = [
 		{ key: 'product.create', description: 'Criar produtos' },
 		{ key: 'product.update', description: 'Atualizar produtos' },
 		{ key: 'product.delete', description: 'Excluir produtos' },
@@ -86,26 +87,20 @@ async function seed() {
 		{ key: 'review.reply', description: 'Responder avaliações' },
 		{ key: 'stats.read', description: 'Ver desempenho e estatísticas' },
 	]
-
-	// Load existing rows first. Upserting with a new id onConflict:key
-	// tries to rewrite the PK and fails under role_permissions FKs (ON UPDATE no action).
 	const { data: existingRoles, error: rolesLoadError } = await supabase
 		.from('roles')
 		.select('id, name')
 	if (rolesLoadError) throw rolesLoadError
-
 	const existingRoleByName = new Map(
 		(existingRoles ?? []).map((r) => [r.name, r.id])
 	)
 	const rolesToInsert = roleDefs
 		.filter((r) => !existingRoleByName.has(r.name))
 		.map((r) => ({ id: uuidv7(), ...r }))
-
 	if (rolesToInsert.length) {
 		const { error } = await supabase.from('roles').insert(rolesToInsert)
 		if (error) throw error
 	}
-
 	for (const role of roleDefs) {
 		const id = existingRoleByName.get(role.name)
 		if (!id) continue
@@ -115,26 +110,22 @@ async function seed() {
 			.eq('id', id)
 		if (error) throw error
 	}
-
 	const { data: existingPermissions, error: permsLoadError } = await supabase
 		.from('permissions')
 		.select('id, key')
 	if (permsLoadError) throw permsLoadError
-
 	const existingPermByKey = new Map(
 		(existingPermissions ?? []).map((p) => [p.key, p.id])
 	)
 	const permissionsToInsert = permissionDefs
 		.filter((p) => !existingPermByKey.has(p.key))
 		.map((p) => ({ id: uuidv7(), ...p }))
-
 	if (permissionsToInsert.length) {
 		const { error } = await supabase
 			.from('permissions')
 			.insert(permissionsToInsert)
 		if (error) throw error
 	}
-
 	for (const perm of permissionDefs) {
 		const id = existingPermByKey.get(perm.key)
 		if (!id) continue
@@ -144,25 +135,20 @@ async function seed() {
 			.eq('id', id)
 		if (error) throw error
 	}
-
 	const { data: insertedRoles, error: rolesSelectError } = await supabase
 		.from('roles')
 		.select('*')
 	if (rolesSelectError) throw rolesSelectError
-
 	const { data: insertedPermissions, error: permsSelectError } =
 		await supabase.from('permissions').select('*')
 	if (permsSelectError) throw permsSelectError
-
 	if (!insertedRoles?.length || !insertedPermissions?.length) {
 		throw new Error('Failed to load roles or permissions after upsert')
 	}
-
 	const roleMap = Object.fromEntries(insertedRoles.map((r) => [r.name, r.id]))
 	const permMap = Object.fromEntries(
 		insertedPermissions.map((p) => [p.key, p.id])
 	)
-
 	const mustHave = [
 		...STORE_PERMISSIONS,
 		'order.create',
@@ -175,7 +161,6 @@ async function seed() {
 			throw new Error(`Permission missing after upsert: ${key}`)
 		}
 	}
-
 	for (const name of [
 		'admin',
 		'super_admin',
@@ -191,7 +176,6 @@ async function seed() {
 			throw new Error(`Role missing after upsert: ${name}`)
 		}
 	}
-
 	const rolePermissions: Array<{
 		role_id: string
 		permission_id: string
@@ -242,7 +226,6 @@ async function seed() {
 			permission_id: permMap[key],
 		})),
 	]
-
 	const { error: rpError } = await supabase
 		.from('role_permissions')
 		.upsert(rolePermissions, {
@@ -250,10 +233,10 @@ async function seed() {
 			ignoreDuplicates: true,
 		})
 	if (rpError) throw rpError
-
-	console.log('✅ Seed de RBAC concluído (inclui roles store_* + permissões da loja)!')
+	console.log(
+		'✅ Seed de RBAC concluído (inclui roles store_* + permissões da loja)!'
+	)
 }
-
 seed()
 	.then(() => process.exit(0))
 	.catch((err) => {

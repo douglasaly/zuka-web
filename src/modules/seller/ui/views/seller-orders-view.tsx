@@ -1,5 +1,4 @@
 'use client'
-
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 import { useSellerOrders } from '@/modules/seller/hooks/use-seller-orders'
 import { DEFAULT_PER_PAGE } from '@/modules/seller/ui/components/orders/constants'
@@ -14,13 +13,11 @@ import {
 } from '@/modules/seller/ui/sections/seller-orders-empty'
 import { SellerOrdersListSection } from '@/modules/seller/ui/sections/seller-orders-list-section'
 import { SellerOrdersToolbar } from '@/modules/seller/ui/sections/seller-orders-toolbar'
-
 export const SellerOrdersView = () => {
 	useSetSellerPageMeta({
 		title: 'Pedidos',
 		crumbs: ['Dashboard', 'Pedidos'],
 	})
-
 	const {
 		searchInput,
 		setSearchInput,
@@ -47,13 +44,10 @@ export const SellerOrdersView = () => {
 		setPendingAction,
 		statusMutation,
 	} = useSellerOrders()
-
 	if (isLoading && !hasData) return <OrdersTableSkeleton />
-
 	if (isError && !hasData) {
 		return <SellerOrdersErrorState onRetry={() => refetch()} />
 	}
-
 	return (
 		<div className='w-full min-w-0 space-y-6 pb-10'>
 			<p className='max-w-3xl text-sm leading-relaxed text-muted-foreground'>

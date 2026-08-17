@@ -1,5 +1,4 @@
 'use client'
-
 import { useSignupFlow } from '../../hooks/use-signup-flow'
 import { SignupBuyerFormSection } from '../sections/signup-buyer-form-section'
 import { SignupBuyerWelcomeSection } from '../sections/signup-buyer-welcome-section'
@@ -8,10 +7,8 @@ import { SignupSellerAccountSection } from '../sections/signup-seller-account-se
 import { SignupSellerPendingSection } from '../sections/signup-seller-pending-section'
 import { SignupSellerProfileSection } from '../sections/signup-seller-profile-section'
 import { SignupSellerVerificationSection } from '../sections/signup-seller-verification-section'
-
 export function SignupView() {
 	const flow = useSignupFlow()
-
 	if (flow.step === 'role') {
 		return (
 			<SignupRoleSection
@@ -20,7 +17,6 @@ export function SignupView() {
 			/>
 		)
 	}
-
 	if (flow.step === 'buyer-form') {
 		return (
 			<SignupBuyerFormSection
@@ -35,11 +31,9 @@ export function SignupView() {
 			/>
 		)
 	}
-
 	if (flow.step === 'buyer-welcome') {
 		return <SignupBuyerWelcomeSection />
 	}
-
 	if (flow.step === 'seller-1') {
 		return (
 			<SignupSellerAccountSection
@@ -57,7 +51,6 @@ export function SignupView() {
 			/>
 		)
 	}
-
 	if (flow.step === 'seller-2') {
 		return (
 			<SignupSellerProfileSection
@@ -70,7 +63,6 @@ export function SignupView() {
 			/>
 		)
 	}
-
 	if (flow.step === 'seller-3') {
 		return (
 			<SignupSellerVerificationSection
@@ -83,6 +75,5 @@ export function SignupView() {
 			/>
 		)
 	}
-
 	return <SignupSellerPendingSection />
 }

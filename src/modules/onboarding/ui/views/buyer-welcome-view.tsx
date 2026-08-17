@@ -1,5 +1,4 @@
 'use client'
-
 import { CheckCircle2, MessageCircle, Truck } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -30,10 +29,8 @@ const features = [
 		iconClass: 'bg-emerald-500/10 text-emerald-700',
 	},
 ]
-
 export const BuyerWelcomeView = () => {
 	const router = useRouter()
-
 	return (
 		<div className='flex flex-1 flex-col bg-background'>
 			<div className='mx-auto flex w-full max-w-lg flex-1 flex-col px-4 py-10 sm:px-6 sm:py-14'>

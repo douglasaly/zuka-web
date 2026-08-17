@@ -1,5 +1,4 @@
 'use client'
-
 import { Phone } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { trackContactEvent } from '@/lib/contact-events'
@@ -12,7 +11,6 @@ type StoreContactActionsProps = {
 	onToggleFollow: () => void
 	isFollowDisabled?: boolean
 }
-
 export const StoreContactActions = ({
 	storeId,
 	whatsapp,
@@ -28,9 +26,12 @@ export const StoreContactActions = ({
 			type: 'whatsapp',
 			source: 'store',
 		})
-		window.open(`https://wa.me/${whatsapp}`, '_blank', 'noopener,noreferrer')
+		window.open(
+			`https://wa.me/${whatsapp}`,
+			'_blank',
+			'noopener,noreferrer'
+		)
 	}
-
 	const openCall = () => {
 		if (!phone) return
 		trackContactEvent({
@@ -40,7 +41,6 @@ export const StoreContactActions = ({
 		})
 		window.location.href = `tel:${phone}`
 	}
-
 	return (
 		<div className='mt-4 flex flex-col gap-2 sm:flex-row'>
 			{whatsapp && (

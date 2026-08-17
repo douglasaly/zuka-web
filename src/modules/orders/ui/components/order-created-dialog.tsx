@@ -1,5 +1,4 @@
 'use client'
-
 import { CheckCircle2, MessageCircle, MessageSquare } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -19,7 +18,6 @@ type OrderCreatedDialogProps = {
 	storeId: string | null
 	onOpenChange: (open: boolean) => void
 }
-
 export function OrderCreatedDialog({
 	order,
 	storeId,
@@ -27,13 +25,11 @@ export function OrderCreatedDialog({
 }: OrderCreatedDialogProps) {
 	const router = useRouter()
 	const open = order != null
-
 	const goToChat = () => {
 		if (!order) return
 		onOpenChange(false)
 		router.push(`/mensagens/${order.conversationId}`)
 	}
-
 	const goToWhatsApp = () => {
 		if (!order?.storePhone) return
 		if (storeId) {
@@ -50,13 +46,11 @@ export function OrderCreatedDialog({
 		)
 		onOpenChange(false)
 	}
-
 	const goToOrder = () => {
 		if (!order) return
 		onOpenChange(false)
 		router.push(buyerOrderPath(order.orderId))
 	}
-
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className='rounded-2xl sm:max-w-md' showCloseButton>

@@ -1,5 +1,4 @@
 'use client'
-
 import { Switch } from '@/components/ui/switch'
 import { SettingsRow } from './settings-row'
 
@@ -9,7 +8,6 @@ type SettingsToggleRowProps = {
 	checked: boolean
 	onCheckedChange: (checked: boolean) => void
 }
-
 export const SettingsToggleRow = ({
 	title,
 	description,

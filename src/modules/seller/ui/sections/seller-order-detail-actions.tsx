@@ -1,5 +1,4 @@
 'use client'
-
 import { CheckCircle2, Truck, XCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { OrderStatus } from '@/lib/orders/status-transitions'
@@ -11,7 +10,6 @@ type SellerOrderDetailActionsProps = {
 	canUpdateOrder: boolean
 	onRequestStatus: (nextStatus: PendingAction['nextStatus']) => void
 }
-
 export function SellerOrderDetailActions({
 	status,
 	shortId,
@@ -26,7 +24,6 @@ export function SellerOrderDetailActions({
 	) {
 		return null
 	}
-
 	return (
 		<section className='flex flex-wrap gap-2'>
 			{status === 'SHIPPING' ? (

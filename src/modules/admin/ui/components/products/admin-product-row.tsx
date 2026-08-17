@@ -1,5 +1,4 @@
 'use client'
-
 import { format } from 'date-fns'
 import { pt } from 'date-fns/locale'
 import { Eye, Image as ImageIcon, Pause, Play, Trash2 } from 'lucide-react'
@@ -28,7 +27,6 @@ type AdminProductRowProps = {
 	onReactivate: (id: string) => void
 	onDelete: (id: string) => void
 }
-
 export function AdminProductRow({
 	product,
 	isSelected,
@@ -44,7 +42,6 @@ export function AdminProductRow({
 	const cat = product.categories as Record<string, unknown> | null
 	const statusKey = productStatus(product)
 	const visible = Boolean(product.is_visible)
-
 	return (
 		<TableRow
 			data-state={isSelected ? 'selected' : undefined}

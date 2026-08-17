@@ -1,5 +1,4 @@
 'use client'
-
 import { signOut } from 'firebase/auth'
 import { Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -16,12 +15,10 @@ import {
 	DialogTrigger,
 } from '@/components/ui/dialog'
 import { auth } from '@/lib/firebase/firebase-client'
-
 export function SellerDangerZone() {
 	const router = useRouter()
 	const [open, setOpen] = useState(false)
 	const [deleting, setDeleting] = useState(false)
-
 	async function handleDelete() {
 		setDeleting(true)
 		try {
@@ -47,7 +44,6 @@ export function SellerDangerZone() {
 			setDeleting(false)
 		}
 	}
-
 	return (
 		<section className='min-w-0 space-y-3'>
 			<div className='min-w-0 px-0.5'>

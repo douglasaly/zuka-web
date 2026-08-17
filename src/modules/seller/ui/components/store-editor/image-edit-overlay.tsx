@@ -5,8 +5,6 @@ type ImageEditOverlayProps = {
 	className?: string
 	label?: string
 }
-
-/** Hover / focus / active edit affordance over an image preview. */
 export function ImageEditOverlay({
 	className,
 	label = 'Editar imagem',

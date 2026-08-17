@@ -1,5 +1,4 @@
 'use client'
-
 import { CheckCircle2 } from 'lucide-react'
 import Image from 'next/image'
 import { useMemo, useState } from 'react'
@@ -17,12 +16,10 @@ type OrderReviewFormProps = {
 	items: BuyerOrderItem[]
 	onSubmitted: () => void
 }
-
 type ProductDraft = {
 	rating: number
 	body: string
 }
-
 export function OrderReviewForm({
 	orderId,
 	storeName,
@@ -33,7 +30,6 @@ export function OrderReviewForm({
 		() => items.filter((item) => Boolean(item.productId)),
 		[items]
 	)
-
 	const [storeRating, setStoreRating] = useState(0)
 	const [storeBody, setStoreBody] = useState('')
 	const [productDrafts, setProductDrafts] = useState<
@@ -52,7 +48,6 @@ export function OrderReviewForm({
 	)
 	const [pending, setPending] = useState(false)
 	const [done, setDone] = useState(false)
-
 	function updateProduct(productId: string, patch: Partial<ProductDraft>) {
 		setProductDrafts((prev) => ({
 			...prev,
@@ -63,15 +58,12 @@ export function OrderReviewForm({
 			},
 		}))
 	}
-
 	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault()
 		if (pending) return
-
 		const nextStoreError =
 			storeRating < 1 ? 'Escolhe uma nota para a loja.' : null
 		const nextProductErrors: Record<string, string> = {}
-
 		for (const item of reviewableItems) {
 			const productId = item.productId!
 			const draft = productDrafts[productId]
@@ -80,15 +72,12 @@ export function OrderReviewForm({
 					'Escolhe uma nota para este produto.'
 			}
 		}
-
 		setStoreError(nextStoreError)
 		setProductErrors(nextProductErrors)
-
 		if (nextStoreError || Object.keys(nextProductErrors).length > 0) {
 			toast.error('Completa as notas antes de enviar.')
 			return
 		}
-
 		setPending(true)
 		try {
 			const res = await fetch(`/api/orders/${orderId}/review`, {
@@ -116,7 +105,6 @@ export function OrderReviewForm({
 						: 'Não foi possível enviar a avaliação.'
 				)
 			}
-
 			setDone(true)
 			toast.success('Avaliação enviada. Obrigado!')
 			onSubmitted()
@@ -130,7 +118,6 @@ export function OrderReviewForm({
 			setPending(false)
 		}
 	}
-
 	if (reviewableItems.length === 0) {
 		return (
 			<div className='rounded-2xl border border-border/70 bg-card p-5'>
@@ -143,7 +130,6 @@ export function OrderReviewForm({
 			</div>
 		)
 	}
-
 	if (done) {
 		return (
 			<div className='rounded-2xl border border-emerald-500/20 bg-emerald-500/6 p-5'>
@@ -165,7 +151,6 @@ export function OrderReviewForm({
 			</div>
 		)
 	}
-
 	return (
 		<form
 			onSubmit={handleSubmit}
@@ -221,7 +206,6 @@ export function OrderReviewForm({
 						rating: 0,
 						body: '',
 					}
-
 					return (
 						<section
 							key={item.id}
@@ -304,7 +288,6 @@ export function OrderReviewForm({
 		</form>
 	)
 }
-
 export function OrderReviewWaitingPanel({
 	statusLabel,
 }: {

@@ -13,7 +13,6 @@ const SignupView = dynamic(
 		),
 	}
 )
-
 export default function SignupPage() {
 	return <SignupView />
 }

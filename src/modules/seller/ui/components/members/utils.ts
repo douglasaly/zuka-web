@@ -1,5 +1,4 @@
 import type { MemberUser } from '@/modules/seller/ui/components/members/types'
-
 export function displayName(user: MemberUser) {
 	const name = [user.firstName, user.lastName]
 		.filter(Boolean)
@@ -7,7 +6,6 @@ export function displayName(user: MemberUser) {
 		.trim()
 	return name || user.email || 'Utilizador'
 }
-
 export function initialsOf(user: MemberUser) {
 	const parts = [user.firstName, user.lastName].filter(Boolean) as string[]
 	if (parts.length > 0) {
@@ -19,7 +17,6 @@ export function initialsOf(user: MemberUser) {
 	}
 	return (user.email?.charAt(0) ?? '?').toUpperCase()
 }
-
 export function formatJoined(iso: string | null) {
 	if (!iso) return 'Convite pendente'
 	return `Desde ${new Date(iso).toLocaleDateString('pt-PT', {

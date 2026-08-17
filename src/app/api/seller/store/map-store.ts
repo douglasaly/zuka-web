@@ -14,7 +14,6 @@ type DocumentRow = {
 	created_at: string | null
 	metadata: string | null
 }
-
 type StoreRow = {
 	id: string
 	name: string
@@ -31,19 +30,26 @@ type StoreRow = {
 	verified_at: string | null
 	has_delivery?: boolean | null
 	delivery_zones?: string[] | null
-	provinces?: { name: string } | { name: string }[] | null
+	provinces?:
+		| {
+				name: string
+		  }
+		| {
+				name: string
+		  }[]
+		| null
 }
-
 function parseDocumentKind(metadata: string | null): string | null {
 	if (!metadata) return null
 	try {
-		const parsed = JSON.parse(metadata) as { kind?: string }
+		const parsed = JSON.parse(metadata) as {
+			kind?: string
+		}
 		return parsed.kind ?? null
 	} catch {
 		return null
 	}
 }
-
 export function mapStoreDocument(row: DocumentRow): SellerStoreDocument {
 	return {
 		id: row.id,
@@ -57,7 +63,6 @@ export function mapStoreDocument(row: DocumentRow): SellerStoreDocument {
 		kind: parseDocumentKind(row.metadata),
 	}
 }
-
 export function mapSellerStoreDetail(
 	store: StoreRow,
 	productCount: number,
@@ -66,7 +71,6 @@ export function mapSellerStoreDetail(
 	const province = Array.isArray(store.provinces)
 		? store.provinces[0]
 		: store.provinces
-
 	return {
 		id: store.id,
 		name: store.name,

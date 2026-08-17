@@ -1,32 +1,26 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
-
 export async function GET(request: NextRequest) {
 	try {
 		const auth = await requireSellerStore({ permission: 'stats.read' })
 		if (isSellerStoreAuthError(auth)) return auth.error
 		const { store } = auth
-
 		const { searchParams } = new URL(request.url)
 		const range = Math.min(
 			Math.max(Number(searchParams.get('range')) || 30, 7),
 			90
 		)
-
 		const supabase = createSupabaseAdmin()
 		const now = new Date()
 		const currentStart = new Date(now.getTime() - range * 86400000)
 		const prevStart = new Date(currentStart.getTime() - range * 86400000)
-
-		// --- Vendas (total de pedidos COMPLETED + SHIPPING) ---
 		const { data: currentSales } = await supabase
 			.from('orders')
 			.select('total')
 			.eq('store_id', store.id)
 			.in('status', ['COMPLETED', 'SHIPPING'])
 			.gte('created_at', currentStart.toISOString())
-
 		const { data: prevSales } = await supabase
 			.from('orders')
 			.select('total')
@@ -34,43 +28,36 @@ export async function GET(request: NextRequest) {
 			.in('status', ['COMPLETED', 'SHIPPING'])
 			.gte('created_at', prevStart.toISOString())
 			.lt('created_at', currentStart.toISOString())
-
-		const sumTotal = (rows: { total: number }[] | null) =>
-			(rows ?? []).reduce((acc, r) => acc + (r.total ?? 0), 0)
-
+		const sumTotal = (
+			rows:
+				| {
+						total: number
+				  }[]
+				| null
+		) => (rows ?? []).reduce((acc, r) => acc + (r.total ?? 0), 0)
 		const totalSales = sumTotal(currentSales)
 		const totalSalesPrev = sumTotal(prevSales)
-
-		// --- Total de pedidos ---
 		const { count: totalOrders } = await supabase
 			.from('orders')
 			.select('*', { count: 'exact', head: true })
 			.eq('store_id', store.id)
 			.gte('created_at', currentStart.toISOString())
-
 		const { count: totalOrdersPrev } = await supabase
 			.from('orders')
 			.select('*', { count: 'exact', head: true })
 			.eq('store_id', store.id)
 			.gte('created_at', prevStart.toISOString())
 			.lt('created_at', currentStart.toISOString())
-
-		// --- Seguidores ---
 		const { count: totalFollowers } = await supabase
 			.from('store_followers')
 			.select('*', { count: 'exact', head: true })
 			.eq('store_id', store.id)
-
-		// --- Produtos activos ---
 		const { count: productCount } = await supabase
 			.from('products')
 			.select('*', { count: 'exact', head: true })
 			.eq('store_id', store.id)
 			.eq('status', 'ACTIVE')
 			.is('deleted_at', null)
-
-		// --- Contactos WhatsApp / Chamadas (cliques) ---
-		// Totais no período (range); % vs dia anterior (hoje vs ontem, Africa/Maputo)
 		const countContactEvents = async (
 			type: 'whatsapp' | 'call',
 			from: Date,
@@ -82,15 +69,12 @@ export async function GET(request: NextRequest) {
 				.eq('store_id', store.id)
 				.eq('type', type)
 				.gte('created_at', from.toISOString())
-
 			if (to) {
 				query = query.lt('created_at', to.toISOString())
 			}
-
 			const { count } = await query
 			return count ?? 0
 		}
-
 		const startOfDayMaputo = (date: Date) => {
 			const parts = new Intl.DateTimeFormat('en-CA', {
 				timeZone: 'Africa/Maputo',
@@ -103,10 +87,8 @@ export async function GET(request: NextRequest) {
 			const d = parts.find((p) => p.type === 'day')?.value
 			return new Date(`${y}-${m}-${d}T00:00:00+02:00`)
 		}
-
 		const todayStart = startOfDayMaputo(now)
 		const yesterdayStart = new Date(todayStart.getTime() - 86400000)
-
 		const [
 			whatsappContacts,
 			whatsappToday,
@@ -122,12 +104,10 @@ export async function GET(request: NextRequest) {
 			countContactEvents('call', todayStart),
 			countContactEvents('call', yesterdayStart, todayStart),
 		])
-
 		const calcPct = (current: number, prev: number) => {
 			if (prev === 0) return current > 0 ? 100 : 0
 			return Math.round(((current - prev) / prev) * 100)
 		}
-
 		return NextResponse.json({
 			data: {
 				totalSales,

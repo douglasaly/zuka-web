@@ -1,5 +1,4 @@
 'use client'
-
 import {
 	Bar,
 	BarChart,
@@ -19,7 +18,6 @@ type AdminOverviewChartsProps = {
 	signups: DayCount[]
 	products: DayCount[]
 }
-
 export function AdminOverviewCharts({
 	analyticsLoading,
 	signups,

@@ -1,5 +1,4 @@
 'use client'
-
 import { useQuery } from '@tanstack/react-query'
 import { PackageSearch } from 'lucide-react'
 import Link from 'next/link'
@@ -12,7 +11,6 @@ import { ProductForm } from '../components/product-form'
 interface SellerEditProductViewProps {
 	id: string
 }
-
 export const SellerEditProductView = ({ id }: SellerEditProductViewProps) => {
 	const { data, isLoading, isError } = useQuery({
 		queryKey: ['seller-product', id],
@@ -26,7 +24,6 @@ export const SellerEditProductView = ({ id }: SellerEditProductViewProps) => {
 			return json.product as SellerProductDetail
 		},
 	})
-
 	if (isLoading) {
 		return (
 			<div className='space-y-5'>
@@ -42,7 +39,6 @@ export const SellerEditProductView = ({ id }: SellerEditProductViewProps) => {
 			</div>
 		)
 	}
-
 	if (isError || !data) {
 		return (
 			<div className='flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/70 bg-muted/20 px-6 py-20 text-center'>
@@ -66,13 +62,11 @@ export const SellerEditProductView = ({ id }: SellerEditProductViewProps) => {
 			</div>
 		)
 	}
-
 	const status = (
 		['DRAFT', 'ACTIVE', 'INACTIVE'].includes(data.status)
 			? data.status
 			: 'DRAFT'
 	) as ProductStatusValue
-
 	return (
 		<ProductForm
 			mode='edit'

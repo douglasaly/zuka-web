@@ -1,6 +1,5 @@
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-
 export const OrderSkeleton = () => (
 	<div
 		className='flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8'

@@ -1,5 +1,4 @@
 'use client'
-
 import { useQuery } from '@tanstack/react-query'
 import type { DayCount } from '@/modules/admin/ui/components/analytics/constants'
 import { formatDay } from '@/modules/admin/ui/components/format-day'
@@ -9,7 +8,6 @@ async function fetchStats() {
 	if (!res.ok) throw new Error('Failed')
 	return res.json()
 }
-
 async function fetchAnalytics() {
 	const res = await fetch('/api/admin/analytics?days=30', {
 		credentials: 'include',
@@ -17,7 +15,6 @@ async function fetchAnalytics() {
 	if (!res.ok) throw new Error('Failed')
 	return res.json()
 }
-
 async function fetchPendingStores() {
 	const res = await fetch('/api/admin/stores?status=PENDING&limit=5', {
 		credentials: 'include',
@@ -25,7 +22,6 @@ async function fetchPendingStores() {
 	if (!res.ok) throw new Error('Failed')
 	return res.json()
 }
-
 export function useAdminOverview() {
 	const { data: stats, isLoading: statsLoading } = useQuery({
 		queryKey: ['admin-stats'],
@@ -39,7 +35,6 @@ export function useAdminOverview() {
 		queryKey: ['admin-pending-stores'],
 		queryFn: fetchPendingStores,
 	})
-
 	const pending: Record<string, unknown>[] = pendingData?.stores ?? []
 	const signups = ((analytics?.signupsByDay ?? []) as DayCount[]).map(
 		(d) => ({
@@ -53,7 +48,6 @@ export function useAdminOverview() {
 			date: formatDay(d.date),
 		})
 	)
-
 	return {
 		stats,
 		statsLoading,

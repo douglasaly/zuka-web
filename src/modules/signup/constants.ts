@@ -4,7 +4,6 @@ import {
 	MessageCircle,
 	Truck,
 } from 'lucide-react'
-
 export type SignupFlowStep =
 	| 'role'
 	| 'buyer-form'
@@ -13,23 +12,19 @@ export type SignupFlowStep =
 	| 'seller-2'
 	| 'seller-3'
 	| 'seller-4'
-
 export type SignupProvince = {
 	id: string
 	name: string
 }
-
 export type SignupCategory = {
 	id: string
 	name: string
 }
-
 export type BuyerFormState = {
 	name: string
 	email: string
 	password: string
 }
-
 export type SellerAccountFormState = {
 	storeName: string
 	neighborhood: string
@@ -40,7 +35,6 @@ export type SellerAccountFormState = {
 	provinceId: string
 	phone: string
 }
-
 export type SellerProfileFormState = {
 	logoUrl: string | null
 	bannerUrl: string | null
@@ -49,19 +43,16 @@ export type SellerProfileFormState = {
 	whatsapp: string
 	phone: string
 }
-
 export type SellerVerificationFormState = {
 	idCardUrl: string | null
 	selfieUrl: string | null
 }
-
 export type BuyerFeature = {
 	icon: LucideIcon
 	iconClass: string
 	title: string
 	description: string
 }
-
 export const BUYER_FEATURES: BuyerFeature[] = [
 	{
 		icon: CheckCircle2,
@@ -85,13 +76,11 @@ export const BUYER_FEATURES: BuyerFeature[] = [
 			'Fala diretamente com o vendedor pelo WhatsApp para tirar dúvidas',
 	},
 ]
-
 export const INITIAL_BUYER_FORM: BuyerFormState = {
 	name: '',
 	email: '',
 	password: '',
 }
-
 export const INITIAL_SELLER_ACCOUNT_FORM: SellerAccountFormState = {
 	storeName: '',
 	neighborhood: '',
@@ -102,7 +91,6 @@ export const INITIAL_SELLER_ACCOUNT_FORM: SellerAccountFormState = {
 	provinceId: '',
 	phone: '',
 }
-
 export const INITIAL_SELLER_PROFILE_FORM: SellerProfileFormState = {
 	logoUrl: null,
 	bannerUrl: null,
@@ -111,7 +99,6 @@ export const INITIAL_SELLER_PROFILE_FORM: SellerProfileFormState = {
 	whatsapp: '',
 	phone: '',
 }
-
 export const INITIAL_SELLER_VERIFICATION_FORM: SellerVerificationFormState = {
 	idCardUrl: null,
 	selfieUrl: null,

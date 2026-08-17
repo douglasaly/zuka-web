@@ -1,5 +1,4 @@
 'use client'
-
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -9,14 +8,12 @@ import type {
 	Member,
 	MembersResponse,
 } from '@/modules/seller/ui/components/members/types'
-
 export function useSellerMembers() {
 	const [inviteOpen, setInviteOpen] = useState(false)
 	const [email, setEmail] = useState('')
 	const [role, setRole] = useState<InviteRole>('staff')
 	const [removing, setRemoving] = useState<Member | null>(null)
 	const queryClient = useQueryClient()
-
 	const { data, isLoading, isError, refetch, error } =
 		useQuery<MembersResponse>({
 			queryKey: ['seller-members'],
@@ -29,7 +26,6 @@ export function useSellerMembers() {
 				return body
 			},
 		})
-
 	const inviteMutation = useMutation({
 		mutationFn: async () => {
 			const res = await fetch('/api/seller/members', {
@@ -51,7 +47,6 @@ export function useSellerMembers() {
 			toast.error(err.message || 'Não foi possível convidar.')
 		},
 	})
-
 	const removeMutation = useMutation({
 		mutationFn: async (memberId: string) => {
 			const res = await fetch(`/api/seller/members/${memberId}`, {
@@ -69,7 +64,6 @@ export function useSellerMembers() {
 			toast.error(err.message || 'Não foi possível remover.')
 		},
 	})
-
 	const roleMutation = useMutation({
 		mutationFn: async ({
 			memberId,
@@ -94,17 +88,14 @@ export function useSellerMembers() {
 			toast.error(err.message || 'Não foi possível actualizar.')
 		},
 	})
-
 	function closeInvite() {
 		setInviteOpen(false)
 		setEmail('')
 		setRole('staff')
 	}
-
 	function openInvite() {
 		setInviteOpen(true)
 	}
-
 	const members = data?.members ?? []
 	const canManage = Boolean(data?.me?.canManage)
 	const currentUserId = data?.me?.userId ?? null
@@ -116,12 +107,10 @@ export function useSellerMembers() {
 		removeMutation.isPending ||
 		roleMutation.isPending ||
 		inviteMutation.isPending
-
 	const forbidden =
 		isError &&
 		error instanceof Error &&
 		/permissão|Unauthorized|membro/i.test(error.message)
-
 	return {
 		inviteOpen,
 		setInviteOpen,

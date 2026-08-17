@@ -1,5 +1,4 @@
 'use client'
-
 import { Skeleton } from '@/components/ui/skeleton'
 import { KpiCard } from '@/modules/admin/ui/components/kpi-card'
 
@@ -10,7 +9,6 @@ type AdminAnalyticsKpisProps = {
 	totalProducts: number
 	approvalRate: number
 }
-
 export function AdminAnalyticsKpis({
 	statsLoading,
 	totalUsers,

@@ -4,19 +4,19 @@ import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
 import { isR2PublicUrl } from '@/lib/storage/r2'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 
-type Params = { params: Promise<{ id: string }> }
-
+type Params = {
+	params: Promise<{
+		id: string
+	}>
+}
 const VISIBLE_STATUSES = new Set(['ACTIVE'])
-
 export async function GET(_req: Request, { params }: Params) {
 	try {
 		const auth = await requireSellerStore({ permission: 'product.read' })
 		if (isSellerStoreAuthError(auth)) return auth.error
-
 		const { id } = await params
 		const { store } = auth
 		const supabase = createSupabaseAdmin()
-
 		const { data, error } = await supabase
 			.from('products')
 			.select(
@@ -26,7 +26,6 @@ export async function GET(_req: Request, { params }: Params) {
 			.eq('store_id', store.id as string)
 			.is('deleted_at', null)
 			.maybeSingle()
-
 		if (error) throw error
 		if (!data) {
 			return NextResponse.json(
@@ -34,7 +33,6 @@ export async function GET(_req: Request, { params }: Params) {
 				{ status: 404 }
 			)
 		}
-
 		const record = data as Record<string, unknown>
 		const images = (
 			(record.product_images as Array<{
@@ -46,9 +44,10 @@ export async function GET(_req: Request, { params }: Params) {
 		)
 			.filter((img) => Boolean(img.url))
 			.sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
-
-		const cat = record.categories as { id: string; name: string } | null
-
+		const cat = record.categories as {
+			id: string
+			name: string
+		} | null
 		return NextResponse.json({
 			success: true,
 			product: {
@@ -81,18 +80,14 @@ export async function GET(_req: Request, { params }: Params) {
 		)
 	}
 }
-
 export async function PATCH(req: Request, { params }: Params) {
 	try {
 		const auth = await requireSellerStore({ permission: 'product.update' })
 		if (isSellerStoreAuthError(auth)) return auth.error
-
 		const { id } = await params
 		const { store } = auth
 		const body = await req.json()
-
 		const supabase = createSupabaseAdmin()
-
 		const { data: existing } = await supabase
 			.from('products')
 			.select('id')
@@ -100,31 +95,26 @@ export async function PATCH(req: Request, { params }: Params) {
 			.eq('store_id', store.id as string)
 			.is('deleted_at', null)
 			.maybeSingle()
-
 		if (!existing) {
 			return NextResponse.json(
 				{ error: 'Produto não encontrado' },
 				{ status: 404 }
 			)
 		}
-
 		const imageUrls: string[] | undefined = Array.isArray(body.imageUrls)
 			? body.imageUrls
 			: body.imageUrl
 				? [body.imageUrl]
 				: undefined
-
 		if (imageUrls?.some((url) => url && !isR2PublicUrl(url))) {
 			return NextResponse.json(
 				{ error: 'A imagem deve ser carregada primeiro' },
 				{ status: 400 }
 			)
 		}
-
 		const updates: Record<string, unknown> = {
 			updated_at: new Date().toISOString(),
 		}
-
 		if (body.name !== undefined) updates.name = body.name
 		if (body.description !== undefined)
 			updates.description = body.description
@@ -143,17 +133,13 @@ export async function PATCH(req: Request, { params }: Params) {
 			}
 		}
 		if (body.isVisible !== undefined) updates.is_visible = body.isVisible
-
 		const { error } = await supabase
 			.from('products')
 			.update(updates as never)
 			.eq('id', id)
-
 		if (error) throw error
-
 		if (imageUrls) {
 			await supabase.from('product_images').delete().eq('product_id', id)
-
 			if (imageUrls.length > 0) {
 				await supabase.from('product_images').insert(
 					imageUrls.map((url, index) => ({
@@ -167,7 +153,6 @@ export async function PATCH(req: Request, { params }: Params) {
 				)
 			}
 		}
-
 		return NextResponse.json({ success: true })
 	} catch (error) {
 		console.error('[PATCH /api/seller/products/:id]', error)
@@ -177,16 +162,13 @@ export async function PATCH(req: Request, { params }: Params) {
 		)
 	}
 }
-
 export async function DELETE(_req: Request, { params }: Params) {
 	try {
 		const auth = await requireSellerStore({ permission: 'product.delete' })
 		if (isSellerStoreAuthError(auth)) return auth.error
-
 		const { id } = await params
 		const { store } = auth
 		const supabase = createSupabaseAdmin()
-
 		const { data: existing } = await supabase
 			.from('products')
 			.select('id')
@@ -194,21 +176,17 @@ export async function DELETE(_req: Request, { params }: Params) {
 			.eq('store_id', store.id as string)
 			.is('deleted_at', null)
 			.maybeSingle()
-
 		if (!existing) {
 			return NextResponse.json(
 				{ error: 'Produto não encontrado' },
 				{ status: 404 }
 			)
 		}
-
 		const { error } = await supabase
 			.from('products')
 			.update({ deleted_at: new Date().toISOString() })
 			.eq('id', id)
-
 		if (error) throw error
-
 		return NextResponse.json({ success: true })
 	} catch (error) {
 		console.error('[DELETE /api/seller/products/:id]', error)

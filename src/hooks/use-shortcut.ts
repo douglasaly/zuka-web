@@ -1,9 +1,7 @@
 'use client'
-
 import { useEffect } from 'react'
 
 type ShortcutMap = Record<string, () => void>
-
 export function useShortcuts(shortcuts: ShortcutMap) {
 	useEffect(() => {
 		function handler(e: KeyboardEvent) {
@@ -16,7 +14,6 @@ export function useShortcuts(shortcuts: ShortcutMap) {
 			) {
 				return
 			}
-
 			const key = e.key.toLowerCase()
 			const action = shortcuts[key]
 			if (action) {
@@ -24,7 +21,6 @@ export function useShortcuts(shortcuts: ShortcutMap) {
 				action()
 			}
 		}
-
 		window.addEventListener('keydown', handler)
 		return () => window.removeEventListener('keydown', handler)
 	}, [shortcuts])

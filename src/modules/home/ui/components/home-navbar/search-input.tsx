@@ -1,5 +1,4 @@
 'use client'
-
 import { SearchIcon, SlidersHorizontal, XIcon } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -11,11 +10,9 @@ import {
 	type FilterValues,
 	SearchFiltersSheet,
 } from '@/modules/search/ui/components/search-filters-sheet'
-
 export const SearchInput = () => {
 	const searchParams = useSearchParams()
 	const router = useRouter()
-
 	const query = searchParams.get('q') || ''
 	const category = searchParams.get('categoria') || ''
 	const province = searchParams.get('provincia') || ''
@@ -24,17 +21,14 @@ export const SearchInput = () => {
 	const isNew = searchParams.get('recente') || ''
 	const sort = searchParams.get('ordenar') || 'relevance'
 	const [value, setValue] = useState(query)
-
 	useEffect(() => {
 		setValue(query)
 	}, [query])
-
 	const navigateToSearch = (params: URLSearchParams) => {
 		const qs = params.toString()
 		const url = qs ? `/pesquisa?${qs}` : '/pesquisa'
 		router.replace(url, { scroll: false })
 	}
-
 	const handleSearch = (event: React.SubmitEvent<HTMLFormElement>) => {
 		event.preventDefault()
 		const params = new URLSearchParams()
@@ -48,7 +42,6 @@ export const SearchInput = () => {
 		if (sort && sort !== 'relevance') params.set('ordenar', sort)
 		navigateToSearch(params)
 	}
-
 	const handleApplyFilters = (values: FilterValues) => {
 		const params = new URLSearchParams()
 		if (value.trim()) params.set('q', value.trim())
@@ -63,13 +56,11 @@ export const SearchInput = () => {
 			params.set('ordenar', values.sort)
 		navigateToSearch(params)
 	}
-
 	const handleClearFilters = () => {
 		const params = new URLSearchParams()
 		if (value.trim()) params.set('q', value.trim())
 		navigateToSearch(params)
 	}
-
 	const filterValues: FilterValues = {
 		category,
 		province,
@@ -78,7 +69,6 @@ export const SearchInput = () => {
 		isNew,
 		sort,
 	}
-
 	return (
 		<form className='relative w-full max-w-xl' onSubmit={handleSearch}>
 			<SearchIcon className='pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground' />

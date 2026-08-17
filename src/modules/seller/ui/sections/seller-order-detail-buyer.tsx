@@ -1,5 +1,4 @@
 'use client'
-
 type SellerOrderDetailBuyerProps = {
 	buyer: {
 		name: string
@@ -7,7 +6,6 @@ type SellerOrderDetailBuyerProps = {
 		phone: string | null
 	}
 }
-
 export function SellerOrderDetailBuyer({ buyer }: SellerOrderDetailBuyerProps) {
 	return (
 		<section className='rounded-xl border border-border bg-card p-5'>

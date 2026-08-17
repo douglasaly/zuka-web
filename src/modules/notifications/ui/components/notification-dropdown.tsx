@@ -1,5 +1,4 @@
 'use client'
-
 import { Bell } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -19,7 +18,6 @@ import { cn } from '@/lib/utils'
 import type { Notification } from '@/types/notifications'
 import { NotificationItem } from './notification-item'
 import { NotificationsSkeleton } from './notifications-skeleton'
-
 export function NotificationDropdown() {
 	const { isAuthenticated, isLoading: authLoading } = useUserProfile()
 	const {
@@ -28,23 +26,18 @@ export function NotificationDropdown() {
 		notifications: notificationRaw,
 		unreadCount,
 	} = useNotifications()
-
 	const notifications: Notification[] = notificationRaw
-
 	const handleMarkAllRead = () => {
 		const unreadIds = notifications
 			.filter((n) => !n.readAt)
 			.map((n) => n.id)
 		if (unreadIds.length > 0) markRead.mutate(unreadIds)
 	}
-
 	if (authLoading || !isAuthenticated) return null
-
 	const bellLabel =
 		unreadCount > 0
 			? `Notificações (${unreadCount} não lidas)`
 			: 'Notificações'
-
 	return (
 		<Popover>
 			<Tooltip>

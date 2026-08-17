@@ -1,5 +1,4 @@
 'use client'
-
 import {
 	GoogleAuthProvider,
 	signInWithEmailAndPassword,
@@ -17,31 +16,31 @@ import { syncUserToBackend } from '@/lib/firebase/sync-user-to-backend'
 function logLogin(step: string, data?: Record<string, unknown>) {
 	console.log(`[auth/login] ${step}`, data ?? '')
 }
-
 function logLoginError(step: string, err: unknown) {
 	const firebaseCode =
 		err && typeof err === 'object' && 'code' in err
-			? String((err as { code: string }).code)
+			? String(
+					(
+						err as {
+							code: string
+						}
+					).code
+				)
 			: undefined
-
 	console.error(`[auth/login] ${step}`, {
 		code: firebaseCode,
 		message: err instanceof Error ? err.message : String(err),
 	})
 }
-
 export function useLogin() {
 	const router = useRouter()
 	const searchParams = useSearchParams()
 	const next = searchParams.get('next')
-
 	const resetSuccess = searchParams.get('reset') === 'success'
-
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
-
 	useEffect(() => {
 		if (resetSuccess) {
 			toast.success(
@@ -49,7 +48,6 @@ export function useLogin() {
 			)
 		}
 	}, [resetSuccess])
-
 	async function createSession(idToken: string) {
 		logLogin('createSession:start')
 		const res = await fetch('/api/auth/session', {
@@ -58,35 +56,32 @@ export function useLogin() {
 			credentials: 'include',
 			body: JSON.stringify({ token: idToken }),
 		})
-
 		logLogin('createSession:response', {
 			ok: res.ok,
 			status: res.status,
 		})
-
 		if (!res.ok) {
 			const body = await res.json().catch(() => ({}))
 			logLogin('createSession:failed', { body })
 			throw new Error('Falha ao criar sessão')
 		}
 	}
-
 	async function finishLogin(
 		idToken: string,
-		meta: { uid: string; method: 'email' | 'google' }
+		meta: {
+			uid: string
+			method: 'email' | 'google'
+		}
 	) {
 		logLogin('finishLogin:start', {
 			uid: meta.uid,
 			method: meta.method,
 			next,
 		})
-
 		await createSession(idToken)
-
 		logLogin('syncUser:start', { uid: meta.uid })
 		await syncUserToBackend()
 		logLogin('syncUser:done', { uid: meta.uid })
-
 		const profile = await fetchUserProfile()
 		clearViewAsBuyerMode()
 		const path = getPostLoginPath(profile, next)
@@ -95,15 +90,12 @@ export function useLogin() {
 			roles: profile?.roles,
 			hasProfile: Boolean(profile),
 		})
-
 		router.push(path)
 	}
-
 	async function handleEmailLogin(e: React.FormEvent) {
 		e.preventDefault()
 		setLoading(true)
 		setError(null)
-
 		try {
 			logLogin('email:start', { email })
 			const userCredential = await signInWithEmailAndPassword(
@@ -124,11 +116,9 @@ export function useLogin() {
 			setLoading(false)
 		}
 	}
-
 	async function handleGoogleLogin() {
 		setLoading(true)
 		setError(null)
-
 		try {
 			logLogin('google:start')
 			const provider = new GoogleAuthProvider()
@@ -146,7 +136,6 @@ export function useLogin() {
 			setLoading(false)
 		}
 	}
-
 	return {
 		email,
 		setEmail,

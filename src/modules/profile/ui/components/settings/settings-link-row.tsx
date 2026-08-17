@@ -7,7 +7,6 @@ type SettingsLinkRowProps = {
 	description?: string
 	href: string
 }
-
 export const SettingsLinkRow = ({
 	icon: Icon,
 	title,

@@ -1,5 +1,4 @@
 'use client'
-
 import { BadgeCheck } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -12,7 +11,6 @@ import type { ProductReviewsStore, PublicProductReview } from './types'
 function formatReviewDate(iso: string) {
 	return formatLongPtDate(iso)
 }
-
 function Initials({ name }: { name: string }) {
 	const initials = name
 		.split(' ')
@@ -29,7 +27,6 @@ function Initials({ name }: { name: string }) {
 		</div>
 	)
 }
-
 export function PublicReviewCard({ review }: { review: PublicProductReview }) {
 	return (
 		<article className='rounded-2xl border border-border/60 bg-card p-4 sm:p-5'>
@@ -85,7 +82,6 @@ export function PublicReviewCard({ review }: { review: PublicProductReview }) {
 		</article>
 	)
 }
-
 export function StoreReviewsRef({ store }: { store: ProductReviewsStore }) {
 	return (
 		<section

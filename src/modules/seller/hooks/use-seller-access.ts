@@ -1,18 +1,19 @@
 'use client'
-
 import { useQuery } from '@tanstack/react-query'
 import type { StorePermission } from '@/lib/auth/store-permissions'
 import { STORE_ROLE_UI } from '@/lib/auth/store-permissions'
-
 export type SellerAccess = {
-	store: { id: string; name: string; slug: string }
+	store: {
+		id: string
+		name: string
+		slug: string
+	}
 	memberRole: string
 	rbacRole: string
 	isOwner: boolean
 	permissions: StorePermission[]
 	roleCatalog: typeof STORE_ROLE_UI
 }
-
 export function useSellerAccess() {
 	const query = useQuery<SellerAccess>({
 		queryKey: ['seller-access'],
@@ -32,15 +33,12 @@ export function useSellerAccess() {
 				roleCatalog: json.roleCatalog ?? STORE_ROLE_UI,
 			}
 		},
-		staleTime: 60_000,
+		staleTime: 60000,
 	})
-
 	const permissions = query.data?.permissions ?? []
-
 	function can(permission: StorePermission) {
 		return permissions.includes(permission)
 	}
-
 	return {
 		...query,
 		permissions,

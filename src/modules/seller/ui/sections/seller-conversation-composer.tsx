@@ -1,5 +1,4 @@
 'use client'
-
 import { Loader2, Send } from 'lucide-react'
 import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { Textarea } from '@/components/ui/textarea'
@@ -10,7 +9,6 @@ type SellerConversationComposerProps = {
 	onSend: () => void
 	isPending: boolean
 }
-
 export function SellerConversationComposer({
 	input,
 	onInputChange,

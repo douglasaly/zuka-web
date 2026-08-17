@@ -1,5 +1,4 @@
 import { Skeleton } from '@/components/ui/skeleton'
-
 export const ProductDetailSkeleton = () => (
 	<div className='mx-auto max-w-4xl pb-10 pt-2'>
 		<Skeleton className='mx-auto aspect-square w-full max-w-xl md:rounded-2xl' />

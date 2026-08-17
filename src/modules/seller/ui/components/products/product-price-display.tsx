@@ -1,10 +1,8 @@
 import type { SellerProduct } from '@/lib/types/api/seller'
 import { formatPrice } from '@/utils/format-price'
-
 export function ProductPriceDisplay({ product }: { product: SellerProduct }) {
 	const discount = product.discountPrice
 	const hasDiscount = discount != null && discount > 0
-
 	if (hasDiscount) {
 		return (
 			<span className='flex flex-wrap items-baseline gap-x-1.5 gap-y-0'>
@@ -17,7 +15,6 @@ export function ProductPriceDisplay({ product }: { product: SellerProduct }) {
 			</span>
 		)
 	}
-
 	return (
 		<span className='font-semibold tabular-nums text-primary'>
 			{formatPrice(product.price, product.currency)}

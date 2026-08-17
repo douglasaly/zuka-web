@@ -27,7 +27,6 @@ type ProductReviewsContentProps = {
 	setSort: (sort: ProductReviewSort) => void
 	clearFilters: () => void
 }
-
 export function ProductReviewsContent({
 	data,
 	page,
@@ -44,7 +43,6 @@ export function ProductReviewsContent({
 	clearFilters,
 }: ProductReviewsContentProps) {
 	const { store, summary, reviews, total, totalPages, perPage } = data
-
 	return (
 		<>
 			<ProductReviewsSummary

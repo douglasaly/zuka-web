@@ -1,5 +1,4 @@
 'use client'
-
 import { SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useStoreReview } from '@/modules/admin/hooks/use-pending-stores'
@@ -10,7 +9,6 @@ type StoreReviewPanelProps = {
 	storeId: string
 	onClose: () => void
 }
-
 export function StoreReviewPanel({ storeId, onClose }: StoreReviewPanelProps) {
 	const {
 		store,
@@ -23,7 +21,6 @@ export function StoreReviewPanel({ storeId, onClose }: StoreReviewPanelProps) {
 		setShowReject,
 		mutation,
 	} = useStoreReview(storeId, onClose)
-
 	return (
 		<div className='flex h-full flex-col'>
 			<SheetHeader className='shrink-0 border-b border-border/60 px-6 py-4'>

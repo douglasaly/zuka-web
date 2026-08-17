@@ -1,23 +1,19 @@
 'use client'
-
 import { useEffect, useState } from 'react'
 import { useUserProfile } from '@/hooks/use-user-profile'
 import { useSellerAccess } from '@/modules/seller/hooks/use-seller-access'
 
 const PREFS_KEY = 'zuka:seller-notification-prefs'
-
 export type NotificationPrefs = {
 	orders: boolean
 	messages: boolean
 	reviews: boolean
 }
-
 const DEFAULT_PREFS: NotificationPrefs = {
 	orders: true,
 	messages: true,
 	reviews: true,
 }
-
 function readPrefs(): NotificationPrefs {
 	if (typeof window === 'undefined') return DEFAULT_PREFS
 	try {
@@ -33,36 +29,29 @@ function readPrefs(): NotificationPrefs {
 		return DEFAULT_PREFS
 	}
 }
-
 export function useSellerSettings() {
 	const { profile, isLoading, isAuthenticated } = useUserProfile()
 	const { can } = useSellerAccess()
 	const [prefs, setPrefs] = useState<NotificationPrefs>(DEFAULT_PREFS)
 	const [prefsReady, setPrefsReady] = useState(false)
-
 	useEffect(() => {
 		setPrefs(readPrefs())
 		setPrefsReady(true)
 	}, [])
-
 	function updatePref(key: keyof NotificationPrefs, value: boolean) {
 		setPrefs((prev) => {
 			const next = { ...prev, [key]: value }
 			try {
 				localStorage.setItem(PREFS_KEY, JSON.stringify(next))
-			} catch {
-				/* ignore quota / private mode */
-			}
+			} catch {}
 			return next
 		})
 	}
-
 	const store = profile?.stores[0]
 	const displayName = profile
 		? [profile.firstName, profile.lastName].filter(Boolean).join(' ').trim()
 		: ''
 	const storeName = store?.name || displayName || 'A sua conta'
-
 	return {
 		profile,
 		isLoading,

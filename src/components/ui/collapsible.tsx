@@ -1,11 +1,9 @@
 'use client'
-
 import { Collapsible as CollapsiblePrimitive } from '@base-ui/react/collapsible'
 
 function Collapsible({ ...props }: CollapsiblePrimitive.Root.Props) {
 	return <CollapsiblePrimitive.Root data-slot='collapsible' {...props} />
 }
-
 function CollapsibleTrigger({ ...props }: CollapsiblePrimitive.Trigger.Props) {
 	return (
 		<CollapsiblePrimitive.Trigger
@@ -14,7 +12,6 @@ function CollapsibleTrigger({ ...props }: CollapsiblePrimitive.Trigger.Props) {
 		/>
 	)
 }
-
 function CollapsibleContent({ ...props }: CollapsiblePrimitive.Panel.Props) {
 	return (
 		<CollapsiblePrimitive.Panel
@@ -23,5 +20,4 @@ function CollapsibleContent({ ...props }: CollapsiblePrimitive.Panel.Props) {
 		/>
 	)
 }
-
 export { Collapsible, CollapsibleTrigger, CollapsibleContent }

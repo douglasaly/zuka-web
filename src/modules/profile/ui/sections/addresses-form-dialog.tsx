@@ -1,5 +1,4 @@
 'use client'
-
 import { Loader2 } from 'lucide-react'
 import type { CreateAddressInput } from '@/app/api/addresses/types'
 import { Button } from '@/components/ui/button'
@@ -32,7 +31,6 @@ type AddressesFormDialogProps = {
 	saving: boolean
 	onSave: (e: React.FormEvent) => void
 }
-
 export function AddressesFormDialog({
 	open,
 	onOpenChange,

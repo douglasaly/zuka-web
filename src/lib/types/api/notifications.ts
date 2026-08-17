@@ -1,35 +1,12 @@
-// ─── Notification routes ───────────────────────────────
-
-import type { NotificationType } from '@/types/notifications'
-
-export type NotificationSender = {
-	type: 'user' | 'store'
-	id: string
-	name: string
-	avatarUrl: string | null
-}
-
-export type NotificationItem = {
-	id: string
-	userId: string
-	type: NotificationType
-	title: string
-	body: string
-	link: string | null
-	readAt: string | null
-	createdAt: string
-	sender: NotificationSender | null
-}
-
-/** GET /api/notifications */
+import type { Notification, NotificationSender } from '@/types/notifications'
+export type { Notification, NotificationSender }
 export type ListNotificationsInput = {
 	limit?: number
 	offset?: number
 }
-
 export type ListNotificationsOutput = {
 	success: true
-	notifications: NotificationItem[]
+	notifications: Notification[]
 	unreadCount: number
 	pagination: {
 		limit: number
@@ -37,25 +14,26 @@ export type ListNotificationsOutput = {
 		hasMore: boolean
 	}
 }
-
-/** PATCH /api/notifications */
-export type MarkNotificationsReadInput = {
+export type UpdateNotificationsInput =
+	| {
+			all: true
+	  }
+	| {
+			ids: string[]
+			read?: boolean
+	  }
+	| {
+			ids: string[]
+			restore: true
+	  }
+export type DeleteNotificationsInput = {
 	ids: string[]
 }
-
-export type MarkNotificationsReadOutput = {
+export type NotificationMutationOutput = {
 	success: true
 }
-
-/** GET /api/seller/notifications */
 export type ListSellerNotificationsOutput = ListNotificationsOutput
-
-/** PATCH /api/seller/notifications */
-export type MarkSellerNotificationsReadOutput = {
-	success: true
-}
-
-/** GET /api/admin/notifications */
+export type MarkSellerNotificationsReadOutput = NotificationMutationOutput
 export type AdminNotificationBatch = {
 	id: string
 	title: string
@@ -65,18 +43,14 @@ export type AdminNotificationBatch = {
 	recipientCount: number
 	readCount: number
 }
-
 export type ListAdminNotificationsOutput = {
 	notifications: AdminNotificationBatch[]
 }
-
-/** POST /api/admin/notifications */
 export type SendNotificationInput = {
 	target: 'buyers' | 'sellers' | 'all'
 	title: string
 	body: string
 }
-
 export type SendNotificationOutput = {
 	success: true
 	notification: {

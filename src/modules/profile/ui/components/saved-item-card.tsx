@@ -1,5 +1,4 @@
 'use client'
-
 import { Heart } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -15,7 +14,6 @@ type SavedItemCardProps = {
 	onRemove: (id: string) => void
 	isRemoving?: boolean
 }
-
 export const SavedItemCard = ({
 	item,
 	onRemove,
@@ -23,9 +21,7 @@ export const SavedItemCard = ({
 }: SavedItemCardProps) => {
 	return (
 		<div
-			className={`group relative w-40 shrink-0 overflow-hidden rounded-xl border bg-white transition-all duration-200 hover:scale-101 hover:shadow-md sm:w-44 ${
-				isRemoving ? 'pointer-events-none scale-95 opacity-0' : ''
-			}`}
+			className={`group relative w-40 shrink-0 overflow-hidden rounded-xl border bg-white transition-all duration-200 hover:scale-101 hover:shadow-md sm:w-44 ${isRemoving ? 'pointer-events-none scale-95 opacity-0' : ''}`}
 		>
 			<IconTooltipButton
 				label='Remover dos guardados'

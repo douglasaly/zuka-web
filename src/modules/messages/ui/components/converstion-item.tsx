@@ -7,35 +7,28 @@ import { cn } from '@/lib/utils'
 import type { InboxItem } from '@/types/messages'
 
 dayjs.locale('pt')
-
 function formatTimeAgo(date: string): string {
 	const d = dayjs(date)
 	const diffMin = dayjs().diff(d, 'minute')
-
 	if (diffMin < 1) return 'agora'
 	if (diffMin < 60) return `há ${diffMin} min`
 	if (diffMin < 1440) return d.format('HH:mm')
 	if (diffMin < 1440 * 7) return d.format('ddd')
 	return d.format('DD/MM/YY')
 }
-
 type ConversationItemProps = {
 	conversation: InboxItem
 }
-
 export const ConversationItem = ({ conversation }: ConversationItemProps) => {
 	const isUnread = conversation.unreadCount > 0
-
 	const timeAgo = conversation.lastMessageAt
 		? formatTimeAgo(conversation.lastMessageAt)
 		: null
-
 	const lastMessageText = conversation.lastMessage
 		? conversation.isLastMessageMine
 			? `Tu: ${conversation.lastMessage}`
 			: conversation.lastMessage
 		: 'Abre para escrever à loja'
-
 	return (
 		<Link
 			href={`/mensagens/${conversation.conversationId}`}

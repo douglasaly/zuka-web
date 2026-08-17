@@ -2,7 +2,6 @@ import { uuidv7 } from 'uuidv7'
 import type { createSupabaseAdmin } from '@/lib/supabase/admin'
 
 type Db = ReturnType<typeof createSupabaseAdmin>
-
 export async function ensureBuyerStoreConversation(input: {
 	db: Db
 	buyerId: string
@@ -11,25 +10,20 @@ export async function ensureBuyerStoreConversation(input: {
 	productId: string
 }): Promise<string> {
 	const { db, buyerId, storeId, storeOwnerId, productId } = input
-
 	const { data: existingRows, error: existingError } = await db
 		.from('conversations')
-		.select(
-			`
+		.select(`
 			id,
 			deleted_at,
 			conversation_participants!inner ( user_id )
-		`
-		)
+		`)
 		.eq('store_id', storeId)
 		.eq('conversation_participants.user_id', buyerId)
 		.order('deleted_at', { ascending: true, nullsFirst: true })
 		.order('last_message_at', { ascending: false, nullsFirst: false })
 		.order('created_at', { ascending: false })
 		.limit(1)
-
 	if (existingError) throw existingError
-
 	const existing = existingRows?.[0]
 	if (existing) {
 		const conversationId = existing.id
@@ -42,20 +36,17 @@ export async function ensureBuyerStoreConversation(input: {
 			updated_at: new Date().toISOString(),
 		}
 		if (existing.deleted_at) updates.deleted_at = null
-
 		const { error: reviveError } = await db
 			.from('conversations')
 			.update(updates)
 			.eq('id', conversationId)
 		if (reviveError) throw reviveError
-
 		const { data: ownerPart } = await db
 			.from('conversation_participants')
 			.select('user_id')
 			.eq('conversation_id', conversationId)
 			.eq('user_id', storeOwnerId)
 			.maybeSingle()
-
 		if (!ownerPart) {
 			const { error: ownerPartError } = await db
 				.from('conversation_participants')
@@ -65,10 +56,8 @@ export async function ensureBuyerStoreConversation(input: {
 				})
 			if (ownerPartError) throw ownerPartError
 		}
-
 		return conversationId
 	}
-
 	const conversationId = uuidv7()
 	const { error: convError } = await db.from('conversations').insert({
 		id: conversationId,
@@ -76,7 +65,6 @@ export async function ensureBuyerStoreConversation(input: {
 		store_id: storeId,
 	})
 	if (convError) throw convError
-
 	const { error: partError } = await db
 		.from('conversation_participants')
 		.insert([
@@ -84,10 +72,8 @@ export async function ensureBuyerStoreConversation(input: {
 			{ conversation_id: conversationId, user_id: storeOwnerId },
 		])
 	if (partError) throw partError
-
 	return conversationId
 }
-
 export async function postConversationMessage(input: {
 	db: Db
 	conversationId: string
@@ -104,7 +90,6 @@ export async function postConversationMessage(input: {
 		content: input.content,
 	})
 	if (error) throw error
-
 	await input.db
 		.from('conversations')
 		.update({

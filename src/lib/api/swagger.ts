@@ -786,8 +786,8 @@ const schemas = {
 	Notification: {
 		type: 'object',
 		properties: {
-			id: { type: 'string' },
-			userId: { type: 'string' },
+			id: { type: 'string', format: 'uuid' },
+			userId: { type: 'string', format: 'uuid' },
 			type: {
 				type: 'string',
 				enum: [
@@ -810,10 +810,60 @@ const schemas = {
 				nullable: true,
 				properties: {
 					type: { type: 'string', enum: ['user', 'store'] },
-					id: { type: 'string' },
+					id: { type: 'string', format: 'uuid' },
 					name: { type: 'string' },
 					avatarUrl: { type: 'string', nullable: true },
 				},
+			},
+		},
+	},
+	NotificationOffsetPagination: {
+		type: 'object',
+		required: ['limit', 'offset', 'hasMore'],
+		properties: {
+			limit: { type: 'integer', minimum: 1, maximum: 100 },
+			offset: { type: 'integer', minimum: 0 },
+			hasMore: { type: 'boolean' },
+		},
+	},
+	UpdateNotificationsInput: {
+		type: 'object',
+		description:
+			'Provide `all: true` to mark every unread notification as read, or `ids` for individual updates. Use `read: false` to mark as unread. Use `restore: true` with `ids` to undo soft-delete.',
+		properties: {
+			ids: {
+				type: 'array',
+				minItems: 1,
+				maxItems: 100,
+				items: { type: 'string', format: 'uuid' },
+			},
+			all: {
+				type: 'boolean',
+				description:
+					'When true, marks all unread notifications as read (ignores `ids`).',
+			},
+			read: {
+				type: 'boolean',
+				default: true,
+				description:
+					'With `ids`: true marks read, false marks unread. Ignored when `restore` is true.',
+			},
+			restore: {
+				type: 'boolean',
+				description:
+					'With `ids`: clears `deleted_at` to restore removed notifications.',
+			},
+		},
+	},
+	DeleteNotificationsInput: {
+		type: 'object',
+		required: ['ids'],
+		properties: {
+			ids: {
+				type: 'array',
+				minItems: 1,
+				maxItems: 100,
+				items: { type: 'string', format: 'uuid' },
 			},
 		},
 	},
@@ -1059,7 +1109,6 @@ const schemas = {
 		},
 	},
 }
-
 const paths: Record<string, any> = {
 	'/api/auth/register': {
 		post: {
@@ -1354,7 +1403,6 @@ const paths: Record<string, any> = {
 			},
 		},
 	},
-
 	'/api/categories': {
 		get: {
 			tags: ['Public'],
@@ -1813,7 +1861,6 @@ const paths: Record<string, any> = {
 			},
 		},
 	},
-
 	'/api/addresses': {
 		get: {
 			tags: ['Addresses'],
@@ -2019,7 +2066,6 @@ const paths: Record<string, any> = {
 			},
 		},
 	},
-
 	'/api/stores': {
 		get: {
 			tags: ['Stores'],
@@ -2464,7 +2510,6 @@ const paths: Record<string, any> = {
 			},
 		},
 	},
-
 	'/api/stores/conversations': {
 		get: {
 			tags: ['Stores'],
@@ -2633,7 +2678,6 @@ const paths: Record<string, any> = {
 			},
 		},
 	},
-
 	'/api/saved-items': {
 		get: {
 			tags: ['Saved Items'],
@@ -2694,7 +2738,6 @@ const paths: Record<string, any> = {
 			responses: { '204': { description: 'Deleted (no content)' } },
 		},
 	},
-
 	'/api/conversations': {
 		get: {
 			tags: ['Conversations'],
@@ -3039,22 +3082,28 @@ const paths: Record<string, any> = {
 			},
 		},
 	},
-
 	'/api/notifications': {
 		get: {
 			tags: ['Notifications'],
 			summary: 'List user notifications',
+			description:
+				'Offset-paginated inbox for the authenticated user. Excludes soft-deleted rows (`deleted_at IS NULL`). Legacy order links stored as `/pedidos/:id` are normalized to `/feed/pedidos/:id` in the response.',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'limit',
 					in: 'query',
-					schema: { type: 'integer', default: 20, maximum: 100 },
+					schema: {
+						type: 'integer',
+						default: 20,
+						minimum: 1,
+						maximum: 100,
+					},
 				},
 				{
 					name: 'offset',
 					in: 'query',
-					schema: { type: 'integer', default: 0 },
+					schema: { type: 'integer', default: 0, minimum: 0 },
 				},
 			],
 			responses: {
@@ -3064,7 +3113,14 @@ const paths: Record<string, any> = {
 						'application/json': {
 							schema: {
 								type: 'object',
+								required: [
+									'success',
+									'notifications',
+									'unreadCount',
+									'pagination',
+								],
 								properties: {
+									success: { type: 'boolean', enum: [true] },
 									notifications: {
 										type: 'array',
 										items: {
@@ -3072,37 +3128,89 @@ const paths: Record<string, any> = {
 										},
 									},
 									unreadCount: { type: 'integer' },
+									pagination: {
+										$ref: '#/components/schemas/NotificationOffsetPagination',
+									},
 								},
 							},
 						},
 					},
 				},
+				'401': { description: 'Unauthorized' },
+				'500': { description: 'Failed to load notifications' },
 			},
 		},
 		patch: {
 			tags: ['Notifications'],
-			summary: 'Mark notifications as read',
+			summary: 'Update notification read state or restore removed items',
+			description:
+				'Mark selected notifications read/unread, mark all unread as read (`all: true`), or restore soft-deleted notifications (`restore: true` with `ids`).',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			requestBody: {
+				required: true,
 				content: {
 					'application/json': {
 						schema: {
-							type: 'object',
-							required: ['ids'],
-							properties: {
-								ids: {
-									type: 'array',
-									items: { type: 'string' },
+							$ref: '#/components/schemas/UpdateNotificationsInput',
+						},
+					},
+				},
+			},
+			responses: {
+				'200': {
+					description: 'Notifications updated',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
 								},
 							},
 						},
 					},
 				},
+				'400': { description: 'Invalid payload (missing ids/all)' },
+				'401': { description: 'Unauthorized' },
+				'500': { description: 'Failed to update notifications' },
 			},
-			responses: { '200': { description: 'Marked as read' } },
+		},
+		delete: {
+			tags: ['Notifications'],
+			summary: 'Soft-delete notifications',
+			description:
+				'Sets `deleted_at` on the given notification ids for the current user. Use PATCH with `restore: true` to undo.',
+			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
+			requestBody: {
+				required: true,
+				content: {
+					'application/json': {
+						schema: {
+							$ref: '#/components/schemas/DeleteNotificationsInput',
+						},
+					},
+				},
+			},
+			responses: {
+				'200': {
+					description: 'Notifications removed',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', enum: [true] },
+								},
+							},
+						},
+					},
+				},
+				'400': { description: 'Invalid ids' },
+				'401': { description: 'Unauthorized' },
+				'500': { description: 'Failed to remove notifications' },
+			},
 		},
 	},
-
 	'/api/orders': {
 		get: {
 			tags: ['Orders'],
@@ -3502,7 +3610,6 @@ const paths: Record<string, any> = {
 			},
 		},
 	},
-
 	'/api/uploads/presign': {
 		post: {
 			tags: ['Uploads'],
@@ -3553,7 +3660,6 @@ const paths: Record<string, any> = {
 			},
 		},
 	},
-
 	'/api/seller/store': {
 		get: {
 			tags: ['Seller'],
@@ -4903,7 +5009,6 @@ const paths: Record<string, any> = {
 			},
 		},
 	},
-
 	'/api/seller/stats': {
 		get: {
 			tags: ['Seller'],
@@ -5095,17 +5200,24 @@ const paths: Record<string, any> = {
 		get: {
 			tags: ['Seller'],
 			summary: 'List seller notifications',
+			description:
+				'Same shape as `/api/notifications`, scoped to the authenticated seller account. Excludes soft-deleted rows.',
 			security: [{ CookieAuth: [] }, { BearerAuth: [] }],
 			parameters: [
 				{
 					name: 'limit',
 					in: 'query',
-					schema: { type: 'integer', default: 20, maximum: 100 },
+					schema: {
+						type: 'integer',
+						default: 20,
+						minimum: 1,
+						maximum: 100,
+					},
 				},
 				{
 					name: 'offset',
 					in: 'query',
-					schema: { type: 'integer', default: 0 },
+					schema: { type: 'integer', default: 0, minimum: 0 },
 				},
 			],
 			responses: {
@@ -5115,8 +5227,14 @@ const paths: Record<string, any> = {
 						'application/json': {
 							schema: {
 								type: 'object',
+								required: [
+									'success',
+									'notifications',
+									'unreadCount',
+									'pagination',
+								],
 								properties: {
-									success: { type: 'boolean' },
+									success: { type: 'boolean', enum: [true] },
 									notifications: {
 										type: 'array',
 										items: {
@@ -5124,11 +5242,17 @@ const paths: Record<string, any> = {
 										},
 									},
 									unreadCount: { type: 'integer' },
+									pagination: {
+										$ref: '#/components/schemas/NotificationOffsetPagination',
+									},
 								},
 							},
 						},
 					},
 				},
+				'401': { description: 'Unauthorized' },
+				'403': { description: 'Seller role required' },
+				'500': { description: 'Internal server error' },
 			},
 		},
 		patch: {
@@ -5169,7 +5293,6 @@ const paths: Record<string, any> = {
 			},
 		},
 	},
-
 	'/api/admin/stats': {
 		get: {
 			tags: ['Admin'],
@@ -6190,7 +6313,6 @@ const paths: Record<string, any> = {
 		},
 	},
 }
-
 export const getApiDocs = async () => {
 	const spec = createSwaggerSpec({
 		apiFolder: 'app/api',

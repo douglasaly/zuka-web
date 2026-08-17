@@ -1,5 +1,4 @@
 'use client'
-
 import type { OrderStatus } from '@/lib/orders/status-transitions'
 import { cn } from '@/lib/utils'
 
@@ -9,11 +8,9 @@ type TimelineStep = {
 	at: string
 	note?: string
 }
-
 type SellerOrderDetailTimelineProps = {
 	timeline: TimelineStep[]
 }
-
 function formatDateTime(iso: string) {
 	return new Date(iso).toLocaleString('pt-PT', {
 		day: 'numeric',
@@ -23,7 +20,6 @@ function formatDateTime(iso: string) {
 		minute: '2-digit',
 	})
 }
-
 export function SellerOrderDetailTimeline({
 	timeline,
 }: SellerOrderDetailTimelineProps) {

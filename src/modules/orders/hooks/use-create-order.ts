@@ -1,5 +1,4 @@
 'use client'
-
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { useCart } from '@/hooks/use-cart'
@@ -9,11 +8,9 @@ import type { CreatedBuyerOrder } from '@/modules/orders/types'
 type UseCreateOrderOptions = {
 	onCreated?: (order: CreatedBuyerOrder, storeId: string) => void
 }
-
 export function useCreateOrder(options?: UseCreateOrderOptions) {
 	const queryClient = useQueryClient()
 	const { clearCart } = useCart()
-
 	return useMutation({
 		mutationFn: createBuyerOrder,
 		onSuccess: (order, input) => {

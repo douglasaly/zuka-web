@@ -1,5 +1,4 @@
 'use client'
-
 import { ArrowLeft, Check, Globe } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { IconTooltipButton } from '@/components/icon-tooltip-button'
@@ -25,10 +24,8 @@ const LANGUAGES = [
 		active: false,
 	},
 ]
-
 export const LanguageView = () => {
 	const router = useRouter()
-
 	return (
 		<div className='mx-auto max-w-2xl px-4 py-8 md:py-12'>
 			<div className='mb-8 flex items-center gap-2'>

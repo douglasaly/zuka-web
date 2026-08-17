@@ -1,7 +1,6 @@
 import { LegalDocument } from '../components/legal-document'
 
 const UPDATED_AT = '2026-08-06'
-
 export function PrivacyPolicyView() {
 	return (
 		<LegalDocument

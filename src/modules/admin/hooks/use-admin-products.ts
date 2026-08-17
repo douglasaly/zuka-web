@@ -1,5 +1,4 @@
 'use client'
-
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useDeferredValue, useState } from 'react'
 import { toast } from 'sonner'
@@ -15,7 +14,6 @@ async function fetchProducts(search: string, status: string) {
 	if (!res.ok) throw new Error('Failed')
 	return res.json()
 }
-
 async function patchProduct(id: string, body: Record<string, unknown>) {
 	const res = await fetch(`/api/admin/products/${id}`, {
 		method: 'PATCH',
@@ -26,7 +24,6 @@ async function patchProduct(id: string, body: Record<string, unknown>) {
 	if (!res.ok) throw new Error('Failed')
 	return res.json()
 }
-
 async function deleteProduct(id: string) {
 	const res = await fetch(`/api/admin/products/${id}`, {
 		method: 'DELETE',
@@ -34,7 +31,6 @@ async function deleteProduct(id: string) {
 	})
 	if (!res.ok) throw new Error('Failed')
 }
-
 export function useAdminProducts() {
 	const [search, setSearch] = useState('')
 	const [status, setStatus] = useState('all')
@@ -44,12 +40,10 @@ export function useAdminProducts() {
 	const [confirmBulkDelete, setConfirmBulkDelete] = useState(false)
 	const [preview, setPreview] = useState<AdminProduct | null>(null)
 	const qc = useQueryClient()
-
 	const { data, isLoading, isFetching } = useQuery({
 		queryKey: ['admin-products', deferredSearch, status],
 		queryFn: () => fetchProducts(deferredSearch, status),
 	})
-
 	const patchMutation = useMutation({
 		mutationFn: ({
 			id,
@@ -82,7 +76,6 @@ export function useAdminProducts() {
 		},
 		onError: () => toast.error('Ocorreu um erro'),
 	})
-
 	const deleteMutation = useMutation({
 		mutationFn: async (ids: string[]) => {
 			await Promise.all(ids.map((id) => deleteProduct(id)))
@@ -104,10 +97,8 @@ export function useAdminProducts() {
 		},
 		onError: () => toast.error('Ocorreu um erro'),
 	})
-
 	const products: AdminProduct[] = data?.products ?? []
 	const hasFilters = Boolean(deferredSearch) || status !== 'all'
-
 	function toggleSelect(id: string) {
 		setSelected((prev) => {
 			const next = new Set(prev)
@@ -116,7 +107,6 @@ export function useAdminProducts() {
 			return next
 		})
 	}
-
 	function toggleSelectAll() {
 		if (selected.size === products.length) {
 			setSelected(new Set())
@@ -124,19 +114,16 @@ export function useAdminProducts() {
 		}
 		setSelected(new Set(products.map((p) => p.id as string)))
 	}
-
 	function pauseSelected() {
 		for (const id of selected) {
 			patchMutation.mutate({ id, body: { is_visible: false } })
 		}
 		setSelected(new Set())
 	}
-
 	function clearFilters() {
 		setSearch('')
 		setStatus('all')
 	}
-
 	return {
 		search,
 		setSearch,

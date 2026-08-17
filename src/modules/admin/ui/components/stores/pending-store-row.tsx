@@ -1,5 +1,4 @@
 'use client'
-
 import { format } from 'date-fns'
 import { pt } from 'date-fns/locale'
 import { Button } from '@/components/ui/button'
@@ -10,12 +9,10 @@ type PendingStoreRowProps = {
 	store: StoreRow
 	onReview: (id: string) => void
 }
-
 export function PendingStoreRow({ store, onReview }: PendingStoreRowProps) {
 	const owner = store.users as Record<string, unknown>
 	const category = store.categories as Record<string, unknown>
 	const province = store.provinces as Record<string, unknown>
-
 	return (
 		<TableRow>
 			<TableCell className='font-medium'>

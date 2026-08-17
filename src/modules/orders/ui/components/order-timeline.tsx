@@ -1,5 +1,4 @@
 'use client'
-
 import { Check, Circle, PackageX, Truck } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { formatTimelineAt } from '@/modules/orders/lib/map-buyer-order'
@@ -8,7 +7,6 @@ import type { BuyerOrderTimelineStep } from '@/modules/orders/types'
 type OrderTimelineProps = {
 	steps: BuyerOrderTimelineStep[]
 }
-
 export function OrderTimeline({ steps }: OrderTimelineProps) {
 	return (
 		<ol className='space-y-0'>
@@ -22,7 +20,6 @@ export function OrderTimeline({ steps }: OrderTimelineProps) {
 							: step.state === 'done' || step.state === 'current'
 								? Check
 								: Circle
-
 				return (
 					<li
 						key={`${step.status}-${index}`}

@@ -1,5 +1,4 @@
 'use client'
-
 import { Loader2 } from 'lucide-react'
 import { Suspense } from 'react'
 import { useResetPassword } from '../../hooks/use-reset-password'
@@ -18,7 +17,6 @@ function ResetForm() {
 		codeValid,
 		handleSubmit,
 	} = useResetPassword()
-
 	if (validating) {
 		return (
 			<div className='flex min-h-screen items-center justify-center bg-muted/25 px-4 py-12'>
@@ -26,11 +24,9 @@ function ResetForm() {
 			</div>
 		)
 	}
-
 	if (!codeValid) {
 		return <ResetPasswordInvalidSection error={error} />
 	}
-
 	return (
 		<ResetPasswordFormSection
 			password={password}
@@ -43,7 +39,6 @@ function ResetForm() {
 		/>
 	)
 }
-
 export const ResetPasswordFormView = () => (
 	<Suspense>
 		<ResetForm />

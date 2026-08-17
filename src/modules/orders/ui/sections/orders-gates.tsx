@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/modules/profile/ui/components/empty-state'
 import { OrderSkeleton } from '../components/order-skeleton'
-
 export function OrdersLoading() {
 	return (
 		<div aria-busy='true' aria-label='A carregar pedidos'>
@@ -11,7 +10,6 @@ export function OrdersLoading() {
 		</div>
 	)
 }
-
 export function OrdersError({
 	isFetching,
 	onRetry,
@@ -43,7 +41,6 @@ export function OrdersError({
 		</div>
 	)
 }
-
 export function OrdersEmptyAll() {
 	return (
 		<EmptyState
@@ -62,7 +59,6 @@ export function OrdersEmptyAll() {
 		/>
 	)
 }
-
 export function OrdersEmptyFiltered({
 	hasFilters,
 	onClear,

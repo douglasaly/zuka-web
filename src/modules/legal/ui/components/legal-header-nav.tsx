@@ -1,5 +1,4 @@
 'use client'
-
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -9,10 +8,8 @@ const navItems = [
 	{ href: '/privacidade', label: 'Privacidade' },
 	{ href: '/termos-e-condicoes', label: 'Termos e Condições' },
 ] as const
-
 export function LegalHeaderNav() {
 	const pathname = usePathname()
-
 	return (
 		<nav
 			aria-label='Ajuda e documentos'
@@ -22,7 +19,6 @@ export function LegalHeaderNav() {
 				const isActive =
 					pathname === item.href ||
 					pathname.startsWith(`${item.href}/`)
-
 				return (
 					<Link
 						key={item.href}

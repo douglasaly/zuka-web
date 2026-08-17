@@ -1,5 +1,4 @@
 'use client'
-
 import { Loader2 } from 'lucide-react'
 import {
 	AlertDialog,
@@ -20,7 +19,6 @@ type OrderStatusConfirmDialogProps = {
 	onOpenChange: (open: boolean) => void
 	onConfirm: (action: PendingAction) => void
 }
-
 export function OrderStatusConfirmDialog({
 	action,
 	isPending,
@@ -28,7 +26,6 @@ export function OrderStatusConfirmDialog({
 	onConfirm,
 }: OrderStatusConfirmDialogProps) {
 	const confirm = action ? confirmCopy(action) : null
-
 	return (
 		<AlertDialog
 			open={Boolean(action)}

@@ -3,7 +3,6 @@ export type BuyerOrderStatus =
 	| 'shipping'
 	| 'completed'
 	| 'cancelled'
-
 export type BuyerOrderItem = {
 	id: string
 	productId: string | null
@@ -13,7 +12,6 @@ export type BuyerOrderItem = {
 	currency: string
 	imageUrl: string | null
 }
-
 export type BuyerOrder = {
 	id: string
 	shortId: string
@@ -31,14 +29,12 @@ export type BuyerOrder = {
 	conversationId: string | null
 	itemsPreview: BuyerOrderItem[]
 }
-
 export type BuyerOrderTimelineStep = {
 	status: string
 	label: string
 	at: string | null
 	state: 'done' | 'current' | 'upcoming'
 }
-
 export type BuyerOrderDetail = {
 	order: BuyerOrder
 	items: BuyerOrderItem[]
@@ -46,7 +42,6 @@ export type BuyerOrderDetail = {
 	notes: string | null
 	review: BuyerOrderReview | null
 }
-
 export type BuyerOrderProductReview = {
 	productId: string
 	productName: string
@@ -54,7 +49,6 @@ export type BuyerOrderProductReview = {
 	rating: number
 	body: string | null
 }
-
 export type BuyerOrderReview = {
 	id: string
 	rating: number
@@ -64,7 +58,6 @@ export type BuyerOrderReview = {
 	storeRepliedAt: string | null
 	products: BuyerOrderProductReview[]
 }
-
 export const STATUS_FILTERS = [
 	{ value: 'all', label: 'Todos' },
 	{ value: 'pending', label: 'Em processamento' },
@@ -72,17 +65,14 @@ export const STATUS_FILTERS = [
 	{ value: 'completed', label: 'Entregue' },
 	{ value: 'cancelled', label: 'Cancelado' },
 ] as const
-
 export const PERIOD_FILTERS = [
 	{ value: 'all', label: 'Todo o período' },
 	{ value: '7', label: 'Últimos 7 dias' },
 	{ value: '30', label: 'Últimos 30 dias' },
 	{ value: '90', label: 'Últimos 90 dias' },
 ] as const
-
 export type StatusFilter = (typeof STATUS_FILTERS)[number]['value']
 export type PeriodFilter = (typeof PERIOD_FILTERS)[number]['value']
-
 export type CreatedBuyerOrder = {
 	orderId: string
 	shortId: string

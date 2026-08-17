@@ -9,63 +9,73 @@ import {
 	UserPlus,
 } from 'lucide-react'
 import type { NotificationType } from '@/types/notifications'
-
 export type NotificationMeta = {
 	icon: LucideIcon
-	bg: string
-	fg: string
-	border: string
+	tint: string
 	label: string
+	plural: string
+	action: string
 }
-
 export const NOTIFICATION_META: Record<NotificationType, NotificationMeta> = {
 	message: {
 		icon: MessageCircle,
-		bg: 'bg-blue-100',
-		fg: 'text-blue-600',
-		border: 'border-l-blue-500',
+		tint: 'bg-blue-500/12 text-blue-700 dark:text-blue-300',
 		label: 'Mensagem',
+		plural: 'Mensagens',
+		action: 'Abrir conversa',
 	},
 	order: {
 		icon: ShoppingBag,
-		bg: 'bg-emerald-100',
-		fg: 'text-emerald-600',
-		border: 'border-l-emerald-500',
+		tint: 'bg-emerald-500/12 text-emerald-700 dark:text-emerald-300',
 		label: 'Pedido',
+		plural: 'Pedidos',
+		action: 'Ver pedido',
 	},
 	offer: {
 		icon: Tag,
-		bg: 'bg-amber-100',
-		fg: 'text-amber-600',
-		border: 'border-l-amber-500',
+		tint: 'bg-amber-500/16 text-amber-700 dark:text-amber-300',
 		label: 'Oferta',
+		plural: 'Ofertas',
+		action: 'Ver oferta',
 	},
 	follow: {
 		icon: UserPlus,
-		bg: 'bg-purple-100',
-		fg: 'text-purple-600',
-		border: 'border-l-purple-500',
+		tint: 'bg-violet-500/12 text-violet-700 dark:text-violet-300',
 		label: 'Seguidor',
+		plural: 'Seguidores',
+		action: 'Ver perfil',
 	},
 	review: {
 		icon: Star,
-		bg: 'bg-orange-100',
-		fg: 'text-orange-500',
-		border: 'border-l-orange-500',
+		tint: 'bg-orange-500/14 text-orange-700 dark:text-orange-300',
 		label: 'Avaliação',
+		plural: 'Avaliações',
+		action: 'Ver avaliação',
 	},
 	promotion: {
 		icon: Megaphone,
-		bg: 'bg-rose-100',
-		fg: 'text-rose-500',
-		border: 'border-l-rose-500',
+		tint: 'bg-rose-500/12 text-rose-700 dark:text-rose-300',
 		label: 'Promoção',
+		plural: 'Promoções',
+		action: 'Ver promoção',
 	},
 	system: {
 		icon: Bell,
-		bg: 'bg-neutral-100',
-		fg: 'text-neutral-500',
-		border: 'border-l-neutral-400',
+		tint: 'bg-muted text-muted-foreground',
 		label: 'Sistema',
+		plural: 'Sistema',
+		action: 'Ver detalhes',
 	},
 }
+export const NOTIFICATION_TYPE_ORDER: NotificationType[] = [
+	'order',
+	'message',
+	'review',
+	'offer',
+	'promotion',
+	'follow',
+	'system',
+]
+export type NotificationFilter = NotificationType | 'all' | 'unread'
+export const NOTIFICATION_UNREAD_SURFACE =
+	'bg-secondary/[0.05] dark:bg-secondary/[0.1]'

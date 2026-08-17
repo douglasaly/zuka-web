@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server'
 import { requireAdminUser } from '@/lib/auth/admin'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import type { Database } from '@/lib/supabase/types'
-
 export async function GET(req: Request) {
 	await requireAdminUser()
 	const { searchParams } = new URL(req.url)
@@ -11,9 +10,7 @@ export async function GET(req: Request) {
 	const page = Number(searchParams.get('page') ?? 1)
 	const limit = Math.min(Number(searchParams.get('limit') ?? 50), 100)
 	const offset = (page - 1) * limit
-
 	const supabase = createSupabaseAdmin()
-
 	let query = supabase
 		.from('stores')
 		.select(`
@@ -25,18 +22,15 @@ export async function GET(req: Request) {
 		.is('deleted_at', null)
 		.order('created_at', { ascending: false })
 		.range(offset, offset + limit - 1)
-
 	if (status)
 		query = query.eq(
 			'status',
 			status as Database['public']['Enums']['store_status']
 		)
 	if (search) query = query.ilike('name', `%${search}%`)
-
 	const { data, error } = await query
 	if (error)
 		return NextResponse.json({ error: error.message }, { status: 500 })
-
 	const storesWithCounts = await Promise.all(
 		(data ?? []).map(async (store) => {
 			const sid = (store as unknown as Record<string, unknown>)
@@ -57,6 +51,5 @@ export async function GET(req: Request) {
 			}
 		})
 	)
-
 	return NextResponse.json({ stores: storesWithCounts })
 }

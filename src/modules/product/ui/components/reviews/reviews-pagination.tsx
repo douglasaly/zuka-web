@@ -1,5 +1,4 @@
 'use client'
-
 import {
 	ChevronLeft,
 	ChevronRight,
@@ -35,7 +34,6 @@ function buildPageList(
 	}
 	return result
 }
-
 type ReviewsPaginationProps = {
 	currentPage: number
 	totalPages: number
@@ -43,7 +41,6 @@ type ReviewsPaginationProps = {
 	perPage: number
 	onPageChange: (page: number) => void
 }
-
 export function ReviewsPagination({
 	currentPage,
 	totalPages,
@@ -52,11 +49,9 @@ export function ReviewsPagination({
 	onPageChange,
 }: ReviewsPaginationProps) {
 	if (totalPages <= 1) return null
-
 	const from = (currentPage - 1) * perPage + 1
 	const to = Math.min(currentPage * perPage, total)
 	const pageList = buildPageList(currentPage, totalPages)
-
 	return (
 		<div className='flex w-full flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between'>
 			<p

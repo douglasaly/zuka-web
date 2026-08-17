@@ -1,5 +1,3 @@
-// ─── Address routes ────────────────────────────────────
-
 export type Address = {
 	id: string
 	userId: string
@@ -14,14 +12,10 @@ export type Address = {
 	createdAt: string
 	updatedAt: string
 }
-
-/** GET /api/addresses */
 export type ListAddressesOutput = {
 	success: true
 	addresses: Address[]
 }
-
-/** POST /api/addresses */
 export type CreateAddressInput = {
 	label: string
 	street: string
@@ -32,13 +26,10 @@ export type CreateAddressInput = {
 	recipientName: string
 	isDefault?: boolean
 }
-
 export type CreateAddressOutput = {
 	success: true
 	address: Address
 }
-
-/** PATCH /api/addresses/[id] */
 export type UpdateAddressInput = {
 	label?: string
 	street?: string
@@ -47,13 +38,10 @@ export type UpdateAddressInput = {
 	provinceSlug?: string
 	isDefault?: boolean
 }
-
 export type UpdateAddressOutput = {
 	success: true
 	address: Address
 }
-
-/** DELETE /api/addresses/[id] */
 export type DeleteAddressOutput = {
 	success: true
 }

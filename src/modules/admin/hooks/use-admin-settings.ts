@@ -1,18 +1,18 @@
 'use client'
-
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { hasAdminAccess } from '@/lib/auth/roles'
-
-export type Category = { id: string; name: string; slug: string }
-
+export type Category = {
+	id: string
+	name: string
+	slug: string
+}
 async function fetchCategories() {
 	const res = await fetch('/api/admin/categories', { credentials: 'include' })
 	if (!res.ok) throw new Error('Failed')
 	return res.json()
 }
-
 async function fetchAdmins() {
 	const res = await fetch('/api/admin/users', { credentials: 'include' })
 	if (!res.ok) throw new Error('Failed')
@@ -23,10 +23,8 @@ async function fetchAdmins() {
 		),
 	}
 }
-
 export function useAdminSettings() {
 	const qc = useQueryClient()
-
 	const [newCatName, setNewCatName] = useState('')
 	const [editingCat, setEditingCat] = useState<{
 		id: string
@@ -35,7 +33,6 @@ export function useAdminSettings() {
 	const [confirmDeleteCat, setConfirmDeleteCat] = useState<string | null>(
 		null
 	)
-
 	const { data: catData, isLoading: catsLoading } = useQuery({
 		queryKey: ['admin-categories'],
 		queryFn: fetchCategories,
@@ -44,10 +41,8 @@ export function useAdminSettings() {
 		queryKey: ['admin-admins'],
 		queryFn: fetchAdmins,
 	})
-
 	const cats: Category[] = catData?.categories ?? []
 	const admins: Record<string, unknown>[] = adminsData?.users ?? []
-
 	const addCatMutation = useMutation({
 		mutationFn: async () => {
 			const res = await fetch('/api/admin/categories', {
@@ -66,7 +61,6 @@ export function useAdminSettings() {
 		},
 		onError: () => toast.error('Ocorreu um erro'),
 	})
-
 	const editCatMutation = useMutation({
 		mutationFn: async ({ id, name }: { id: string; name: string }) => {
 			const res = await fetch('/api/admin/categories', {
@@ -84,7 +78,6 @@ export function useAdminSettings() {
 		},
 		onError: () => toast.error('Ocorreu um erro'),
 	})
-
 	const deleteCatMutation = useMutation({
 		mutationFn: async (id: string) => {
 			const res = await fetch('/api/admin/categories', {
@@ -102,7 +95,6 @@ export function useAdminSettings() {
 		},
 		onError: () => toast.error('Ocorreu um erro'),
 	})
-
 	const removeAdminMutation = useMutation({
 		mutationFn: async (id: string) => {
 			const res = await fetch(`/api/admin/users/${id}`, {
@@ -119,7 +111,6 @@ export function useAdminSettings() {
 		},
 		onError: () => toast.error('Ocorreu um erro'),
 	})
-
 	return {
 		newCatName,
 		setNewCatName,

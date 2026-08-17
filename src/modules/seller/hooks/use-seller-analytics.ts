@@ -1,5 +1,4 @@
 'use client'
-
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import {
@@ -13,26 +12,21 @@ async function fetchAnalytics(
 ): Promise<SellerAnalyticsMock> {
 	const res = await fetch(`/api/seller/stats/analytics?range=${range}`)
 	if (!res.ok) {
-		// Fallback local mock if API fails during development
 		return getMockSellerAnalytics(range)
 	}
 	const json = await res.json()
 	return (json.data ?? json) as SellerAnalyticsMock
 }
-
 export function useSellerAnalytics() {
 	const [range, setRange] = useState<AnalyticsRange>('30d')
-
 	const { data, isLoading, isError, refetch } = useQuery({
 		queryKey: ['seller-analytics', range],
 		queryFn: () => fetchAnalytics(range),
 	})
-
 	const maxDaily = Math.max(
 		...(data?.dailySales.map((d) => d.sales) ?? [1]),
 		1
 	)
-
 	return {
 		range,
 		setRange,

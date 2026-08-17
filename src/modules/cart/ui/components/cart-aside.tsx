@@ -1,5 +1,4 @@
 'use client'
-
 import { ArrowRight, MessageCircle, Store, TriangleAlert } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -21,7 +20,6 @@ type CartAsideProps = {
 	onClearAll: () => void
 	className?: string
 }
-
 export function CartAside({
 	carts,
 	priceChangeCount,
@@ -37,7 +35,6 @@ export function CartAside({
 	const firstStore = carts[0]
 	const storeCount = carts.length
 	const hasIssues = priceChangeCount > 0 || unavailableCount > 0
-
 	return (
 		<aside
 			className={cn(

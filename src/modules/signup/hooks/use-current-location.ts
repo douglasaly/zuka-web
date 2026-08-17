@@ -1,25 +1,20 @@
 'use client'
-
 import { useState } from 'react'
 
 type UseCurrentLocationOptions = {
 	onResolved: (neighborhood: string) => void
 }
-
 export function useCurrentLocation({ onResolved }: UseCurrentLocationOptions) {
 	const [locationLoading, setLocationLoading] = useState(false)
 	const [locationError, setLocationError] = useState<string | null>(null)
-
 	function requestCurrentLocation() {
 		setLocationLoading(true)
 		setLocationError(null)
-
 		if (!navigator.geolocation) {
 			setLocationError('Geolocalização não suportada neste browser.')
 			setLocationLoading(false)
 			return
 		}
-
 		navigator.geolocation.getCurrentPosition(
 			async ({ coords }) => {
 				try {
@@ -69,7 +64,6 @@ export function useCurrentLocation({ onResolved }: UseCurrentLocationOptions) {
 			{ timeout: 10000, enableHighAccuracy: true }
 		)
 	}
-
 	return {
 		locationLoading,
 		locationError,

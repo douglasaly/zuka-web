@@ -1,11 +1,9 @@
 'use client'
-
 import {
 	type ButtonProps as BaseButtonProps,
 	Button as ButtonPrimitive,
 } from '@base-ui/react/button'
 import { cva, type VariantProps } from 'class-variance-authority'
-
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
@@ -45,11 +43,9 @@ const buttonVariants = cva(
 		},
 	}
 )
-
 export interface ButtonProps
 	extends BaseButtonProps,
 		VariantProps<typeof buttonVariants> {}
-
 function Button({
 	className,
 	variant = 'default',
@@ -68,5 +64,4 @@ function Button({
 		/>
 	)
 }
-
 export { Button, buttonVariants }

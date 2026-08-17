@@ -1,5 +1,4 @@
 'use client'
-
 import { MessageCircle, RotateCcw, Star, Store } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -14,7 +13,6 @@ import { formatPrice } from '@/utils/format-price'
 type OrderCardProps = {
 	order: BuyerOrder
 }
-
 function primaryAction(order: BuyerOrder): {
 	label: string
 	href: string
@@ -27,7 +25,6 @@ function primaryAction(order: BuyerOrder): {
 			icon: Star,
 		}
 	}
-
 	if (order.status === 'completed') {
 		const productId = order.itemsPreview[0]?.productId
 		return {
@@ -40,7 +37,6 @@ function primaryAction(order: BuyerOrder): {
 			icon: RotateCcw,
 		}
 	}
-
 	if (order.conversationId) {
 		return {
 			label: 'Falar com a loja',
@@ -48,7 +44,6 @@ function primaryAction(order: BuyerOrder): {
 			icon: MessageCircle,
 		}
 	}
-
 	if (order.storeSlug) {
 		return {
 			label: 'Ver loja',
@@ -56,14 +51,12 @@ function primaryAction(order: BuyerOrder): {
 			icon: Store,
 		}
 	}
-
 	return {
 		label: 'Ver detalhes',
 		href: `/feed/pedidos/${order.id}`,
 		icon: Store,
 	}
 }
-
 export function OrderCard({ order }: OrderCardProps) {
 	const action = primaryAction(order)
 	const ActionIcon = action.icon
@@ -74,7 +67,6 @@ export function OrderCard({ order }: OrderCardProps) {
 			: preview.length === 1
 				? preview[0]?.productName
 				: `${preview[0]?.productName} +${preview.length - 1}`
-
 	return (
 		<Card
 			size='sm'

@@ -8,7 +8,6 @@ type ProfileActionLinkProps = {
 	title: string
 	description: string
 }
-
 export const ProfileActionLink = ({
 	href,
 	icon: Icon,

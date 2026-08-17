@@ -1,5 +1,4 @@
 'use client'
-
 import { Star } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -11,9 +10,7 @@ type StarRatingInputProps = {
 	disabled?: boolean
 	error?: string | null
 }
-
 const LABELS = ['Muito mau', 'Mau', 'Razoável', 'Bom', 'Excelente'] as const
-
 export function StarRatingInput({
 	id,
 	label,

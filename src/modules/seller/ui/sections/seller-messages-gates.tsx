@@ -1,10 +1,8 @@
 'use client'
-
 import { Inbox } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { SELLER_MESSAGES_SHELL } from '../../hooks/use-seller-messages'
-
 export function SellerMessagesLoading() {
 	return (
 		<div className={SELLER_MESSAGES_SHELL}>
@@ -45,7 +43,6 @@ export function SellerMessagesLoading() {
 		</div>
 	)
 }
-
 export function SellerMessagesError({ onRetry }: { onRetry: () => void }) {
 	return (
 		<div className='flex min-h-[50vh] min-w-0 flex-col items-center justify-center rounded-2xl border border-dashed border-border/70 bg-muted/20 px-6 py-16 text-center'>
@@ -65,7 +62,6 @@ export function SellerMessagesError({ onRetry }: { onRetry: () => void }) {
 		</div>
 	)
 }
-
 export function SellerMessagesEmptyInbox() {
 	return (
 		<div className='flex min-h-[50vh] min-w-0 flex-col items-center justify-center rounded-2xl border border-dashed border-border/70 bg-muted/20 px-6 py-20 text-center'>

@@ -1,5 +1,4 @@
 'use client'
-
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { PhoneInput } from '@/modules/onboarding/ui/components/phone-input'
@@ -10,7 +9,6 @@ type StoreContactSectionProps = {
 	form: StoreFormState
 	onChange: (patch: Partial<StoreFormState>) => void
 }
-
 export function StoreContactSection({
 	form,
 	onChange,

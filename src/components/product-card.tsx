@@ -1,5 +1,4 @@
 'use client'
-
 import { Heart, ShoppingCart, Star, Truck } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -23,7 +22,6 @@ type ProductCardProps = {
 	showStore?: boolean
 	showFavorite?: boolean
 }
-
 function ProductCardFavoriteButton({
 	productId,
 	alwaysVisible,
@@ -33,7 +31,6 @@ function ProductCardFavoriteButton({
 }) {
 	const { toggleSavedItem, isSaving, isRemoving, isSaved } = useSavedItems()
 	const saved = isSaved(productId)
-
 	return (
 		<IconTooltipButton
 			label={saved ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
@@ -59,7 +56,6 @@ function ProductCardFavoriteButton({
 		</IconTooltipButton>
 	)
 }
-
 function ProductCardCartButton({
 	product,
 	alwaysVisible,
@@ -68,7 +64,6 @@ function ProductCardCartButton({
 	alwaysVisible: boolean
 }) {
 	const { addItem } = useCart()
-
 	return (
 		<IconTooltipButton
 			label='Adicionar ao carrinho'
@@ -87,7 +82,6 @@ function ProductCardCartButton({
 		</IconTooltipButton>
 	)
 }
-
 export const ProductCard = ({
 	product,
 	className,
@@ -101,7 +95,6 @@ export const ProductCard = ({
 	const ratingLabel = hasRating
 		? `${product.rating?.toFixed(1)} de 5, ${reviewCount === 1 ? '1 avaliação' : `${reviewCount} avaliações`}`
 		: undefined
-
 	return (
 		<div
 			className={cn(

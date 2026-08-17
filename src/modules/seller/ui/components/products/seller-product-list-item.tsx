@@ -1,5 +1,4 @@
 'use client'
-
 import { Eye, Package, Pencil, Trash2 } from 'lucide-react'
 import Image from 'next/image'
 import { IconTooltipButton } from '@/components/icon-tooltip-button'
@@ -18,7 +17,6 @@ type SellerProductListItemProps = {
 	onPreview: (product: SellerProduct) => void
 	onDelete: (id: string) => void
 }
-
 export function SellerProductListItem({
 	product,
 	isSelected,
@@ -29,7 +27,6 @@ export function SellerProductListItem({
 	onDelete,
 }: SellerProductListItemProps) {
 	const isInactive = product.status?.toUpperCase() !== 'ACTIVE'
-
 	return (
 		<li
 			className={cn(

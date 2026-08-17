@@ -13,7 +13,6 @@ type ExploreProductsGridProps = {
 	hasNextPage: boolean
 	isFetchingNextPage: boolean
 }
-
 export const ExploreProductsGrid = ({
 	products,
 	viewMode,
@@ -30,7 +29,6 @@ export const ExploreProductsGrid = ({
 			/>
 		)
 	}
-
 	return (
 		<>
 			<div

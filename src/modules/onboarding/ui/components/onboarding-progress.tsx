@@ -5,7 +5,6 @@ interface OnboardingProgressProps {
 	totalSteps?: number
 	className?: string
 }
-
 export function OnboardingProgress({
 	currentStep,
 	totalSteps = 4,
@@ -13,7 +12,10 @@ export function OnboardingProgress({
 }: OnboardingProgressProps) {
 	return (
 		<div
-			className={cn('flex items-center justify-center gap-1.5', className)}
+			className={cn(
+				'flex items-center justify-center gap-1.5',
+				className
+			)}
 			role='progressbar'
 			aria-valuenow={currentStep}
 			aria-valuemin={1}
@@ -24,7 +26,6 @@ export function OnboardingProgress({
 				const step = index + 1
 				const isComplete = step < currentStep
 				const isActive = step === currentStep
-
 				return (
 					<div
 						key={step}

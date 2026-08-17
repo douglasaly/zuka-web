@@ -1,5 +1,4 @@
 'use client'
-
 import Image from 'next/image'
 import Link from 'next/link'
 import { Separator } from '@/components/ui/separator'
@@ -12,7 +11,6 @@ type OrderDetailItemsProps = {
 	order: BuyerOrder
 	items: BuyerOrderItem[]
 }
-
 export function OrderDetailItems({ order, items }: OrderDetailItemsProps) {
 	return (
 		<section className='space-y-3' aria-labelledby='order-items'>

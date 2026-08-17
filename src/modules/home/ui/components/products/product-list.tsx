@@ -7,7 +7,6 @@ type ProductsListProps = {
 	products: Product[]
 	viewMode: ProductsViewMode
 }
-
 export const ProductsList = ({ products, viewMode }: ProductsListProps) => (
 	<div
 		className={cn(

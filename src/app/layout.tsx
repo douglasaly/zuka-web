@@ -11,13 +11,11 @@ const jakarta = Plus_Jakarta_Sans({
 	weight: ['400', '500', '600', '700', '800'],
 	variable: '--font-sans',
 })
-
 const jakartaHeading = Plus_Jakarta_Sans({
 	subsets: ['latin'],
 	weight: ['600', '700', '800'],
 	variable: '--font-heading',
 })
-
 export const metadata: Metadata = {
 	title: {
 		default: 'Zuka | Marketplace Multivendedor',
@@ -26,7 +24,6 @@ export const metadata: Metadata = {
 	description:
 		'Descubra produtos únicos de vendedores locais em Moçambique. Compre com confiança no Marketplace Zuka.',
 }
-
 export default function RootLayout({
 	children,
 }: Readonly<{

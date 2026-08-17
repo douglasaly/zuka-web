@@ -1,12 +1,9 @@
 'use client'
-
 import { ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { IconTooltipButton } from '@/components/icon-tooltip-button'
-
 export function ChangePasswordHeader() {
 	const router = useRouter()
-
 	return (
 		<div className='mb-8 flex items-center gap-2'>
 			<IconTooltipButton label='Voltar' onClick={() => router.back()}>

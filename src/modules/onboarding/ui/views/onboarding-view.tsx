@@ -1,5 +1,4 @@
 'use client'
-
 import { ChevronRight, ShoppingBag, Store } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -31,19 +30,16 @@ const roles = [
 		iconClass: 'bg-emerald-500/10 text-emerald-700',
 	},
 ]
-
 export const OnboardingView = () => {
 	const router = useRouter()
 	const { isLoading, isSeller } = useUserProfile()
 	const [loading, setLoading] = useState<string | null>(null)
 	const [error, setError] = useState<string | null>(null)
-
 	useEffect(() => {
 		if (!isLoading && isSeller) {
 			router.replace('/onboarding/seller')
 		}
 	}, [isLoading, isSeller, router])
-
 	if (isLoading || isSeller) {
 		return (
 			<div className='flex flex-1 flex-col items-center justify-center gap-4 px-4'>
@@ -57,17 +53,14 @@ export const OnboardingView = () => {
 			</div>
 		)
 	}
-
 	async function handleRoleSelect(role: (typeof roles)[number]) {
 		setLoading(role.id)
 		setError(null)
-
 		try {
 			if (!auth.currentUser) {
 				router.push('/auth/login?next=/onboarding')
 				return
 			}
-
 			await createAppSession()
 			await syncUserToBackend()
 			await setOnboardingRole(role.id)
@@ -82,7 +75,6 @@ export const OnboardingView = () => {
 			setLoading(null)
 		}
 	}
-
 	return (
 		<div className='flex flex-1 flex-col items-center justify-center bg-background px-4 py-10 sm:py-14'>
 			<div className='w-full max-w-md space-y-8'>
@@ -103,7 +95,6 @@ export const OnboardingView = () => {
 					{roles.map((role) => {
 						const isBusy = loading === role.id
 						const isDisabled = loading != null
-
 						return (
 							<button
 								key={role.id}
@@ -124,16 +115,11 @@ export const OnboardingView = () => {
 										role.iconClass
 									)}
 								>
-									<role.icon
-										className='size-5'
-										aria-hidden
-									/>
+									<role.icon className='size-5' aria-hidden />
 								</div>
 								<div className='min-w-0 flex-1'>
 									<p className='font-semibold text-foreground'>
-										{isBusy
-											? 'A continuar…'
-											: role.title}
+										{isBusy ? 'A continuar…' : role.title}
 									</p>
 									<p className='mt-0.5 text-sm leading-snug text-muted-foreground'>
 										{role.description}

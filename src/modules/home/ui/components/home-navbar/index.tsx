@@ -1,5 +1,4 @@
 'use client'
-
 import { Heart, Menu, ShoppingBag } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -20,9 +19,7 @@ import { SearchInput } from './search-input'
 
 function NavbarOrdersLink() {
 	const { isAuthenticated, isLoading } = useUserProfile()
-
 	if (isLoading || !isAuthenticated) return null
-
 	return (
 		<IconTooltipButton label='Pedidos' href='/feed/pedidos'>
 			<ShoppingBag className='size-4' />
@@ -31,7 +28,6 @@ function NavbarOrdersLink() {
 }
 function NavbarAuth() {
 	const { profile, isAuthenticated, isLoading } = useUserProfile()
-
 	if (isLoading) {
 		return (
 			<Button
@@ -44,7 +40,6 @@ function NavbarAuth() {
 			</Button>
 		)
 	}
-
 	if (!isAuthenticated) {
 		return (
 			<>
@@ -62,12 +57,10 @@ function NavbarAuth() {
 			</>
 		)
 	}
-
 	const name =
 		[profile?.firstName, profile?.lastName].filter(Boolean).join(' ') ||
 		profile?.email ||
 		'Conta'
-
 	return (
 		<Button
 			render={<Link href='/perfil' />}
@@ -86,10 +79,8 @@ function NavbarAuth() {
 		</Button>
 	)
 }
-
 export const HomeNavbar = () => {
 	const router = useRouter()
-
 	return (
 		<header className='sticky top-0 z-50 border-b border-border/60 bg-background/95 py-1.5 backdrop-blur-xl supports-backdrop-filter:bg-background/80'>
 			<div className='mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 md:px-6'>

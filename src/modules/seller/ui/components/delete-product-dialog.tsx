@@ -1,5 +1,4 @@
 'use client'
-
 import { Button } from '@/components/ui/button'
 import {
 	Dialog,
@@ -17,7 +16,6 @@ type DeleteProductDialogProps = {
 	onConfirm: () => void
 	isDeleting?: boolean
 }
-
 export const DeleteProductDialog = ({
 	product,
 	onOpenChange,

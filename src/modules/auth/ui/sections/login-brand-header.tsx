@@ -1,5 +1,4 @@
 import Link from 'next/link'
-
 export function LoginBrandHeader() {
 	return (
 		<div className='text-center'>

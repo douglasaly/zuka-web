@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import {
 	Sidebar,
 	SidebarContent,
@@ -6,8 +7,6 @@ import {
 } from '@/components/ui/sidebar'
 import { MainSection } from './main-section'
 import { DashboardSection } from './profile-section'
-import Link from 'next/link'
-
 export const HomeSidebar = () => {
 	return (
 		<Sidebar

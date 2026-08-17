@@ -8,7 +8,6 @@ import { ConversationItem } from './converstion-item'
 type ConversationsListProps = {
 	conversations: InboxItem[]
 }
-
 export const ConversationsList = ({
 	conversations,
 }: ConversationsListProps) => {
@@ -30,7 +29,6 @@ export const ConversationsList = ({
 			/>
 		)
 	}
-
 	return (
 		<div className='flex flex-col gap-3' role='list' aria-label='Conversas'>
 			{conversations.map((conversation) => (

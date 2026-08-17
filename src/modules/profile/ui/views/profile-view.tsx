@@ -1,5 +1,4 @@
 'use client'
-
 import {
 	PROFILE_OPTIONS,
 	PROFILE_TABS,
@@ -13,18 +12,14 @@ import { ProfileIdentityCard } from '../sections/profile-identity-card'
 import { ProfileOptions } from '../sections/profile-options'
 import { ProfileSavedTab } from '../sections/profile-saved-tab'
 import { ProfileUnauth } from '../sections/profile-unauth'
-
 export const ProfileView = () => {
 	const p = useProfile()
-
 	if (p.isLoading) {
 		return <ProfileSkeleton />
 	}
-
 	if (!p.isAuthenticated || !p.profile) {
 		return <ProfileUnauth />
 	}
-
 	return (
 		<div className='mx-auto max-w-4xl px-4 py-8 md:py-12'>
 			<h1 className='mb-6 font-heading text-2xl font-bold md:text-3xl'>

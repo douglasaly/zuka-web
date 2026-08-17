@@ -3,7 +3,6 @@ type SettingsSectionProps = {
 	description?: string
 	children: React.ReactNode
 }
-
 export const SettingsSection = ({
 	title,
 	description,

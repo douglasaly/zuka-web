@@ -1,14 +1,4 @@
 'use client'
-
-/**
- * THESIS: Reviews as a scannable reputation inbox — store vs product scopes,
- * reply when needed; refuses a single undifferentiated card dump.
- * OWN-WORLD: Seller Operate (rounded-2xl, meta, list density).
- * STORY: Scan ratings → filter → reply to the customer.
- * FIRST VIEWPORT: Summary + scope tabs + list.
- * FORM: Extend seller dashboard Operate surface.
- */
-
 import { useSellerAccess } from '@/modules/seller/hooks/use-seller-access'
 import { useSellerReviews } from '@/modules/seller/hooks/use-seller-reviews'
 import { ReviewsSummary } from '@/modules/seller/ui/components/reviews/reviews-summary'
@@ -24,13 +14,11 @@ import {
 	SellerReviewsFilteredEmpty,
 	SellerReviewsToolbar,
 } from '@/modules/seller/ui/sections/seller-reviews-toolbar'
-
 export const SellerReviewsView = () => {
 	useSetSellerPageMeta({
 		title: 'Avaliações',
 		crumbs: ['Dashboard', 'Avaliações'],
 	})
-
 	const {
 		scope,
 		setScope,
@@ -50,16 +38,12 @@ export const SellerReviewsView = () => {
 		refetch,
 		markReplied,
 	} = useSellerReviews()
-
 	const { can } = useSellerAccess()
 	const canReply = can('review.reply')
-
 	if (isLoading) return <ReviewsSkeleton />
-
 	if (isError) {
 		return <SellerReviewsErrorState onRetry={() => refetch()} />
 	}
-
 	return (
 		<div className='w-full min-w-0 space-y-6 pb-10'>
 			<p className='max-w-3xl text-sm leading-relaxed text-muted-foreground'>

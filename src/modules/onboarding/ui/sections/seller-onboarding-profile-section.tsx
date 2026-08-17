@@ -1,5 +1,4 @@
 'use client'
-
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
@@ -26,7 +25,6 @@ type SellerOnboardingProfileSectionProps = {
 	onBack: () => void
 	onContinue: () => void
 }
-
 export function SellerOnboardingProfileSection({
 	form,
 	onChange,

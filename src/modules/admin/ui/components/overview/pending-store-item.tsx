@@ -1,12 +1,10 @@
 'use client'
-
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
 type PendingStoreItemProps = {
 	store: Record<string, unknown>
 }
-
 export function PendingStoreItem({ store }: PendingStoreItemProps) {
 	return (
 		<div className='flex items-center justify-between px-5 py-3'>

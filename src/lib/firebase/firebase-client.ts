@@ -10,22 +10,14 @@ const firebaseConfig = {
 	messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
 	appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 }
-
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp()
 const auth = getAuth(app)
 const db = getFirestore(app)
-
 const useEmulators = process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === 'true'
-
 if (useEmulators) {
 	connectAuthEmulator(auth, 'http://127.0.0.1:9099', {
 		disableWarnings: true,
 	})
-
 	connectFirestoreEmulator(db, '127.0.0.1', 8080)
 }
-
 export { app, auth, db }
-
-//? functions emulator 5001
-//? database emulator 9000

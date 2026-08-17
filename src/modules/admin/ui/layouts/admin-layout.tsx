@@ -1,5 +1,4 @@
 'use client'
-
 import {
 	BarChart3,
 	Bell,
@@ -40,7 +39,6 @@ const nav = [
 	{ label: 'Notificações', href: '/admin/notifications', icon: Bell },
 	{ label: 'Definições', href: '/admin/settings', icon: Settings },
 ]
-
 function NavItem({
 	item,
 	collapsed,
@@ -50,7 +48,6 @@ function NavItem({
 }) {
 	const pathname = usePathname()
 	const [open, setOpen] = useState(false)
-
 	if ('children' in item && item.children) {
 		const isActive = item.children.some((c) => pathname.startsWith(c.href))
 		return (
@@ -107,13 +104,11 @@ function NavItem({
 			</div>
 		)
 	}
-
 	const active =
 		'exact' in item && item.exact
 			? pathname === item.href
 			: pathname === item.href ||
 				pathname.startsWith(`${item.href ?? ''}/`)
-
 	return (
 		<Link
 			href={item.href ?? '#'}
@@ -130,13 +125,10 @@ function NavItem({
 		</Link>
 	)
 }
-
 export function AdminLayout({ children }: { children: React.ReactNode }) {
 	const [collapsed, setCollapsed] = useState(false)
-
 	return (
 		<div className='flex min-h-screen'>
-			{/* Sidebar */}
 			<aside
 				className={cn(
 					'flex flex-col border-r border-white/10 bg-[#0A0A0A] transition-all duration-200',
@@ -200,7 +192,6 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 				</div>
 			</aside>
 
-			{/* Main */}
 			<div className='flex min-h-screen flex-1 flex-col bg-background'>
 				<AdminTopBar />
 				<main className='flex-1 overflow-y-auto p-6'>{children}</main>
@@ -208,7 +199,6 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 		</div>
 	)
 }
-
 function AdminTopBar() {
 	const pathname = usePathname()
 	const segments = pathname.replace('/admin', '').split('/').filter(Boolean)
@@ -216,7 +206,6 @@ function AdminTopBar() {
 		'Admin',
 		...segments.map((s) => s.charAt(0).toUpperCase() + s.slice(1)),
 	]
-
 	return (
 		<header className='sticky top-0 z-30 flex items-center justify-between border-b border-border/60 bg-background/95 px-6 py-3 backdrop-blur-sm'>
 			<div>

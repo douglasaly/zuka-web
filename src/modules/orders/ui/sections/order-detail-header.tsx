@@ -1,5 +1,4 @@
 'use client'
-
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { OrderStatusBadge } from '@/components/order-status-badge'
@@ -9,11 +8,16 @@ import type { BuyerOrder } from '@/modules/orders/types'
 
 type OrderDetailHeaderProps = {
 	order: BuyerOrder
-	guidance: { headline: string; detail: string }
-	tone: { panel: string; ring: string }
+	guidance: {
+		headline: string
+		detail: string
+	}
+	tone: {
+		panel: string
+		ring: string
+	}
 	countLabel: string | null
 }
-
 export function OrderDetailHeader({
 	order,
 	guidance,

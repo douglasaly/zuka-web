@@ -16,32 +16,27 @@ const ALLOWED_PURPOSES = new Set<UploadPurpose>([
 	'verification-selfie',
 	'avatar',
 ])
-
 export async function POST(request: Request) {
 	try {
 		const user = await getSessionUser()
 		if (!user) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 		}
-
 		const body = await request.json()
 		const purpose = body.purpose as UploadPurpose
 		const contentType = String(body.contentType ?? '')
-
 		if (!ALLOWED_PURPOSES.has(purpose)) {
 			return NextResponse.json(
 				{ error: 'Invalid upload purpose' },
 				{ status: 400 }
 			)
 		}
-
 		if (!isAllowedImageContentType(contentType)) {
 			return NextResponse.json(
 				{ error: 'Only JPG, PNG, and WebP images are allowed' },
 				{ status: 400 }
 			)
 		}
-
 		const extension = extensionForContentType(contentType)
 		if (!extension) {
 			return NextResponse.json(
@@ -49,10 +44,8 @@ export async function POST(request: Request) {
 				{ status: 400 }
 			)
 		}
-
 		const key = buildObjectKey(purpose, user.id as string, extension)
 		const result = await createPresignedUploadUrl(key, contentType)
-
 		return NextResponse.json(result)
 	} catch (error) {
 		console.error(error)

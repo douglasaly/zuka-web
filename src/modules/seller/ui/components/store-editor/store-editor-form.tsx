@@ -1,15 +1,4 @@
 'use client'
-
-/**
- * THESIS: Store profile as a live shopfront editor — hero proves the look,
- * sections group identity / ops / trust; refuses duplicate page titles and
- * a save bar that overflows mobile.
- * OWN-WORLD: Seller dashboard Operate grammar (rounded-2xl sections, sticky save).
- * STORY: Preview → edit media/identity → location/delivery → status → save.
- * FIRST VIEWPORT: Compact chrome + live hero.
- * FORM: Extend product-editor Operate surface.
- */
-
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ExternalLink, Loader2, Save } from 'lucide-react'
 import Link from 'next/link'
@@ -36,7 +25,6 @@ import { formatPhone, type StoreFormState, storeToFormState } from './types'
 type StoreEditorFormProps = {
 	store: SellerStoreDetail
 }
-
 function formsEqual(a: StoreFormState, b: StoreFormState) {
 	return (
 		a.name === b.name &&
@@ -55,7 +43,6 @@ function formsEqual(a: StoreFormState, b: StoreFormState) {
 		a.deliveryZones.every((z, i) => z === b.deliveryZones[i])
 	)
 }
-
 export function StoreEditorForm({ store }: StoreEditorFormProps) {
 	const queryClient = useQueryClient()
 	const { can } = useSellerAccess()
@@ -64,34 +51,27 @@ export function StoreEditorForm({ store }: StoreEditorFormProps) {
 		storeToFormState(store)
 	)
 	const [mediaUploading, setMediaUploading] = useState(false)
-
 	useSetSellerPageMeta({
 		title: 'Minha Loja',
 		crumbs: ['Dashboard', 'Minha Loja'],
 	})
-
 	useEffect(() => {
 		setForm(storeToFormState(store))
 	}, [store])
-
 	const baseline = useMemo(() => storeToFormState(store), [store])
 	const isDirty = !formsEqual(form, baseline)
-
 	const lockedStatus =
 		store.status === 'ACTIVE' || store.status === 'INACTIVE'
 			? null
 			: store.status
-
 	const statusLabel =
 		LOCKED_STATUS_LABELS[store.status] ??
 		STATUS_OPTIONS.find((o) => o.value === form.status)?.label ??
 		store.status
-
 	function patchForm(patch: Partial<StoreFormState>) {
 		if (!canUpdate) return
 		setForm((prev) => ({ ...prev, ...patch }))
 	}
-
 	const mutation = useMutation({
 		mutationFn: async () => {
 			if (!canUpdate) {
@@ -103,7 +83,6 @@ export function StoreEditorForm({ store }: StoreEditorFormProps) {
 			if (!form.slug.trim()) {
 				throw new Error('O slug é obrigatório')
 			}
-
 			const payload: UpdateSellerStoreInput = {
 				name: form.name.trim(),
 				slug: form.slug.trim(),
@@ -116,18 +95,15 @@ export function StoreEditorForm({ store }: StoreEditorFormProps) {
 				hasDelivery: form.hasDelivery,
 				deliveryZones: form.hasDelivery ? form.deliveryZones : [],
 			}
-
 			if (form.logoUrl !== store.logoUrl) {
 				payload.logoUrl = form.logoUrl
 			}
 			if (form.bannerUrl !== store.bannerUrl) {
 				payload.bannerUrl = form.bannerUrl
 			}
-
 			if (!lockedStatus) {
 				payload.status = form.status
 			}
-
 			const res = await fetch('/api/seller/store', {
 				method: 'PATCH',
 				headers: { 'Content-Type': 'application/json' },
@@ -149,10 +125,8 @@ export function StoreEditorForm({ store }: StoreEditorFormProps) {
 		},
 		onError: (error: Error) => toast.error(error.message),
 	})
-
 	const canSave =
 		canUpdate && isDirty && !mutation.isPending && !mediaUploading
-
 	return (
 		<div className='min-w-0 max-w-full space-y-6 pb-28'>
 			<div className='flex min-w-0 flex-wrap items-center justify-between gap-2 sm:gap-3'>

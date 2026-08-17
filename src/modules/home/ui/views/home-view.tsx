@@ -6,7 +6,6 @@ import { ProductsSection } from '../sections/products-section'
 interface HomeViewProps {
 	categoryId?: string
 }
-
 export const HomeView = ({ categoryId }: HomeViewProps) => {
 	return (
 		<div className='mx-auto flex max-w-7xl flex-col gap-10 px-4 py-6 md:px-6 md:py-8'>

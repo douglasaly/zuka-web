@@ -1,5 +1,4 @@
 'use client'
-
 import { useQuery } from '@tanstack/react-query'
 import { ArrowRight, Sparkles } from 'lucide-react'
 import Image from 'next/image'
@@ -8,15 +7,12 @@ import { Button } from '@/components/ui/button'
 import { fetchStores } from '@/lib/api/marketplace'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 import { cn } from '@/lib/utils'
-
 export const HomeHeroSection = () => {
 	const { data: stores = [], isLoading } = useQuery({
 		queryKey: ['hero-store'],
 		queryFn: () => fetchStores({ limit: 1 }),
 	})
-
 	const featured = stores[0]
-
 	return (
 		<section className='relative overflow-hidden rounded-2xl md:rounded-3xl'>
 			<div className='relative aspect-16/7 min-h-55 w-full sm:aspect-16/6 sm:min-h-70'>

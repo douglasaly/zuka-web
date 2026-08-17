@@ -1,18 +1,15 @@
 'use client'
-
 import { useQuery } from '@tanstack/react-query'
 import { Store } from 'lucide-react'
 import { fetchStores } from '@/lib/api/marketplace'
 import { FeaturedStoresHeader } from '../components/featured-stores/featured-store-header'
 import { FeaturedStoresList } from '../components/featured-stores/featured-store-list'
 import { FeaturedStoresSkeleton } from '../components/featured-stores/featured-store-skeleton'
-
 export const FeaturedStoresSection = () => {
 	const { data: stores = [], isLoading } = useQuery({
 		queryKey: ['featured-stores'],
 		queryFn: () => fetchStores({ limit: 8 }),
 	})
-
 	return (
 		<section className='space-y-5'>
 			<FeaturedStoresHeader />

@@ -1,5 +1,4 @@
 'use client'
-
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cartItemCount } from '@/modules/cart/lib/cart-utils'
 import type { Cart } from '@/modules/cart/types'
@@ -9,14 +8,12 @@ type CartStoreFilterProps = {
 	value: string
 	onChange: (storeId: string) => void
 }
-
 export function CartStoreFilter({
 	carts,
 	value,
 	onChange,
 }: CartStoreFilterProps) {
 	if (carts.length < 2) return null
-
 	return (
 		<div className='-mx-4 overflow-x-auto overscroll-x-contain px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:px-0'>
 			<Tabs

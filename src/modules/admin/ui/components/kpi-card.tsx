@@ -7,10 +7,8 @@ interface KpiCardProps {
 	pct?: number
 	className?: string
 }
-
 export function KpiCard({ label, value, pct, className }: KpiCardProps) {
 	const up = (pct ?? 0) >= 0
-
 	return (
 		<div
 			className={cn(

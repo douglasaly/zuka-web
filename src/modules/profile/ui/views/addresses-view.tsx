@@ -1,12 +1,10 @@
 'use client'
-
 import { useAddresses } from '../../hooks/use-addresses'
 import { AddressesEmpty } from '../sections/addresses-empty'
 import { AddressesFormDialog } from '../sections/addresses-form-dialog'
 import { AddressesList } from '../sections/addresses-list'
 import { AddressesLoading } from '../sections/addresses-loading'
 import { AddressesToolbar } from '../sections/addresses-toolbar'
-
 export const AddressesView = () => {
 	const {
 		addresses,
@@ -22,7 +20,6 @@ export const AddressesView = () => {
 		handleDelete,
 		handleSetDefault,
 	} = useAddresses()
-
 	return (
 		<div className='mx-auto max-w-2xl px-4 py-8 md:py-12'>
 			<AddressesToolbar onAdd={() => setDialogOpen(true)} />

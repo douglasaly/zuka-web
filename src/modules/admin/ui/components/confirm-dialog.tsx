@@ -1,5 +1,4 @@
 'use client'
-
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogClose, DialogContent } from '@/components/ui/dialog'
 
@@ -12,7 +11,6 @@ interface ConfirmDialogProps {
 	onConfirm: () => void
 	loading?: boolean
 }
-
 export function ConfirmDialog({
 	open,
 	onOpenChange,

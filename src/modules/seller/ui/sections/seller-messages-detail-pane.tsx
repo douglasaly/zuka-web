@@ -1,6 +1,5 @@
 import { MessageSquare } from 'lucide-react'
 import { SellerThreadPlaceholderHeader } from '../components/messages/seller-messages-headers'
-
 export function SellerMessagesDetailPane() {
 	return (
 		<div className='hidden min-w-0 flex-1 flex-col bg-muted/15 lg:flex'>

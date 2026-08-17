@@ -1,12 +1,10 @@
 'use client'
-
 import { format } from 'date-fns'
 import { pt } from 'date-fns/locale'
 
 type TopStoreRowProps = {
 	store: Record<string, unknown>
 }
-
 export function TopStoreRow({ store }: TopStoreRowProps) {
 	return (
 		<tr className='hover:bg-muted/30 transition-colors'>

@@ -1,7 +1,5 @@
 'use client'
-
 import { Switch as SwitchPrimitive } from '@base-ui/react/switch'
-
 import { cn } from '@/lib/utils'
 
 function Switch({
@@ -28,5 +26,4 @@ function Switch({
 		</SwitchPrimitive.Root>
 	)
 }
-
 export { Switch }

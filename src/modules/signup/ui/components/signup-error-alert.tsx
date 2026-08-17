@@ -1,6 +1,5 @@
 export function SignupErrorAlert({ error }: { error: string | null }) {
 	if (!error) return null
-
 	return (
 		<p
 			role='alert'

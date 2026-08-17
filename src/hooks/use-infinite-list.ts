@@ -3,8 +3,6 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { useCallback } from 'react'
 
-// ─── Types ──────────────────────────────────────────────
-
 type ApiResponse<T> = {
 	success: boolean
 	data: T[]
@@ -16,39 +14,22 @@ type ApiResponse<T> = {
 }
 
 export type InfiniteListOptions<_T> = {
-	/** Chave do query cache. Ex: ['conversations'] */
 	queryKey: string[]
-	/** Endpoint da API. Ex: '/api/conversations' */
+
 	endpoint: string
-	/** Número de itens por página. Default: 20 */
+
 	limit?: number
-	/** Parâmetros extra de query string */
+
 	extraParams?: Record<string, string>
-	/** Transformar cada item retornado */
+
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- select transforma o tipo do query result
 	select?: (data: any) => any
-	/** Habilitar o query. Default: true */
+
 	enabled?: boolean
-	/** Intervalo de refetch em ms. Default: sem refetch automático */
+
 	refetchInterval?: number
 }
 
-// ─── Hook ───────────────────────────────────────────────
-
-/**
- * Hook genérico para listas infinitas com cursor-based pagination.
- *
- * @example
- * const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteList({
- *   queryKey: ['conversations'],
- *   endpoint: '/api/conversations',
- *   limit: 20,
- * })
- *
- * // data.pages = [{ data: [...], pagination: { hasMore, nextCursor } }, ...]
- * // items all flattened:
- * const allItems = data?.pages.flatMap(p => p.data) ?? []
- */
 export function useInfiniteList<T>({
 	queryKey,
 	endpoint,
@@ -104,7 +85,6 @@ export function useInfiniteList<T>({
 	})
 }
 
-/** Flatten todas as páginas num array simples. */
 export function flattenPages<T>(
 	data: { pages: { data: T[] }[] } | undefined
 ): T[] {

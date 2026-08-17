@@ -11,7 +11,6 @@ import {
 interface Props {
 	error: string | null
 }
-
 export function ResetPasswordInvalidSection({ error }: Props) {
 	return (
 		<div className='flex min-h-screen items-center justify-center bg-muted/25 px-4 py-12'>

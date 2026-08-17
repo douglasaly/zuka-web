@@ -1,5 +1,4 @@
 'use client'
-
 import { LogIn, LogOut, Store, StoreIcon, UserPlus } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -18,11 +17,9 @@ import {
 	isAwaitingSellerApproval,
 	needsSellerOnboarding,
 } from '@/lib/auth/routing'
-
 export const DashboardSection = () => {
 	const pathname = usePathname()
 	const { profile, isAuthenticated, isSeller, isLoading } = useUserProfile()
-
 	if (isLoading) {
 		return (
 			<SidebarGroup>
@@ -41,17 +38,14 @@ export const DashboardSection = () => {
 			</SidebarGroup>
 		)
 	}
-
 	const sellerPath = getSellerPanelPath(profile)
 	const continueOnboarding = isSeller && needsSellerOnboarding(profile)
 	const awaitingApproval = isAwaitingSellerApproval(profile)
-
 	const sellerLabel = awaitingApproval
 		? 'Aguarda aprovação'
 		: continueOnboarding
 			? 'Continuar registo'
 			: 'Painel do vendedor'
-
 	return (
 		<SidebarGroup>
 			<SidebarGroupLabel className='text-xs font-semibold uppercase tracking-wider text-muted-foreground/70'>
@@ -83,10 +77,7 @@ export const DashboardSection = () => {
 									'/onboarding/seller'
 								)}
 								render={
-									<Link
-										prefetch
-										href='/onboarding/seller'
-									>
+									<Link prefetch href='/onboarding/seller'>
 										<StoreIcon className='size-4' />
 										<span>Abrir uma loja</span>
 									</Link>

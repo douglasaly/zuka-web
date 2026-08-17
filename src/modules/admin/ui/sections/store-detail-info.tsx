@@ -12,7 +12,6 @@ type StoreDetailInfoProps = {
 	province: Record<string, unknown> | undefined
 	docs: Record<string, unknown>[]
 }
-
 export function StoreDetailInfo({
 	store,
 	owner,

@@ -1,5 +1,4 @@
 import type { ProductStatusValue } from './constants'
-
 export type ProductFormState = {
 	name: string
 	description: string
@@ -9,7 +8,6 @@ export type ProductFormState = {
 	status: ProductStatusValue
 	imageUrls: string[]
 }
-
 export const EMPTY_PRODUCT_FORM: ProductFormState = {
 	name: '',
 	description: '',

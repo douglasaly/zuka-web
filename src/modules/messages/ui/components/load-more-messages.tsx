@@ -1,12 +1,10 @@
 'use client'
-
 import { Button } from '@/components/ui/button'
 
 type LoadMoreMessagesProps = {
 	onLoadMore: () => void
 	isLoading?: boolean
 }
-
 export const LoadMoreMessages = ({
 	onLoadMore,
 	isLoading = false,

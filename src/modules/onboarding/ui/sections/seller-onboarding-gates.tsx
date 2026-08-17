@@ -1,5 +1,4 @@
 'use client'
-
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
@@ -10,7 +9,6 @@ type SellerOnboardingGatesProps = {
 	isPreparingSeller: boolean
 	onRetryRoleBootstrap: () => void
 }
-
 export function SellerOnboardingGates({
 	isUnauthenticated,
 	isLoading,
@@ -34,7 +32,6 @@ export function SellerOnboardingGates({
 			</div>
 		)
 	}
-
 	if (isLoading) {
 		return (
 			<div className='flex flex-1 items-center justify-center text-sm text-muted-foreground'>
@@ -42,7 +39,6 @@ export function SellerOnboardingGates({
 			</div>
 		)
 	}
-
 	if (roleBootstrapError) {
 		return (
 			<div className='flex flex-1 flex-col items-center justify-center gap-4 px-4 text-center'>
@@ -53,7 +49,6 @@ export function SellerOnboardingGates({
 			</div>
 		)
 	}
-
 	if (isPreparingSeller) {
 		return (
 			<div className='flex flex-1 items-center justify-center text-sm text-muted-foreground'>
@@ -61,6 +56,5 @@ export function SellerOnboardingGates({
 			</div>
 		)
 	}
-
 	return null
 }

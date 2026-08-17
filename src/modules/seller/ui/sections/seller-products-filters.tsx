@@ -1,5 +1,4 @@
 'use client'
-
 import { Search, SlidersHorizontal, X } from 'lucide-react'
 import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { Button } from '@/components/ui/button'
@@ -21,7 +20,10 @@ type SellerProductsFiltersProps = {
 	onSearchChange: (value: string) => void
 	categoryFilter: string
 	onCategoryChange: (value: string) => void
-	categories: { id: string; name: string }[]
+	categories: {
+		id: string
+		name: string
+	}[]
 	showPriceFilters: boolean
 	onTogglePriceFilters: () => void
 	minPrice: string
@@ -31,7 +33,6 @@ type SellerProductsFiltersProps = {
 	hasFilters: boolean
 	onClearFilters: () => void
 }
-
 export function SellerProductsFilters({
 	statusFilter,
 	onStatusChange,
@@ -51,7 +52,6 @@ export function SellerProductsFilters({
 }: SellerProductsFiltersProps) {
 	return (
 		<>
-			{/* Status pills */}
 			<div
 				className='flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-none'
 				role='tablist'
@@ -79,7 +79,6 @@ export function SellerProductsFilters({
 				})}
 			</div>
 
-			{/* Search + secondary filters */}
 			<div className='flex flex-col gap-3'>
 				<div className='flex flex-wrap items-center gap-2'>
 					<div className='relative min-w-0 max-w-md flex-1 basis-full sm:basis-auto sm:min-w-48'>

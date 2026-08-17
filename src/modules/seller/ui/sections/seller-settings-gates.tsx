@@ -1,9 +1,7 @@
 'use client'
-
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-
 export function SellerSettingsLoading() {
 	return (
 		<div className='min-w-0 max-w-6xl space-y-6'>
@@ -24,7 +22,6 @@ export function SellerSettingsLoading() {
 		</div>
 	)
 }
-
 export function SellerSettingsUnauth() {
 	return (
 		<div className='flex min-w-0 max-w-6xl flex-col items-center justify-center rounded-2xl border border-dashed border-border/70 bg-muted/20 px-6 py-16 text-center'>

@@ -1,5 +1,4 @@
 'use client'
-
 import { ArrowLeft, Laptop, Moon, Sun } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
@@ -26,16 +25,13 @@ const THEMES = [
 		icon: Laptop,
 	},
 ]
-
 export const AppearanceView = () => {
 	const router = useRouter()
 	const { theme, setTheme } = useTheme()
 	const [mounted, setMounted] = useState(false)
-
 	useEffect(() => {
 		setMounted(true)
 	}, [])
-
 	return (
 		<div className='mx-auto max-w-2xl px-4 py-8 md:py-12'>
 			<div className='mb-8 flex items-center gap-2'>
@@ -55,7 +51,6 @@ export const AppearanceView = () => {
 			<div className='grid gap-4 sm:grid-cols-3'>
 				{THEMES.map(({ id, label, description, icon: Icon }) => {
 					const isActive = mounted && theme === id
-
 					return (
 						<button
 							type='button'

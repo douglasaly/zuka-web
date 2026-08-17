@@ -1,5 +1,4 @@
 'use client'
-
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -20,19 +19,15 @@ import {
 	STORE_FORM_MESSAGES,
 	toE164Mz,
 } from '@/lib/validations/store-form'
-
 export interface Province {
 	id: string
 	name: string
 }
-
 export interface Category {
 	id: string
 	name: string
 }
-
 export type SellerStep = 1 | 2 | 3 | 4
-
 export type AccountFormState = {
 	name: string
 	neighborhood: string
@@ -41,7 +36,6 @@ export type AccountFormState = {
 	provinceId: string
 	phone: string
 }
-
 export type ProfileFormState = {
 	logoUrl: string | null
 	bannerUrl: string | null
@@ -50,43 +44,33 @@ export type ProfileFormState = {
 	whatsapp: string
 	phone: string
 }
-
 export type VerificationFormState = {
 	idCardUrl: string | null
 	selfieUrl: string | null
 }
-
 function formatPhone(value: string) {
 	return toE164Mz(value)
 }
-
 function resolveStep(
 	profile: Awaited<ReturnType<typeof fetchUserProfile>>
 ): SellerStep {
 	if (!profile) return 1
-
 	const onboarding = profile.onboarding
 	if (onboarding?.status === 'SUBMITTED') {
 		return 4
 	}
-
 	if (onboarding?.status === 'APPROVED') {
 		return 4
 	}
-
 	if (!profile.stores.length) return 1
-
 	const step = onboarding?.currentStep
 	if (step === 'VERIFICATION') return 3
 	if (step === 'STORE_PROFILE') return 2
-
 	return 2
 }
-
 export function useSellerOnboarding() {
 	const router = useRouter()
 	const queryClient = useQueryClient()
-
 	const {
 		data: profile,
 		isLoading,
@@ -100,26 +84,20 @@ export function useSellerOnboarding() {
 			return fetchUserProfile()
 		},
 	})
-
 	const [roleBootstrapError, setRoleBootstrapError] = useState<string | null>(
 		null
 	)
 	const [isBootstrappingRole, setIsBootstrappingRole] = useState(false)
 	const roleBootstrapAttempted = useRef(false)
-
-	// Existing buyers ("Abrir uma loja") land here directly — assign seller role.
 	useEffect(() => {
 		if (isLoading || isFetching || isBootstrappingRole) return
 		if (!auth.currentUser || !profile) return
 		if (profile.roles.includes('seller')) return
 		if (roleBootstrapAttempted.current) return
-
 		roleBootstrapAttempted.current = true
 		setIsBootstrappingRole(true)
 		setRoleBootstrapError(null)
-
 		let cancelled = false
-
 		;(async () => {
 			try {
 				await createAppSession()
@@ -143,7 +121,6 @@ export function useSellerOnboarding() {
 				if (!cancelled) setIsBootstrappingRole(false)
 			}
 		})()
-
 		return () => {
 			cancelled = true
 		}
@@ -155,7 +132,6 @@ export function useSellerOnboarding() {
 		queryClient,
 		refetch,
 	])
-
 	const { data: provinces = [] } = useQuery<Province[]>({
 		queryKey: ['provinces'],
 		queryFn: async () => {
@@ -165,7 +141,6 @@ export function useSellerOnboarding() {
 		},
 		enabled: Boolean(profile?.roles.includes('seller')),
 	})
-
 	const { data: categories = [] } = useQuery<Category[]>({
 		queryKey: ['categories'],
 		queryFn: async () => {
@@ -176,16 +151,13 @@ export function useSellerOnboarding() {
 		},
 		enabled: Boolean(profile?.roles.includes('seller')),
 	})
-
 	const _initialStep = useMemo(() => resolveStep(profile ?? null), [profile])
 	const [step, setStep] = useState<SellerStep>(1)
-
 	useEffect(() => {
 		if (profile) {
 			setStep(resolveStep(profile))
 		}
 	}, [profile])
-
 	const [accountForm, setAccountForm] = useState<AccountFormState>({
 		name: '',
 		neighborhood: '',
@@ -194,7 +166,6 @@ export function useSellerOnboarding() {
 		provinceId: '',
 		phone: '',
 	})
-
 	const [profileForm, setProfileForm] = useState<ProfileFormState>({
 		logoUrl: null,
 		bannerUrl: null,
@@ -203,19 +174,16 @@ export function useSellerOnboarding() {
 		whatsapp: '',
 		phone: '',
 	})
-
 	const [verificationForm, setVerificationForm] =
 		useState<VerificationFormState>({
 			idCardUrl: null,
 			selfieUrl: null,
 		})
-
 	useEffect(() => {
 		if (profile?.email) {
 			setAccountForm((f) => ({ ...f, email: profile.email ?? '' }))
 		}
 	}, [profile?.email])
-
 	const createStoreMutation = useMutation({
 		mutationFn: createStore,
 		onSuccess: () => {
@@ -229,7 +197,6 @@ export function useSellerOnboarding() {
 			)
 		},
 	})
-
 	const updateStoreMutation = useMutation({
 		mutationFn: updateSellerStore,
 		onSuccess: () => {
@@ -245,7 +212,6 @@ export function useSellerOnboarding() {
 			)
 		},
 	})
-
 	const verificationMutation = useMutation({
 		mutationFn: submitVerification,
 		onSuccess: () => {
@@ -259,7 +225,6 @@ export function useSellerOnboarding() {
 			)
 		},
 	})
-
 	const isUnauthenticated = !auth.currentUser && !isLoading
 	const isGateLoading = isLoading || isBootstrappingRole
 	const isPreparingSeller =
@@ -272,18 +237,15 @@ export function useSellerOnboarding() {
 			profile.onboarding?.status === 'APPROVED' &&
 			profile.stores.length > 0
 	)
-
 	const error =
 		createStoreMutation.error?.message ??
 		updateStoreMutation.error?.message ??
 		verificationMutation.error?.message ??
 		null
-
 	const isPending =
 		createStoreMutation.isPending ||
 		updateStoreMutation.isPending ||
 		verificationMutation.isPending
-
 	const canContinueStep1 = Boolean(
 		accountForm.name.trim() &&
 			accountForm.neighborhood.trim() &&
@@ -292,7 +254,6 @@ export function useSellerOnboarding() {
 			isValidStoreEmail(accountForm.email) &&
 			isValidMzMobile(accountForm.phone)
 	)
-
 	const emailError =
 		accountForm.email.trim().length > 0 &&
 		!isValidStoreEmail(accountForm.email)
@@ -304,7 +265,6 @@ export function useSellerOnboarding() {
 		accountForm.phone.length > 0 && !isValidMzMobile(accountForm.phone)
 			? STORE_FORM_MESSAGES.phoneInvalid
 			: null
-
 	const descriptionOk = profileForm.description.trim().length >= 20
 	const whatsappOk =
 		!profileForm.whatsapp.trim() || isValidMzMobile(profileForm.whatsapp)
@@ -315,7 +275,6 @@ export function useSellerOnboarding() {
 		Boolean(profileForm.whatsapp.trim() || profileForm.phone.trim())
 	const canContinueStep2 =
 		descriptionOk && whatsappOk && callPhoneOk && deliveryContactOk
-
 	const descriptionError =
 		profileForm.description.length > 0 && !descriptionOk
 			? STORE_FORM_MESSAGES.descriptionMin
@@ -332,13 +291,11 @@ export function useSellerOnboarding() {
 		profileForm.phone.length > 0 && !callPhoneOk
 			? STORE_FORM_MESSAGES.phoneInvalid
 			: null
-
 	function retryRoleBootstrap() {
 		roleBootstrapAttempted.current = false
 		setRoleBootstrapError(null)
 		void refetch()
 	}
-
 	function handleCreateStore() {
 		createStoreMutation.mutate({
 			name: accountForm.name,
@@ -349,7 +306,6 @@ export function useSellerOnboarding() {
 			phone: formatPhone(accountForm.phone),
 		})
 	}
-
 	function handleUpdateStore() {
 		updateStoreMutation.mutate({
 			logoUrl: profileForm.logoUrl ?? undefined,
@@ -361,7 +317,6 @@ export function useSellerOnboarding() {
 			currentStep: 'VERIFICATION',
 		})
 	}
-
 	function handleSubmitVerification() {
 		if (!verificationForm.idCardUrl || !verificationForm.selfieUrl) {
 			return
@@ -371,15 +326,12 @@ export function useSellerOnboarding() {
 			selfieUrl: verificationForm.selfieUrl,
 		})
 	}
-
 	function goBackToMarketplace() {
 		router.push('/')
 	}
-
 	function redirectToDashboard() {
 		router.replace('/dashboard/seller')
 	}
-
 	return {
 		provinces,
 		categories,

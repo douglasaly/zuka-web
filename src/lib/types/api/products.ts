@@ -1,24 +1,19 @@
-// ─── Product types ─────────────────────────────────────
-
 export type ProductImage = {
 	id: string
 	url: string
 	is_primary: boolean
 	sort_order: number
 }
-
 export type ProductCategory = {
 	id: string
 	name: string
 	slug: string
 }
-
 export type ProductStore = {
 	id: string
 	name: string
 	slug: string
 }
-
 export type GroupedProduct = {
 	product: {
 		id: string
@@ -38,8 +33,6 @@ export type GroupedProduct = {
 	category: ProductCategory | null
 	images: ProductImage[]
 }
-
-/** GET /api/products */
 export type ListProductsInput = {
 	categoria?: string
 	search?: string
@@ -51,7 +44,6 @@ export type ListProductsInput = {
 	cursor?: string
 	limit?: number
 }
-
 export type ListProductsOutput = {
 	success: true
 	data: GroupedProduct[]
@@ -61,8 +53,6 @@ export type ListProductsOutput = {
 		limit: number
 	}
 }
-
-/** POST /api/products */
 export type CreateProductInput = {
 	name: string
 	description?: string
@@ -74,7 +64,6 @@ export type CreateProductInput = {
 	imageUrls?: string[]
 	status?: 'DRAFT' | 'ACTIVE' | 'INACTIVE'
 }
-
 export type CreateProductOutput = {
 	success: true
 	data: {
@@ -94,8 +83,6 @@ export type CreateProductOutput = {
 		}
 	}
 }
-
-/** GET /api/products/[id] */
 export type GetProductOutput = {
 	success: true
 	data: {

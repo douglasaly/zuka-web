@@ -1,5 +1,4 @@
 'use client'
-
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { fetchOrder } from '@/lib/api/marketplace'
 import type { BuyerOrder, BuyerOrderStatus } from '@/modules/orders/types'
@@ -28,11 +27,13 @@ function statusTone(status: BuyerOrderStatus) {
 			}
 	}
 }
-
 function statusGuidance(
 	order: BuyerOrder,
 	hasStoreReply: boolean
-): { headline: string; detail: string } {
+): {
+	headline: string
+	detail: string
+} {
 	switch (order.status) {
 		case 'pending':
 			return {
@@ -68,25 +69,21 @@ function statusGuidance(
 			}
 	}
 }
-
 function itemCountLabel(count: number) {
 	if (count <= 0) return null
 	return count === 1 ? '1 item' : `${count} itens`
 }
-
 export function useOrderDetail(id: string) {
 	const queryClient = useQueryClient()
 	const { data, isLoading, isError, refetch, isFetching } = useQuery({
 		queryKey: ['order', id],
 		queryFn: () => fetchOrder(id),
 	})
-
 	const order = data?.order
 	const items = data?.items ?? []
 	const timeline = data?.timeline ?? []
 	const notes = data?.notes ?? null
 	const review = data?.review ?? null
-
 	const firstProductId = items[0]?.productId
 	const guidance = order
 		? statusGuidance(order, Boolean(review?.storeReply))
@@ -110,7 +107,6 @@ export function useOrderDetail(id: string) {
 		Boolean(order?.conversationId) ||
 		Boolean(order?.storeSlug) ||
 		showBuyAgain
-
 	function onReviewSubmitted() {
 		void queryClient.invalidateQueries({
 			queryKey: ['order', id],
@@ -119,7 +115,6 @@ export function useOrderDetail(id: string) {
 			queryKey: ['orders'],
 		})
 	}
-
 	return {
 		data,
 		isLoading,

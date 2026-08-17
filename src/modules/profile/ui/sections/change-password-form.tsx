@@ -1,5 +1,4 @@
 'use client'
-
 import { KeyRound, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -14,8 +13,10 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { PasswordToggleField } from '../components/password-toggle-field'
 
-type Requirement = { label: string; met: boolean }
-
+type Requirement = {
+	label: string
+	met: boolean
+}
 type ChangePasswordFormProps = {
 	currentPassword: string
 	newPassword: string
@@ -32,7 +33,6 @@ type ChangePasswordFormProps = {
 	onSubmit: (e: React.FormEvent) => void
 	onCancel: () => void
 }
-
 export function ChangePasswordForm({
 	currentPassword,
 	newPassword,

@@ -1,5 +1,4 @@
 'use client'
-
 import {
 	CircleQuestionMark,
 	Heart,
@@ -12,12 +11,10 @@ import { useEffect, useState } from 'react'
 import { useSavedItems } from '@/hooks/use-saved-items'
 import { useUserProfile } from '@/hooks/use-user-profile'
 import { normalizeStore } from '@/types/stores'
-
 export const PROFILE_TABS = [
 	{ title: 'Guardados', icon: Heart },
 	{ title: 'Lojas seguidas', icon: Store },
 ] as const
-
 export const PROFILE_OPTIONS = [
 	{ title: 'Definições', icon: Settings, url: '/perfil/definicoes' },
 	{
@@ -27,21 +24,17 @@ export const PROFILE_OPTIONS = [
 	},
 	{ title: 'Sair', icon: LogOut, url: '/log-out' },
 ] as const
-
 export function useProfile() {
 	const [tab, setTab] = useState('Guardados')
 	const router = useRouter()
 	const pathname = usePathname()
 	const searchParams = useSearchParams()
-
 	useEffect(() => {
 		const initialTab = searchParams.get('tab')
-
 		if (initialTab && PROFILE_TABS.some((t) => t.title === initialTab)) {
 			setTab(initialTab)
 		}
 	}, [searchParams])
-
 	const {
 		profile,
 		isAuthenticated,
@@ -51,15 +44,12 @@ export function useProfile() {
 		followedStores,
 		isFollowedStoresLoading,
 	} = useUserProfile()
-
 	const { savedItems, toggleSavedItem, isRemoving, isSavedItemsLoading } =
 		useSavedItems()
-
 	const displayName = profile
 		? [profile.firstName, profile.lastName].filter(Boolean).join(' ') ||
 			'Utilizador'
 		: 'Utilizador'
-
 	const stats = [
 		{
 			label: 'Guardados',
@@ -71,27 +61,20 @@ export function useProfile() {
 			value: followedCount,
 			isLoading: isFollowedStoresLoading,
 		},
-		{ label: 'Pedidos', value: 5 }, // TODO: ligar à API de pedidos
+		{ label: 'Pedidos', value: 5 },
 	]
-
 	const normalizedStores = followedStores.map(normalizeStore) ?? []
-
 	function handleRemoveItem(itemId: string) {
 		toggleSavedItem(itemId)
 	}
-
 	const handleSetTab = (newTab: string) => {
 		const params = new URLSearchParams(searchParams.toString())
-
 		params.set('tab', newTab)
-
 		router.replace(`${pathname}?${params.toString()}`, {
 			scroll: false,
 		})
-
 		setTab(newTab)
 	}
-
 	return {
 		tab,
 		handleSetTab,

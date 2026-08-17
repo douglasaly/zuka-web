@@ -1,5 +1,4 @@
 'use client'
-
 import { MapPin } from 'lucide-react'
 import Image from 'next/image'
 import { useFollowStore } from '@/hooks/use-follow-store'
@@ -13,12 +12,10 @@ import { StoreStatsRow } from './store-stats-row'
 type StoreInfoCardProps = {
 	store: StoreProfile
 }
-
 export const StoreInfoCard = ({ store }: StoreInfoCardProps) => {
 	const whatsapp = store.whatsapp?.replace(/\D/g, '') ?? ''
 	const { isFollowing, toggleFollow, isFollowLoading, isLoading } =
 		useFollowStore(store.slug)
-
 	return (
 		<div className='relative -mt-16 rounded-2xl border border-border/60 bg-card p-5'>
 			<div className='flex gap-4'>

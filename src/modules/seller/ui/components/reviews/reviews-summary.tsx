@@ -1,5 +1,4 @@
 'use client'
-
 import { Star } from 'lucide-react'
 import { StarRating } from './star-rating'
 import type { RatingSummary } from './types'
@@ -9,7 +8,6 @@ type ReviewsSummaryProps = {
 	products: RatingSummary
 	activeScope: 'store' | 'product'
 }
-
 export function ReviewsSummary({
 	store,
 	products,
@@ -20,9 +18,7 @@ export function ReviewsSummary({
 		activeScope === 'store' ? 'Média da loja' : 'Média dos produtos'
 	const countLabel =
 		active.count === 1 ? '1 avaliação' : `${active.count} avaliações`
-
 	const maxCount = Math.max(...active.distribution, 1)
-
 	return (
 		<div className='grid gap-4 sm:grid-cols-[minmax(0,14rem)_1fr]'>
 			<div className='flex items-center gap-3 rounded-2xl border border-border/60 bg-card px-5 py-4'>

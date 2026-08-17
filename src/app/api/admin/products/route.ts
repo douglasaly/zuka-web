@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server'
 import { requireAdminUser } from '@/lib/auth/admin'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import type { Database } from '@/lib/supabase/types'
-
 export async function GET(req: Request) {
 	await requireAdminUser()
 	const { searchParams } = new URL(req.url)
@@ -14,7 +13,6 @@ export async function GET(req: Request) {
 	const page = Number(searchParams.get('page') ?? 1)
 	const limit = Math.min(Number(searchParams.get('limit') ?? 50), 100)
 	const offset = (page - 1) * limit
-
 	const supabase = createSupabaseAdmin()
 	let query = supabase
 		.from('products')
@@ -24,21 +22,17 @@ export async function GET(req: Request) {
 		.is('deleted_at', null)
 		.order('created_at', { ascending: false })
 		.range(offset, offset + limit - 1)
-
 	if (search) query = query.ilike('name', `%${search}%`)
 	if (categoryId) query = query.eq('category_id', categoryId)
 	if (status) query = query.eq('status', status)
-
 	const { data, error } = await query
 	if (error)
 		return NextResponse.json({ error: error.message }, { status: 500 })
-
 	const products = (data ?? []).map((row: any) => ({
 		...row,
 		price: row.price / 100,
 		discount_price:
 			row.discount_price != null ? row.discount_price / 100 : null,
 	}))
-
 	return NextResponse.json({ products })
 }

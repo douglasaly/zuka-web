@@ -1,5 +1,4 @@
 'use client'
-
 import { Button } from '@/components/ui/button'
 import { LoadMoreMessages } from '@/modules/messages/ui/components/load-more-messages'
 import type { SellerMessagesFilter } from '../../hooks/use-seller-messages'
@@ -17,7 +16,6 @@ type SellerMessagesListBodyProps = {
 	isFetchingNextPage: boolean
 	onLoadMore: () => void
 }
-
 export function SellerMessagesListBody({
 	visible,
 	query,
@@ -46,7 +44,6 @@ export function SellerMessagesListBody({
 			</div>
 		)
 	}
-
 	return (
 		<div className='min-h-0 flex-1 overflow-y-auto overscroll-contain'>
 			<div className='divide-y divide-border/50'>

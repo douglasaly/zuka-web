@@ -11,7 +11,6 @@ const duplicateSlugs = [
 	'saude-e-bem-estar',
 	'tecnologia-e-acessorios',
 ]
-
 async function removeDuplicateCategories(
 	supabase: ReturnType<typeof createSupabaseAdmin>
 ) {
@@ -21,14 +20,11 @@ async function removeDuplicateCategories(
 			.select('id')
 			.eq('slug', slug)
 			.maybeSingle()
-
 		if (!category) continue
-
 		const { count } = await supabase
 			.from('products')
 			.select('*', { count: 'exact', head: true })
 			.eq('category_id', category.id as string)
-
 		if ((count ?? 0) === 0) {
 			await supabase
 				.from('categories')
@@ -38,21 +34,15 @@ async function removeDuplicateCategories(
 		}
 	}
 }
-
 async function seed() {
 	try {
 		console.log('🔗 Seeding categories...')
-
 		const supabase = createSupabaseAdmin()
-
 		await removeDuplicateCategories(supabase)
-
 		const { data: existing, error: selectError } = await supabase
 			.from('categories')
 			.select('slug')
-
 		if (selectError) throw selectError
-
 		const existingSlugs = new Set(
 			(existing ?? []).map((row) => String(row.slug))
 		)
@@ -62,17 +52,14 @@ async function seed() {
 				id: uuidv7(),
 				...category,
 			}))
-
 		if (toInsert.length === 0) {
 			console.log(
 				`✔️ All ${marketplaceCategories.length} categories already exist`
 			)
 			process.exit(0)
 		}
-
 		const { error } = await supabase.from('categories').insert(toInsert)
 		if (error) throw error
-
 		console.log(`✔️ Created ${toInsert.length} categories`)
 		console.log(
 			`✔️ Total: ${existingSlugs.size + toInsert.length} categories`
@@ -83,5 +70,4 @@ async function seed() {
 		process.exit(1)
 	}
 }
-
 seed()

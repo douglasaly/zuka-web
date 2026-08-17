@@ -3,11 +3,9 @@ export async function GetMessages(cursor?: string | null) {
 		'/api/messages',
 		typeof window !== 'undefined' ? window.location.origin : ''
 	)
-
 	if (cursor) {
 		url.searchParams.set('cursor', cursor)
 	}
-
 	const res = await fetch(url.toString(), {
 		method: 'GET',
 		headers: {
@@ -15,14 +13,11 @@ export async function GetMessages(cursor?: string | null) {
 		},
 		cache: 'no-store',
 	})
-
 	if (!res.ok) {
 		throw new Error('Failed to fetch messages')
 	}
-
 	return res.json()
 }
-
 export async function GetConversationMessages(conversationId: string) {
 	const res = await fetch(`/api/messages?conversationId=${conversationId}`, {
 		method: 'GET',
@@ -31,24 +26,19 @@ export async function GetConversationMessages(conversationId: string) {
 		},
 		cache: 'no-store',
 	})
-
 	if (!res.ok) {
 		throw new Error('Failed to fetch messages')
 	}
-
 	return await res.json()
 }
-
 export async function GetConversations(cursor?: string) {
 	const url = new URL(
 		'/api/messages/conversations',
 		typeof window !== 'undefined' ? window.location.origin : ''
 	)
-
 	if (cursor) {
 		url.searchParams.set('cursor', cursor)
 	}
-
 	const res = await fetch(url.toString(), {
 		method: 'GET',
 		headers: {
@@ -56,10 +46,8 @@ export async function GetConversations(cursor?: string) {
 		},
 		cache: 'no-store',
 	})
-
 	if (!res.ok) {
 		throw new Error('Failed to fetch conversations')
 	}
-
 	return res.json()
 }

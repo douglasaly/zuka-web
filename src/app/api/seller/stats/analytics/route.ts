@@ -4,20 +4,13 @@ import {
 	getMockSellerAnalytics,
 	parseAnalyticsRange,
 } from '@/modules/seller/ui/components/analytics/mock-data'
-
-/**
- * Seller analytics — currently returns mock data until product/store view
- * events and richer aggregates are instrumented. No averageTicket.
- */
 export async function GET(request: NextRequest) {
 	try {
 		const auth = await requireSellerStore({ permission: 'stats.read' })
 		if (isSellerStoreAuthError(auth)) return auth.error
-
 		const { searchParams } = new URL(request.url)
 		const range = parseAnalyticsRange(searchParams.get('range'))
 		const data = getMockSellerAnalytics(range)
-
 		return NextResponse.json({
 			success: true,
 			mock: true,

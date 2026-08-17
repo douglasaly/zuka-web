@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server'
 import { requireAdminUser } from '@/lib/auth/admin'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
-
 export async function GET() {
 	await requireAdminUser()
 	const supabase = createSupabaseAdmin()
-
 	const now = new Date()
 	const sevenDaysAgo = new Date(
 		now.getTime() - 7 * 24 * 60 * 60 * 1000
@@ -18,7 +16,6 @@ export async function GET() {
 		now.getMonth(),
 		now.getDate()
 	).toISOString()
-
 	const [
 		{ count: totalUsers },
 		{ count: prevUsers },
@@ -69,12 +66,10 @@ export async function GET() {
 			.select('*', { count: 'exact', head: true })
 			.gte('created_at', todayStart),
 	])
-
 	function pct(curr: number | null, prev: number | null) {
 		if (!prev || prev === 0) return curr ? 100 : 0
 		return Math.round((((curr ?? 0) - prev) / prev) * 100)
 	}
-
 	const { count: totalUsersAll } = await supabase
 		.from('users')
 		.select('*', { count: 'exact', head: true })
@@ -84,7 +79,6 @@ export async function GET() {
 		.select('*', { count: 'exact', head: true })
 		.is('deleted_at', null)
 		.lt('created_at', sevenDaysAgo)
-
 	return NextResponse.json({
 		totalUsers: totalUsersAll ?? 0,
 		totalUsersPct: pct(totalUsers, prevUsers),

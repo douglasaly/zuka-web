@@ -1,5 +1,4 @@
 'use client'
-
 import { Check, Circle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { LOCKED_STATUS_LABELS, STATUS_OPTIONS } from './constants'
@@ -11,14 +10,12 @@ type StoreStatusSectionProps = {
 	lockedStatus: string | null
 	onChange: (patch: Partial<StoreFormState>) => void
 }
-
 export function StoreStatusSection({
 	form,
 	lockedStatus,
 	onChange,
 }: StoreStatusSectionProps) {
 	const isLocked = Boolean(lockedStatus)
-
 	return (
 		<StoreSection
 			title='Estado da loja'

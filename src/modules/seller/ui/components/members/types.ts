@@ -5,7 +5,6 @@ export type MemberUser = {
 	email: string | null
 	avatarUrl: string | null
 }
-
 export type Member = {
 	id: string
 	role: string
@@ -14,11 +13,9 @@ export type Member = {
 	invitedAt: string | null
 	user: MemberUser
 }
-
 export type RoleCatalog =
 	typeof import('@/lib/auth/store-permissions').STORE_ROLE_UI
 export type InviteRole = keyof RoleCatalog
-
 export type MembersResponse = {
 	members: Member[]
 	me?: {

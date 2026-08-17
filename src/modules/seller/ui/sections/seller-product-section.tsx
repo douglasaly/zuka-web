@@ -1,5 +1,4 @@
 'use client'
-
 import { Package, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -14,7 +13,6 @@ type SellerProductsSectionProps = {
 	onEdit: (id: string) => void
 	onDelete: (id: string) => void
 }
-
 export const SellerProductsSection = ({
 	products,
 	onAdd,
@@ -24,10 +22,8 @@ export const SellerProductsSection = ({
 	const [productToDelete, setProductToDelete] =
 		useState<SellerProduct | null>(null)
 	const [isDeleting, setIsDeleting] = useState(false)
-
 	const handleConfirmDelete = async () => {
 		if (!productToDelete) return
-
 		setIsDeleting(true)
 		try {
 			onDelete(productToDelete.id)
@@ -36,7 +32,6 @@ export const SellerProductsSection = ({
 			setIsDeleting(false)
 		}
 	}
-
 	return (
 		<div className='space-y-4'>
 			<div className='flex items-center justify-between'>

@@ -6,7 +6,6 @@ export type Conversation = {
 	timestamp: string
 	unreadCount: number
 }
-
 export const MOCK_CONVERSATIONS: Conversation[] = [
 	{
 		id: '1',
@@ -57,24 +56,18 @@ export const MOCK_CONVERSATIONS: Conversation[] = [
 		unreadCount: 0,
 	},
 ]
-
-// CHAT
-
 export type MessageStatus = 'sent' | 'delivered' | 'read'
-
 export type ChatMessage = {
 	id: string
 	conversationId: string
-	userId: string | null // quem enviou (comprador)
-	storeId: string | null // quem enviou (loja)
+	userId: string | null
+	storeId: string | null
 	content: string
 	status: MessageStatus
 	createdAt: string
 	updatedAt: string
 	deletedAt: string | null
 }
-
-// MOCK DATA
 export const MOCK_MESSAGES = [
 	{
 		id: 2,

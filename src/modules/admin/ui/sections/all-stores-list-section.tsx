@@ -1,5 +1,4 @@
 'use client'
-
 import { Store } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -23,7 +22,6 @@ type AllStoresListSectionProps = {
 	onReactivate: (id: string) => void
 	onDelete: (id: string) => void
 }
-
 export function AllStoresListSection({
 	stores,
 	selected,
@@ -37,11 +35,9 @@ export function AllStoresListSection({
 	if (isLoading) {
 		return <Skeleton className='h-64 rounded-2xl' />
 	}
-
 	if (stores.length === 0) {
 		return <EmptyState icon={Store} message='Nenhuma loja encontrada.' />
 	}
-
 	return (
 		<div className='rounded-2xl border border-border/60 bg-card overflow-hidden'>
 			<Table>

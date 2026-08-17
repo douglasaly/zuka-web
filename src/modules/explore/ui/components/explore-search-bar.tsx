@@ -13,7 +13,6 @@ type ExploreSearchBarProps = {
 	handleApplyFilters: (values: FilterValues) => void
 	handleClearFilters: () => void
 }
-
 export const ExploreSearchBar = ({
 	value,
 	onChange,

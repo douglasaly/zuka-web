@@ -1,5 +1,4 @@
 'use client'
-
 import type { LucideIcon } from 'lucide-react'
 import { ChevronRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -10,19 +9,15 @@ type ProfileOption = {
 	icon: LucideIcon
 	url: string
 }
-
 type ProfileOptionsProps = {
 	options: readonly ProfileOption[]
 }
-
 export function ProfileOptions({ options }: ProfileOptionsProps) {
 	const router = useRouter()
-
 	return (
 		<div className='flex flex-col w-full min-w-0 border rounded-xl'>
 			{options.map((opt) => {
 				const Icon = opt.icon
-
 				return (
 					<Button
 						variant='ghost'

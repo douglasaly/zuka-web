@@ -9,13 +9,11 @@ type StoreCircleCardProps = {
 	store: StoreProfile
 	highlighted?: boolean
 }
-
 export const StoreCircleCard = ({
 	store,
 	highlighted,
 }: StoreCircleCardProps) => {
 	const isVerified = store.verified
-
 	return (
 		<Link
 			href={`/lojas/${store.slug}`}
@@ -42,11 +40,6 @@ export const StoreCircleCard = ({
 					</div>
 				)}
 			</div>
-
-			{/* 
-			<span className='absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full bg-green-500 text-white text-[9px] flex items-center justify-center'>
-						<BadgeCheck className='size-3' />
-					</span> */}
 
 			<div className='mt-2.5 w-full'>
 				<div className='relative overflow-hidden'>

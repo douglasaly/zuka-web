@@ -1,5 +1,4 @@
 'use client'
-
 import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 
@@ -7,7 +6,6 @@ type AdminUsersToolbarProps = {
 	search: string
 	onSearchChange: (value: string) => void
 }
-
 export function AdminUsersToolbar({
 	search,
 	onSearchChange,

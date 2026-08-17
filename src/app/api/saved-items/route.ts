@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-
 import { getSessionUser } from '@/lib/auth/session'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import type { SavedItem } from '@/types/saved-items'
@@ -8,7 +7,12 @@ type SavedProductEmbed = {
 	id: string
 	name: string
 	price: number
-	product_images?: { url: string; is_primary: boolean }[] | null
+	product_images?:
+		| {
+				url: string
+				is_primary: boolean
+		  }[]
+		| null
 	store?: {
 		name: string
 		slug: string
@@ -17,17 +21,13 @@ type SavedProductEmbed = {
 		deleted_at: string | null
 	} | null
 }
-
 export async function GET() {
 	try {
 		const user = await getSessionUser()
-
 		if (!user) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 		}
-
 		const supabase = createSupabaseAdmin()
-
 		const { data, error } = await supabase
 			.from('saved_items')
 			.select(`
@@ -56,9 +56,7 @@ export async function GET() {
 			.is('product.store.deleted_at', null)
 			.order('created_at', { ascending: false })
 			.limit(8)
-
 		if (error) throw error
-
 		const items: SavedItem[] = (data ?? []).flatMap((row) => {
 			const product = row.product as SavedProductEmbed | null
 			const store = product?.store
@@ -70,7 +68,6 @@ export async function GET() {
 			) {
 				return []
 			}
-
 			return [
 				{
 					id: product.id,
@@ -87,11 +84,9 @@ export async function GET() {
 				},
 			]
 		})
-
 		return NextResponse.json({ items })
 	} catch (error) {
 		console.error(error)
-
 		return NextResponse.json(
 			{ error: 'Failed to fetch saved items' },
 			{ status: 500 }

@@ -1,5 +1,4 @@
 'use client'
-
 import { ArrowRight, Clock } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -11,7 +10,6 @@ type AdminOverviewPendingProps = {
 	pendingApprovals: number | undefined
 	pending: Record<string, unknown>[]
 }
-
 export function AdminOverviewPending({
 	pendingLoading,
 	pendingApprovals,

@@ -1,3 +1,5 @@
+import { StoreAvatar } from '@/components/store-avatar'
+import { UserAvatar } from '@/components/user-avatar'
 import { cn } from '@/lib/utils'
 import type { Notification } from '@/types/notifications'
 import { NOTIFICATION_META } from '../../constants'
@@ -6,7 +8,6 @@ type NotificationAvatarProps = {
 	notification: Notification
 	size?: 'sm' | 'md'
 }
-
 export function NotificationAvatar({
 	notification,
 	size = 'sm',
@@ -14,68 +15,48 @@ export function NotificationAvatar({
 	const meta = NOTIFICATION_META[notification.type]
 	const Icon = meta.icon
 	const sender = notification.sender
-
-	const dimension = size === 'md' ? 'size-10' : 'size-9'
-	const iconDimension = size === 'md' ? 'size-5' : 'size-4'
-	const badgeDimension = size === 'md' ? 'size-4.5' : 'size-4'
-	const badgeIconDimension = size === 'md' ? 'size-3' : 'size-2.5'
-
+	const isMd = size === 'md'
+	const dimension = isMd ? 'size-10' : 'size-9'
 	if (!sender) {
-		// Notificação da plataforma (system/promotion) — mantém o ícone grande
 		return (
 			<div
 				className={cn(
 					'flex shrink-0 items-center justify-center rounded-full transition-transform duration-200 group-hover:scale-105',
 					dimension,
-					meta.bg
+					meta.tint
 				)}
 			>
-				<Icon className={cn(iconDimension, meta.fg)} />
+				<Icon className={isMd ? 'size-5' : 'size-4'} aria-hidden />
 			</div>
 		)
 	}
-
-	const initials = sender.name
-		.split(' ')
-		.map((w) => w[0])
-		.slice(0, 2)
-		.join('')
-		.toUpperCase()
-
+	const avatarProps = {
+		imageUrl: sender.avatarUrl,
+		name: sender.name,
+		size: isMd ? ('lg' as const) : ('default' as const),
+		className: 'transition-transform duration-200 group-hover:scale-105',
+		fClassName: isMd ? 'text-sm font-bold' : 'text-xs font-bold',
+	}
 	return (
 		<div className='relative shrink-0'>
-			{sender.avatarUrl ? (
-				// biome-ignore lint/performance/noImgElement: <NoIMGElement>
-				<img
-					src={sender.avatarUrl}
-					alt={sender.name}
-					className={cn(
-						dimension,
-						'object-cover transition-transform duration-200 group-hover:scale-105',
-						sender.type === 'store' ? 'rounded-lg' : 'rounded-full'
-					)}
-				/>
+			{sender.type === 'store' ? (
+				<StoreAvatar {...avatarProps} />
 			) : (
-				<div
-					className={cn(
-						dimension,
-						'flex items-center justify-center bg-muted text-sm font-bold text-muted-foreground',
-						sender.type === 'store' ? 'rounded-lg' : 'rounded-full'
-					)}
-				>
-					{initials}
-				</div>
+				<UserAvatar {...avatarProps} />
 			)}
 
-			<div
+			<span
 				className={cn(
-					'absolute -bottom-1 -right-1 flex items-center justify-center rounded-full ring-2 ring-background',
-					badgeDimension,
-					meta.bg
+					'absolute -right-1 -bottom-1 z-10 flex items-center justify-center rounded-full ring-2 ring-background',
+					isMd ? 'size-4.5' : 'size-4',
+					meta.tint
 				)}
 			>
-				<Icon className={cn(badgeIconDimension, meta.fg)} />
-			</div>
+				<Icon
+					className={cn('shrink-0', isMd ? 'size-3' : 'size-2.5')}
+					aria-hidden
+				/>
+			</span>
 		</div>
 	)
 }

@@ -4,7 +4,6 @@ export type SellerStat = {
 	value: string
 	label: string
 }
-
 export const MOCK_SELLER_STATS: SellerStat[] = [
 	{
 		id: 'sales',
@@ -16,14 +15,12 @@ export const MOCK_SELLER_STATS: SellerStat[] = [
 	{ id: 'followers', icon: 'users', value: '1,200', label: 'Seguidores' },
 	{ id: 'views', icon: 'eye', value: '4,800', label: 'Visualizações' },
 ]
-
 export type SellerProduct = {
 	id: string
 	name: string
 	price: string
 	imageUrl: string
 }
-
 export const MOCK_SELLER_PRODUCTS: SellerProduct[] = [
 	{
 		id: '1',

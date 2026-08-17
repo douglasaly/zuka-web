@@ -1,5 +1,4 @@
 'use client'
-
 import { ArrowLeft, Plus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { IconTooltipButton } from '@/components/icon-tooltip-button'
@@ -8,10 +7,8 @@ import { Button } from '@/components/ui/button'
 type AddressesToolbarProps = {
 	onAdd: () => void
 }
-
 export function AddressesToolbar({ onAdd }: AddressesToolbarProps) {
 	const router = useRouter()
-
 	return (
 		<div className='mb-8 flex items-center justify-between'>
 			<div className='flex items-center gap-2'>

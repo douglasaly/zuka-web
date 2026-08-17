@@ -1,5 +1,4 @@
 'use client'
-
 import { SearchIcon, SlidersHorizontal, XIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -12,14 +11,12 @@ type SearchPageBarProps = {
 	initialQuery: string
 	onFilterClick: () => void
 }
-
 export function SearchPageBar({
 	initialQuery,
 	onFilterClick,
 }: SearchPageBarProps) {
 	const router = useRouter()
 	const [value, setValue] = useState(initialQuery)
-
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault()
 		const params = new URLSearchParams(window.location.search)
@@ -27,14 +24,12 @@ export function SearchPageBar({
 		if (!value.trim()) params.delete('q')
 		router.push(`/pesquisa?${params.toString()}`)
 	}
-
 	const handleClear = () => {
 		setValue('')
 		const params = new URLSearchParams(window.location.search)
 		params.delete('q')
 		router.push(`/pesquisa?${params.toString()}`)
 	}
-
 	return (
 		<form onSubmit={handleSubmit} className='relative w-full max-w-2xl'>
 			<SearchIcon className='pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground' />

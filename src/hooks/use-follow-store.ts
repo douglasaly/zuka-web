@@ -2,40 +2,31 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { followStore, isFollowing, unfollowStore } from '@/lib/api/stores'
 import { useUserProfile } from './use-user-profile'
-
 export function useFollowStore(storeSlug: string) {
 	const queryClient = useQueryClient()
 	const { isAuthenticated, profile } = useUserProfile()
-
 	const { data: isFollowingState, isLoading: initialLoading } = useQuery({
 		queryKey: ['store-follow', storeSlug, profile?.id],
 		queryFn: () => isFollowing(storeSlug),
 		enabled: !!storeSlug && isAuthenticated,
 		staleTime: 1000 * 60 * 5,
 	})
-
 	const followMutation = useMutation({
 		mutationFn: () => followStore(storeSlug),
-
 		onMutate: async () => {
 			await queryClient.cancelQueries({
 				queryKey: ['store-follow', storeSlug],
 			})
-
 			const previous = queryClient.getQueryData<boolean>([
 				'store-follow',
 				storeSlug,
 			])
-
 			queryClient.setQueryData(['store-follow', storeSlug], true)
-
 			return { previous }
 		},
-
 		onSuccess: () => {
 			toast.success('Loja seguida com sucesso')
 		},
-
 		onError: (_err, _vars, context) => {
 			queryClient.setQueryData(
 				['store-follow', storeSlug],
@@ -43,40 +34,31 @@ export function useFollowStore(storeSlug: string) {
 			)
 			toast.error('Erro ao seguir loja')
 		},
-
 		onSettled: () => {
 			queryClient.invalidateQueries({
 				queryKey: ['store-follow', storeSlug],
 			})
-
 			queryClient.invalidateQueries({
 				queryKey: ['followed-stores'],
 			})
 		},
 	})
-
 	const unfollowMutation = useMutation({
 		mutationFn: () => unfollowStore(storeSlug),
-
 		onMutate: async () => {
 			await queryClient.cancelQueries({
 				queryKey: ['store-follow', storeSlug],
 			})
-
 			const previous = queryClient.getQueryData<boolean>([
 				'store-follow',
 				storeSlug,
 			])
-
 			queryClient.setQueryData(['store-follow', storeSlug], false)
-
 			return { previous }
 		},
-
 		onSuccess: () => {
 			toast.success('Loja deixou de ser seguida')
 		},
-
 		onError: (_err, _vars, context) => {
 			queryClient.setQueryData(
 				['store-follow', storeSlug],
@@ -84,18 +66,15 @@ export function useFollowStore(storeSlug: string) {
 			)
 			toast.error('Erro ao deixar de seguir loja')
 		},
-
 		onSettled: () => {
 			queryClient.invalidateQueries({
 				queryKey: ['store-follow', storeSlug],
 			})
-
 			queryClient.invalidateQueries({
 				queryKey: ['followed-stores'],
 			})
 		},
 	})
-
 	const toggleFollow = () => {
 		if (isFollowingState) {
 			unfollowMutation.mutate()
@@ -103,13 +82,10 @@ export function useFollowStore(storeSlug: string) {
 			followMutation.mutate()
 		}
 	}
-
 	return {
-		// state
 		isFollowing: isFollowingState ?? false,
 		isLoading: initialLoading,
 		isFollowLoading: followMutation.isPending || unfollowMutation.isPending,
-		// actions
 		follow: followMutation.mutate,
 		unfollow: unfollowMutation.mutate,
 		toggleFollow,

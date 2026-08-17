@@ -1,9 +1,7 @@
 'use client'
-
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-
 export function ProductReviewsLoading() {
 	return (
 		<div
@@ -30,7 +28,6 @@ export function ProductReviewsLoading() {
 		</div>
 	)
 }
-
 export function ProductReviewsError({ onRetry }: { onRetry: () => void }) {
 	return (
 		<div className='mx-auto flex min-h-[50vh] max-w-4xl flex-col items-center justify-center gap-4 px-4'>
@@ -50,7 +47,6 @@ export function ProductReviewsError({ onRetry }: { onRetry: () => void }) {
 		</div>
 	)
 }
-
 export function ProductReviewsNotFound() {
 	return (
 		<div className='mx-auto flex min-h-[50vh] max-w-4xl flex-col items-center justify-center gap-4 px-4'>
@@ -65,7 +61,6 @@ export function ProductReviewsNotFound() {
 		</div>
 	)
 }
-
 export function ProductReviewsEmpty({ productId }: { productId: string }) {
 	return (
 		<section className='rounded-2xl border border-dashed border-border bg-muted/20 px-6 py-14 text-center'>

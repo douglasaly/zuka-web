@@ -1,5 +1,4 @@
 'use client'
-
 import { ShoppingCart } from 'lucide-react'
 import Link from 'next/link'
 import { StoreAvatar } from '@/components/store-avatar'
@@ -22,16 +21,13 @@ import {
 	cartTotal,
 } from '@/modules/cart/lib/cart-utils'
 import { formatPrice } from '@/utils/format-price'
-
 export function CartDropdown() {
 	const hasHydrated = useHasHydrated()
 	const itemCount = useCartItemCount()
 	const carts = useCartList()
 	const visibleCount = hasHydrated ? itemCount : 0
-
 	const label =
 		visibleCount > 0 ? `Carrinho (${visibleCount} itens)` : 'Carrinho'
-
 	return (
 		<Popover>
 			<Tooltip>

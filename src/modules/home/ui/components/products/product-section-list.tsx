@@ -5,7 +5,6 @@ import type { ProductsViewMode } from './products-section-header'
 type ProductsSectionSkeletonProps = {
 	viewMode: ProductsViewMode
 }
-
 export const ProductsSectionSkeleton = ({
 	viewMode,
 }: ProductsSectionSkeletonProps) => (

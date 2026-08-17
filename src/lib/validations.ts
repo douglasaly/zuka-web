@@ -5,23 +5,14 @@ import {
 	STORE_FORM_MESSAGES,
 	toE164Mz,
 } from '@/lib/validations/store-form'
-
-// ─── Paginação ──────────────────────────────────────────
-
-/** Schema para query params de paginação offset-based (admin, lists com page numbers). */
 export const OffsetPaginationSchema = z.object({
 	limit: z.coerce.number().int().min(1).max(100).default(20),
 	offset: z.coerce.number().int().min(0).default(0),
 })
-
-/** Schema para query params de paginação cursor-based (infinite scroll). */
 export const CursorPaginationSchema = z.object({
 	limit: z.coerce.number().int().min(1).max(100).default(20),
 	cursor: z.string().optional(),
 })
-
-// ─── Produtos ───────────────────────────────────────────
-
 export const ProductFiltersSchema = z.object({
 	categoria: z.string().optional(),
 	search: z.string().optional(),
@@ -33,11 +24,10 @@ export const ProductFiltersSchema = z.object({
 		.enum(['price_asc', 'price_desc', 'newest', 'popular'])
 		.optional(),
 })
-
 export const CreateProductSchema = z.object({
 	name: z.string().min(1, 'Nome é obrigatório').max(255),
 	description: z.string().max(5000).optional(),
-	categoryId: z.string().uuid('Categoria inválida'),
+	categoryId: z.uuid('Categoria inválida'),
 	price: z.number().positive('Preço deve ser positivo'),
 	discountPrice: z.number().positive().optional(),
 	currency: z.string().length(3).default('MZN'),
@@ -45,16 +35,12 @@ export const CreateProductSchema = z.object({
 	imageUrls: z.array(z.string().url()).max(8).optional(),
 	status: z.enum(['DRAFT', 'ACTIVE', 'INACTIVE']).optional(),
 })
-
-// ─── Lojas ──────────────────────────────────────────────
-
 export const StoreFiltersSchema = z.object({
 	search: z.string().optional(),
 	status: z
 		.enum(['ACTIVE', 'PENDING', 'INACTIVE', 'SUSPENDED', 'BANNED'])
 		.optional(),
 })
-
 const mzPhoneOptional = z
 	.union([z.string(), z.null()])
 	.optional()
@@ -66,13 +52,11 @@ const mzPhoneOptional = z
 		if (v == null || v === '') return undefined
 		return toE164Mz(v) || undefined
 	})
-
 const mzPhoneRequired = z
 	.string()
 	.min(1, STORE_FORM_MESSAGES.phoneInvalid)
 	.refine(isValidMzMobile, STORE_FORM_MESSAGES.phoneInvalid)
 	.transform((v) => toE164Mz(v))
-
 function normalizePatchPhone(
 	v: string | null | undefined
 ): string | null | undefined {
@@ -80,7 +64,6 @@ function normalizePatchPhone(
 	if (v === null || v === '') return null
 	return toE164Mz(v) || null
 }
-
 export const CreateStoreSchema = z.object({
 	name: z.string().min(1, 'Nome é obrigatório').max(150),
 	description: z
@@ -88,8 +71,8 @@ export const CreateStoreSchema = z.object({
 		.min(20, STORE_FORM_MESSAGES.descriptionMin)
 		.max(2000)
 		.optional(),
-	provinceId: z.string().uuid('Província inválida'),
-	categoryId: z.string().uuid().optional(),
+	provinceId: z.uuid('Província inválida'),
+	categoryId: z.uuid().optional(),
 	neighborhood: z.string().min(1, 'Bairro é obrigatório'),
 	email: z
 		.string()
@@ -99,8 +82,6 @@ export const CreateStoreSchema = z.object({
 	phone: mzPhoneRequired,
 	whatsapp: mzPhoneOptional,
 })
-
-/** Schema for validating contact/profile fields on PATCH /api/seller/store. */
 export const UpdateSellerStoreSchema = z
 	.object({
 		name: z.string().min(1).max(150).optional(),
@@ -111,7 +92,7 @@ export const UpdateSellerStoreSchema = z
 		phone: z.union([z.string(), z.null()]).optional(),
 		whatsapp: z.union([z.string(), z.null()]).optional(),
 		email: z.union([z.string(), z.null()]).optional(),
-		provinceId: z.string().uuid().nullable().optional(),
+		provinceId: z.uuid().nullable().optional(),
 		neighborhood: z.string().optional(),
 		status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
 		hasDelivery: z.boolean().optional(),
@@ -130,7 +111,6 @@ export const UpdateSellerStoreSchema = z
 				path: ['description'],
 			})
 		}
-
 		for (const key of ['phone', 'whatsapp'] as const) {
 			const value = data[key]
 			if (
@@ -145,7 +125,6 @@ export const UpdateSellerStoreSchema = z
 				})
 			}
 		}
-
 		if (typeof data.email === 'string' && data.email.trim()) {
 			const email = data.email.trim()
 			const emailCheck = z.string().email().safeParse(email)
@@ -163,8 +142,6 @@ export const UpdateSellerStoreSchema = z
 				})
 			}
 		}
-
-		// Enforce delivery contacts on onboarding step-2 updates
 		if (data.hasDelivery && data.currentStep) {
 			const hasWhatsapp =
 				typeof data.whatsapp === 'string' && data.whatsapp.length > 0
@@ -190,14 +167,10 @@ export const UpdateSellerStoreSchema = z
 					? null
 					: data.email.trim(),
 	}))
-
-// ─── Conversas ──────────────────────────────────────────
-
 export const CreateConversationSchema = z.object({
 	productId: z.uuid('Produto inválido'),
 	content: z.string().max(2000).optional(),
 })
-
 export const CreateBuyerOrderSchema = z.object({
 	storeId: z.uuid('Loja inválida'),
 	items: z
@@ -210,23 +183,29 @@ export const CreateBuyerOrderSchema = z.object({
 		.min(1, 'Adiciona pelo menos um produto')
 		.max(50, 'Demasiados itens neste pedido'),
 })
-
 export const SendMessageSchema = z.object({
 	content: z
 		.string()
 		.min(1, 'Mensagem não pode estar vazia')
 		.max(2000, 'Mensagem muito longa'),
 })
-
-// ─── Notificações ───────────────────────────────────────
-
-export const MarkNotificationsReadSchema = z.object({
-	ids: z.array(z.string().uuid()).min(1, 'Selecione notificações'),
+const notificationIds = z
+	.array(z.uuid('Notificação inválida'))
+	.min(1, 'Selecione notificações')
+	.max(100, 'Demasiadas notificações de uma vez')
+export const UpdateNotificationsSchema = z
+	.object({
+		ids: notificationIds.optional(),
+		all: z.boolean().optional(),
+		read: z.boolean().optional(),
+		restore: z.boolean().optional(),
+	})
+	.refine((value) => value.all === true || value.ids != null, {
+		message: 'Indique as notificações a actualizar',
+	})
+export const DeleteNotificationsSchema = z.object({
+	ids: notificationIds,
 })
-
-// ─── Utilitários ────────────────────────────────────────
-
-/** Parse e valida query params de um request. Retorna dados validados ou erro. */
 export function parseQueryParams<T extends z.ZodType>(
 	searchParams: URLSearchParams,
 	schema: T
@@ -237,8 +216,6 @@ export function parseQueryParams<T extends z.ZodType>(
 	}
 	return schema.parse(raw)
 }
-
-/** Parse e valida o body de um request JSON. */
 export async function parseBody<T extends z.ZodType>(
 	request: Request,
 	schema: T

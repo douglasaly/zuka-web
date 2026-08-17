@@ -6,7 +6,6 @@ type LegalSection = {
 	title: string
 	content: ReactNode
 }
-
 type LegalDocumentProps = {
 	title: string
 	subtitle: string
@@ -15,7 +14,6 @@ type LegalDocumentProps = {
 	relatedHref: string
 	relatedLabel: string
 }
-
 export function LegalDocument({
 	title,
 	subtitle,
@@ -86,7 +84,13 @@ export function LegalDocument({
 			<footer className='mt-14 border-t border-border/60 pt-8 text-sm text-muted-foreground'>
 				<p>
 					Dúvidas sobre este documento? Escreva para{' '}
-					<a href='mailto:ola@zuka.co.mz' className='font-medium text-secondary'>ola@zuka.co.mz</a>.
+					<a
+						href='mailto:ola@zuka.co.mz'
+						className='font-medium text-secondary'
+					>
+						ola@zuka.co.mz
+					</a>
+					.
 				</p>
 				<p className='mt-3'>
 					Documento relacionado:{' '}

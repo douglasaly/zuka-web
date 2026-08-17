@@ -1,5 +1,4 @@
 'use client'
-
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
@@ -26,7 +25,6 @@ type SignupSellerProfileSectionProps = {
 	onBack: () => void
 	onContinue: () => void
 }
-
 export function SignupSellerProfileSection({
 	form,
 	onChange,
@@ -42,7 +40,6 @@ export function SignupSellerProfileSection({
 		!form.hasDelivery || Boolean(form.whatsapp.trim() || form.phone.trim())
 	const canContinue =
 		descriptionOk && whatsappOk && callPhoneOk && deliveryContactOk
-
 	const descriptionError =
 		form.description.length > 0 && !descriptionOk
 			? STORE_FORM_MESSAGES.descriptionMin
@@ -59,7 +56,6 @@ export function SignupSellerProfileSection({
 		form.phone.length > 0 && !callPhoneOk
 			? STORE_FORM_MESSAGES.phoneInvalid
 			: null
-
 	return (
 		<OnboardingShell
 			title='Configura a tua loja'

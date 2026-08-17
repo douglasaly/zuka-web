@@ -1,18 +1,12 @@
 'use client'
-
 import { useInbox } from '@/hooks/use-inbox'
 import { ConversationsList } from '../components/conversation-list'
 import { LoadMoreMessages } from '../components/load-more-messages'
 import { MessagesHeader } from '../components/messages-header'
 import { MessagesSkeleton } from '../components/messages-skeleton'
-
 export const MessagesView = () => {
 	const { conversations, isLoading, unreadTotal, hasMore } = useInbox()
-
-	const handleLoadMore = async () => {
-		// TODO: paginação — passar cursor/offset para /api/conversations
-	}
-
+	const handleLoadMore = async () => {}
 	return (
 		<div className='mb-10 w-full min-w-0'>
 			<main className='flex flex-col px-4'>

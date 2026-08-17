@@ -2,15 +2,19 @@ import { STORE_FORM_MESSAGES } from '@/lib/validations/store-form'
 
 function getErrorCode(error: unknown): string | null {
 	if (error && typeof error === 'object' && 'code' in error) {
-		return String((error as { code: string }).code)
+		return String(
+			(
+				error as {
+					code: string
+				}
+			).code
+		)
 	}
 	return null
 }
-
 export function friendlySignupError(error: unknown) {
 	const code = getErrorCode(error)
 	const msg = error instanceof Error ? error.message : String(error)
-
 	if (
 		code === 'auth/email-already-in-use' ||
 		msg.includes('email-already-in-use')
@@ -38,6 +42,5 @@ export function friendlySignupError(error: unknown) {
 	) {
 		return 'Não foi possível concluir o registo. Verifica as credenciais Firebase no servidor e tenta novamente.'
 	}
-
 	return msg || 'Erro ao criar conta'
 }

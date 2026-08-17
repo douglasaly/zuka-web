@@ -1,9 +1,7 @@
 import { Skeleton } from '@/components/ui/skeleton'
-
 export function SearchSkeleton() {
 	return (
 		<div className='space-y-8'>
-			{/* Products section */}
 			<section className='space-y-3'>
 				<Skeleton className='h-5 w-32' />
 				<div className='grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6'>
@@ -17,7 +15,6 @@ export function SearchSkeleton() {
 				</div>
 			</section>
 
-			{/* Stores section */}
 			<section className='space-y-3'>
 				<Skeleton className='h-5 w-28' />
 				<div className='grid grid-cols-2 gap-3 md:grid-cols-4'>
@@ -33,7 +30,6 @@ export function SearchSkeleton() {
 				</div>
 			</section>
 
-			{/* Categories section */}
 			<section className='space-y-3'>
 				<Skeleton className='h-5 w-36' />
 				<div className='flex flex-wrap gap-2'>

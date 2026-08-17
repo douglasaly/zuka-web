@@ -1,12 +1,9 @@
 'use client'
-
 import { useEffect, useState } from 'react'
 import type { SignupCategory, SignupProvince } from '../constants'
-
 export function useSignupCatalogs() {
 	const [provinces, setProvinces] = useState<SignupProvince[]>([])
 	const [categories, setCategories] = useState<SignupCategory[]>([])
-
 	useEffect(() => {
 		fetch('/api/provinces')
 			.then((r) => r.json())
@@ -21,6 +18,5 @@ export function useSignupCatalogs() {
 			)
 			.catch(() => {})
 	}, [])
-
 	return { provinces, categories }
 }

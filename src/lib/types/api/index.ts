@@ -1,5 +1,3 @@
-// ─── Barrel export ─────────────────────────────────────
-
 export type * from './addresses'
 export type * from './admin'
 export type * from './auth'

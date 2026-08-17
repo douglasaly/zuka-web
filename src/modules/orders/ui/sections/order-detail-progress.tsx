@@ -1,5 +1,4 @@
 'use client'
-
 import { Separator } from '@/components/ui/separator'
 import type { BuyerOrderTimelineStep } from '@/modules/orders/types'
 import { OrderTimeline } from '../components/order-timeline'
@@ -8,7 +7,6 @@ type OrderDetailProgressProps = {
 	timeline: BuyerOrderTimelineStep[]
 	notes: string | null
 }
-
 export function OrderDetailProgress({
 	timeline,
 	notes,

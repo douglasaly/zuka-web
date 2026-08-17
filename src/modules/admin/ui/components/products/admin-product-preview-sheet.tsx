@@ -1,5 +1,4 @@
 'use client'
-
 import { format } from 'date-fns'
 import { pt } from 'date-fns/locale'
 import {
@@ -36,7 +35,6 @@ type AdminProductPreviewSheetProps = {
 	onReactivate: (id: string) => void
 	onDelete: (id: string) => void
 }
-
 export function AdminProductPreviewSheet({
 	preview,
 	onOpenChange,
@@ -147,14 +145,7 @@ export function AdminProductPreviewSheet({
 							{(preview.stores as Record<string, unknown> | null)
 								?.name ? (
 								<Link
-									href={`/admin/stores/${
-										(
-											preview.stores as Record<
-												string,
-												unknown
-											>
-										).id as string
-									}`}
+									href={`/admin/stores/${(preview.stores as Record<string, unknown>).id as string}`}
 									className='inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline'
 								>
 									{

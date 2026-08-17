@@ -1,5 +1,4 @@
 'use client'
-
 import { Loader2, Plus, Star, Trash2, Upload } from 'lucide-react'
 import Image from 'next/image'
 import { useRef, useState } from 'react'
@@ -16,10 +15,8 @@ type ProductImagesFieldProps = {
 	disabled?: boolean
 	onUploadingChange?: (uploading: boolean) => void
 }
-
 const ACCEPTED = new Set(['image/jpeg', 'image/png', 'image/webp'])
 const MAX_SIZE = 5 * 1024 * 1024
-
 export function ProductImagesField({
 	urls,
 	onChange,
@@ -29,12 +26,10 @@ export function ProductImagesField({
 	const inputRef = useRef<HTMLInputElement>(null)
 	const [uploading, setUploading] = useState(false)
 	const [dragging, setDragging] = useState(false)
-
 	function setBusy(next: boolean) {
 		setUploading(next)
 		onUploadingChange?.(next)
 	}
-
 	async function handleFiles(files: FileList | File[] | null) {
 		if (!files?.length) return
 		const remaining = MAX_PRODUCT_IMAGES - urls.length
@@ -42,11 +37,9 @@ export function ProductImagesField({
 			toast.error(`Máximo de ${MAX_PRODUCT_IMAGES} imagens`)
 			return
 		}
-
 		const batch = Array.from(files).slice(0, remaining)
 		setBusy(true)
 		const next = [...urls]
-
 		try {
 			for (const file of batch) {
 				if (!ACCEPTED.has(file.type)) {
@@ -72,11 +65,9 @@ export function ProductImagesField({
 			if (inputRef.current) inputRef.current.value = ''
 		}
 	}
-
 	function removeAt(index: number) {
 		onChange(urls.filter((_, i) => i !== index))
 	}
-
 	function makePrimary(index: number) {
 		if (index === 0) return
 		const next = [...urls]
@@ -84,9 +75,7 @@ export function ProductImagesField({
 		next.unshift(item)
 		onChange(next)
 	}
-
 	const canAdd = urls.length < MAX_PRODUCT_IMAGES && !disabled && !uploading
-
 	return (
 		<div className='space-y-4'>
 			<div className='flex items-center justify-between gap-2'>

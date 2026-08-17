@@ -11,11 +11,12 @@ type UserDetailActionsProps = {
 	deletePending: boolean
 	onPatch: (
 		body: Record<string, unknown>,
-		opts?: { onSuccess?: () => void }
+		opts?: {
+			onSuccess?: () => void
+		}
 	) => void
 	onDelete: () => void
 }
-
 export function UserDetailActions({
 	user,
 	hasAdminRole,

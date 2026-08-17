@@ -1,5 +1,4 @@
 'use client'
-
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 import { useConversation } from '@/hooks/use-conversation'
@@ -12,7 +11,6 @@ import { ChatSkeleton } from '../components/chats/chat-skeleton'
 interface MessageViewProps {
 	messageId: string
 }
-
 export const MessageView = ({ messageId }: MessageViewProps) => {
 	const {
 		messages,
@@ -24,17 +22,14 @@ export const MessageView = ({ messageId }: MessageViewProps) => {
 	} = useConversation({
 		conversationId: messageId,
 	})
-
 	useEffect(() => {
 		markRead()
 	}, [markRead])
-
 	useEffect(() => {
 		if (sendError) {
 			toast.error('Falha ao enviar mensagem. Tenta novamente.')
 		}
 	}, [sendError])
-
 	return (
 		<div className='w-full min-w-0'>
 			{!conversation?.store ? (

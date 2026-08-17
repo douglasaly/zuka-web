@@ -1,5 +1,4 @@
 'use client'
-
 import { Loader2, MapPin, Trash2 } from 'lucide-react'
 import type { Address } from '@/app/api/addresses/types'
 import { IconTooltipButton } from '@/components/icon-tooltip-button'
@@ -12,7 +11,6 @@ type AddressCardProps = {
 	onSetDefault: (id: string) => void
 	onDelete: (id: string) => void
 }
-
 export function AddressCard({
 	address,
 	deleting,
@@ -20,7 +18,6 @@ export function AddressCard({
 	onDelete,
 }: AddressCardProps) {
 	const Icon = LABEL_ICONS[address.label] ?? MapPin
-
 	return (
 		<Card
 			className={`border-border/60 transition-colors ${

@@ -1,5 +1,4 @@
 'use client'
-
 import { type ViewMode, ViewModeToggle } from '@/components/view-mode-toggle'
 import {
 	CategoryFilter,
@@ -23,7 +22,6 @@ interface Props {
 	hasNextPage: boolean
 	isFetchingNextPage: boolean
 }
-
 export function ExploreProductsSection({
 	categorySlug,
 	categoryOptions,

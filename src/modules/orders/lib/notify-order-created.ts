@@ -6,7 +6,6 @@ import {
 } from '@/modules/orders/lib/order-copy'
 
 type Db = ReturnType<typeof createSupabaseAdmin>
-
 export async function notifyOrderCreated(input: {
 	db: Db
 	buyerId: string
@@ -18,7 +17,6 @@ export async function notifyOrderCreated(input: {
 }) {
 	const { db, buyerId, sellerId, storeId, storeName, orderId, shortId } =
 		input
-
 	const rows = [
 		{
 			id: uuidv7(),
@@ -39,7 +37,6 @@ export async function notifyOrderCreated(input: {
 			sender_store_id: storeId,
 		},
 	]
-
 	const { error } = await db.from('notifications').insert(rows)
 	if (error) {
 		console.error('[notifyOrderCreated]', error)

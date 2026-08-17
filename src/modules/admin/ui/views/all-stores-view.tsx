@@ -1,14 +1,11 @@
 'use client'
-
 import { useAllStores } from '@/modules/admin/hooks/use-all-stores'
 import { ConfirmDialog } from '@/modules/admin/ui/components/confirm-dialog'
 import { AllStoresBulkBar } from '@/modules/admin/ui/sections/all-stores-bulk-bar'
 import { AllStoresFilters } from '@/modules/admin/ui/sections/all-stores-filters'
 import { AllStoresListSection } from '@/modules/admin/ui/sections/all-stores-list-section'
-
 export function AllStoresView() {
 	const s = useAllStores()
-
 	return (
 		<div className='space-y-4'>
 			<AllStoresFilters

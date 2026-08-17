@@ -10,7 +10,6 @@ type SellerEmptyStateProps = {
 		href: string
 	}
 }
-
 export const SellerEmptyState = ({
 	icon: Icon,
 	title,

@@ -1,5 +1,4 @@
 'use client'
-
 import { Star, StarHalf } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -8,7 +7,6 @@ type StarRatingProps = {
 	size?: 'sm' | 'md' | 'lg'
 	className?: string
 }
-
 export function StarRating({
 	rating,
 	size = 'sm',
@@ -16,7 +14,6 @@ export function StarRating({
 }: StarRatingProps) {
 	const iconClass =
 		size === 'lg' ? 'size-5' : size === 'md' ? 'size-4' : 'size-3.5'
-
 	return (
 		<div
 			className={cn('flex gap-0.5', className)}

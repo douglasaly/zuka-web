@@ -1,14 +1,4 @@
 'use client'
-
-/**
- * THESIS: Product editor as a listing studio — photos lead, then identity,
- * commerce, and a clear publish control; refuses one stuffed mega-card.
- * OWN-WORLD: Seller dashboard sections + sticky save bar (same grammar as loja).
- * STORY: Photos → details → price → status → save.
- * FIRST VIEWPORT: Compact chrome + media dropzone.
- * FORM: Extend store-editor Operate grammar.
- */
-
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft, Eye, Loader2, Package, Save } from 'lucide-react'
 import Image from 'next/image'
@@ -52,13 +42,11 @@ type Category = {
 	id: string
 	name: string
 }
-
 interface ProductFormProps {
 	mode: 'create' | 'edit'
 	initialData?: ProductFormState
 	productId?: string
 }
-
 function formsEqual(a: ProductFormState, b: ProductFormState) {
 	return (
 		a.name === b.name &&
@@ -71,7 +59,6 @@ function formsEqual(a: ProductFormState, b: ProductFormState) {
 		a.imageUrls.every((url, i) => url === b.imageUrls[i])
 	)
 }
-
 export const ProductForm = ({
 	mode,
 	initialData,
@@ -86,12 +73,10 @@ export const ProductForm = ({
 	const [form, setForm] = useState<ProductFormState>(baseline)
 	const [previewOpen, setPreviewOpen] = useState(false)
 	const [mediaUploading, setMediaUploading] = useState(false)
-
 	const pageTitle =
 		mode === 'create'
 			? 'Novo produto'
 			: form.name.trim() || baseline.name.trim() || 'Produto'
-
 	useSetSellerPageMeta({
 		title: pageTitle,
 		crumbs:
@@ -99,7 +84,6 @@ export const ProductForm = ({
 				? ['Dashboard', 'Produtos', 'Novo']
 				: ['Dashboard', 'Produtos', pageTitle],
 	})
-
 	const { data: categories, isLoading: categoriesLoading } = useQuery<
 		Category[]
 	>({
@@ -115,9 +99,7 @@ export const ProductForm = ({
 			}))
 		},
 	})
-
 	const isDirty = useMemo(() => !formsEqual(form, baseline), [form, baseline])
-
 	const priceNum = Number(form.price) || 0
 	const discountNum = form.discountPrice ? Number(form.discountPrice) : null
 	const discountInvalid =
@@ -125,17 +107,14 @@ export const ProductForm = ({
 		discountNum > 0 &&
 		priceNum > 0 &&
 		discountNum >= priceNum
-
 	const categoryName =
 		categories?.find((c) => c.id === form.categoryId)?.name ?? null
-
 	function update<K extends keyof ProductFormState>(
 		key: K,
 		value: ProductFormState[K]
 	) {
 		setForm((prev) => ({ ...prev, [key]: value }))
 	}
-
 	const mutation = useMutation({
 		mutationFn: async () => {
 			if (!form.name.trim()) throw new Error('Nome é obrigatório')
@@ -148,7 +127,6 @@ export const ProductForm = ({
 					'O preço promocional deve ser inferior ao preço normal'
 				)
 			}
-
 			const payload = {
 				name: form.name.trim(),
 				description: form.description.trim() || undefined,
@@ -160,7 +138,6 @@ export const ProductForm = ({
 				status: form.status,
 				imageUrls: form.imageUrls,
 			}
-
 			if (mode === 'edit' && productId) {
 				const res = await fetch(`/api/seller/products/${productId}`, {
 					method: 'PATCH',
@@ -173,7 +150,6 @@ export const ProductForm = ({
 				}
 				return json
 			}
-
 			const res = await fetch('/api/products', {
 				method: 'POST',
 				credentials: 'include',
@@ -209,7 +185,6 @@ export const ProductForm = ({
 			)
 		},
 	})
-
 	if (categoriesLoading) {
 		return (
 			<div className='space-y-5'>
@@ -225,7 +200,6 @@ export const ProductForm = ({
 			</div>
 		)
 	}
-
 	const cover = form.imageUrls[0] ?? null
 	const canSave =
 		canWrite &&
@@ -233,10 +207,8 @@ export const ProductForm = ({
 		!mediaUploading &&
 		(mode === 'create' || isDirty) &&
 		!discountInvalid
-
 	return (
 		<div className='min-w-0 max-w-full space-y-6 pb-28'>
-			{/* Chrome — title lives in top bar */}
 			<div className='flex min-w-0 flex-wrap items-center justify-between gap-2 sm:gap-3'>
 				<div className='flex min-w-0 flex-1 items-center gap-2'>
 					<IconTooltipButton
@@ -439,7 +411,6 @@ export const ProductForm = ({
 							/>
 						</ProductSection>
 
-						{/* Live summary */}
 						<div className='overflow-hidden rounded-2xl border border-border/60 bg-card'>
 							<div className='relative aspect-4/3 bg-muted'>
 								{cover ? (
@@ -515,7 +486,6 @@ export const ProductForm = ({
 					</div>
 				</div>
 
-				{/* Sticky save bar */}
 				<div className='fixed bottom-0 left-0 right-0 z-20 max-w-full border-t border-border/60 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80 md:left-(--sidebar-width)'>
 					<div className='mx-auto flex w-full max-w-6xl min-w-0 flex-wrap items-center justify-end gap-2 px-4 py-3 sm:justify-between sm:gap-3 sm:px-6'>
 						<p className='hidden min-w-0 flex-1 text-xs text-muted-foreground sm:block'>

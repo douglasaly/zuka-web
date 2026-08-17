@@ -1,5 +1,4 @@
 import { Skeleton } from '@/components/ui/skeleton'
-
 export function TableSkeleton({
 	rows = 6,
 	cols = 5,

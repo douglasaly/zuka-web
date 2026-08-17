@@ -1,16 +1,4 @@
 'use client'
-
-/**
- * THESIS: Catalog as a scannable inventory workbench — image leads, status/price
- * read instantly, actions stay icon-tight; refuses equal-weight text-button rows
- * and a cluttered filter strip.
- * OWN-WORLD: Zuka seller shell — rounded surfaces, font-heading, restrained
- * neutrals + primary accent, status chips from product-editor tokens.
- * STORY: Find → check state → edit or pause; bulk when needed.
- * FIRST VIEWPORT: Toolbar (count + CTAs) → status pills → searchable list.
- * FORM: Extend dashboard grammar (list density + sticky selection), not a new brand.
- */
-
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 import { useSellerProducts } from '@/modules/seller/hooks/use-seller-products'
 import { DeleteProductDialog } from '@/modules/seller/ui/components/delete-product-dialog'
@@ -22,17 +10,13 @@ import { SellerProductsListSection } from '@/modules/seller/ui/sections/seller-p
 import { SellerProductsSkeleton } from '@/modules/seller/ui/sections/seller-products-skeleton'
 import { SellerProductsToolbar } from '@/modules/seller/ui/sections/seller-products-toolbar'
 import { formatPrice } from '@/utils/format-price'
-
 export const SellerProductsView = () => {
 	useSetSellerPageMeta({
 		title: 'Produtos',
 		crumbs: ['Dashboard', 'Produtos'],
 	})
-
 	const p = useSellerProducts()
-
 	if (p.isLoading) return <SellerProductsSkeleton />
-
 	return (
 		<div className='relative min-w-0 max-w-full space-y-5'>
 			<SellerProductsToolbar

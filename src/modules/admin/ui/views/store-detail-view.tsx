@@ -1,5 +1,4 @@
 'use client'
-
 import { useStoreDetail } from '@/modules/admin/hooks/use-store-detail'
 import { ConfirmDialog } from '../components/confirm-dialog'
 import { StoreDetailActivity } from '../sections/store-detail-activity'
@@ -9,7 +8,6 @@ import { StoreDetailInfo } from '../sections/store-detail-info'
 import { StoreDetailLoading } from '../sections/store-detail-loading'
 import { StoreDetailProducts } from '../sections/store-detail-products'
 import { StoreDetailTabs } from '../sections/store-detail-tabs'
-
 export function StoreDetailView({ id }: { id: string }) {
 	const {
 		tab,
@@ -25,15 +23,12 @@ export function StoreDetailView({ id }: { id: string }) {
 		patchMutation,
 		deleteMutation,
 	} = useStoreDetail(id)
-
 	if (isLoading) {
 		return <StoreDetailLoading />
 	}
-
 	if (!store) {
 		return <p className='text-muted-foreground'>Loja não encontrada.</p>
 	}
-
 	return (
 		<div className='space-y-6'>
 			<StoreDetailHeader store={store} />

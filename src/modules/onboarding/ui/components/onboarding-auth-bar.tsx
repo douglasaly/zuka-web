@@ -1,5 +1,4 @@
 'use client'
-
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { buttonVariants } from '@/components/ui/button'
@@ -11,15 +10,12 @@ import { cn } from '@/lib/utils'
 function goToMarketplace() {
 	setViewAsBuyerMode()
 }
-
 export function OnboardingAuthBar() {
 	const { isAuthenticated, profile, isLoading } = useUserProfile()
-
 	const displayName =
 		[profile?.firstName, profile?.lastName].filter(Boolean).join(' ') ||
 		profile?.email ||
 		'Conta'
-
 	return (
 		<header className='sticky top-0 z-40 shrink-0 border-b border-border/60 bg-background/95 backdrop-blur-sm'>
 			<div className='mx-auto flex h-14 max-w-2xl items-center justify-between gap-3 px-4 sm:h-16 sm:px-6'>
@@ -57,7 +53,6 @@ export function OnboardingAuthBar() {
 					</Link>
 				</div>
 
-				{/* Account */}
 				{isLoading ? (
 					<Skeleton className='h-9 w-24 rounded-full' />
 				) : isAuthenticated ? (

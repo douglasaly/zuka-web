@@ -12,7 +12,6 @@ type ProductStoreCardProps = {
 	storeVerified?: boolean
 	storeRating?: number | null
 }
-
 export const ProductStoreCard = ({
 	storeSlug,
 	storeName,

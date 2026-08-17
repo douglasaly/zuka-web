@@ -1,5 +1,4 @@
 'use client'
-
 import { ArrowRight, Compass, Heart, MessageCircle, Store } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -19,10 +18,8 @@ const STEPS = [
 		body: 'Envia o resumo por WhatsApp ou chat. Pagamento e entrega combinam-se com a loja.',
 	},
 ] as const
-
 export function CartEmpty() {
 	const { isAuthenticated } = useUserProfile()
-
 	return (
 		<div className='flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8'>
 			<div className='order-2 min-w-0 flex-1 space-y-4 lg:order-1'>

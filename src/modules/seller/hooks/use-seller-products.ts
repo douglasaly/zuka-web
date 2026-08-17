@@ -198,7 +198,6 @@ export function useSellerProducts() {
 		})
 	}
 
-	// Debounced search → reset page (skip identical mount value)
 	const prevSearch = useRef(deferredSearch)
 	// biome-ignore lint/correctness/useExhaustiveDependencies: only react to search changes
 	useEffect(() => {
@@ -271,11 +270,10 @@ export function useSellerProducts() {
 	}
 
 	return {
-		// permissions
 		canCreate,
 		canUpdate,
 		canDelete,
-		// filters / URL
+
 		search,
 		setSearch,
 		statusFilter,
@@ -293,7 +291,7 @@ export function useSellerProducts() {
 		handleMinPriceChange,
 		handleMaxPriceChange,
 		handlePerPageChange,
-		// data
+
 		products,
 		categories: categories ?? [],
 		totalPages,
@@ -302,13 +300,13 @@ export function useSellerProducts() {
 		showPager,
 		isLoading,
 		isFetching,
-		// selection
+
 		selected,
 		setSelected,
 		allSelected,
 		toggleAll,
 		toggleOne,
-		// delete / bulk
+
 		deletingId,
 		setDeletingId,
 		deletingProduct,
@@ -316,7 +314,7 @@ export function useSellerProducts() {
 		setConfirmBulkDelete,
 		deleteMutation,
 		bulkMutation,
-		// preview
+
 		preview,
 		previewImage,
 		setPreviewImage,

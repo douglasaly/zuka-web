@@ -2,9 +2,10 @@ import { requireSessionPage } from '@/lib/auth/require-session-page'
 import { OrderDetailView } from '@/modules/orders/ui/views/order-detail-view'
 
 interface OrderDetailPageProps {
-	params: Promise<{ id: string }>
+	params: Promise<{
+		id: string
+	}>
 }
-
 export default async function OrderDetailPage({
 	params,
 }: OrderDetailPageProps) {

@@ -1,5 +1,4 @@
 'use client'
-
 import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { STATUS_OPTIONS } from '@/modules/admin/hooks/use-all-stores'
@@ -10,7 +9,6 @@ type AllStoresFiltersProps = {
 	status: string
 	onStatusChange: (value: string) => void
 }
-
 export function AllStoresFilters({
 	search,
 	onSearchChange,

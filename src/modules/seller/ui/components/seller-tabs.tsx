@@ -1,12 +1,9 @@
 'use client'
-
 const TABS = ['Resumo', 'Produtos', 'Pedidos'] as const
-
 type SellerTabsProps = {
 	value: string
 	onChange: (value: string) => void
 }
-
 export const SellerTabs = ({ value, onChange }: SellerTabsProps) => (
 	<div
 		role='tablist'
@@ -14,7 +11,6 @@ export const SellerTabs = ({ value, onChange }: SellerTabsProps) => (
 	>
 		{TABS.map((tab) => {
 			const isActive = value === tab
-
 			return (
 				<button
 					key={tab}

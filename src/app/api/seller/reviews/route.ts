@@ -1,15 +1,12 @@
-import { type NextRequest, NextResponse } from 'next/server'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { type NextRequest, NextResponse } from 'next/server'
 import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 
-/** Reviews tables exist after manual migration; generated Database types may lag. */
 function db(): SupabaseClient {
 	return createSupabaseAdmin() as unknown as SupabaseClient
 }
-
 type Scope = 'all' | 'store' | 'product'
-
 function buyerName(
 	row: {
 		first_name: string | null
@@ -23,7 +20,6 @@ function buyerName(
 		.trim()
 	return name || 'Cliente'
 }
-
 function distributionFromRatings(ratings: number[]): number[] {
 	const dist = [0, 0, 0, 0, 0]
 	for (const r of ratings) {
@@ -32,30 +28,24 @@ function distributionFromRatings(ratings: number[]): number[] {
 	}
 	return dist
 }
-
 export async function GET(request: NextRequest) {
 	try {
 		const auth = await requireSellerStore({ permission: 'review.read' })
 		if (isSellerStoreAuthError(auth)) return auth.error
 		const { store } = auth
-
 		const { searchParams } = new URL(request.url)
 		const scope = (searchParams.get('scope') ?? 'all') as Scope
 		const search = (searchParams.get('search') ?? '').trim().toLowerCase()
 		const needsReply = searchParams.get('needsReply') === '1'
-
 		const supabase = db()
-
 		const { data: storeRatingRow } = await supabase
 			.from('store_ratings')
 			.select('rating_avg, rating_count')
 			.eq('store_id', store.id)
 			.maybeSingle()
-
 		const { data: reviews, error } = await supabase
 			.from('reviews')
-			.select(
-				`
+			.select(`
 				id,
 				order_id,
 				rating,
@@ -72,68 +62,62 @@ export async function GET(request: NextRequest) {
 					created_at,
 					products ( id, name, product_images ( url, is_primary, position ) )
 				)
-			`
-			)
+			`)
 			.eq('store_id', store.id)
 			.is('deleted_at', null)
 			.eq('is_visible', true)
 			.order('created_at', { ascending: false })
 			.limit(100)
-
 		if (error) throw error
-
-		const storeReviews = ((reviews ?? []) as Array<Record<string, unknown>>).map(
-			(row) => {
-				const buyer = row.users as {
-					first_name: string | null
-					last_name: string | null
+		const storeReviews = (
+			(reviews ?? []) as Array<Record<string, unknown>>
+		).map((row) => {
+			const buyer = row.users as {
+				first_name: string | null
+				last_name: string | null
+			} | null
+			const products = (
+				(row.review_products as Array<
+					Record<string, unknown>
+				> | null) ?? []
+			).map((rp) => {
+				const product = rp.products as {
+					id: string
+					name: string
+					product_images: Array<{
+						url: string
+						is_primary?: boolean
+						position?: number
+					}> | null
 				} | null
-
-				const products = (
-					(row.review_products as Array<Record<string, unknown>> | null) ??
-					[]
-				).map((rp) => {
-					const product = rp.products as {
-						id: string
-						name: string
-						product_images: Array<{
-							url: string
-							is_primary?: boolean
-							position?: number
-						}> | null
-					} | null
-					const images = [...(product?.product_images ?? [])].sort(
-						(a, b) => (a.position ?? 0) - (b.position ?? 0)
-					)
-					const primary =
-						images.find((img) => img.is_primary) ?? images[0] ?? null
-
-					return {
-						id: rp.id as string,
-						productId: rp.product_id as string,
-						productName: product?.name ?? 'Produto',
-						productImage: primary?.url ?? null,
-						rating: rp.rating as number,
-						body: (rp.body as string | null) ?? null,
-						createdAt: rp.created_at as string,
-					}
-				})
-
+				const images = [...(product?.product_images ?? [])].sort(
+					(a, b) => (a.position ?? 0) - (b.position ?? 0)
+				)
+				const primary =
+					images.find((img) => img.is_primary) ?? images[0] ?? null
 				return {
-					id: row.id as string,
-					orderId: row.order_id as string,
-					shortOrderId: String(row.order_id).slice(0, 8),
-					buyerName: buyerName(buyer),
-					rating: row.rating as number,
-					body: (row.body as string | null) ?? null,
-					storeReply: (row.store_reply as string | null) ?? null,
-					storeRepliedAt: (row.store_replied_at as string | null) ?? null,
-					createdAt: row.created_at as string,
-					products,
+					id: rp.id as string,
+					productId: rp.product_id as string,
+					productName: product?.name ?? 'Produto',
+					productImage: primary?.url ?? null,
+					rating: rp.rating as number,
+					body: (rp.body as string | null) ?? null,
+					createdAt: rp.created_at as string,
 				}
+			})
+			return {
+				id: row.id as string,
+				orderId: row.order_id as string,
+				shortOrderId: String(row.order_id).slice(0, 8),
+				buyerName: buyerName(buyer),
+				rating: row.rating as number,
+				body: (row.body as string | null) ?? null,
+				storeReply: (row.store_reply as string | null) ?? null,
+				storeRepliedAt: (row.store_replied_at as string | null) ?? null,
+				createdAt: row.created_at as string,
+				products,
 			}
-		)
-
+		})
 		let filteredStore = storeReviews
 		if (needsReply) {
 			filteredStore = filteredStore.filter((r) => !r.storeReply)
@@ -149,7 +133,6 @@ export async function GET(request: NextRequest) {
 					)
 			)
 		}
-
 		const productReviews = filteredStore.flatMap((r) =>
 			r.products.map((p) => ({
 				id: p.id,
@@ -166,23 +149,19 @@ export async function GET(request: NextRequest) {
 				storeReply: r.storeReply,
 			}))
 		)
-
 		const storeRatingsList = storeReviews.map((r) => r.rating)
 		const productRatingsList = storeReviews.flatMap((r) =>
 			r.products.map((p) => p.rating)
 		)
-
 		const productAvg =
 			productRatingsList.length > 0
 				? productRatingsList.reduce((a, b) => a + b, 0) /
 					productRatingsList.length
 				: 0
-
 		const ratingRow = storeRatingRow as {
 			rating_avg?: number
 			rating_count?: number
 		} | null
-
 		return NextResponse.json({
 			success: true,
 			summary: {
@@ -191,8 +170,10 @@ export async function GET(request: NextRequest) {
 						ratingRow?.rating_avg ??
 							(storeRatingsList.length
 								? (
-										storeRatingsList.reduce((a, b) => a + b, 0) /
-										storeRatingsList.length
+										storeRatingsList.reduce(
+											(a, b) => a + b,
+											0
+										) / storeRatingsList.length
 									).toFixed(2)
 								: 0)
 					),

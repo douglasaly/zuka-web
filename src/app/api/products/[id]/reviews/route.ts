@@ -2,15 +2,15 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { type NextRequest, NextResponse } from 'next/server'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 
-/** Reviews tables exist after manual migration; generated Database types may lag. */
 function db(): SupabaseClient {
 	return createSupabaseAdmin() as unknown as SupabaseClient
 }
-
 type Sort = 'recent' | 'highest' | 'lowest'
-
 function buyerDisplayName(
-	row: { first_name: string | null; last_name: string | null } | null
+	row: {
+		first_name: string | null
+		last_name: string | null
+	} | null
 ): string {
 	if (!row) return 'Cliente'
 	const first = (row.first_name ?? '').trim()
@@ -20,7 +20,6 @@ function buyerDisplayName(
 	if (last) return last
 	return 'Cliente'
 }
-
 function distributionFromRatings(ratings: number[]): number[] {
 	const dist = [0, 0, 0, 0, 0]
 	for (const r of ratings) {
@@ -29,7 +28,6 @@ function distributionFromRatings(ratings: number[]): number[] {
 	}
 	return dist
 }
-
 function primaryImageUrl(
 	images: Array<{
 		url: string
@@ -43,10 +41,15 @@ function primaryImageUrl(
 	)
 	return (sorted.find((i) => i.is_primary) ?? sorted[0])?.url ?? null
 }
-
 export async function GET(
 	request: NextRequest,
-	{ params }: { params: Promise<{ id: string }> }
+	{
+		params,
+	}: {
+		params: Promise<{
+			id: string
+		}>
+	}
 ) {
 	try {
 		const { id: productId } = await params
@@ -56,7 +59,6 @@ export async function GET(
 				{ status: 400 }
 			)
 		}
-
 		const { searchParams } = new URL(request.url)
 		const page = Math.max(1, Number(searchParams.get('page') ?? 1) || 1)
 		const perPageRaw = Number(searchParams.get('perPage') ?? 10) || 10
@@ -69,13 +71,10 @@ export async function GET(
 		const sort = (searchParams.get('sort') ?? 'recent') as Sort
 		const search = (searchParams.get('search') ?? '').trim()
 		const summaryOnly = searchParams.get('summaryOnly') === '1'
-
 		const supabase = db()
-
 		const { data: product, error: productError } = await supabase
 			.from('products')
-			.select(
-				`
+			.select(`
 				id,
 				name,
 				price,
@@ -92,14 +91,12 @@ export async function GET(
 					verified_at,
 					status
 				)
-			`
-			)
+			`)
 			.eq('id', productId)
 			.eq('is_visible', true)
 			.is('deleted_at', null)
 			.eq('stores.status', 'ACTIVE')
 			.maybeSingle()
-
 		if (productError) throw productError
 		if (!product) {
 			return NextResponse.json(
@@ -107,7 +104,6 @@ export async function GET(
 				{ status: 404 }
 			)
 		}
-
 		const productRow = product as Record<string, unknown>
 		const store = productRow.stores as {
 			id: string
@@ -116,13 +112,14 @@ export async function GET(
 			logo_url: string | null
 			verified_at: string | null
 		} | null
-		const category = productRow.categories as { name: string } | null
+		const category = productRow.categories as {
+			name: string
+		} | null
 		const images = productRow.product_images as Array<{
 			url: string
 			is_primary?: boolean
 			position?: number
 		}> | null
-
 		const [
 			{ data: productRating },
 			{ data: storeRating },
@@ -149,11 +146,11 @@ export async function GET(
 				.eq('reviews.is_visible', true)
 				.is('reviews.deleted_at', null),
 		])
-
 		const allRatings = (
-			(allRatingsRows ?? []) as Array<{ rating: number }>
+			(allRatingsRows ?? []) as Array<{
+				rating: number
+			}>
 		).map((r) => r.rating)
-
 		const productRatingRow = productRating as {
 			rating_avg?: number
 			rating_count?: number
@@ -162,7 +159,6 @@ export async function GET(
 			rating_avg?: number
 			rating_count?: number
 		} | null
-
 		const summary = {
 			average: Number(
 				productRatingRow?.rating_avg ??
@@ -176,7 +172,6 @@ export async function GET(
 			count: productRatingRow?.rating_count ?? allRatings.length,
 			distribution: distributionFromRatings(allRatings),
 		}
-
 		const productPayload = {
 			id: productRow.id as string,
 			name: productRow.name as string,
@@ -189,7 +184,6 @@ export async function GET(
 			image: primaryImageUrl(images),
 			categoryName: category?.name ?? null,
 		}
-
 		const storePayload = store
 			? {
 					id: store.id,
@@ -203,7 +197,6 @@ export async function GET(
 					reviewCount: storeRatingRow?.rating_count ?? 0,
 				}
 			: null
-
 		if (summaryOnly) {
 			return NextResponse.json({
 				success: true,
@@ -218,7 +211,6 @@ export async function GET(
 				hasMore: false,
 			})
 		}
-
 		let query = supabase
 			.from('review_products')
 			.select(
@@ -244,14 +236,12 @@ export async function GET(
 			.is('deleted_at', null)
 			.eq('reviews.is_visible', true)
 			.is('reviews.deleted_at', null)
-
 		if (rating != null) {
 			query = query.eq('rating', rating)
 		}
 		if (search) {
 			query = query.ilike('body', `%${search}%`)
 		}
-
 		if (sort === 'highest') {
 			query = query
 				.order('rating', { ascending: false })
@@ -263,17 +253,14 @@ export async function GET(
 		} else {
 			query = query.order('created_at', { ascending: false })
 		}
-
 		const from = (page - 1) * perPage
 		const to = from + perPage - 1
-
 		const {
 			data: rows,
 			error: listError,
 			count,
 		} = await query.range(from, to)
 		if (listError) throw listError
-
 		const reviews = ((rows ?? []) as Array<Record<string, unknown>>).map(
 			(row) => {
 				const parent = row.reviews as {
@@ -300,10 +287,8 @@ export async function GET(
 				}
 			}
 		)
-
 		const totalFromDb = count ?? 0
 		const totalPages = Math.max(1, Math.ceil(totalFromDb / perPage) || 1)
-
 		return NextResponse.json({
 			success: true,
 			product: productPayload,

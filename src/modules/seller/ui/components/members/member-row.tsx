@@ -1,5 +1,4 @@
 'use client'
-
 import { Crown, MoreHorizontal } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -38,7 +37,6 @@ type MemberRowProps = {
 	onRemove?: () => void
 	onRoleChange?: (role: string) => void
 }
-
 export function MemberRow({
 	member,
 	isSelf,
@@ -53,7 +51,6 @@ export function MemberRow({
 	const fullName = displayName(member.user)
 	const initials = initialsOf(member.user)
 	const roleLabel = ROLE_LABELS[member.role] ?? member.role
-
 	return (
 		<article
 			className={cn(

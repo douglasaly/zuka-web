@@ -1,9 +1,7 @@
 'use client'
-
 import { ShoppingBag } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-
 export function SellerOrdersEmptyState() {
 	return (
 		<div className='flex w-full flex-col items-center rounded-xl border border-border bg-card px-6 py-16 text-center sm:py-20'>
@@ -27,11 +25,9 @@ export function SellerOrdersEmptyState() {
 		</div>
 	)
 }
-
 type SellerOrdersFilteredEmptyProps = {
 	onClear: () => void
 }
-
 export function SellerOrdersFilteredEmpty({
 	onClear,
 }: SellerOrdersFilteredEmptyProps) {
@@ -51,11 +47,9 @@ export function SellerOrdersFilteredEmpty({
 		</div>
 	)
 }
-
 type SellerOrdersErrorStateProps = {
 	onRetry: () => void
 }
-
 export function SellerOrdersErrorState({
 	onRetry,
 }: SellerOrdersErrorStateProps) {

@@ -1,18 +1,17 @@
 import { type NextRequest, NextResponse } from 'next/server'
+import { uuidv7 } from 'uuidv7'
 import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
 import {
 	canTransition,
 	ORDER_STATUS_LABELS,
 	ORDER_STATUS_TRANSITIONS,
-	parseOrderStatus,
 	type OrderStatus,
+	parseOrderStatus,
 } from '@/lib/orders/status-transitions'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import type { Database } from '@/lib/supabase/types'
-import { uuidv7 } from 'uuidv7'
 
 type OrderUpdate = Database['public']['Tables']['orders']['Update']
-
 type BuyerRow = {
 	id: string
 	first_name: string | null
@@ -21,7 +20,6 @@ type BuyerRow = {
 	phone_number: string | null
 	avatar_url: string | null
 }
-
 type OrderItemRow = {
 	id: string
 	quantity: number
@@ -33,7 +31,6 @@ type OrderItemRow = {
 		slug: string | null
 	} | null
 }
-
 function buyerName(buyer: BuyerRow | null): string {
 	if (!buyer) return 'Cliente'
 	const name = [buyer.first_name, buyer.last_name]
@@ -42,13 +39,14 @@ function buyerName(buyer: BuyerRow | null): string {
 		.trim()
 	return name || buyer.email || 'Cliente'
 }
-
 function mapDetail(row: Record<string, unknown>) {
 	const status = row.status as OrderStatus
 	const buyer = (row.users as BuyerRow | null) ?? null
 	const items = (row.order_items as OrderItemRow[] | null) ?? []
-	const store = row.stores as { name: string; logo_url?: string | null } | null
-
+	const store = row.stores as {
+		name: string
+		logo_url?: string | null
+	} | null
 	const timeline: Array<{
 		status: OrderStatus
 		label: string
@@ -61,7 +59,6 @@ function mapDetail(row: Record<string, unknown>) {
 			at: (row.created_at as string) ?? new Date().toISOString(),
 		},
 	]
-
 	if (status === 'SHIPPING' || status === 'COMPLETED') {
 		timeline.push({
 			status: 'SHIPPING',
@@ -72,7 +69,6 @@ function mapDetail(row: Record<string, unknown>) {
 				new Date().toISOString(),
 		})
 	}
-
 	if (status === 'CONTACTED') {
 		timeline.push({
 			status: 'CONTACTED',
@@ -83,7 +79,6 @@ function mapDetail(row: Record<string, unknown>) {
 				new Date().toISOString(),
 		})
 	}
-
 	if (status === 'COMPLETED' && row.completed_at) {
 		timeline.push({
 			status: 'COMPLETED',
@@ -92,7 +87,6 @@ function mapDetail(row: Record<string, unknown>) {
 			note: 'Cliente pode avaliar a loja e os produtos',
 		})
 	}
-
 	if (status === 'CANCELLED') {
 		timeline.push({
 			status: 'CANCELLED',
@@ -104,7 +98,6 @@ function mapDetail(row: Record<string, unknown>) {
 			note: (row.notes as string | null) ?? undefined,
 		})
 	}
-
 	return {
 		id: row.id as string,
 		storeId: row.store_id as string,
@@ -146,47 +139,43 @@ function mapDetail(row: Record<string, unknown>) {
 		})(),
 	}
 }
-
 async function loadOwnedOrder(orderId: string, storeId: string) {
 	const supabase = createSupabaseAdmin()
 	const { data, error } = await supabase
 		.from('orders')
-		.select(
-			`
+		.select(`
 			*,
 			stores(name, logo_url),
 			users!orders_buyer_id_fkey(id, first_name, last_name, email, phone_number, avatar_url),
 			order_items(id, quantity, unit_price, currency, products(id, name, slug))
-		`
-		)
+		`)
 		.eq('id', orderId)
 		.eq('store_id', storeId)
 		.is('deleted_at', null)
 		.maybeSingle()
-
 	if (error) throw error
 	return data as Record<string, unknown> | null
 }
-
 export async function GET(
 	_request: NextRequest,
-	context: { params: Promise<{ id: string }> }
+	context: {
+		params: Promise<{
+			id: string
+		}>
+	}
 ) {
 	try {
 		const auth = await requireSellerStore({ permission: 'order.read' })
 		if (isSellerStoreAuthError(auth)) return auth.error
-
 		const { store } = auth
 		const { id } = await context.params
 		const row = await loadOwnedOrder(id, store.id as string)
-
 		if (!row) {
 			return NextResponse.json(
 				{ error: 'Pedido não encontrado nesta loja' },
 				{ status: 404 }
 			)
 		}
-
 		return NextResponse.json({
 			success: true,
 			order: mapDetail(row),
@@ -199,22 +188,23 @@ export async function GET(
 		)
 	}
 }
-
 export async function PATCH(
 	request: NextRequest,
-	context: { params: Promise<{ id: string }> }
+	context: {
+		params: Promise<{
+			id: string
+		}>
+	}
 ) {
 	try {
 		const auth = await requireSellerStore({ permission: 'order.update' })
 		if (isSellerStoreAuthError(auth)) return auth.error
-
 		const { user, store } = auth
 		const { id } = await context.params
 		const body = (await request.json()) as {
 			status?: string
 			notes?: string
 		}
-
 		const nextStatus = parseOrderStatus(body.status ?? '')
 		if (!nextStatus) {
 			return NextResponse.json(
@@ -224,7 +214,6 @@ export async function PATCH(
 				{ status: 400 }
 			)
 		}
-
 		const row = await loadOwnedOrder(id, store.id as string)
 		if (!row) {
 			return NextResponse.json(
@@ -232,9 +221,7 @@ export async function PATCH(
 				{ status: 404 }
 			)
 		}
-
 		const currentStatus = row.status as OrderStatus
-
 		if (currentStatus === nextStatus) {
 			return NextResponse.json({
 				success: true,
@@ -242,7 +229,6 @@ export async function PATCH(
 				idempotent: true,
 			})
 		}
-
 		if (!canTransition(currentStatus, nextStatus)) {
 			return NextResponse.json(
 				{
@@ -252,45 +238,36 @@ export async function PATCH(
 				{ status: 409 }
 			)
 		}
-
 		const now = new Date().toISOString()
 		const update: OrderUpdate = {
 			status: nextStatus,
 			updated_at: now,
 		}
-
 		if (body.notes?.trim()) {
 			update.notes = body.notes.trim()
 		}
-
 		if (nextStatus === 'COMPLETED') {
 			update.completed_at = now
 			update.completed_by = user.id
 			update.review_eligible = true
 		}
-
 		if (nextStatus === 'CANCELLED' && !body.notes?.trim()) {
 			update.notes = 'Cancelado pela loja'
 		}
-
 		const supabase = createSupabaseAdmin()
 		const { data: updated, error: updateError } = await supabase
 			.from('orders')
 			.update(update)
 			.eq('id', id)
 			.eq('store_id', store.id as string)
-			.select(
-				`
+			.select(`
 				*,
 				stores(name, logo_url),
 				users!orders_buyer_id_fkey(id, first_name, last_name, email, phone_number, avatar_url),
 				order_items(id, quantity, unit_price, currency, products(id, name, slug))
-			`
-			)
+			`)
 			.single()
-
 		if (updateError) throw updateError
-
 		if (nextStatus === 'COMPLETED') {
 			const buyerId = updated.buyer_id as string
 			const shortId = String(updated.id).slice(0, 8)
@@ -302,10 +279,9 @@ export async function PATCH(
 					type: 'review',
 					title: 'Como correu a sua compra?',
 					body: `O pedido #${shortId} da loja ${store.name} foi entregue. Avalie a loja e os produtos. A sua opinião ajuda outros compradores.`,
-					link: `/pedidos/${updated.id}`,
+					link: `/feed/pedidos/${updated.id}`,
 					sender_store_id: store.id as string,
 				})
-
 			if (notifError) {
 				console.error(
 					'[PATCH /api/seller/orders/[id]] review notification',
@@ -313,7 +289,6 @@ export async function PATCH(
 				)
 			}
 		}
-
 		if (nextStatus === 'SHIPPING' || nextStatus === 'CANCELLED') {
 			const buyerId = updated.buyer_id as string
 			const shortId = String(updated.id).slice(0, 8)
@@ -333,10 +308,9 @@ export async function PATCH(
 					type: 'order',
 					title,
 					body: bodyText,
-					link: `/pedidos/${updated.id}`,
+					link: `/feed/pedidos/${updated.id}`,
 					sender_store_id: store.id as string,
 				})
-
 			if (notifError) {
 				console.error(
 					'[PATCH /api/seller/orders/[id]] order notification',
@@ -344,7 +318,6 @@ export async function PATCH(
 				)
 			}
 		}
-
 		return NextResponse.json({
 			success: true,
 			order: mapDetail(updated as Record<string, unknown>),

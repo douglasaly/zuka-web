@@ -1,5 +1,4 @@
 'use client'
-
 import { format } from 'date-fns'
 import { pt } from 'date-fns/locale'
 import { ExternalLink, Trash2 } from 'lucide-react'
@@ -22,7 +21,6 @@ type AllStoreRowProps = {
 	onReactivate: (id: string) => void
 	onDelete: (id: string) => void
 }
-
 export function AllStoreRow({
 	store,
 	isSelected,
@@ -33,7 +31,6 @@ export function AllStoreRow({
 }: AllStoreRowProps) {
 	const owner = store.users as Record<string, unknown>
 	const id = store.id as string
-
 	return (
 		<TableRow data-state={isSelected ? 'selected' : undefined}>
 			<TableCell>

@@ -1,5 +1,4 @@
 'use client'
-
 import { CheckCircle2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { VerificationFormState } from '../../hooks/use-seller-onboarding'
@@ -14,7 +13,6 @@ type SellerOnboardingVerificationSectionProps = {
 	onBack: () => void
 	onSubmit: () => void
 }
-
 export function SellerOnboardingVerificationSection({
 	form,
 	onChange,

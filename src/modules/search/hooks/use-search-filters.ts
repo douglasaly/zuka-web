@@ -1,12 +1,9 @@
 'use client'
-
 import { useRouter, useSearchParams } from 'next/navigation'
 import type { FilterValues } from '../ui/components/search-filters-sheet'
-
 export function useSearchFilters() {
 	const router = useRouter()
 	const searchParams = useSearchParams()
-
 	const q = searchParams.get('q') ?? ''
 	const category = searchParams.get('categoria') ?? ''
 	const province = searchParams.get('provincia') ?? ''
@@ -14,7 +11,6 @@ export function useSearchFilters() {
 	const maxPrice = searchParams.get('preco_max') ?? ''
 	const isNew = searchParams.get('recente') ?? ''
 	const sort = searchParams.get('ordenar') ?? 'relevance'
-
 	const filterValues: FilterValues = {
 		category,
 		province,
@@ -23,12 +19,10 @@ export function useSearchFilters() {
 		isNew,
 		sort,
 	}
-
 	const navigate = (params: URLSearchParams) => {
 		const qs = params.toString()
 		router.replace(qs ? `/pesquisa?${qs}` : '/pesquisa', { scroll: false })
 	}
-
 	const handleApplyFilters = (values: FilterValues) => {
 		const params = new URLSearchParams()
 		if (q) params.set('q', q)
@@ -43,13 +37,11 @@ export function useSearchFilters() {
 			params.set('ordenar', values.sort)
 		navigate(params)
 	}
-
 	const handleClearFilters = () => {
 		const params = new URLSearchParams()
 		if (q) params.set('q', q)
 		navigate(params)
 	}
-
 	return {
 		q,
 		category,

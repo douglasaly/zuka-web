@@ -1,7 +1,6 @@
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-
 export const FeaturedStoresHeader = () => (
 	<div className='flex items-end justify-between gap-4'>
 		<div className='space-y-1'>

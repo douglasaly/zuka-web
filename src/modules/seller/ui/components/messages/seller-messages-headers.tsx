@@ -1,14 +1,11 @@
 'use client'
-
 import type { ReactNode } from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { UserAvatar } from '@/components/user-avatar'
 import { cn } from '@/lib/utils'
 
-/** Shared height so inbox rail + thread headers share one baseline. */
 const HEADER =
 	'flex h-14 shrink-0 items-center border-b border-border/60 bg-card/95 backdrop-blur-sm'
-
 export function SellerInboxRailHeader({
 	title = 'Mensagens',
 	subtitle,
@@ -29,7 +26,6 @@ export function SellerInboxRailHeader({
 		</div>
 	)
 }
-
 export function SellerThreadPeerHeader({
 	leading,
 	name,
@@ -75,8 +71,6 @@ export function SellerThreadPeerHeader({
 		</header>
 	)
 }
-
-/** Empty detail pane header — same bar as an open thread. */
 export function SellerThreadPlaceholderHeader({
 	title = 'Caixa de entrada',
 	subtitle = 'Seleccione uma conversa',

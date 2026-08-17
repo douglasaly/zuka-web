@@ -1,5 +1,4 @@
 'use client'
-
 import {
 	Table,
 	TableBody,
@@ -22,7 +21,6 @@ type SellerOrdersListSectionProps = {
 	onOpenOrder: (id: string) => void
 	onAction: (action: PendingAction) => void
 }
-
 export function SellerOrdersListSection({
 	orders,
 	isPageFetching,

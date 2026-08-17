@@ -16,7 +16,6 @@ const GROUPS = [
 	{ label: 'Loja', items: 3 },
 	{ label: 'Configurações', items: 2 },
 ]
-
 export const SellerSidebarSkeleton = () => {
 	return (
 		<Sidebar

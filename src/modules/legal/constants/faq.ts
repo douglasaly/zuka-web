@@ -2,16 +2,16 @@ export type FaqItem = {
 	id: string
 	question: string
 	answer: string
-	/** Optional inline links rendered after the answer paragraphs */
-	links?: { href: string; label: string }[]
+	links?: {
+		href: string
+		label: string
+	}[]
 }
-
 export type FaqCategory = {
 	id: string
 	label: string
 	items: FaqItem[]
 }
-
 export const FAQ_CATEGORIES: FaqCategory[] = [
 	{
 		id: 'conta',

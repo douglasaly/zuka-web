@@ -1,9 +1,7 @@
 'use client'
-
 import { FolderTree, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-
 export function SellerCategoriesSkeleton() {
 	return (
 		<div className='min-w-0 max-w-6xl space-y-5'>
@@ -21,7 +19,6 @@ export function SellerCategoriesSkeleton() {
 		</div>
 	)
 }
-
 export function SellerCategoriesError({ onRetry }: { onRetry: () => void }) {
 	return (
 		<div className='flex min-w-0 max-w-6xl flex-col items-center justify-center rounded-2xl border border-dashed border-border/70 bg-muted/20 px-6 py-16 text-center'>
@@ -41,7 +38,6 @@ export function SellerCategoriesError({ onRetry }: { onRetry: () => void }) {
 		</div>
 	)
 }
-
 export function SellerCategoriesEmpty({ onCreate }: { onCreate: () => void }) {
 	return (
 		<div className='relative overflow-hidden rounded-2xl border border-border/60 bg-card px-6 py-16 text-center shadow-[0_1px_2px_rgba(0,0,0,0.04)] sm:py-20'>

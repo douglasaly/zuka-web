@@ -1,5 +1,4 @@
 'use client'
-
 import dynamic from 'next/dynamic'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { SellerSidebarSkeleton } from '../components/seller-sidebar-skeleton'
@@ -14,11 +13,9 @@ const SellerSidebar = dynamic(
 		})),
 	{ loading: () => <SellerSidebarSkeleton /> }
 )
-
 interface SellerLayoutShellProps {
 	children: React.ReactNode
 }
-
 export function SellerLayoutShell({ children }: SellerLayoutShellProps) {
 	return (
 		<div className='flex min-h-screen w-full bg-background'>

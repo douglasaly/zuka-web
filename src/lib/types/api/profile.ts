@@ -1,6 +1,3 @@
-// ─── Profile routes ────────────────────────────────────
-
-/** GET /api/me/profile */
 export type GetProfileOutput = {
 	success: true
 	profile: {
@@ -30,15 +27,12 @@ export type GetProfileOutput = {
 		} | null
 	}
 }
-
-/** PATCH /api/me/profile */
 export type UpdateProfileInput = {
 	firstName?: string
 	lastName?: string
 	phoneNumber?: string
 	avatarUrl?: string
 }
-
 export type UpdateProfileOutput = {
 	success: true
 	profile: {

@@ -1,5 +1,4 @@
 'use client'
-
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import { clampQuantity, effectivePrice } from '@/modules/cart/lib/cart-utils'
@@ -12,7 +11,6 @@ import type {
 } from '@/modules/cart/types'
 
 type CartStore = CartsState & CartActions
-
 function dropEmptyCart(
 	carts: Record<string, Cart>,
 	storeId: string
@@ -20,16 +18,17 @@ function dropEmptyCart(
 	const { [storeId]: _removed, ...rest } = carts
 	return rest
 }
-
 function upsertItem(
 	items: CartItem[],
 	next: CartItem
-): { items: CartItem[]; merged: boolean } {
+): {
+	items: CartItem[]
+	merged: boolean
+} {
 	const index = items.findIndex((item) => item.productId === next.productId)
 	if (index < 0) {
 		return { items: [...items, next], merged: false }
 	}
-
 	const current = items[index]
 	const quantity = clampQuantity(current.quantity + next.quantity)
 	const updated = items.map((item, i) =>
@@ -37,13 +36,11 @@ function upsertItem(
 	)
 	return { items: updated, merged: true }
 }
-
 export const useCartStore = create<CartStore>()(
 	persist(
 		(set, get) => ({
 			carts: {},
 			hasHydrated: false,
-
 			addItem: (product: CartProductInput, quantity = 1) => {
 				const qty = clampQuantity(quantity)
 				const storeId = product.storeId
@@ -62,7 +59,6 @@ export const useCartStore = create<CartStore>()(
 					unitPrice: effectivePrice(product),
 					currency: product.currency,
 				}
-
 				set((state) => {
 					const cart = state.carts[storeId]
 					if (!cart) {
@@ -80,7 +76,6 @@ export const useCartStore = create<CartStore>()(
 							},
 						}
 					}
-
 					const result = upsertItem(cart.items, nextItem)
 					return {
 						carts: {
@@ -96,22 +91,18 @@ export const useCartStore = create<CartStore>()(
 						},
 					}
 				})
-
 				return { storeId, merged }
 			},
-
 			removeItem: (storeId, productId) => {
 				set((state) => {
 					const cart = state.carts[storeId]
 					if (!cart) return state
-
 					const items = cart.items.filter(
 						(item) => item.productId !== productId
 					)
 					if (items.length === 0) {
 						return { carts: dropEmptyCart(state.carts, storeId) }
 					}
-
 					return {
 						carts: {
 							...state.carts,
@@ -124,24 +115,20 @@ export const useCartStore = create<CartStore>()(
 					}
 				})
 			},
-
 			updateQuantity: (storeId, productId, quantity) => {
 				if (quantity < 1) {
 					get().removeItem(storeId, productId)
 					return
 				}
-
 				const qty = clampQuantity(quantity)
 				set((state) => {
 					const cart = state.carts[storeId]
 					if (!cart) return state
-
 					const items = cart.items.map((item) =>
 						item.productId === productId
 							? { ...item, quantity: qty }
 							: item
 					)
-
 					return {
 						carts: {
 							...state.carts,
@@ -154,22 +141,17 @@ export const useCartStore = create<CartStore>()(
 					}
 				})
 			},
-
 			clearCart: (storeId) => {
 				set((state) => ({
 					carts: dropEmptyCart(state.carts, storeId),
 				}))
 			},
-
 			clearAll: () => set({ carts: {} }),
-
 			getCartByStore: (storeId) => get().carts[storeId],
-
 			applyCurrentPrice: (storeId, productId, unitPrice) => {
 				set((state) => {
 					const cart = state.carts[storeId]
 					if (!cart) return state
-
 					return {
 						carts: {
 							...state.carts,
@@ -186,7 +168,6 @@ export const useCartStore = create<CartStore>()(
 					}
 				})
 			},
-
 			markHydrated: () => set({ hasHydrated: true }),
 		}),
 		{

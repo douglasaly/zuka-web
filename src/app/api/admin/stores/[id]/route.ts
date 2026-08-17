@@ -3,13 +3,15 @@ import { requireAdminUser } from '@/lib/auth/admin'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import type { Database } from '@/lib/supabase/types'
 
-type Params = { params: Promise<{ id: string }> }
-
+type Params = {
+	params: Promise<{
+		id: string
+	}>
+}
 export async function GET(_req: Request, { params }: Params) {
 	await requireAdminUser()
 	const { id } = await params
 	const supabase = createSupabaseAdmin()
-
 	const { data: store, error } = await supabase
 		.from('stores')
 		.select(`
@@ -20,12 +22,10 @@ export async function GET(_req: Request, { params }: Params) {
 		`)
 		.eq('id', id)
 		.maybeSingle()
-
 	if (error)
 		return NextResponse.json({ error: error.message }, { status: 500 })
 	if (!store)
 		return NextResponse.json({ error: 'Not found' }, { status: 404 })
-
 	const { data: docs } = await supabase
 		.from('verification_documents')
 		.select('*')
@@ -42,29 +42,24 @@ export async function GET(_req: Request, { params }: Params) {
 		.from('store_followers')
 		.select('*', { count: 'exact', head: true })
 		.eq('store_id', id)
-
 	return NextResponse.json({
 		store: { ...(store as object), followerCount },
 		docs,
 		products,
 	})
 }
-
 export async function PATCH(req: Request, { params }: Params) {
 	await requireAdminUser()
 	const { id } = await params
 	const body = await req.json()
 	const supabase = createSupabaseAdmin()
-
 	const { status, rejectionReason, ...rest } = body
-
 	const updates: Record<string, unknown> = {
 		...rest,
 		updated_at: new Date().toISOString(),
 	}
 	if (status) updates.status = status
 	if (status === 'ACTIVE') updates.verified_at = new Date().toISOString()
-
 	const { data, error } = await supabase
 		.from('stores')
 		.update(updates as Database['public']['Tables']['stores']['Update'])
@@ -73,8 +68,6 @@ export async function PATCH(req: Request, { params }: Params) {
 		.single()
 	if (error)
 		return NextResponse.json({ error: error.message }, { status: 500 })
-
-	// Update seller onboarding status
 	if (status === 'ACTIVE' || status === 'REJECTED') {
 		const { data: storeRow } = await supabase
 			.from('stores')
@@ -93,15 +86,12 @@ export async function PATCH(req: Request, { params }: Params) {
 				.eq('seller_profile_id', storeRow.seller_profile_id as string)
 		}
 	}
-
 	return NextResponse.json({ store: data })
 }
-
 export async function DELETE(_req: Request, { params }: Params) {
 	await requireAdminUser()
 	const { id } = await params
 	const supabase = createSupabaseAdmin()
-
 	const { error } = await supabase
 		.from('stores')
 		.update({ deleted_at: new Date().toISOString() })

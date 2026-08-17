@@ -1,17 +1,14 @@
 'use client'
-
 import { sendEmailVerification } from 'firebase/auth'
 import { Loader2, MailCheck, MailWarning } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { auth } from '@/lib/firebase/firebase-client'
-
 export const EmailVerificationStatus = () => {
 	const [verified, setVerified] = useState(false)
 	const [sending, setSending] = useState(false)
 	const [checked, setChecked] = useState(false)
-
 	useEffect(() => {
 		const user = auth.currentUser
 		if (user) {
@@ -19,11 +16,9 @@ export const EmailVerificationStatus = () => {
 			setChecked(true)
 		}
 	}, [])
-
 	async function handleVerify() {
 		const user = auth.currentUser
 		if (!user) return
-
 		setSending(true)
 		try {
 			await sendEmailVerification(user)
@@ -36,9 +31,7 @@ export const EmailVerificationStatus = () => {
 			setSending(false)
 		}
 	}
-
 	if (!checked) return null
-
 	return (
 		<div className='flex items-center justify-between rounded-xl border border-border/60 px-4 py-3'>
 			<div className='flex items-center gap-3'>

@@ -20,7 +20,6 @@ interface Props {
 	error: string | null
 	onSubmit: (e: React.FormEvent) => void
 }
-
 export function ResetPasswordFormSection({
 	password,
 	onPasswordChange,

@@ -1,5 +1,4 @@
 import { Skeleton } from '@/components/ui/skeleton'
-
 export function UserDetailLoading() {
 	return (
 		<div className='space-y-6'>
@@ -8,7 +7,6 @@ export function UserDetailLoading() {
 		</div>
 	)
 }
-
 export function UserDetailNotFound() {
 	return <p className='text-muted-foreground'>Utilizador não encontrado.</p>
 }

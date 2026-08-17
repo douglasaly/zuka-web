@@ -1,5 +1,4 @@
 'use client'
-
 import { Suspense } from 'react'
 import { usePendingStores } from '@/modules/admin/hooks/use-pending-stores'
 import { TableSkeleton } from '../components/table-skeleton'
@@ -11,7 +10,6 @@ import { PendingStoresToolbar } from '../sections/pending-stores-toolbar'
 function PendingStoresInner() {
 	const { stores, isLoading, reviewId, openReview, closeReview } =
 		usePendingStores()
-
 	return (
 		<div className='space-y-4'>
 			<PendingStoresToolbar isLoading={isLoading} count={stores.length} />
@@ -31,7 +29,6 @@ function PendingStoresInner() {
 		</div>
 	)
 }
-
 export function PendingStoresView() {
 	return (
 		<Suspense>

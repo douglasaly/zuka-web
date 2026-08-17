@@ -1,14 +1,15 @@
 'use client'
-
 import { cn } from '@/lib/utils'
 
 interface SegmentedControlProps {
-	options: { value: string; label: string }[]
+	options: {
+		value: string
+		label: string
+	}[]
 	value: string
 	onChange: (value: string) => void
 	className?: string
 }
-
 export const SegmentedControl = ({
 	options,
 	value,

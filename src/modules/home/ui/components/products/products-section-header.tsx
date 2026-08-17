@@ -3,14 +3,11 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { type ViewMode, ViewModeToggle } from '@/components/view-mode-toggle'
 import { cn } from '@/lib/utils'
-
 export type ProductsViewMode = 'grid' | 'list'
-
 type ProductsSectionHeaderProps = {
 	viewMode: ViewMode
 	onViewModeChange: (mode: ViewMode) => void
 }
-
 export const ProductsSectionHeader = ({
 	viewMode,
 	onViewModeChange,

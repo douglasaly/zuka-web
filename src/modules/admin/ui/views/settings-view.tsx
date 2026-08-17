@@ -1,13 +1,10 @@
 'use client'
-
 import { useAdminSettings } from '@/modules/admin/hooks/use-admin-settings'
 import { ConfirmDialog } from '@/modules/admin/ui/components/confirm-dialog'
 import { AdminSettingsAdmins } from '@/modules/admin/ui/sections/admin-settings-admins'
 import { AdminSettingsCategories } from '@/modules/admin/ui/sections/admin-settings-categories'
-
 export function SettingsView() {
 	const s = useAdminSettings()
-
 	return (
 		<div className='max-w-2xl space-y-8'>
 			<AdminSettingsCategories

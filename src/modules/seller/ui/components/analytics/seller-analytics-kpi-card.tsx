@@ -1,5 +1,4 @@
 'use client'
-
 import { TrendingDown, TrendingUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
@@ -13,7 +12,6 @@ type SellerAnalyticsKpiCardProps = {
 	value: number
 	change: number
 }
-
 export function SellerAnalyticsKpiCard({
 	kpi,
 	value,
@@ -22,7 +20,6 @@ export function SellerAnalyticsKpiCard({
 	const Icon = kpi.icon
 	const up = change > 0
 	const down = change < 0
-
 	return (
 		<article className='rounded-2xl border border-border/60 bg-card p-4 sm:p-5'>
 			<div className='flex items-center gap-2 text-sm text-muted-foreground'>
@@ -50,11 +47,9 @@ export function SellerAnalyticsKpiCard({
 		</article>
 	)
 }
-
 type SellerAnalyticsKpisProps = {
 	data: SellerAnalyticsMock
 }
-
 export function SellerAnalyticsKpis({ data }: SellerAnalyticsKpisProps) {
 	return (
 		<div className='grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5'>

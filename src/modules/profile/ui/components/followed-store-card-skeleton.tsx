@@ -1,5 +1,4 @@
 import { Skeleton } from '@/components/ui/skeleton'
-
 export const FollowedStoreCardSkeleton = () => {
 	return (
 		<div className='h-18 w-full rounded-xl bg-white p-4 flex items-center gap-2 border py-8'>

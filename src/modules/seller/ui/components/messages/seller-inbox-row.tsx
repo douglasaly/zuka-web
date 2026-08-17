@@ -1,5 +1,4 @@
 'use client'
-
 import dayjs from 'dayjs'
 import 'dayjs/locale/pt'
 import Link from 'next/link'
@@ -7,7 +6,6 @@ import { UserAvatar } from '@/components/user-avatar'
 import { cn } from '@/lib/utils'
 
 dayjs.locale('pt')
-
 export type SellerConversation = {
 	id: string
 	otherUserName: string
@@ -16,7 +14,6 @@ export type SellerConversation = {
 	lastMessageAt: string | null
 	unread: boolean
 }
-
 export function formatInboxTime(iso: string): string {
 	const d = dayjs(iso)
 	const diffMin = dayjs().diff(d, 'minute')
@@ -26,14 +23,12 @@ export function formatInboxTime(iso: string): string {
 	if (diffMin < 1440 * 7) return d.format('ddd')
 	return d.format('DD/MM/YY')
 }
-
 type SellerInboxRowProps = {
 	conversation: SellerConversation
 	active?: boolean
 	baseHref?: string
 	compact?: boolean
 }
-
 export function SellerInboxRow({
 	conversation,
 	active = false,
@@ -43,7 +38,6 @@ export function SellerInboxRow({
 	const time = conversation.lastMessageAt
 		? formatInboxTime(conversation.lastMessageAt)
 		: null
-
 	return (
 		<Link
 			href={`${baseHref}/${conversation.id}`}

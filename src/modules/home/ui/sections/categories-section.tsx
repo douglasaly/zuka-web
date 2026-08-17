@@ -1,5 +1,4 @@
 'use client'
-
 import { useQuery } from '@tanstack/react-query'
 import { AlertCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -11,7 +10,6 @@ import { getCategories } from '@/lib/api/categories'
 interface Props {
 	categoryId?: string
 }
-
 export interface Categories {
 	id: string
 	parentId: any
@@ -21,34 +19,26 @@ export interface Categories {
 	updatedAt: string
 	deletedAt: any
 }
-
 export const CategoriesSectionSuspense = ({ categoryId }: Props) => {
 	const { data: categories = [] } = useQuery<Categories[]>({
 		queryKey: ['categories'],
 		queryFn: getCategories,
 	})
-
 	const router = useRouter()
-
 	const data = categories.map(({ id, name }) => ({
 		value: id,
 		label: name,
 	}))
-
 	const onSelect = (value: string | null) => {
 		const url = new URL('/feed/explorar', location.origin)
-
 		const categorySlug = value
 			? categories.find((c) => c.id === value)?.slug
 			: undefined
-
 		if (categorySlug) {
 			url.searchParams.set('categoria', categorySlug)
 		}
-
 		router.push(`${url.pathname}${url.search}`)
 	}
-
 	return (
 		<FilterCarousel
 			isLoading={false}
@@ -58,7 +48,6 @@ export const CategoriesSectionSuspense = ({ categoryId }: Props) => {
 		/>
 	)
 }
-
 export const CategoriesSection = ({ categoryId }: Props) => {
 	return (
 		<Suspense fallback={<CategorySkeleton />}>
@@ -79,7 +68,6 @@ export const CategoriesSection = ({ categoryId }: Props) => {
 		</Suspense>
 	)
 }
-
 export const CategorySkeleton = () => {
 	return <FilterCarousel isLoading data={[]} />
 }

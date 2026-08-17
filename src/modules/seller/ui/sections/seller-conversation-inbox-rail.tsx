@@ -1,5 +1,4 @@
 'use client'
-
 import { Inbox } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { LoadMoreMessages } from '@/modules/messages/ui/components/load-more-messages'
@@ -17,7 +16,6 @@ type SellerConversationInboxRailProps = {
 	isFetchingMoreInbox: boolean
 	onLoadMore: () => void
 }
-
 export function SellerConversationInboxRail({
 	activeId,
 	inbox,

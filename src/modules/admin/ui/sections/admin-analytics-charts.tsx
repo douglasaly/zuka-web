@@ -1,5 +1,4 @@
 'use client'
-
 import {
 	Area,
 	AreaChart,
@@ -24,7 +23,6 @@ type AdminAnalyticsChartsProps = {
 	stores: DayCount[]
 	topStores: Record<string, unknown>[]
 }
-
 export function AdminAnalyticsCharts({
 	days,
 	isLoading,

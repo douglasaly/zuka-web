@@ -1,5 +1,4 @@
 'use client'
-
 import Link from 'next/link'
 import { useEffect, useId, useState } from 'react'
 import {
@@ -11,23 +10,19 @@ import {
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { FAQ_CATEGORIES } from '@/modules/legal/constants/faq'
-
 export function FaqView() {
 	const headingId = useId()
 	const [activeCategory, setActiveCategory] = useState(
 		FAQ_CATEGORIES[0]?.id ?? 'conta'
 	)
-
 	useEffect(() => {
 		const hash = window.location.hash.replace('#', '')
 		if (!hash) return
 		const match = FAQ_CATEGORIES.find((c) => c.id === hash)
 		if (match) setActiveCategory(match.id)
 	}, [])
-
 	const category =
 		FAQ_CATEGORIES.find((c) => c.id === activeCategory) ?? FAQ_CATEGORIES[0]
-
 	return (
 		<article className='mx-auto max-w-3xl py-8 md:py-14'>
 			<header className='mb-8 border-b border-border/60 pb-8 md:mb-10'>

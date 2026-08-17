@@ -1,5 +1,4 @@
 'use client'
-
 import { Loader2, UserPlus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -39,7 +38,6 @@ type InviteMemberDialogProps = {
 	onClose: () => void
 	onInvite: () => void
 }
-
 export function InviteMemberDialog({
 	open,
 	canManage,

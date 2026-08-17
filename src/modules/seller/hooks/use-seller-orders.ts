@@ -1,5 +1,4 @@
 'use client'
-
 import {
 	keepPreviousData,
 	useMutation,
@@ -24,34 +23,31 @@ import {
 	confirmCopy,
 	parsePerPage,
 } from '@/modules/seller/ui/components/orders/utils'
-
 export function useSellerOrders() {
 	const router = useRouter()
 	const pathname = usePathname()
 	const searchParams = useSearchParams()
 	const [, startTransition] = useTransition()
 	const queryClient = useQueryClient()
-
 	const page = Math.max(Number(searchParams.get('page')) || 1, 1)
 	const perPage = parsePerPage(searchParams.get('perPage'))
 	const statusFilter = searchParams.get('status') ?? 'all'
 	const dateFilter = searchParams.get('date') ?? 'all'
 	const searchFromUrl = searchParams.get('q') ?? ''
-
 	const [searchInput, setSearchInput] = useState(searchFromUrl)
 	const deferredSearch = useDeferredValue(searchInput)
 	const [selectedId, setSelectedId] = useState<string | null>(null)
 	const [pendingAction, setPendingAction] = useState<PendingAction | null>(
 		null
 	)
-
 	useEffect(() => {
 		setSearchInput(searchFromUrl)
 	}, [searchFromUrl])
-
 	function replaceParams(
 		patch: Record<string, string | null>,
-		options?: { resetPage?: boolean }
+		options?: {
+			resetPage?: boolean
+		}
 	) {
 		const next = new URLSearchParams(searchParams.toString())
 		for (const [key, value] of Object.entries(patch)) {
@@ -72,8 +68,6 @@ export function useSellerOrders() {
 			})
 		})
 	}
-
-	// Sync deferred search → URL (resets page)
 	useEffect(() => {
 		const trimmed = deferredSearch.trim()
 		const current = searchParams.get('q') ?? ''
@@ -89,7 +83,6 @@ export function useSellerOrders() {
 			})
 		})
 	}, [deferredSearch, searchParams, pathname, router])
-
 	const apiParams = useMemo(() => {
 		const p = new URLSearchParams()
 		p.set('page', String(page))
@@ -99,7 +92,6 @@ export function useSellerOrders() {
 		if (searchFromUrl.trim()) p.set('search', searchFromUrl.trim())
 		return p.toString()
 	}, [page, perPage, statusFilter, dateFilter, searchFromUrl])
-
 	const { data, isLoading, isError, isFetching, refetch } =
 		useQuery<OrdersResponse>({
 			queryKey: ['seller-orders', apiParams],
@@ -112,7 +104,6 @@ export function useSellerOrders() {
 			},
 			placeholderData: keepPreviousData,
 		})
-
 	const statusMutation = useMutation({
 		mutationFn: async (action: PendingAction) => {
 			const res = await fetch(`/api/seller/orders/${action.orderId}`, {
@@ -133,7 +124,6 @@ export function useSellerOrders() {
 			const previous = queryClient.getQueriesData<OrdersResponse>({
 				queryKey: ['seller-orders'],
 			})
-
 			queryClient.setQueriesData<OrdersResponse>(
 				{ queryKey: ['seller-orders'] },
 				(old) => {
@@ -167,7 +157,6 @@ export function useSellerOrders() {
 					}
 				}
 			)
-
 			return { previous }
 		},
 		onError: (error: Error, action, context) => {
@@ -196,34 +185,27 @@ export function useSellerOrders() {
 			})
 		},
 	})
-
-	// Keep sidebar pending badge in sync while the seller reviews orders
 	useEffect(() => {
 		void queryClient.invalidateQueries({ queryKey: ['unread-counts'] })
 	}, [queryClient])
-
 	const orders = data?.orders ?? []
 	const total = data?.total ?? 0
 	const totalPages = data?.totalPages ?? 1
 	const currentPage = data?.page ?? page
-
 	const isEmptyStore =
 		total === 0 &&
 		statusFilter === 'all' &&
 		!searchFromUrl &&
 		dateFilter === 'all' &&
 		!isLoading
-
 	const rangeStart = total === 0 ? 0 : (currentPage - 1) * perPage + 1
 	const rangeEnd = Math.min(currentPage * perPage, total)
 	const showPager = total > 0
 	const isPageFetching = isFetching && !isLoading
-
 	const rangeLabel =
 		total === 0
 			? 'Nenhum pedido encontrado'
 			: `Mostrando ${rangeStart}–${rangeEnd} de ${total} ${total === 1 ? 'pedido' : 'pedidos'}`
-
 	function goToPage(nextPage: number) {
 		if (nextPage < 1 || nextPage > totalPages) return
 		replaceParams({
@@ -231,7 +213,6 @@ export function useSellerOrders() {
 			perPage: perPage === DEFAULT_PER_PAGE ? null : String(perPage),
 		})
 	}
-
 	function clearFilters() {
 		setSearchInput('')
 		replaceParams(
@@ -239,9 +220,7 @@ export function useSellerOrders() {
 			{ resetPage: true }
 		)
 	}
-
 	return {
-		// filters / URL
 		searchInput,
 		setSearchInput,
 		statusFilter,
@@ -250,7 +229,6 @@ export function useSellerOrders() {
 		replaceParams,
 		goToPage,
 		clearFilters,
-		// data
 		orders,
 		total,
 		totalPages,
@@ -263,7 +241,6 @@ export function useSellerOrders() {
 		isError,
 		hasData: Boolean(data),
 		refetch,
-		// selection / actions
 		selectedId,
 		setSelectedId,
 		pendingAction,

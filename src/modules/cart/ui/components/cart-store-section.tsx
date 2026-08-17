@@ -1,5 +1,4 @@
 'use client'
-
 import { useMutation } from '@tanstack/react-query'
 import { MessageCircle, Package, Store } from 'lucide-react'
 import Link from 'next/link'
@@ -32,7 +31,6 @@ type CartStoreSectionProps = {
 	onRequestClear: () => void
 	onOrderCreated: (order: CreatedBuyerOrder) => void
 }
-
 export function CartStoreSection({
 	cart,
 	byProductId,
@@ -45,7 +43,6 @@ export function CartStoreSection({
 	const createOrder = useCreateOrder({
 		onCreated: (order) => onOrderCreated(order),
 	})
-
 	const total = cartTotal(cart)
 	const currency = cartCurrency(cart)
 	const count = cartItemCount(cart)
@@ -60,7 +57,6 @@ export function CartStoreSection({
 	)
 	const canOrder = Boolean(firstAvailable) && !hasUnavailable
 	const ordering = createOrder.isPending
-
 	const chatMutation = useMutation({
 		mutationFn: () => startConversation(firstAvailable?.productId ?? ''),
 		onSuccess: (result) => {
@@ -74,7 +70,6 @@ export function CartStoreSection({
 			)
 		},
 	})
-
 	const openWhatsApp = () => {
 		if (!storePhone) return
 		trackContactEvent({
@@ -89,14 +84,12 @@ export function CartStoreSection({
 			'noopener,noreferrer'
 		)
 	}
-
 	const handleCreateOrder = async () => {
 		if (!isAuthenticated) {
 			toast.info('Inicia sessão para fazer o pedido.')
 			router.push('/auth/login?next=/carrinho')
 			return
 		}
-
 		try {
 			await createOrder.mutateAsync({
 				storeId: cart.storeId,
@@ -105,11 +98,8 @@ export function CartStoreSection({
 					quantity: item.quantity,
 				})),
 			})
-		} catch {
-			// O hook já mostra o toast de erro.
-		}
+		} catch {}
 	}
-
 	return (
 		<section className='space-y-3' aria-labelledby={`cart-${cart.storeId}`}>
 			<div className='flex items-center justify-between gap-3'>

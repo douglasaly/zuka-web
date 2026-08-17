@@ -1,5 +1,4 @@
 'use client'
-
 import { ShoppingCart } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
@@ -18,10 +17,15 @@ import { CartStoreSection } from '../components/cart-store-section'
 import { CartHeader } from '../sections/cart-header'
 
 type ClearTarget =
-	| { type: 'store'; storeId: string; storeName: string }
-	| { type: 'all' }
+	| {
+			type: 'store'
+			storeId: string
+			storeName: string
+	  }
+	| {
+			type: 'all'
+	  }
 	| null
-
 export function CartView() {
 	const hasHydrated = useHasHydrated()
 	const carts = useCartList()
@@ -33,12 +37,10 @@ export function CartView() {
 		order: CreatedBuyerOrder
 		storeId: string
 	} | null>(null)
-
 	const visibleCarts = useMemo(() => {
 		if (storeFilter === 'all') return carts
 		return carts.filter((cart) => cart.storeId === storeFilter)
 	}, [carts, storeFilter])
-
 	const itemCount = cartsItemCount(carts)
 	const priceChangeCount = carts.reduce(
 		(n, cart) =>
@@ -56,7 +58,6 @@ export function CartView() {
 			).length,
 		0
 	)
-
 	const applyAllPrices = () => {
 		for (const cart of carts) {
 			for (const item of cart.items) {
@@ -72,7 +73,6 @@ export function CartView() {
 		}
 		toast.success('Preços actualizados para os valores actuais.')
 	}
-
 	const removeUnavailable = () => {
 		for (const cart of carts) {
 			for (const item of cart.items) {
@@ -83,7 +83,6 @@ export function CartView() {
 		}
 		toast.success('Produtos indisponíveis removidos.')
 	}
-
 	const confirmClear = () => {
 		if (!clearTarget) return
 		if (clearTarget.type === 'all') {
@@ -96,7 +95,6 @@ export function CartView() {
 		toast.success(`Carrinho da ${clearTarget.storeName} esvaziado.`)
 		if (storeFilter === clearTarget.storeId) setStoreFilter('all')
 	}
-
 	const clearDialog =
 		clearTarget?.type === 'all'
 			? {
@@ -113,7 +111,6 @@ export function CartView() {
 						confirmLabel: 'Esvaziar este carrinho',
 					}
 				: null
-
 	return (
 		<div className='mx-auto w-full max-w-7xl px-4 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] md:px-6 md:py-8'>
 			<CartHeader

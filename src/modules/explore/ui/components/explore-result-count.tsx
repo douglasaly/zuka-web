@@ -3,7 +3,6 @@ type ExploreResultsCountProps = {
 	singular: string
 	plural: string
 }
-
 export const ExploreResultsCount = ({
 	count,
 	singular,

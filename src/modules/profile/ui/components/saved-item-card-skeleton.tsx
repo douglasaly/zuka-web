@@ -1,5 +1,4 @@
 import { Skeleton } from '@/components/ui/skeleton'
-
 export const SavedItemCardSkeleton = () => (
 	<div className='w-40 shrink-0 overflow-hidden rounded-xl border bg-white sm:w-44'>
 		<Skeleton className='aspect-square w-full rounded-none' />

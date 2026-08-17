@@ -1,5 +1,4 @@
 'use client'
-
 import { ArrowRight, MessageCircle, Package, Star, Truck } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -17,7 +16,6 @@ type OrdersAsideProps = {
 	onStatusChange: (status: StatusFilter) => void
 	className?: string
 }
-
 export function OrdersAside({
 	pendingReviews,
 	pendingReviewCount,
@@ -30,7 +28,6 @@ export function OrdersAside({
 	const processing = statusCounts.pending
 	const hasActivity =
 		pendingReviewCount > 0 || inTransit > 0 || processing > 0
-
 	return (
 		<aside
 			className={cn(
@@ -61,7 +58,6 @@ export function OrdersAside({
 							const preview = order.itemsPreview[0]
 							const title =
 								preview?.productName ?? order.storeName
-
 							return (
 								<li key={order.id}>
 									<Link

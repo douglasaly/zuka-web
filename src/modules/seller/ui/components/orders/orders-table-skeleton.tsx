@@ -1,7 +1,5 @@
 'use client'
-
 import { Skeleton } from '@/components/ui/skeleton'
-
 export function OrdersTableSkeleton() {
 	return (
 		<div className='w-full min-w-0 space-y-4'>

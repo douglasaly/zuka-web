@@ -1,11 +1,12 @@
 import { Suspense } from 'react'
-import { ProductReviewsView } from '@/modules/product/ui/views/product-reviews-view'
 import { Skeleton } from '@/components/ui/skeleton'
+import { ProductReviewsView } from '@/modules/product/ui/views/product-reviews-view'
 
 interface PageProps {
-	params: Promise<{ id: string }>
+	params: Promise<{
+		id: string
+	}>
 }
-
 export default async function ProductReviewsPage({ params }: PageProps) {
 	const { id } = await params
 	return (
@@ -14,7 +15,6 @@ export default async function ProductReviewsPage({ params }: PageProps) {
 		</Suspense>
 	)
 }
-
 function ReviewsRouteFallback() {
 	return (
 		<div className='mx-auto max-w-4xl space-y-5 px-4 pt-4 md:px-0'>

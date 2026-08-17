@@ -13,14 +13,12 @@ type ProductImage = {
 	position: number | null
 	deleted_at?: string | null
 }
-
 type ProductRow = {
 	id: string
 	name: string
 	slug: string | null
 	product_images?: ProductImage[] | null
 }
-
 type OrderItemRow = {
 	id: string
 	quantity: number
@@ -29,10 +27,12 @@ type OrderItemRow = {
 	product_id?: string
 	products: ProductRow | null
 }
-
 const statusMap: Record<
 	string,
-	{ status: BuyerOrderStatus; label: string }
+	{
+		status: BuyerOrderStatus
+		label: string
+	}
 > = {
 	PENDING: { status: 'pending', label: 'Em processamento' },
 	CONTACTED: { status: 'pending', label: 'Em processamento' },
@@ -40,11 +40,9 @@ const statusMap: Record<
 	COMPLETED: { status: 'completed', label: ORDER_STATUS_LABELS.COMPLETED },
 	CANCELLED: { status: 'cancelled', label: ORDER_STATUS_LABELS.CANCELLED },
 }
-
 export function formatBuyerOrderDate(iso: string): string {
 	return formatLongPtDate(iso)
 }
-
 export function pickProductImage(
 	images: ProductImage[] | null | undefined
 ): string | null {
@@ -57,7 +55,6 @@ export function pickProductImage(
 	)
 	return sorted[0]?.url ?? null
 }
-
 export function mapBuyerOrderItem(row: OrderItemRow): BuyerOrderItem {
 	return {
 		id: row.id,
@@ -69,7 +66,6 @@ export function mapBuyerOrderItem(row: OrderItemRow): BuyerOrderItem {
 		imageUrl: pickProductImage(row.products?.product_images),
 	}
 }
-
 export function mapBuyerOrder(row: {
 	id: string
 	total: number
@@ -89,7 +85,6 @@ export function mapBuyerOrder(row: {
 	const mapped =
 		statusMap[row.status as keyof typeof statusMap] ?? statusMap.PENDING
 	const items = (row.order_items ?? []).map(mapBuyerOrderItem)
-
 	return {
 		id: row.id,
 		shortId: row.id.slice(0, 8).toUpperCase(),
@@ -108,7 +103,6 @@ export function mapBuyerOrder(row: {
 		itemsPreview: items.slice(0, 3),
 	}
 }
-
 export function buildBuyerTimeline(row: {
 	status: string
 	created_at: string
@@ -119,7 +113,6 @@ export function buildBuyerTimeline(row: {
 	const updatedAt = row.updated_at ?? createdAt
 	const completedAt = row.completed_at ?? updatedAt
 	const status = row.status
-
 	if (status === 'CANCELLED') {
 		return [
 			{
@@ -136,7 +129,6 @@ export function buildBuyerTimeline(row: {
 			},
 		]
 	}
-
 	return [
 		{
 			status: 'PENDING',
@@ -178,7 +170,6 @@ export function buildBuyerTimeline(row: {
 		},
 	]
 }
-
 export function formatTimelineAt(iso: string | null): string | null {
 	if (!iso) return null
 	return formatLongPtDateTime(iso)

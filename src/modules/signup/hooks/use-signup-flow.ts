@@ -1,5 +1,4 @@
 'use client'
-
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
 import { useState } from 'react'
 import {
@@ -31,14 +30,11 @@ import {
 import { friendlySignupError } from '../lib/friendly-error'
 import { useCurrentLocation } from './use-current-location'
 import { useSignupCatalogs } from './use-signup-catalogs'
-
 export function useSignupFlow() {
 	const [step, setStep] = useState<SignupFlowStep>('role')
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
-
 	const { provinces, categories } = useSignupCatalogs()
-
 	const [buyerForm, setBuyerForm] =
 		useState<BuyerFormState>(INITIAL_BUYER_FORM)
 	const [s1, setS1] = useState<SellerAccountFormState>(
@@ -50,18 +46,15 @@ export function useSignupFlow() {
 	const [s3, setS3] = useState<SellerVerificationFormState>(
 		INITIAL_SELLER_VERIFICATION_FORM
 	)
-
 	const { locationLoading, locationError, requestCurrentLocation } =
 		useCurrentLocation({
 			onResolved: (neighborhood) =>
 				setS1((f) => ({ ...f, neighborhood })),
 		})
-
 	function goBack(to: SignupFlowStep) {
 		setStep(to)
 		setError(null)
 	}
-
 	async function handleBuyerContinue() {
 		setLoading(true)
 		setError(null)
@@ -84,11 +77,9 @@ export function useSignupFlow() {
 			setLoading(false)
 		}
 	}
-
 	async function handleSellerStep1() {
 		setLoading(true)
 		setError(null)
-
 		if (s1.password.length < 8) {
 			setError(STORE_FORM_MESSAGES.passwordMin)
 			setLoading(false)
@@ -116,7 +107,6 @@ export function useSignupFlow() {
 			setLoading(false)
 			return
 		}
-
 		try {
 			await createUserWithEmailAndPassword(auth, s1.email, s1.password)
 			await syncUserToBackend()
@@ -137,11 +127,9 @@ export function useSignupFlow() {
 			setLoading(false)
 		}
 	}
-
 	async function handleSellerStep2() {
 		setLoading(true)
 		setError(null)
-
 		if (s2.description.trim().length < 20) {
 			setError(STORE_FORM_MESSAGES.descriptionMin)
 			setLoading(false)
@@ -162,7 +150,6 @@ export function useSignupFlow() {
 			setLoading(false)
 			return
 		}
-
 		try {
 			await updateSellerStore({
 				logoUrl: s2.logoUrl ?? undefined,
@@ -180,7 +167,6 @@ export function useSignupFlow() {
 			setLoading(false)
 		}
 	}
-
 	async function handleSellerStep3() {
 		if (!s3.idCardUrl || !s3.selfieUrl) return
 		setLoading(true)
@@ -199,7 +185,6 @@ export function useSignupFlow() {
 			setLoading(false)
 		}
 	}
-
 	return {
 		step,
 		setStep,

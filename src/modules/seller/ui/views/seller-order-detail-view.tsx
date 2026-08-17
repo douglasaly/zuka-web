@@ -1,5 +1,4 @@
 'use client'
-
 import { useSellerOrderDetail } from '@/modules/seller/hooks/use-seller-order-detail'
 import { OrderStatusConfirmDialog } from '@/modules/seller/ui/components/orders/order-status-confirm-dialog'
 import { SellerOrderDetailActions } from '@/modules/seller/ui/sections/seller-order-detail-actions'
@@ -13,13 +12,11 @@ import { useSetSellerPageMeta } from '../layouts/seller-page-meta'
 interface SellerOrderDetailViewProps {
 	id: string
 }
-
 export const SellerOrderDetailView = ({ id }: SellerOrderDetailViewProps) => {
 	useSetSellerPageMeta({
 		title: 'Detalhe do pedido',
 		crumbs: ['Dashboard', 'Pedidos', `#${id.slice(0, 8)}`],
 	})
-
 	const {
 		data,
 		isLoading,
@@ -32,7 +29,6 @@ export const SellerOrderDetailView = ({ id }: SellerOrderDetailViewProps) => {
 		shortId,
 		requestStatus,
 	} = useSellerOrderDetail(id)
-
 	if (isLoading || isError || !data) {
 		return (
 			<SellerOrderDetailGates
@@ -43,7 +39,6 @@ export const SellerOrderDetailView = ({ id }: SellerOrderDetailViewProps) => {
 			/>
 		)
 	}
-
 	return (
 		<div className='w-full min-w-0 space-y-6 pb-10'>
 			<SellerOrderDetailHeader

@@ -1,5 +1,4 @@
 'use client'
-
 import { Store } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -11,7 +10,6 @@ import type { BuyerOrder } from '@/modules/orders/types'
 type OrderDetailStoreProps = {
 	order: BuyerOrder
 }
-
 export function OrderDetailStore({ order }: OrderDetailStoreProps) {
 	return (
 		<section className='space-y-3' aria-labelledby='order-store'>

@@ -1,7 +1,6 @@
 type SellerWelcomeBannerProps = {
 	storeName: string
 }
-
 export const SellerWelcomeBanner = ({
 	storeName,
 }: SellerWelcomeBannerProps) => (

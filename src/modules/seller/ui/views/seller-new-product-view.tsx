@@ -1,12 +1,10 @@
 'use client'
-
 import { useQuery } from '@tanstack/react-query'
 import { Store } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import type { UserProfile } from '@/types/marketplace'
 import { ProductForm } from '../components/product-form'
-
 export const SellerNewProductView = () => {
 	const { data: profile, isLoading } = useQuery<UserProfile | null>({
 		queryKey: ['user-profile'],
@@ -18,7 +16,6 @@ export const SellerNewProductView = () => {
 			return json.profile as UserProfile
 		},
 	})
-
 	if (isLoading) {
 		return (
 			<div className='flex min-h-[50vh] items-center justify-center'>
@@ -26,9 +23,7 @@ export const SellerNewProductView = () => {
 			</div>
 		)
 	}
-
 	const store = profile?.stores?.[0]
-
 	if (!store) {
 		return (
 			<div className='flex flex-col items-center justify-center py-24 text-center'>
@@ -50,6 +45,5 @@ export const SellerNewProductView = () => {
 			</div>
 		)
 	}
-
 	return <ProductForm mode='create' />
 }

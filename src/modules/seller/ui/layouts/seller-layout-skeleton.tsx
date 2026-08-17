@@ -2,7 +2,6 @@ import { SidebarProvider } from '@/components/ui/sidebar'
 import { Skeleton } from '@/components/ui/skeleton'
 import { SellerDashboardSkeleton } from '../components/seller-dashboard-skeleton'
 import { SellerSidebarSkeleton } from '../components/seller-sidebar-skeleton'
-
 export const SellerTopBarSkeleton = () => (
 	<header className='sticky top-0 z-30 flex h-19 min-w-0 items-center justify-between gap-2 border-b border-border/60 bg-background/95 px-4 sm:px-6'>
 		<div className='flex min-w-0 items-center gap-2 sm:gap-3'>
@@ -17,8 +16,6 @@ export const SellerTopBarSkeleton = () => (
 		</div>
 	</header>
 )
-
-/** Full seller shell skeleton — matches SellerLayoutShell structure. */
 export const SellerLayoutSkeleton = () => (
 	<div className='flex min-h-screen w-full bg-background'>
 		<SidebarProvider defaultOpen>

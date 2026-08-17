@@ -1,5 +1,4 @@
 import { Skeleton } from '@/components/ui/skeleton'
-
 export const NotificationsSkeleton = () => (
 	<div className='space-y-1 p-2'>
 		{Array.from({ length: 3 }).map((_, i) => (

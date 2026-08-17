@@ -1,5 +1,4 @@
 'use client'
-
 import { Package, Pencil, Trash2 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -24,7 +23,6 @@ type ProductCatalogPreviewPanelProps = {
 	canUpdate?: boolean
 	canDelete?: boolean
 }
-
 export function ProductCatalogPreviewPanel({
 	preview,
 	heroUrl,

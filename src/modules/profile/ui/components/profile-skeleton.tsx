@@ -1,12 +1,10 @@
 import { Skeleton } from '@/components/ui/skeleton'
-
 export const ProfileSkeleton = () => {
 	return (
 		<div className='mx-auto max-w-4xl px-4 py-8 md:py-12'>
 			<Skeleton className='mb-6 h-8 w-48 rounded-md' />
 
 			<div className='space-y-4'>
-				{/* PERFIL */}
 				<div className='rounded-2xl border border-border/60 bg-card p-5'>
 					<div className='flex gap-4'>
 						<Skeleton className='size-16 shrink-0 rounded-full' />
@@ -28,7 +26,6 @@ export const ProfileSkeleton = () => {
 					</div>
 				</div>
 
-				{/* TABS */}
 				<div className='flex flex-col w-full gap-4'>
 					<Skeleton className='h-10 w-full rounded-md' />
 
@@ -44,14 +41,12 @@ export const ProfileSkeleton = () => {
 					</div>
 				</div>
 
-				{/* AÇÕES */}
 				<div className='grid gap-3 sm:grid-cols-2'>
 					{Array.from({ length: 2 }).map((_, i) => (
 						<Skeleton key={i} className='h-17 w-full rounded-2xl' />
 					))}
 				</div>
 
-				{/* OPÇÕES */}
 				<div className='flex flex-col w-full min-w-0 gap-px overflow-hidden rounded-xl border'>
 					{Array.from({ length: 3 }).map((_, i) => (
 						<Skeleton

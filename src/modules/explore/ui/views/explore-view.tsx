@@ -1,11 +1,9 @@
 'use client'
-
 import { SegmentedControl } from '@/components/segmented-control'
 import { TAB_OPTIONS, useExplore } from '../../hooks/use-explore'
 import { ExploreSearchBar } from '../components/explore-search-bar'
 import { ExploreProductsSection } from '../sections/explore-products-section'
 import { ExploreStoresSection } from '../sections/explore-stores-section'
-
 export const ExploreView = () => {
 	const {
 		tab,
@@ -25,7 +23,6 @@ export const ExploreView = () => {
 		stores,
 		storesQuery,
 	} = useExplore()
-
 	return (
 		<div className='mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8'>
 			<div className='space-y-5'>

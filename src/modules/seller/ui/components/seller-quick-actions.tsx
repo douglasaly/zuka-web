@@ -4,7 +4,6 @@ import Link from 'next/link'
 type QuickActionsProps = {
 	storeSlug?: string
 }
-
 const actions = [
 	{
 		label: 'Novo produto',
@@ -19,7 +18,6 @@ const actions = [
 		variant: 'secondary' as const,
 	},
 ]
-
 export const QuickActions = ({ storeSlug }: QuickActionsProps) => (
 	<div className='flex flex-wrap gap-3'>
 		{actions.map((action) => (

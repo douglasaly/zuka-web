@@ -1,4 +1,3 @@
-/** Fisher–Yates — distribuição uniforme, sem mutar o array original. */
 export function shuffle<T>(array: T[]): T[] {
 	const result = array.slice()
 	for (let i = result.length - 1; i > 0; i--) {
@@ -7,20 +6,13 @@ export function shuffle<T>(array: T[]): T[] {
 	}
 	return result
 }
-
-/**
- * Embaralha produtos privilegiando variedade de lojas (round-robin),
- * sem limitar nem descartar itens.
- */
 export function shuffleWithStoreDiversity<T>(
 	items: T[],
 	getStoreId: (item: T) => string | undefined
 ): T[] {
 	if (items.length <= 1) return items.slice()
-
 	const byStore = new Map<string, T[]>()
 	const orphan: T[] = []
-
 	for (const item of items) {
 		const storeId = getStoreId(item)
 		if (!storeId) {
@@ -31,12 +23,10 @@ export function shuffleWithStoreDiversity<T>(
 		if (bucket) bucket.push(item)
 		else byStore.set(storeId, [item])
 	}
-
 	const queues = shuffle(
 		[...byStore.values()].map((bucket) => shuffle(bucket))
 	)
 	const result: T[] = []
-
 	while (queues.length > 0) {
 		const next: T[][] = []
 		for (const queue of queues) {
@@ -47,6 +37,5 @@ export function shuffleWithStoreDiversity<T>(
 		queues.length = 0
 		queues.push(...shuffle(next))
 	}
-
 	return result.concat(shuffle(orphan))
 }

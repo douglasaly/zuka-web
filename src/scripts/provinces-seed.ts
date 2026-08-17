@@ -1,7 +1,6 @@
 import './load-env'
 import { uuidv7 } from 'uuidv7'
 import { createSupabaseAdmin } from '../lib/supabase/admin'
-
 export const mozambiqueProvinces = [
 	{ name: 'Maputo Cidade', slug: 'maputo-cidade' },
 	{ name: 'Maputo Província', slug: 'maputo-provincia' },
@@ -15,11 +14,9 @@ export const mozambiqueProvinces = [
 	{ name: 'Cabo Delgado', slug: 'cabo-delgado' },
 	{ name: 'Niassa', slug: 'niassa' },
 ]
-
 async function provincesSeed() {
 	try {
 		console.log('🔗 Seeding provinces')
-
 		const supabase = createSupabaseAdmin()
 		const { error } = await supabase.from('provinces').insert(
 			mozambiqueProvinces.map((province) => ({
@@ -27,9 +24,7 @@ async function provincesSeed() {
 				...province,
 			}))
 		)
-
 		if (error) throw error
-
 		console.log('✔️ Province seeded successfully')
 		process.exit(0)
 	} catch (error) {
@@ -37,5 +32,4 @@ async function provincesSeed() {
 		process.exit(1)
 	}
 }
-
 provincesSeed()

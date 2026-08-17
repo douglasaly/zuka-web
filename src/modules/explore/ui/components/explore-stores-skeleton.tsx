@@ -1,5 +1,4 @@
 import { Skeleton } from '@/components/ui/skeleton'
-
 export const ExploreStoresSkeleton = () => (
 	<div className='grid gap-3 sm:grid-cols-2 lg:grid-cols-3'>
 		{Array.from({ length: 6 }).map((_, i) => (

@@ -1,5 +1,4 @@
 'use client'
-
 import { MessageSquare } from 'lucide-react'
 import type { RefObject } from 'react'
 import { Button } from '@/components/ui/button'
@@ -23,7 +22,6 @@ type SellerConversationMessagesProps = {
 	onRetry: () => void
 	onLoadOlder: () => void
 }
-
 export function SellerConversationMessages({
 	scrollerRef,
 	messages,
@@ -56,7 +54,6 @@ export function SellerConversationMessages({
 			</div>
 		)
 	}
-
 	if (isError) {
 		return (
 			<div className='flex flex-1 flex-col items-center justify-center px-6 text-center'>
@@ -77,7 +74,6 @@ export function SellerConversationMessages({
 			</div>
 		)
 	}
-
 	if (messages.length === 0) {
 		return (
 			<div className='flex flex-1 flex-col items-center justify-center px-6 text-center'>
@@ -90,7 +86,6 @@ export function SellerConversationMessages({
 			</div>
 		)
 	}
-
 	return (
 		<div
 			ref={scrollerRef}
@@ -109,7 +104,6 @@ export function SellerConversationMessages({
 				const prev = messages[index - 1]
 				const showDay =
 					!prev || dayKey(prev.created_at) !== dayKey(msg.created_at)
-
 				return (
 					<div key={msg.id}>
 						{showDay ? (

@@ -1,5 +1,4 @@
 'use client'
-
 import { Package, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -9,7 +8,6 @@ type SellerProductsEmptyProps = {
 	canCreate: boolean
 	onClearFilters: () => void
 }
-
 export function SellerProductsEmpty({
 	hasFilters,
 	canCreate,

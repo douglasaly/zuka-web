@@ -10,7 +10,6 @@ type ExploreStoresGridProps = {
 	hasNextPage: boolean
 	isFetchingNextPage: boolean
 }
-
 export const ExploreStoresGrid = ({
 	stores,
 	fetchNextPage,
@@ -26,7 +25,6 @@ export const ExploreStoresGrid = ({
 			/>
 		)
 	}
-
 	return (
 		<>
 			<div className='grid gap-3 sm:grid-cols-2 lg:grid-cols-3'>

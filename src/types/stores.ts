@@ -19,7 +19,6 @@ export interface FollowedStores {
 		nextCursor: string | null
 	}
 }
-
 export type StoreFollowItem = {
 	followed_at: string | null
 	store: {
@@ -34,9 +33,7 @@ export type StoreFollowItem = {
 		}
 	}
 }
-
 export type NormalizedStore = StoreFollowItem[]
-
 export const normalizeStore = (item: StoreFollowItem) => ({
 	id: item.store.id,
 	imageUrl: item.store.logo_url,

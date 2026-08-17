@@ -1,5 +1,4 @@
 'use client'
-
 import type { UseMutationResult } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -13,18 +12,28 @@ type AdminSettingsCategoriesProps = {
 	catsLoading: boolean
 	newCatName: string
 	onNewCatNameChange: (value: string) => void
-	editingCat: { id: string; name: string } | null
-	onEditingChange: (value: { id: string; name: string } | null) => void
+	editingCat: {
+		id: string
+		name: string
+	} | null
+	onEditingChange: (
+		value: {
+			id: string
+			name: string
+		} | null
+	) => void
 	onRequestDelete: (id: string) => void
 	addCatMutation: UseMutationResult<unknown, Error, void, unknown>
 	editCatMutation: UseMutationResult<
 		void,
 		Error,
-		{ id: string; name: string },
+		{
+			id: string
+			name: string
+		},
 		unknown
 	>
 }
-
 export function AdminSettingsCategories({
 	cats,
 	catsLoading,

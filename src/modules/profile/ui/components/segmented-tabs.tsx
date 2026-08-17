@@ -1,18 +1,14 @@
 'use client'
-
 import type { LucideIcon } from 'lucide-react'
-
 export type SegmentedTabItem = {
 	title: string
 	icon: LucideIcon
 }
-
 type SegmentedTabsProps = {
 	tabs: SegmentedTabItem[]
 	value: string
 	onChange: (value: string) => void
 }
-
 export const SegmentedTabs = ({
 	tabs,
 	value,
@@ -26,7 +22,6 @@ export const SegmentedTabs = ({
 			{tabs.map((t) => {
 				const Icon = t.icon
 				const isActive = value === t.title
-
 				return (
 					<button
 						key={t.title}

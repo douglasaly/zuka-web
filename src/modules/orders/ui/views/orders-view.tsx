@@ -1,15 +1,12 @@
 'use client'
-
 import { useOrders } from '../../hooks/use-orders'
 import { OrdersAside } from '../components/orders-aside'
 import { OrdersToolbar } from '../components/orders-toolbar'
 import { OrdersError, OrdersLoading } from '../sections/orders-gates'
 import { OrdersHeader } from '../sections/orders-header'
 import { OrdersListSection } from '../sections/orders-list-section'
-
 export const OrdersView = () => {
 	const o = useOrders()
-
 	return (
 		<div className='mx-auto w-full max-w-7xl px-4 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] md:px-6 md:py-8'>
 			<OrdersHeader />

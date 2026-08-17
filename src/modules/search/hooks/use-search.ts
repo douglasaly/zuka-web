@@ -1,5 +1,4 @@
 'use client'
-
 import { useQuery } from '@tanstack/react-query'
 import type { SearchResults } from '@/app/api/search/route'
 import { useDebouncedValue } from '@/hooks/use-debounced-value'
@@ -13,13 +12,11 @@ type UseSearchProps = {
 	isNew?: string
 	sort?: string
 }
-
 async function fetchSearch(params: URLSearchParams): Promise<SearchResults> {
 	const res = await fetch(`/api/search?${params.toString()}`)
 	if (!res.ok) throw new Error('Falha ao pesquisar')
 	return res.json()
 }
-
 function hasActiveFilters({
 	category,
 	province,
@@ -35,7 +32,6 @@ function hasActiveFilters({
 			isNew === 'true'
 	)
 }
-
 export const useSearch = ({
 	query,
 	category,
@@ -54,7 +50,6 @@ export const useSearch = ({
 		maxPrice,
 		isNew,
 	})
-
 	const params = new URLSearchParams()
 	if (debouncedQuery) params.set('q', debouncedQuery)
 	if (category && category !== 'all') params.set('categoria', category)
@@ -63,9 +58,7 @@ export const useSearch = ({
 	if (maxPrice) params.set('preco_max', maxPrice)
 	if (isNew === 'true') params.set('recente', 'true')
 	if (sort && sort !== 'relevance') params.set('ordenar', sort)
-
 	const enabled = debouncedQuery.length > 0 || filtersActive
-
 	const result = useQuery({
 		queryKey: [
 			'search',
@@ -80,10 +73,8 @@ export const useSearch = ({
 		queryFn: () => fetchSearch(params),
 		enabled,
 	})
-
 	return {
 		...result,
-		/** True while the query is debouncing or a fetch is in flight. */
 		isSearching: enabled && (isDebouncing || result.isFetching),
 	}
 }

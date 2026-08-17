@@ -6,13 +6,11 @@ import type { UploadPurpose } from '@/types/uploads'
 export type { UploadPurpose } from '@/types/uploads'
 
 const ALLOWED_CONTENT_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
-
 const CONTENT_TYPE_EXTENSION: Record<string, string> = {
 	'image/jpeg': 'jpg',
 	'image/png': 'png',
 	'image/webp': 'webp',
 }
-
 function requireEnv(name: string): string {
 	const value = process.env[name]
 	if (!value) {
@@ -20,7 +18,6 @@ function requireEnv(name: string): string {
 	}
 	return value
 }
-
 function getR2Client() {
 	return new S3Client({
 		region: 'auto',
@@ -31,30 +28,24 @@ function getR2Client() {
 		},
 	})
 }
-
 export function getR2BucketName() {
 	return requireEnv('R2_BUCKET_NAME')
 }
-
 export function getR2PublicBaseUrl() {
 	return requireEnv('R2_PUBLIC_URL').replace(/\/$/, '')
 }
-
 export function isAllowedImageContentType(contentType: string) {
 	return ALLOWED_CONTENT_TYPES.has(contentType)
 }
-
 export function extensionForContentType(contentType: string) {
 	return CONTENT_TYPE_EXTENSION[contentType] ?? null
 }
-
 export function buildObjectKey(
 	purpose: UploadPurpose,
 	userId: string,
 	extension: string
 ) {
 	const id = uuidv7()
-
 	switch (purpose) {
 		case 'store-logo':
 			return `stores/${userId}/logo-${id}.${extension}`
@@ -72,15 +63,12 @@ export function buildObjectKey(
 			return `uploads/${userId}/${id}.${extension}`
 	}
 }
-
 export function getPublicUrl(key: string) {
 	return `${getR2PublicBaseUrl()}/${key}`
 }
-
 export function isR2PublicUrl(url: string | null | undefined) {
 	if (!url) return false
 	if (url.startsWith('data:')) return false
-
 	try {
 		const base = getR2PublicBaseUrl()
 		return url === base || url.startsWith(`${base}/`)
@@ -88,7 +76,6 @@ export function isR2PublicUrl(url: string | null | undefined) {
 		return false
 	}
 }
-
 export async function createPresignedUploadUrl(
 	key: string,
 	contentType: string
@@ -99,22 +86,18 @@ export async function createPresignedUploadUrl(
 		Key: key,
 		ContentType: contentType,
 	})
-
 	const uploadUrl = await getSignedUrl(client, command, { expiresIn: 600 })
-
 	return {
 		uploadUrl,
 		publicUrl: getPublicUrl(key),
 		key,
 	}
 }
-
 export function assertR2PublicUrl(
 	url: string | null | undefined,
 	fieldName: string
 ) {
 	if (!url) return
-
 	if (!isR2PublicUrl(url)) {
 		throw new Error(`${fieldName} must be an image uploaded to storage`)
 	}

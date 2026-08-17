@@ -1,5 +1,4 @@
 'use client'
-
 import { Check, Pencil, Trash2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,13 +11,20 @@ import type { Category } from '@/modules/admin/hooks/use-admin-settings'
 
 type AdminCategoryRowProps = {
 	cat: Category
-	editingCat: { id: string; name: string } | null
-	onEditingChange: (value: { id: string; name: string } | null) => void
+	editingCat: {
+		id: string
+		name: string
+	} | null
+	onEditingChange: (
+		value: {
+			id: string
+			name: string
+		} | null
+	) => void
 	onSave: (id: string, name: string) => void
 	onDelete: (id: string) => void
 	savePending: boolean
 }
-
 export function AdminCategoryRow({
 	cat,
 	editingCat,
@@ -82,7 +88,6 @@ export function AdminCategoryRow({
 			</div>
 		)
 	}
-
 	return (
 		<div className='flex items-center justify-between gap-2 px-4 py-2.5'>
 			<span className='text-sm font-medium flex-1'>{cat.name}</span>

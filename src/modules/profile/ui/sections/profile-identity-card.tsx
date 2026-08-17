@@ -8,14 +8,12 @@ type ProfileStat = {
 	value: number
 	isLoading?: boolean
 }
-
 type ProfileIdentityCardProps = {
 	profile: UserProfile
 	displayName: string
 	isSeller: boolean
 	stats: ProfileStat[]
 }
-
 export function ProfileIdentityCard({
 	profile,
 	displayName,

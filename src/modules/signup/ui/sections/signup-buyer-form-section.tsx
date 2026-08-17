@@ -1,5 +1,4 @@
 'use client'
-
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -21,7 +20,6 @@ type SignupBuyerFormSectionProps = {
 	onBack: () => void
 	onContinue: () => void
 }
-
 export function SignupBuyerFormSection({
 	form,
 	onChange,
@@ -31,7 +29,6 @@ export function SignupBuyerFormSection({
 	onContinue,
 }: SignupBuyerFormSectionProps) {
 	const canContinue = form.email.includes('@') && form.password.length >= 6
-
 	return (
 		<OnboardingShell
 			title='Criar conta'

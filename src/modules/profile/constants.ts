@@ -28,7 +28,6 @@ export const MOCK_SAVED_ITEMS = [
 		price: '1200 MZN',
 	},
 ]
-
 export const MOCK_FOLLOWED_STORES = [
 	{
 		id: '1',
@@ -52,14 +51,12 @@ export const MOCK_FOLLOWED_STORES = [
 		verified: false,
 	},
 ]
-
 export type SettingField = {
 	id: string
 	label: string
 	value: string
 	type: 'text' | 'email' | 'tel'
 }
-
 export const MOCK_ACCOUNT_FIELDS: SettingField[] = [
 	{ id: 'firstName', label: 'Nome', value: 'Fátima', type: 'text' },
 	{ id: 'lastName', label: 'Apelido', value: 'Cossa', type: 'text' },
@@ -71,14 +68,12 @@ export const MOCK_ACCOUNT_FIELDS: SettingField[] = [
 	},
 	{ id: 'phone', label: 'Telefone', value: '+258 84 123 4567', type: 'tel' },
 ]
-
 export type NotificationSetting = {
 	id: string
 	title: string
 	description: string
 	enabled: boolean
 }
-
 export const MOCK_NOTIFICATIONS: NotificationSetting[] = [
 	{
 		id: 'orders',
@@ -105,14 +100,12 @@ export const MOCK_NOTIFICATIONS: NotificationSetting[] = [
 		enabled: false,
 	},
 ]
-
 export type PrivacySetting = {
 	id: string
 	title: string
 	description: string
 	enabled: boolean
 }
-
 export const MOCK_PRIVACY: PrivacySetting[] = [
 	{
 		id: 'profileVisible',
@@ -120,10 +113,4 @@ export const MOCK_PRIVACY: PrivacySetting[] = [
 		description: 'Lojas que segue podem ver o seu nome e avatar',
 		enabled: true,
 	},
-	// {
-	// 	id: 'showActivity',
-	// 	title: 'Mostrar atividade recente',
-	// 	description: 'Permitir que outros vejam avaliações que fez',
-	// 	enabled: false,
-	// },
 ]

@@ -5,7 +5,6 @@ import type { Product } from '@/types/marketplace'
 type StoreProductsGridProps = {
 	products: Product[]
 }
-
 export const StoreProductsGrid = ({ products }: StoreProductsGridProps) => {
 	if (products.length === 0) {
 		return (
@@ -19,7 +18,6 @@ export const StoreProductsGrid = ({ products }: StoreProductsGridProps) => {
 			</div>
 		)
 	}
-
 	return (
 		<div className='grid grid-cols-2 gap-3 sm:gap-4'>
 			{products.map((product) => (

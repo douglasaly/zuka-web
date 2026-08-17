@@ -2,7 +2,6 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { AppFooter } from '@/components/app-footer'
 import { LegalHeaderNav } from '@/modules/legal/ui/components/legal-header-nav'
-
 export default function LegalLayout({ children }: { children: ReactNode }) {
 	return (
 		<div className='flex min-h-screen flex-col bg-background'>

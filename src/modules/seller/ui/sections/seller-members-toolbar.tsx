@@ -1,5 +1,4 @@
 'use client'
-
 import { UserPlus, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -8,7 +7,6 @@ type SellerMembersToolbarProps = {
 	memberCount: number
 	onInvite: () => void
 }
-
 export function SellerMembersToolbar({
 	canManage,
 	memberCount,

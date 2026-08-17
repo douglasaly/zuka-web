@@ -1,5 +1,4 @@
 'use client'
-
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -12,7 +11,6 @@ type StoreIdentitySectionProps = {
 	form: StoreFormState
 	onChange: (patch: Partial<StoreFormState>) => void
 }
-
 export function StoreIdentitySection({
 	form,
 	onChange,

@@ -1,5 +1,4 @@
 'use client'
-
 import type {
 	BuyerOrder,
 	BuyerOrderItem,
@@ -19,7 +18,6 @@ type OrderDetailSummaryProps = {
 	alreadyReviewed: boolean
 	onReviewSubmitted: () => void
 }
-
 export function OrderDetailSummary({
 	order,
 	items,

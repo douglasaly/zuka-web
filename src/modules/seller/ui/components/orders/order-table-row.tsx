@@ -1,5 +1,4 @@
 'use client'
-
 import { CheckCircle2 } from 'lucide-react'
 import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { OrderStatusBadge } from '@/components/order-status-badge'
@@ -15,7 +14,6 @@ type OrderTableRowProps = {
 	onOpen: () => void
 	onAction: (action: PendingAction) => void
 }
-
 export function OrderTableRow({ order, onOpen, onAction }: OrderTableRowProps) {
 	return (
 		<TableRow

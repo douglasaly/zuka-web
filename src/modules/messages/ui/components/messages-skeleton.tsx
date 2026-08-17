@@ -1,5 +1,4 @@
 import { Skeleton } from '@/components/ui/skeleton'
-
 export const MessagesSkeleton = () => (
 	<div className='flex w-full flex-col gap-3 pt-24'>
 		{Array.from({ length: 6 }).map((_, i) => (

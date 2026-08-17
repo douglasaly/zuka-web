@@ -1,5 +1,4 @@
 'use client'
-
 import { ExploreResultsCount } from '../components/explore-result-count'
 import { ExploreStoresGrid } from '../components/explore-stores-grid'
 import { ExploreStoresSkeleton } from '../components/explore-stores-skeleton'
@@ -13,7 +12,6 @@ interface Props {
 	hasNextPage: boolean
 	isFetchingNextPage: boolean
 }
-
 export function ExploreStoresSection({
 	isLoading,
 	stores,

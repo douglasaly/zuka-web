@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server'
 import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
-
 export async function GET() {
 	try {
 		const auth = await requireSellerStore({ permission: 'store.read' })
 		if (isSellerStoreAuthError(auth)) return auth.error
-
 		return NextResponse.json({
 			success: true,
 			store: {

@@ -11,24 +11,18 @@ import {
 import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import { CursorPaginationSchema, SendMessageSchema } from '@/lib/validations'
-
-// GET — latest-first cursor pagination (Load more loads older messages).
 export const GET = withErrorHandling(
 	async (request: NextRequest, { params }: RouteContext) => {
 		const { id: conversationId } = await params
-
 		const auth = await requireSellerStore({ permission: 'message.read' })
 		if (isSellerStoreAuthError(auth)) return auth.error
 		const { store } = auth
-
 		const { searchParams } = new URL(request.url)
 		const { limit, cursor } = CursorPaginationSchema.parse({
 			limit: searchParams.get('limit') ?? undefined,
 			cursor: searchParams.get('cursor') ?? undefined,
 		})
-
 		const supabase = createSupabaseAdmin()
-
 		const { data: conversation } = await supabase
 			.from('conversations')
 			.select('id')
@@ -36,11 +30,9 @@ export const GET = withErrorHandling(
 			.eq('store_id', store.id)
 			.is('deleted_at', null)
 			.single()
-
 		if (!conversation) {
 			return apiError(ErrorCode.NOT_FOUND, 'Conversa não encontrada', 404)
 		}
-
 		let query = supabase
 			.from('messages')
 			.select(
@@ -50,34 +42,25 @@ export const GET = withErrorHandling(
 			.is('deleted_at', null)
 			.order('created_at', { ascending: false })
 			.limit(limit + 1)
-
 		if (cursor) {
 			query = query.lt('created_at', cursor)
 		}
-
 		const { data, error } = await query
 		if (error) throw error
-
 		const hasMore = (data?.length ?? 0) > limit
 		const pageDesc = hasMore ? (data?.slice(0, limit) ?? []) : (data ?? [])
 		const messages = [...pageDesc].reverse()
-
 		const nextCursor = hasMore ? (messages[0]?.created_at ?? null) : null
-
 		return apiCursorList(messages, { hasMore, nextCursor, limit })
 	}
 )
-
 export const POST = withErrorHandling(
 	async (request: NextRequest, { params }: RouteContext) => {
 		const { id: conversationId } = await params
-
 		const auth = await requireSellerStore({ permission: 'message.write' })
 		if (isSellerStoreAuthError(auth)) return auth.error
 		const { store } = auth
-
 		const supabase = createSupabaseAdmin()
-
 		const { data: conversation } = await supabase
 			.from('conversations')
 			.select('id')
@@ -85,23 +68,18 @@ export const POST = withErrorHandling(
 			.eq('store_id', store.id)
 			.is('deleted_at', null)
 			.single()
-
 		if (!conversation) {
 			return apiError(ErrorCode.NOT_FOUND, 'Conversa não encontrada', 404)
 		}
-
 		const body = await request.json()
 		const parsed = SendMessageSchema.safeParse(body)
-
 		if (!parsed.success) {
 			return apiError(
 				ErrorCode.VALIDATION_ERROR,
 				parsed.error.issues[0]?.message ?? 'Conteúdo é obrigatório'
 			)
 		}
-
 		const messageId = uuidv7()
-
 		const { data: message, error: msgError } = await supabase
 			.from('messages')
 			.insert({
@@ -115,9 +93,7 @@ export const POST = withErrorHandling(
 				'id, conversation_id, user_id, store_id, content, status, created_at'
 			)
 			.single()
-
 		if (msgError) throw msgError
-
 		const { error: updateError } = await supabase
 			.from('conversations')
 			.update({
@@ -125,9 +101,7 @@ export const POST = withErrorHandling(
 				last_message_id: messageId,
 			})
 			.eq('id', conversationId)
-
 		if (updateError) throw updateError
-
 		return apiSuccess(message, 201)
 	}
 )

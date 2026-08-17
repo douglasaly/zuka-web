@@ -1,5 +1,4 @@
 'use client'
-
 import { ExternalLink, Menu } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -27,46 +26,36 @@ const SEGMENT_LABELS: Record<string, string> = {
 	novo: 'Novo',
 	editar: 'Editar',
 }
-
 function isUuidLike(segment: string) {
 	return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
 		segment
 	)
 }
-
 function formatSegment(segment: string) {
 	if (SEGMENT_LABELS[segment]) return SEGMENT_LABELS[segment]
 	if (isUuidLike(segment)) return null
 	return segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' ')
 }
-
 function buildDefaultCrumbs(pathname: string) {
 	const segments = pathname
 		.replace('/dashboard/seller', '')
 		.split('/')
 		.filter(Boolean)
-
 	const labels = segments
 		.map(formatSegment)
 		.filter((label): label is string => Boolean(label))
-
 	return ['Dashboard', ...labels]
 }
-
 export const SellerTopBar = () => {
 	const pathname = usePathname()
 	const { meta } = useSellerPageMeta()
-
 	const breadcrumbs =
 		meta.crumbs && meta.crumbs.length > 0
 			? meta.crumbs
 			: buildDefaultCrumbs(pathname)
-
 	const title =
 		meta.title?.trim() || breadcrumbs[breadcrumbs.length - 1] || 'Dashboard'
-
 	const crumbTrail = breadcrumbs.slice(0, -1)
-
 	return (
 		<header className='sticky top-0 z-30 flex h-19 min-w-0 items-center justify-between gap-2 border-b border-border/60 bg-background/95 px-4 backdrop-blur-sm sm:px-6'>
 			<div className='flex min-w-0 items-center gap-2 sm:gap-3'>

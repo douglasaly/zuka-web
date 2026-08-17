@@ -1,15 +1,12 @@
 'use client'
-
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import type { Address, CreateAddressInput } from '@/app/api/addresses/types'
-
 export type ProvinceOption = {
 	id: string
 	name: string
 	slug: string
 }
-
 function createEmptyForm(): CreateAddressInput {
 	return {
 		label: 'Casa',
@@ -22,7 +19,6 @@ function createEmptyForm(): CreateAddressInput {
 		isDefault: false,
 	}
 }
-
 export function useAddresses() {
 	const [addresses, setAddresses] = useState<Address[]>([])
 	const [loading, setLoading] = useState(true)
@@ -31,7 +27,6 @@ export function useAddresses() {
 	const [dialogOpen, setDialogOpen] = useState(false)
 	const [provinces, setProvinces] = useState<ProvinceOption[]>([])
 	const [form, setForm] = useState<CreateAddressInput>(createEmptyForm)
-
 	const loadAddresses = useCallback(async () => {
 		try {
 			const res = await fetch('/api/addresses')
@@ -44,7 +39,6 @@ export function useAddresses() {
 			setLoading(false)
 		}
 	}, [])
-
 	useEffect(() => {
 		loadAddresses()
 		fetch('/api/provinces')
@@ -52,20 +46,16 @@ export function useAddresses() {
 			.then((data) => setProvinces(data ?? []))
 			.catch(() => {})
 	}, [loadAddresses])
-
 	async function handleSave(e: React.FormEvent) {
 		e.preventDefault()
 		setSaving(true)
-
 		try {
 			const res = await fetch('/api/addresses', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(form),
 			})
-
 			if (!res.ok) throw new Error()
-
 			toast.success('Endereço adicionado')
 			setDialogOpen(false)
 			setForm(createEmptyForm())
@@ -76,7 +66,6 @@ export function useAddresses() {
 			setSaving(false)
 		}
 	}
-
 	async function handleDelete(id: string) {
 		setDeleting(id)
 		try {
@@ -92,7 +81,6 @@ export function useAddresses() {
 			setDeleting(null)
 		}
 	}
-
 	async function handleSetDefault(id: string) {
 		try {
 			const res = await fetch(`/api/addresses/${id}`, {
@@ -106,7 +94,6 @@ export function useAddresses() {
 			toast.error('Erro ao definir endereço padrão')
 		}
 	}
-
 	return {
 		addresses,
 		loading,

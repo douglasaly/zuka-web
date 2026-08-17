@@ -1,5 +1,4 @@
 'use client'
-
 import { useAdminProducts } from '@/modules/admin/hooks/use-admin-products'
 import { ConfirmDialog } from '@/modules/admin/ui/components/confirm-dialog'
 import { AdminProductPreviewSheet } from '@/modules/admin/ui/components/products/admin-product-preview-sheet'
@@ -7,10 +6,8 @@ import { AdminProductsBulkBar } from '@/modules/admin/ui/sections/admin-products
 import { AdminProductsFilters } from '@/modules/admin/ui/sections/admin-products-filters'
 import { AdminProductsListSection } from '@/modules/admin/ui/sections/admin-products-list-section'
 import { AdminProductsToolbar } from '@/modules/admin/ui/sections/admin-products-toolbar'
-
 export function AdminProductsView() {
 	const p = useAdminProducts()
-
 	return (
 		<div className='space-y-4'>
 			<AdminProductsToolbar

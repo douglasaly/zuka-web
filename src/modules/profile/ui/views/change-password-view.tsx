@@ -1,12 +1,9 @@
 'use client'
-
 import { useChangePassword } from '../../hooks/use-change-password'
 import { ChangePasswordForm } from '../sections/change-password-form'
 import { ChangePasswordHeader } from '../sections/change-password-header'
-
 export const ChangePasswordView = () => {
 	const p = useChangePassword()
-
 	return (
 		<div className='mx-auto max-w-2xl px-4 py-8 md:py-12'>
 			<ChangePasswordHeader />

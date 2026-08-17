@@ -1,5 +1,4 @@
 'use client'
-
 import { SearchIcon, SlidersHorizontal } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useSearch } from '../../hooks/use-search'
@@ -8,7 +7,6 @@ import { SearchEmpty } from '../components/search-empty'
 import { SearchFiltersSheet } from '../components/search-filters-sheet'
 import { SearchSkeleton } from '../components/search-skeleton'
 import { SearchResultsSection } from '../sections/search-results-section'
-
 export function SearchView() {
 	const {
 		q,
@@ -22,7 +20,6 @@ export function SearchView() {
 		handleApplyFilters,
 		handleClearFilters,
 	} = useSearchFilters()
-
 	const { data, isSearching } = useSearch({
 		query: q,
 		category,
@@ -32,7 +29,6 @@ export function SearchView() {
 		isNew,
 		sort,
 	})
-
 	const hasQuery = !!q.trim()
 	const hasFilters = Boolean(
 		(category && category !== 'all') ||
@@ -43,17 +39,14 @@ export function SearchView() {
 	)
 	const hasSearchIntent = hasQuery || hasFilters
 	const showSkeleton = hasSearchIntent && isSearching
-
 	const hasResults =
 		(data?.products?.length ?? 0) > 0 ||
 		(data?.stores?.length ?? 0) > 0 ||
 		(data?.categories?.length ?? 0) > 0
-
 	const totalResults =
 		(data?.products?.length ?? 0) +
 		(data?.stores?.length ?? 0) +
 		(data?.categories?.length ?? 0)
-
 	const resultLabel = hasQuery ? (
 		<>
 			{totalResults} resultado{totalResults !== 1 ? 's' : ''} para{' '}
@@ -64,7 +57,6 @@ export function SearchView() {
 			{totalResults} resultado{totalResults !== 1 ? 's' : ''}
 		</>
 	)
-
 	return (
 		<div className='mx-auto max-w-6xl px-4 py-6 md:px-6 md:py-8'>
 			<div className='mb-6 flex items-center justify-end'>

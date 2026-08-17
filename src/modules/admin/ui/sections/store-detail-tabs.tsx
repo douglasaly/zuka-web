@@ -7,7 +7,6 @@ type StoreDetailTabsProps = {
 	tab: StoreDetailTab
 	onTabChange: (tab: StoreDetailTab) => void
 }
-
 export function StoreDetailTabs({ tab, onTabChange }: StoreDetailTabsProps) {
 	return (
 		<div className='flex gap-1 border-b border-border/60'>

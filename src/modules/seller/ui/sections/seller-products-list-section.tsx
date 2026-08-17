@@ -1,5 +1,4 @@
 'use client'
-
 import type { SellerProduct } from '@/lib/types/api/seller'
 import { OrdersPagination } from '@/modules/seller/ui/components/orders/orders-pagination'
 import { SellerProductListItem } from '@/modules/seller/ui/components/products/seller-product-list-item'
@@ -23,7 +22,6 @@ type SellerProductsListSectionProps = {
 	onClearFilters: () => void
 	onPageChange: (page: number) => void
 }
-
 export function SellerProductsListSection({
 	products,
 	selected,
@@ -51,7 +49,6 @@ export function SellerProductsListSection({
 			/>
 		)
 	}
-
 	return (
 		<>
 			<div className='overflow-hidden rounded-2xl border border-border/60 bg-card shadow-[0_1px_2px_rgba(0,0,0,0.04)]'>

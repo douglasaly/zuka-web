@@ -1,15 +1,12 @@
 'use client'
-
 import { useSellerOnboarding } from '../../hooks/use-seller-onboarding'
 import { SellerOnboardingAccountSection } from '../sections/seller-onboarding-account-section'
 import { SellerOnboardingGates } from '../sections/seller-onboarding-gates'
 import { SellerOnboardingPendingSection } from '../sections/seller-onboarding-pending-section'
 import { SellerOnboardingProfileSection } from '../sections/seller-onboarding-profile-section'
 import { SellerOnboardingVerificationSection } from '../sections/seller-onboarding-verification-section'
-
 export const SellerOnboardingView = () => {
 	const onboarding = useSellerOnboarding()
-
 	if (
 		onboarding.isUnauthenticated ||
 		onboarding.isGateLoading ||
@@ -26,12 +23,10 @@ export const SellerOnboardingView = () => {
 			/>
 		)
 	}
-
 	if (onboarding.shouldRedirectToDashboard) {
 		onboarding.redirectToDashboard()
 		return null
 	}
-
 	if (onboarding.step === 1) {
 		return (
 			<SellerOnboardingAccountSection
@@ -51,7 +46,6 @@ export const SellerOnboardingView = () => {
 			/>
 		)
 	}
-
 	if (onboarding.step === 2) {
 		return (
 			<SellerOnboardingProfileSection
@@ -71,7 +65,6 @@ export const SellerOnboardingView = () => {
 			/>
 		)
 	}
-
 	if (onboarding.step === 3) {
 		return (
 			<SellerOnboardingVerificationSection
@@ -86,6 +79,5 @@ export const SellerOnboardingView = () => {
 			/>
 		)
 	}
-
 	return <SellerOnboardingPendingSection />
 }

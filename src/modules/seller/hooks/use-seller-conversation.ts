@@ -66,7 +66,6 @@ export function useSellerConversation(id: string) {
 		limit: MESSAGES_LIMIT,
 	})
 
-	// Pages are newest-first batches; reverse so older pages come first.
 	const messages = useMemo(() => {
 		const pages = messagesData?.pages ?? []
 		return [...pages]
@@ -118,9 +117,7 @@ export function useSellerConversation(id: string) {
 					queryKey: ['seller-conversations'],
 				})
 				queryClient.invalidateQueries({ queryKey: ['unread-counts'] })
-			} catch {
-				/* silent */
-			}
+			} catch {}
 		})()
 	}, [id, queryClient])
 

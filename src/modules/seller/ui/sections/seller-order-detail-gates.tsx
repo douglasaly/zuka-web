@@ -1,5 +1,4 @@
 'use client'
-
 import { ArrowLeft, PackageSearch } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -10,7 +9,6 @@ type SellerOrderDetailGatesProps = {
 	isEmpty: boolean
 	onRetry: () => void
 }
-
 export function SellerOrderDetailGates({
 	isLoading,
 	isError,
@@ -26,7 +24,6 @@ export function SellerOrderDetailGates({
 			</div>
 		)
 	}
-
 	if (isError) {
 		return (
 			<div className='flex w-full min-h-[40vh] flex-col items-center justify-center gap-4 px-4 text-center'>
@@ -43,7 +40,6 @@ export function SellerOrderDetailGates({
 			</div>
 		)
 	}
-
 	if (isEmpty) {
 		return (
 			<div className='flex w-full min-h-[50vh] flex-col items-center justify-center gap-4 px-4'>
@@ -69,6 +65,5 @@ export function SellerOrderDetailGates({
 			</div>
 		)
 	}
-
 	return null
 }

@@ -8,7 +8,6 @@ type ProductSectionProps = {
 	children: ReactNode
 	className?: string
 }
-
 export function ProductSection({
 	title,
 	description,

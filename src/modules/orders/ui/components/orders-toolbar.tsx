@@ -1,5 +1,4 @@
 'use client'
-
 import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import {
@@ -30,7 +29,6 @@ type OrdersToolbarProps = {
 	stores: string[]
 	showCounts?: boolean
 }
-
 export function OrdersToolbar({
 	search,
 	onSearchChange,
@@ -52,7 +50,6 @@ export function OrdersToolbar({
 		{ value: 'all', label: 'Todas as lojas' },
 		...stores.map((name) => ({ value: name, label: name })),
 	]
-
 	return (
 		<div className='space-y-3 sm:space-y-4'>
 			<div className='relative'>

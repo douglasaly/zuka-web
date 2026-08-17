@@ -1,5 +1,4 @@
 'use client'
-
 import { Pause, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -11,7 +10,6 @@ type AdminProductsBulkBarProps = {
 	onDelete: () => void
 	onCancel: () => void
 }
-
 export function AdminProductsBulkBar({
 	selectedCount,
 	pausePending,
@@ -21,7 +19,6 @@ export function AdminProductsBulkBar({
 	onCancel,
 }: AdminProductsBulkBarProps) {
 	if (selectedCount === 0) return null
-
 	return (
 		<div className='flex flex-wrap items-center gap-2 rounded-xl border border-border/60 bg-muted/40 px-3 py-2 sm:px-4'>
 			<span className='text-xs font-medium text-muted-foreground'>

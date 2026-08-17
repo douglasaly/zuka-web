@@ -1,18 +1,11 @@
 'use client'
-
 import { ShieldOff } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { useUserProfile } from '@/hooks/use-user-profile'
 import { setViewAsBuyerMode } from '@/lib/auth/view-as-buyer'
-
-/**
- * Shown when a signed-in user opens an admin-only route without admin access.
- * Mobile-first: stacked full-width actions; sticky footer within thumb reach.
- */
 export function ForbiddenView() {
 	const { isAuthenticated, isLoading } = useUserProfile()
-
 	return (
 		<div className='flex min-h-dvh flex-col bg-background'>
 			<header className='shrink-0 border-b border-border/60'>

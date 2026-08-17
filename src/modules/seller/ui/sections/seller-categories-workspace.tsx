@@ -1,5 +1,4 @@
 'use client'
-
 import { Plus, Search, X } from 'lucide-react'
 import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { Button } from '@/components/ui/button'
@@ -10,7 +9,6 @@ import type {
 	Category,
 	CategoryForm,
 } from '@/modules/seller/ui/components/categories/types'
-
 export function SellerCategoriesWorkspace({
 	query,
 	onQueryChange,
@@ -60,7 +58,6 @@ export function SellerCategoriesWorkspace({
 			onDelete={onDelete}
 		/>
 	)
-
 	return (
 		<>
 			<div className='relative max-w-lg min-w-0'>

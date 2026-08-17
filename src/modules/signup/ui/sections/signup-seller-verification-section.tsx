@@ -1,5 +1,4 @@
 'use client'
-
 import { CheckCircle2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { FileUploadCard } from '@/modules/onboarding/ui/components/file-upload-card'
@@ -15,7 +14,6 @@ type SignupSellerVerificationSectionProps = {
 	onBack: () => void
 	onSubmit: () => void
 }
-
 export function SignupSellerVerificationSection({
 	form,
 	onChange,
@@ -25,7 +23,6 @@ export function SignupSellerVerificationSection({
 	onSubmit,
 }: SignupSellerVerificationSectionProps) {
 	const canSubmit = Boolean(form.idCardUrl && form.selfieUrl)
-
 	return (
 		<OnboardingShell
 			title='Verificação de identidade'

@@ -9,7 +9,6 @@ type SellerProductRowProps = {
 	onEdit: (id: string) => void
 	onDelete: () => void
 }
-
 export const SellerProductRow = ({
 	product,
 	onEdit,

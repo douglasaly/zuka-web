@@ -23,7 +23,6 @@ const STATUS_DB: Record<BuyerOrderStatus, OrderStatus[]> = {
 	completed: ['COMPLETED'],
 	cancelled: ['CANCELLED'],
 }
-
 const ORDER_SELECT = `
 	*,
 	stores(name, logo_url, slug),
@@ -41,7 +40,6 @@ const ORDER_SELECT = `
 		)
 	)
 `
-
 const ORDER_SELECT_STORE = `
 	*,
 	stores!inner(name, logo_url, slug),
@@ -59,35 +57,29 @@ const ORDER_SELECT_STORE = `
 		)
 	)
 `
-
 function periodCutoff(period: string | null): string | null {
 	if (!period || period === 'all') return null
 	const days = Number(period)
 	if (!Number.isFinite(days) || days <= 0) return null
 	return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString()
 }
-
 export async function GET(request: NextRequest) {
 	try {
 		const user = await getSessionUser()
 		if (!user) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 		}
-
 		const { searchParams } = request.nextUrl
 		const { limit, cursor } = CursorPaginationSchema.parse({
 			limit: searchParams.get('limit') ?? 5,
 			cursor: searchParams.get('cursor') ?? undefined,
 		})
-
 		const statusParam = searchParams.get('status') ?? 'all'
 		const period = searchParams.get('period')
 		const storeName = searchParams.get('store')
 		const cutoff = periodCutoff(period)
 		const useStoreInner = Boolean(storeName && storeName !== 'all')
-
 		const supabase = createSupabaseAdmin()
-
 		let query = supabase
 			.from('orders')
 			.select(useStoreInner ? ORDER_SELECT_STORE : ORDER_SELECT)
@@ -95,23 +87,21 @@ export async function GET(request: NextRequest) {
 			.is('deleted_at', null)
 			.order('created_at', { ascending: false })
 			.limit(limit + 1)
-
 		if (cursor) {
 			query = query.lt('created_at', cursor)
 		}
-
 		if (statusParam !== 'all' && statusParam in STATUS_DB) {
-			query = query.in('status', STATUS_DB[statusParam as BuyerOrderStatus])
+			query = query.in(
+				'status',
+				STATUS_DB[statusParam as BuyerOrderStatus]
+			)
 		}
-
 		if (cutoff) {
 			query = query.gte('created_at', cutoff)
 		}
-
 		if (useStoreInner && storeName) {
 			query = query.eq('stores.name', storeName)
 		}
-
 		const [
 			{ data, error },
 			countsResult,
@@ -139,23 +129,19 @@ export async function GET(request: NextRequest) {
 				.order('completed_at', { ascending: false })
 				.limit(5),
 		])
-
 		if (error) throw error
 		if (countsResult.error) throw countsResult.error
 		if (storesResult.error) throw storesResult.error
 		if (pendingReviewsResult.error) throw pendingReviewsResult.error
-
 		const rows = (data ?? []) as unknown as Array<Record<string, unknown>>
 		const hasMore = rows.length > limit
 		const pageRows = hasMore ? rows.slice(0, limit) : rows
 		const last = pageRows[pageRows.length - 1]
 		const nextCursor =
 			hasMore && last?.created_at ? String(last.created_at) : null
-
 		const orders = pageRows.map((row) =>
 			mapBuyerOrder(row as Parameters<typeof mapBuyerOrder>[0])
 		)
-
 		const counts = {
 			all: 0,
 			pending: 0,
@@ -164,7 +150,6 @@ export async function GET(request: NextRequest) {
 			cancelled: 0,
 			reviewEligible: 0,
 		}
-
 		for (const row of countsResult.data ?? []) {
 			counts.all += 1
 			const mapped =
@@ -180,24 +165,23 @@ export async function GET(request: NextRequest) {
 				counts.reviewEligible += 1
 			}
 		}
-
 		const storeNames = [
 			...new Set(
 				(storesResult.data ?? [])
 					.map((row) => {
-						const store = row.stores as { name?: string } | null
+						const store = row.stores as {
+							name?: string
+						} | null
 						return store?.name
 					})
 					.filter((name): name is string => Boolean(name))
 			),
 		].sort((a, b) => a.localeCompare(b, 'pt'))
-
 		const pendingReviews = (
 			(pendingReviewsResult.data ?? []) as unknown as Array<
 				Parameters<typeof mapBuyerOrder>[0]
 			>
 		).map(mapBuyerOrder)
-
 		return NextResponse.json({
 			success: true,
 			data: orders,
@@ -218,26 +202,22 @@ export async function GET(request: NextRequest) {
 		)
 	}
 }
-
 export const POST = withErrorHandling(async (request) => {
 	const auth = await requireAuth()
 	const body = await request.json()
 	const parsed = CreateBuyerOrderSchema.safeParse(body)
-
 	if (!parsed.success) {
 		return apiError(
 			ErrorCode.VALIDATION_ERROR,
 			parsed.error.issues[0]?.message ?? 'Pedido inválido'
 		)
 	}
-
 	const supabase = createSupabaseAdmin()
 	const result = await createBuyerOrder(supabase, {
 		buyerId: auth.user.id,
 		storeId: parsed.data.storeId,
 		items: parsed.data.items,
 	})
-
 	if (!result.ok) {
 		const code =
 			result.status === 403
@@ -247,7 +227,6 @@ export const POST = withErrorHandling(async (request) => {
 					: ErrorCode.VALIDATION_ERROR
 		return apiError(code, result.message, result.status)
 	}
-
 	return apiSuccess(
 		{
 			orderId: result.orderId,

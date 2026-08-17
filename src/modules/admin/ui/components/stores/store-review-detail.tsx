@@ -20,7 +20,6 @@ function Section({
 		</div>
 	)
 }
-
 function Row({ label, value }: { label: string; value?: string | null }) {
 	if (!value) return null
 	return (
@@ -34,13 +33,11 @@ function Row({ label, value }: { label: string; value?: string | null }) {
 		</div>
 	)
 }
-
 type StoreReviewDetailProps = {
 	store: Record<string, unknown>
 	owner: Record<string, unknown> | undefined
 	docs: Record<string, unknown>[]
 }
-
 export function StoreReviewDetail({
 	store,
 	owner,

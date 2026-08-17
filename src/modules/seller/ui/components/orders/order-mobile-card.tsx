@@ -1,5 +1,4 @@
 'use client'
-
 import { OrderStatusBadge } from '@/components/order-status-badge'
 import { cn } from '@/lib/utils'
 import { formatPrice } from '@/utils/format-price'
@@ -11,7 +10,6 @@ type OrderMobileCardProps = {
 	order: SellerOrder
 	onOpen: () => void
 }
-
 export function OrderMobileCard({ order, onOpen }: OrderMobileCardProps) {
 	return (
 		<button

@@ -1,16 +1,13 @@
 import { cn } from '@/lib/utils'
-
 export type CategoryOption = {
 	value: string
 	label: string
 }
-
 type CategoryFilterProps = {
 	options: CategoryOption[]
 	value: string
 	onChange: (value: string) => void
 }
-
 export const CategoryFilter = ({
 	options,
 	value,

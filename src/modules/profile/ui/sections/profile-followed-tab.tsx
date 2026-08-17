@@ -11,7 +11,6 @@ type ProfileFollowedTabProps = {
 	rawCount: number
 	isLoading: boolean
 }
-
 export function ProfileFollowedTab({
 	stores,
 	rawCount,

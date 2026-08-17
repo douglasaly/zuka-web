@@ -1,5 +1,4 @@
 'use client'
-
 import Link from 'next/link'
 import type { ComponentProps, MouseEvent, ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
@@ -23,8 +22,6 @@ type IconTooltipButtonProps = {
 	side?: 'top' | 'bottom' | 'left' | 'right'
 	'aria-pressed'?: boolean
 }
-
-/** Icon-only control with visible tooltip + aria-label. */
 export function IconTooltipButton({
 	label,
 	children,
@@ -53,7 +50,6 @@ export function IconTooltipButton({
 			{children}
 		</Button>
 	)
-
 	return (
 		<Tooltip>
 			<TooltipTrigger render={button} />

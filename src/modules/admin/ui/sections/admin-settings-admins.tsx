@@ -1,5 +1,4 @@
 'use client'
-
 import type { UseMutationResult } from '@tanstack/react-query'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AdminAccountRow } from '@/modules/admin/ui/components/settings/admin-account-row'
@@ -9,7 +8,6 @@ type AdminSettingsAdminsProps = {
 	adminsLoading: boolean
 	removeAdminMutation: UseMutationResult<void, Error, string, unknown>
 }
-
 export function AdminSettingsAdmins({
 	admins,
 	adminsLoading,

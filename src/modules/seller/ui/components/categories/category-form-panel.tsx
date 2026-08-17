@@ -1,5 +1,4 @@
 'use client'
-
 import { Loader2, X } from 'lucide-react'
 import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { Button } from '@/components/ui/button'
@@ -15,7 +14,6 @@ import {
 import { Slug } from '@/utils/slug'
 import type { Category, CategoryForm } from './types'
 import { monogram } from './utils'
-
 export function CategoryFormPanel({
 	form,
 	roots,
@@ -34,7 +32,6 @@ export function CategoryFormPanel({
 	const isEdit = Boolean(form.id)
 	const canSave = form.name.trim().length > 0 && !pending
 	const slugPreview = form.slug.trim() || Slug(form.name) || 'slug'
-
 	return (
 		<section className='min-w-0 overflow-hidden rounded-2xl border border-border/60 bg-card shadow-[0_1px_2px_rgba(0,0,0,0.04)]'>
 			<div className='flex items-start gap-3 border-b border-border/50 bg-muted/30 px-4 py-4 sm:px-5'>

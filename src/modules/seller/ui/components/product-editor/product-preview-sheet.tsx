@@ -1,5 +1,4 @@
 'use client'
-
 import { Package } from 'lucide-react'
 import Image from 'next/image'
 import {
@@ -15,15 +14,16 @@ import { formatPrice } from '@/utils/format-price'
 import { PRODUCT_STATUS_LABELS, PRODUCT_STATUS_STYLES } from './constants'
 import type { ProductFormState } from './types'
 
-type Category = { id: string; name: string }
-
+type Category = {
+	id: string
+	name: string
+}
 type ProductPreviewSheetProps = {
 	open: boolean
 	onOpenChange: (open: boolean) => void
 	form: ProductFormState
 	categories: Category[]
 }
-
 export function ProductPreviewSheet({
 	open,
 	onOpenChange,
@@ -36,7 +36,6 @@ export function ProductPreviewSheet({
 	const price = Number(form.price) || 0
 	const discount = form.discountPrice ? Number(form.discountPrice) : null
 	const cover = form.imageUrls[0] ?? null
-
 	return (
 		<Sheet open={open} onOpenChange={onOpenChange}>
 			<SheetContent

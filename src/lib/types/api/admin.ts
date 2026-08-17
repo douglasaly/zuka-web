@@ -1,6 +1,3 @@
-// ─── Admin routes ──────────────────────────────────────
-
-/** GET /api/admin/stats */
 export type GetAdminStatsOutput = {
 	totalUsers: number
 	totalUsersPct: number
@@ -11,17 +8,13 @@ export type GetAdminStatsOutput = {
 	totalProductsPct: number
 	messagesToday: number
 }
-
-/** GET /api/admin/analytics */
 export type GetAdminAnalyticsInput = {
 	days?: number
 }
-
 export type AdminAnalyticsDay = {
 	date: string
 	count: number
 }
-
 export type AdminTopStore = {
 	id: string
 	name: string
@@ -30,7 +23,6 @@ export type AdminTopStore = {
 	products: number
 	followers: number
 }
-
 export type GetAdminAnalyticsOutput = {
 	signupsByDay: AdminAnalyticsDay[]
 	productsByDay: AdminAnalyticsDay[]
@@ -38,8 +30,6 @@ export type GetAdminAnalyticsOutput = {
 	approvalRate: number
 	topStores: AdminTopStore[]
 }
-
-/** GET /api/admin/users */
 export type AdminUser = {
 	id: string
 	first_name: string | null
@@ -57,19 +47,15 @@ export type AdminUser = {
 		status: string
 	} | null
 }
-
 export type ListAdminUsersInput = {
 	search?: string
 	status?: string
 	page?: number
 	limit?: number
 }
-
 export type ListAdminUsersOutput = {
 	users: AdminUser[]
 }
-
-/** GET /api/admin/users/[id] */
 export type GetAdminUserOutput = {
 	user: AdminUser
 	store: {
@@ -88,24 +74,17 @@ export type GetAdminUserOutput = {
 		verified_at: string | null
 	} | null
 }
-
-/** PATCH /api/admin/users/[id] */
 export type AdminUpdateUserInput = {
 	makeAdmin?: boolean
 	removeAdmin?: boolean
 	status?: string
 }
-
 export type AdminUpdateUserOutput = {
 	success: true
 }
-
-/** DELETE /api/admin/users/[id] */
 export type AdminDeleteUserOutput = {
 	success: true
 }
-
-/** GET /api/admin/stores */
 export type AdminStoreItem = {
 	id: string
 	name: string
@@ -119,8 +98,13 @@ export type AdminStoreItem = {
 	email: string | null
 	state: string
 	created_at: string
-	provinces: { name: string } | null
-	categories: { id: string; name: string } | null
+	provinces: {
+		name: string
+	} | null
+	categories: {
+		id: string
+		name: string
+	} | null
 	users: {
 		id: string
 		first_name: string | null
@@ -132,23 +116,18 @@ export type AdminStoreItem = {
 	productCount: number
 	followerCount: number
 }
-
 export type ListAdminStoresInput = {
 	status?: string
 	search?: string
 	page?: number
 	limit?: number
 }
-
 export type ListAdminStoresOutput = {
 	stores: AdminStoreItem[]
 }
-
-/** GET /api/admin/stores/[id] */
 export type AdminStoreDetail = AdminStoreItem & {
 	followerCount: number
 }
-
 export type AdminVerificationDoc = {
 	id: string
 	type: string
@@ -156,7 +135,6 @@ export type AdminVerificationDoc = {
 	status: string
 	created_at: string
 }
-
 export type AdminStoreProduct = {
 	id: string
 	name: string
@@ -167,17 +145,19 @@ export type AdminStoreProduct = {
 	status: string
 	is_visible: boolean
 	created_at: string
-	categories: { name: string } | null
-	product_images: { url: string; is_primary: boolean }[]
+	categories: {
+		name: string
+	} | null
+	product_images: {
+		url: string
+		is_primary: boolean
+	}[]
 }
-
 export type GetAdminStoreOutput = {
 	store: AdminStoreDetail
 	docs: AdminVerificationDoc[]
 	products: AdminStoreProduct[]
 }
-
-/** PATCH /api/admin/stores/[id] */
 export type AdminUpdateStoreInput = {
 	status?:
 		| 'ACTIVE'
@@ -196,17 +176,12 @@ export type AdminUpdateStoreInput = {
 	email?: string
 	state?: string
 }
-
 export type AdminUpdateStoreOutput = {
 	store: AdminStoreDetail
 }
-
-/** DELETE /api/admin/stores/[id] */
 export type AdminDeleteStoreOutput = {
 	success: true
 }
-
-/** GET /api/admin/products */
 export type AdminProductItem = {
 	id: string
 	name: string
@@ -219,11 +194,20 @@ export type AdminProductItem = {
 	created_at: string
 	store_id: string
 	category_id: string | null
-	stores: { id: string; name: string; slug: string } | null
-	categories: { id: string; name: string } | null
-	product_images: { url: string; is_primary: boolean }[]
+	stores: {
+		id: string
+		name: string
+		slug: string
+	} | null
+	categories: {
+		id: string
+		name: string
+	} | null
+	product_images: {
+		url: string
+		is_primary: boolean
+	}[]
 }
-
 export type ListAdminProductsInput = {
 	search?: string
 	category?: string
@@ -231,12 +215,9 @@ export type ListAdminProductsInput = {
 	page?: number
 	limit?: number
 }
-
 export type ListAdminProductsOutput = {
 	products: AdminProductItem[]
 }
-
-/** PATCH /api/admin/products/[id] */
 export type AdminUpdateProductInput = {
 	name?: string
 	description?: string
@@ -247,12 +228,9 @@ export type AdminUpdateProductInput = {
 	is_visible?: boolean
 	category_id?: string
 }
-
 export type AdminUpdateProductOutput = {
 	success: true
 }
-
-/** DELETE /api/admin/products/[id] */
 export type AdminDeleteProductOutput = {
 	success: true
 }

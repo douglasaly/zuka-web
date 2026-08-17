@@ -1,11 +1,9 @@
 'use client'
-
 type AdminProductsToolbarProps = {
 	productCount: number
 	isLoading: boolean
 	isFetching: boolean
 }
-
 export function AdminProductsToolbar({
 	productCount,
 	isLoading,

@@ -3,7 +3,6 @@ import {
 	PRODUCT_STATUS_LABELS,
 	PRODUCT_STATUS_STYLES,
 } from '@/modules/seller/ui/components/product-editor/constants'
-
 export function ProductStatusChip({ status }: { status: string }) {
 	const key = status?.toUpperCase?.() ?? ''
 	return (

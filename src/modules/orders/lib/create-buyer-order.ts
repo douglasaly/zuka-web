@@ -16,29 +16,26 @@ import {
 import type { CreatedBuyerOrder } from '@/modules/orders/types'
 
 type Db = ReturnType<typeof createSupabaseAdmin>
-
 export type CreateBuyerOrderInput = {
 	buyerId: string
 	storeId: string
-	items: Array<{ productId: string; quantity: number }>
+	items: Array<{
+		productId: string
+		quantity: number
+	}>
 }
-
 export type { CreatedBuyerOrder }
-
 export type CreateBuyerOrderSuccess = {
 	ok: true
 } & CreatedBuyerOrder
-
 export type CreateBuyerOrderFailure = {
 	ok: false
 	status: 400 | 403 | 404
 	message: string
 }
-
 export type CreateBuyerOrderResult =
 	| CreateBuyerOrderSuccess
 	| CreateBuyerOrderFailure
-
 function mergeQuantities(
 	items: CreateBuyerOrderInput['items']
 ): Map<string, number> {
@@ -49,7 +46,6 @@ function mergeQuantities(
 	}
 	return qtyByProduct
 }
-
 function unitPriceCents(product: {
 	price: number
 	discount_price: number | null
@@ -63,7 +59,6 @@ function unitPriceCents(product: {
 	}
 	return product.price
 }
-
 export async function createBuyerOrder(
 	db: Db,
 	input: CreateBuyerOrderInput
@@ -76,13 +71,11 @@ export async function createBuyerOrder(
 			message: 'Não podes fazer um pedido à tua própria loja.',
 		}
 	}
-
 	const { data: store, error: storeError } = await db
 		.from('stores')
 		.select('id, name, owner_id, status, phone, whatsapp, deleted_at')
 		.eq('id', input.storeId)
 		.maybeSingle()
-
 	if (storeError) throw storeError
 	if (!store || store.deleted_at || store.status !== 'ACTIVE') {
 		return {
@@ -91,22 +84,21 @@ export async function createBuyerOrder(
 			message: 'Loja não encontrada ou inactiva.',
 		}
 	}
-
 	const qtyByProduct = mergeQuantities(input.items)
 	const productIds = [...qtyByProduct.keys()]
-
 	const { data: products, error: productsError } = await db
 		.from('products')
 		.select(
 			'id, name, store_id, price, discount_price, currency, is_visible, deleted_at'
 		)
 		.in('id', productIds)
-
 	if (productsError) throw productsError
-
 	const productById = new Map((products ?? []).map((row) => [row.id, row]))
-	const lines: Array<OrderLineCopy & { productId: string }> = []
-
+	const lines: Array<
+		OrderLineCopy & {
+			productId: string
+		}
+	> = []
 	for (const productId of productIds) {
 		const product = productById.get(productId)
 		if (!product || product.deleted_at || !product.is_visible) {
@@ -124,7 +116,6 @@ export async function createBuyerOrder(
 				message: 'Todos os produtos têm de ser da mesma loja.',
 			}
 		}
-
 		const quantity = qtyByProduct.get(productId) ?? 0
 		lines.push({
 			productId,
@@ -134,7 +125,6 @@ export async function createBuyerOrder(
 			currency: product.currency ?? 'MZN',
 		})
 	}
-
 	const currency = lines[0]?.currency ?? 'MZN'
 	const totalCents = lines.reduce(
 		(sum, line) => sum + line.unitPriceCents * line.quantity,
@@ -149,7 +139,6 @@ export async function createBuyerOrder(
 			message: 'O carrinho desta loja está vazio.',
 		}
 	}
-
 	const conversationId = await ensureBuyerStoreConversation({
 		db,
 		buyerId: input.buyerId,
@@ -157,11 +146,9 @@ export async function createBuyerOrder(
 		storeOwnerId: store.owner_id,
 		productId: firstProductId,
 	})
-
 	const orderId = uuidv7()
 	const shortId = orderShortId(orderId)
 	const now = new Date().toISOString()
-
 	const { error: orderError } = await db.from('orders').insert({
 		id: orderId,
 		buyer_id: input.buyerId,
@@ -175,7 +162,6 @@ export async function createBuyerOrder(
 		updated_at: now,
 	})
 	if (orderError) throw orderError
-
 	const { error: itemsError } = await db.from('order_items').insert(
 		lines.map((line) => ({
 			id: uuidv7(),
@@ -187,12 +173,10 @@ export async function createBuyerOrder(
 			created_at: now,
 		}))
 	)
-
 	if (itemsError) {
 		await db.from('orders').delete().eq('id', orderId)
 		throw itemsError
 	}
-
 	try {
 		await postConversationMessage({
 			db,
@@ -208,7 +192,6 @@ export async function createBuyerOrder(
 	} catch (error) {
 		console.error('[createBuyerOrder] chat message', error)
 	}
-
 	try {
 		await notifyOrderCreated({
 			db,
@@ -222,9 +205,7 @@ export async function createBuyerOrder(
 	} catch (error) {
 		console.error('[createBuyerOrder] notifications', error)
 	}
-
 	const storePhone = store.whatsapp || store.phone || null
-
 	return {
 		ok: true,
 		orderId,

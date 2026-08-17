@@ -4,7 +4,6 @@ import { getAuth } from 'firebase-admin/auth'
 if (process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === 'true') {
 	process.env.FIREBASE_AUTH_EMULATOR_HOST = '127.0.0.1:9099'
 }
-
 if (!getApps().length) {
 	initializeApp({
 		credential: cert({
@@ -14,5 +13,4 @@ if (!getApps().length) {
 		}),
 	})
 }
-
 export const adminAuth = getAuth()

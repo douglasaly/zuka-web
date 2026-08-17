@@ -2,7 +2,6 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
 const SESSION_COOKIE = process.env.APP_SESSION_COOKIE ?? 'zuka_session'
-
 const protectedPrefixes = [
 	'/dashboard/seller',
 	'/feed/pedidos',
@@ -12,15 +11,12 @@ const protectedPrefixes = [
 	'/admin',
 	'/notificacoes',
 ]
-
 export function proxy(request: NextRequest) {
 	const session = request.cookies.get(SESSION_COOKIE)?.value
 	const { pathname } = request.nextUrl
-
 	const isProtected = protectedPrefixes.some(
 		(path) => pathname === path || pathname.startsWith(`${path}/`)
 	)
-
 	if (isProtected && !session) {
 		const loginUrl = new URL('/auth/login', request.url)
 		loginUrl.searchParams.set(
@@ -29,10 +25,8 @@ export function proxy(request: NextRequest) {
 		)
 		return NextResponse.redirect(loginUrl)
 	}
-
 	return NextResponse.next()
 }
-
 export const config = {
 	matcher: [
 		'/dashboard/seller',

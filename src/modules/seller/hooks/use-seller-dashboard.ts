@@ -1,5 +1,4 @@
 'use client'
-
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useUserProfile } from '@/hooks/use-user-profile'
@@ -20,7 +19,6 @@ type StatsData = {
 	totalFollowers: number
 	productCount: number
 }
-
 type ApiProduct = {
 	id: string
 	name: string
@@ -28,7 +26,6 @@ type ApiProduct = {
 	currency: string
 	image: string | null
 }
-
 export type DashboardOrder = {
 	id: string
 	storeName: string
@@ -39,11 +36,9 @@ export type DashboardOrder = {
 	status: 'shipping' | 'pending' | 'completed' | 'cancelled'
 	statusLabel: string
 }
-
 export function useSellerDashboard() {
 	const { profile: sessionProfile } = useUserProfile()
 	const userKey = sessionProfile?.id ?? 'anon'
-
 	const { data: profile, isLoading: isLoadingProfile } = useQuery<{
 		profile: UserProfile
 	}>({
@@ -51,14 +46,12 @@ export function useSellerDashboard() {
 		queryFn: () => fetch('/api/me/profile').then((r) => r.json()),
 		staleTime: 5 * 60 * 1000,
 	})
-
 	const { data: statsResponse, isLoading: isLoadingStats } = useQuery<{
 		data: StatsData
 	}>({
 		queryKey: ['seller-stats', userKey],
 		queryFn: () => fetch('/api/seller/stats').then((r) => r.json()),
 	})
-
 	const { data: productsData, isLoading: isLoadingProducts } = useQuery<{
 		products: ApiProduct[]
 	}>({
@@ -66,7 +59,6 @@ export function useSellerDashboard() {
 		queryFn: () =>
 			fetch('/api/seller/products?limit=20').then((r) => r.json()),
 	})
-
 	const { data: ordersData, isLoading: isLoadingOrders } = useQuery<{
 		orders: DashboardOrder[]
 	}>({
@@ -74,17 +66,14 @@ export function useSellerDashboard() {
 		queryFn: () =>
 			fetch('/api/seller/orders?limit=5').then((r) => r.json()),
 	})
-
 	const isLoading =
 		isLoadingProfile ||
 		isLoadingStats ||
 		isLoadingProducts ||
 		isLoadingOrders
-
 	const storeName = profile?.profile?.stores?.[0]?.name ?? 'Sua Loja'
 	const storeSlug = profile?.profile?.stores?.[0]?.slug
 	const statsData = statsResponse?.data
-
 	const stats: SellerStatData[] = statsData
 		? [
 				{
@@ -129,7 +118,6 @@ export function useSellerDashboard() {
 				},
 			]
 		: []
-
 	const products: SellerProduct[] = useMemo(
 		() =>
 			(productsData?.products ?? []).map((p) => ({
@@ -140,9 +128,7 @@ export function useSellerDashboard() {
 			})),
 		[productsData]
 	)
-
 	const latestOrders = ordersData?.orders ?? []
-
 	return {
 		isLoading,
 		storeName,

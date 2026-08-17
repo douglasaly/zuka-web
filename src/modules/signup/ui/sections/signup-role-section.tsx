@@ -1,5 +1,4 @@
 'use client'
-
 import { ShoppingBag, Store } from 'lucide-react'
 import Link from 'next/link'
 
@@ -7,7 +6,6 @@ type SignupRoleSectionProps = {
 	onSelectBuyer: () => void
 	onSelectSeller: () => void
 }
-
 export function SignupRoleSection({
 	onSelectBuyer,
 	onSelectSeller,

@@ -1,5 +1,4 @@
 'use client'
-
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { pt } from 'date-fns/locale'
@@ -16,7 +15,6 @@ const TARGETS = [
 	{ value: 'buyers', label: 'Apenas compradores' },
 	{ value: 'sellers', label: 'Apenas vendedores' },
 ]
-
 type Notification = {
 	id: string
 	target: string
@@ -24,13 +22,11 @@ type Notification = {
 	body: string
 	sentAt: string
 }
-
 export function NotificationsView() {
 	const qc = useQueryClient()
 	const [target, setTarget] = useState('all')
 	const [title, setTitle] = useState('')
 	const [body, setBody] = useState('')
-
 	const { data } = useQuery({
 		queryKey: ['admin-notifications'],
 		queryFn: async () => {
@@ -40,7 +36,6 @@ export function NotificationsView() {
 			return res.json()
 		},
 	})
-
 	const sendMutation = useMutation({
 		mutationFn: async () => {
 			const res = await fetch('/api/admin/notifications', {
@@ -54,9 +49,9 @@ export function NotificationsView() {
 		},
 		onSuccess: (data) => {
 			toast.success('Notificação enviada com sucesso')
-			const prev = qc.getQueryData<{ notifications: Notification[] }>([
-				'admin-notifications',
-			])
+			const prev = qc.getQueryData<{
+				notifications: Notification[]
+			}>(['admin-notifications'])
 			qc.setQueryData(['admin-notifications'], {
 				notifications: [
 					data.notification,
@@ -68,15 +63,11 @@ export function NotificationsView() {
 		},
 		onError: () => toast.error('Falhou ao enviar notificação'),
 	})
-
 	const notifications: Notification[] = data?.notifications ?? []
-
 	const targetLabel = (t: string) =>
 		TARGETS.find((x) => x.value === t)?.label ?? t
-
 	return (
 		<div className='grid gap-6 xl:grid-cols-[1fr_1.5fr]'>
-			{/* Compose */}
 			<div className='space-y-4'>
 				<div className='rounded-2xl border border-border/60 bg-card p-5 space-y-4'>
 					<p className='font-heading text-sm font-bold'>
@@ -156,7 +147,6 @@ export function NotificationsView() {
 				</div>
 			</div>
 
-			{/* Log */}
 			<div className='rounded-2xl border border-border/60 bg-card overflow-hidden'>
 				<p className='border-b border-border/60 px-5 py-4 font-heading text-sm font-bold'>
 					Notificações enviadas

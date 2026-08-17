@@ -1,5 +1,4 @@
 'use client'
-
 import { ArrowLeft, Heart, Share2 } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -23,7 +22,6 @@ type ProductGalleryProps = {
 	onShare: () => void
 	isPending?: boolean
 }
-
 export const ProductGallery = ({
 	images,
 	productName,
@@ -35,20 +33,15 @@ export const ProductGallery = ({
 	const router = useRouter()
 	const [api, setApi] = useState<CarouselApi>()
 	const [activeImage, setActiveImage] = useState(0)
-
 	useEffect(() => {
 		if (!api) return
-
 		setActiveImage(api.selectedScrollSnap())
-
 		const onSelect = () => setActiveImage(api.selectedScrollSnap())
-
 		api.on('select', onSelect)
 		return () => {
 			api.off('select', onSelect)
 		}
 	}, [api])
-
 	return (
 		<div>
 			<div className='relative max-w-xl aspect-square overflow-hidden bg-muted md:rounded-2xl'>

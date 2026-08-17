@@ -1,5 +1,4 @@
 import { Skeleton } from '@/components/ui/skeleton'
-
 export const StoreSkeleton = () => (
 	<div className='pb-10'>
 		<div className='relative h-48 md:h-56'>

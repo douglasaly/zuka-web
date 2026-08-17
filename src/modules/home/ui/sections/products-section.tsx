@@ -1,5 +1,4 @@
 'use client'
-
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { Loader2, PackageOpen } from 'lucide-react'
 import { useMemo, useState } from 'react'
@@ -13,10 +12,8 @@ import {
 } from '../components/products/products-section-header'
 
 const HOME_PRODUCTS_PAGE_SIZE = 24
-
 export const ProductsSection = () => {
 	const [viewMode, setViewMode] = useState<ProductsViewMode>('grid')
-
 	const productsQuery = useInfiniteQuery({
 		queryKey: ['home-products'],
 		queryFn: ({ pageParam }) =>
@@ -30,14 +27,11 @@ export const ProductsSection = () => {
 				: undefined,
 		initialPageParam: null as string | null,
 	})
-
 	const products = useMemo(
 		() => productsQuery.data?.pages.flatMap((page) => page.data) ?? [],
 		[productsQuery.data]
 	)
-
 	const isInitialLoading = productsQuery.isLoading && products.length === 0
-
 	return (
 		<section className='space-y-5'>
 			<ProductsSectionHeader

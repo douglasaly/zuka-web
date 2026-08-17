@@ -1,5 +1,4 @@
 'use client'
-
 import { Skeleton } from '@/components/ui/skeleton'
 import { KpiCard } from '@/modules/admin/ui/components/kpi-card'
 
@@ -16,7 +15,6 @@ type AdminOverviewKpisProps = {
 		messagesToday?: number
 	}
 }
-
 export function AdminOverviewKpis({
 	statsLoading,
 	stats,

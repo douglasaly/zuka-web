@@ -1,9 +1,7 @@
 'use client'
-
 import { Clock } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-
 export function SignupSellerPendingSection() {
 	return (
 		<div className='flex flex-1 flex-col items-center justify-center px-4 py-12'>

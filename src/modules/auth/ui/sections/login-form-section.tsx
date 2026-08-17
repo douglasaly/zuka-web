@@ -1,5 +1,4 @@
 'use client'
-
 import Link from 'next/link'
 import { GoogleIcon } from '@/components/google-icon'
 import { Button } from '@/components/ui/button'
@@ -25,7 +24,6 @@ type LoginFormSectionProps = {
 	onEmailLogin: (e: React.FormEvent) => void
 	onGoogleLogin: () => void
 }
-
 export function LoginFormSection({
 	email,
 	password,

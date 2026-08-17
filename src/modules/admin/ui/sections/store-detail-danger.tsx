@@ -6,7 +6,6 @@ type StoreDetailDangerProps = {
 	onReactivate: () => void
 	onDelete: () => void
 }
-
 export function StoreDetailDanger({
 	status,
 	onSuspend,

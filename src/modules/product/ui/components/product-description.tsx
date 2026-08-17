@@ -1,13 +1,10 @@
 'use client'
-
 import { useState } from 'react'
 
 type ProductDescriptionProps = {
 	description?: string | null
 }
-
 const MAX_LENGTH = 220
-
 export const ProductDescription = ({
 	description,
 }: ProductDescriptionProps) => {
@@ -16,7 +13,6 @@ export const ProductDescription = ({
 	const isLong = text.length > MAX_LENGTH
 	const displayText =
 		isLong && !expanded ? `${text.slice(0, MAX_LENGTH)}...` : text
-
 	return (
 		<div className='space-y-2'>
 			<h2 className='font-heading font-bold'>Descrição</h2>

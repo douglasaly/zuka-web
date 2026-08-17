@@ -1,5 +1,4 @@
 'use client'
-
 import Image from 'next/image'
 import { STORE_PLACEHOLDER } from '@/lib/api/marketplace'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
@@ -12,7 +11,6 @@ type StoreHeroPreviewProps = {
 	statusLabel: string
 	productCount?: number
 }
-
 export function StoreHeroPreview({
 	form,
 	verified,
@@ -20,7 +18,6 @@ export function StoreHeroPreview({
 	productCount,
 }: StoreHeroPreviewProps) {
 	const isActive = form.status === 'ACTIVE'
-
 	return (
 		<div className='min-w-0 overflow-hidden rounded-2xl border border-border/60 bg-card shadow-[0_1px_2px_rgba(0,0,0,0.04)]'>
 			<div className='relative h-32 w-full bg-muted sm:h-44'>

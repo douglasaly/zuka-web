@@ -9,5 +9,4 @@ const categoriesSchema = z.object({
 	name: z.string(),
 	slug: z.string(),
 })
-
 export type Category = z.infer<typeof categoriesSchema>

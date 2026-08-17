@@ -1,5 +1,4 @@
 'use client'
-
 import { format } from 'date-fns'
 import { pt } from 'date-fns/locale'
 import Link from 'next/link'
@@ -13,12 +12,10 @@ type AdminUserRowProps = {
 	user: AdminUserRow
 	onPatch: (id: string, body: Record<string, unknown>) => void
 }
-
 export function AdminUserTableRow({ user, onPatch }: AdminUserRowProps) {
 	const roles = (user.roles ?? []) as string[]
 	const isAdmin = hasAdminAccess(roles)
 	const hasAdminRole = roles.includes('admin')
-
 	return (
 		<TableRow>
 			<TableCell>

@@ -1,13 +1,10 @@
 'use client'
-
 import { useAdminUsers } from '@/modules/admin/hooks/use-admin-users'
 import { ConfirmDialog } from '@/modules/admin/ui/components/confirm-dialog'
 import { AdminUsersList } from '@/modules/admin/ui/sections/admin-users-list'
 import { AdminUsersToolbar } from '@/modules/admin/ui/sections/admin-users-toolbar'
-
 export function UsersView() {
 	const u = useAdminUsers()
-
 	return (
 		<div className='space-y-4'>
 			<AdminUsersToolbar search={u.search} onSearchChange={u.setSearch} />

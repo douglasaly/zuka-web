@@ -3,35 +3,27 @@ import { getUserRoles } from '@/lib/auth/roles'
 import { getSessionUser } from '@/lib/auth/session'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import type { UserProfile } from '@/types/marketplace'
-
 export async function PATCH(request: Request) {
 	try {
 		const user = await getSessionUser()
 		if (!user) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 		}
-
 		const body = await request.json()
 		const { firstName, lastName, phoneNumber, avatarUrl } = body
-
 		const supabase = createSupabaseAdmin()
-
 		const updates: Record<string, unknown> = {}
-
 		if (typeof firstName === 'string') updates.first_name = firstName
 		if (typeof lastName === 'string') updates.last_name = lastName
 		if (typeof phoneNumber === 'string') updates.phone_number = phoneNumber
 		if (typeof avatarUrl === 'string') updates.avatar_url = avatarUrl
-
 		updates.updated_at = new Date().toISOString()
-
 		const { data: updatedUser, error } = await supabase
 			.from('users')
 			.update(updates as never)
 			.eq('id', user.id as string)
 			.select('*')
 			.single()
-
 		if (error) {
 			console.error('[PATCH /api/me/profile]', error)
 			return NextResponse.json(
@@ -39,7 +31,6 @@ export async function PATCH(request: Request) {
 				{ status: 500 }
 			)
 		}
-
 		return NextResponse.json({
 			success: true,
 			profile: {
@@ -59,23 +50,19 @@ export async function PATCH(request: Request) {
 		)
 	}
 }
-
 export async function GET() {
 	try {
 		const user = await getSessionUser()
 		if (!user) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 		}
-
 		const supabase = createSupabaseAdmin()
 		const roles = await getUserRoles(user.id as string)
-
 		const { data: sellerProfile } = await supabase
 			.from('seller_profiles')
 			.select('id, status')
 			.eq('user_id', user.id as string)
 			.maybeSingle()
-
 		let onboarding = null
 		if (sellerProfile) {
 			const { data } = await supabase
@@ -83,7 +70,6 @@ export async function GET() {
 				.select('status, current_step')
 				.eq('seller_profile_id', sellerProfile.id as string)
 				.maybeSingle()
-
 			if (data) {
 				onboarding = {
 					status: data.status as string,
@@ -91,7 +77,6 @@ export async function GET() {
 				}
 			}
 		}
-
 		const { data: stores } = sellerProfile
 			? await supabase
 					.from('stores')
@@ -99,7 +84,6 @@ export async function GET() {
 					.eq('seller_profile_id', sellerProfile.id as string)
 					.is('deleted_at', null)
 			: { data: [] }
-
 		const storesWithCounts = await Promise.all(
 			(stores ?? []).map(async (store) => {
 				const { count } = await supabase
@@ -107,7 +91,6 @@ export async function GET() {
 					.select('*', { count: 'exact', head: true })
 					.eq('store_id', store.id as string)
 					.is('deleted_at', null)
-
 				return {
 					id: store.id as string,
 					name: store.name as string,
@@ -117,7 +100,6 @@ export async function GET() {
 				}
 			})
 		)
-
 		const profile: UserProfile = {
 			id: user.id as string,
 			email: user.email as string | null,
@@ -137,7 +119,6 @@ export async function GET() {
 			stores: storesWithCounts,
 			onboarding,
 		}
-
 		return NextResponse.json({ success: true, profile })
 	} catch (error) {
 		console.error(error)

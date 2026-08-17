@@ -2,13 +2,10 @@ import { AppFooter } from '@/components/app-footer'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { HomeNavbar } from '../components/home-navbar'
 import { HomeSidebar } from '../components/home-sidebar'
-
 export const dynamic = 'force-dynamic'
-
 interface HomeLayoutProps {
 	children: React.ReactNode
 }
-
 export const HomeLayout = ({ children }: HomeLayoutProps) => {
 	return (
 		<div className='flex min-h-screen w-full bg-background'>
@@ -16,7 +13,10 @@ export const HomeLayout = ({ children }: HomeLayoutProps) => {
 				<HomeSidebar />
 				<div className='flex min-h-screen min-w-0 flex-1 flex-col'>
 					<HomeNavbar />
-					<main id='main-content' className='min-w-0 flex-1 overflow-x-hidden'>
+					<main
+						id='main-content'
+						className='min-w-0 flex-1 overflow-x-hidden'
+					>
 						{children}
 					</main>
 					<AppFooter />

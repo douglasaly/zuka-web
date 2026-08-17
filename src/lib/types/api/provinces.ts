@@ -1,5 +1,3 @@
-// ─── Province routes ───────────────────────────────────
-
 export type Province = {
 	id: string
 	name: string
@@ -7,6 +5,4 @@ export type Province = {
 	created_at: string
 	updated_at: string
 }
-
-/** GET /api/provinces */
 export type ListProvincesOutput = Province[]

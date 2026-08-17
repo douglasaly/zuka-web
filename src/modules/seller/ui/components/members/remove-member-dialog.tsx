@@ -1,5 +1,4 @@
 'use client'
-
 import { Loader2 } from 'lucide-react'
 import {
 	AlertDialog,
@@ -20,7 +19,6 @@ type RemoveMemberDialogProps = {
 	onClose: () => void
 	onConfirm: (memberId: string) => void
 }
-
 export function RemoveMemberDialog({
 	member,
 	isPending,

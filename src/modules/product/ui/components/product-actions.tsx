@@ -1,5 +1,4 @@
 'use client'
-
 import { MessageCircle, Phone, ShoppingCart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useCart } from '@/hooks/use-cart'
@@ -15,7 +14,6 @@ type ProductActionsProps = {
 	onChat: () => void
 	isChatting?: boolean
 }
-
 export const ProductActions = ({
 	storeId,
 	productId,
@@ -26,11 +24,9 @@ export const ProductActions = ({
 	isChatting,
 }: ProductActionsProps) => {
 	const { addItem } = useCart()
-
 	const handleAddToCart = () => {
 		addItem(product)
 	}
-
 	const openWhatsApp = () => {
 		if (!whatsappHref) return
 		trackContactEvent({
@@ -41,7 +37,6 @@ export const ProductActions = ({
 		})
 		window.open(whatsappHref, '_blank', 'noopener,noreferrer')
 	}
-
 	const openCall = () => {
 		if (!phoneHref) return
 		trackContactEvent({
@@ -52,7 +47,6 @@ export const ProductActions = ({
 		})
 		window.location.href = phoneHref
 	}
-
 	return (
 		<div className='space-y-2'>
 			<Button

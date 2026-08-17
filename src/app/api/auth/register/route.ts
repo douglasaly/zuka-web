@@ -2,17 +2,17 @@ import { NextResponse } from 'next/server'
 import { resolveFirebaseIdToken } from '@/lib/auth/firebase-token'
 import { syncFirebaseUser } from '@/lib/auth/sync-firebase-user'
 import { adminAuth } from '@/lib/firebase/firebase-admin'
-
 export async function POST(request: Request) {
 	try {
 		const token = await resolveFirebaseIdToken(request)
 		if (!token) {
-			return NextResponse.json({ error: 'Missing token' }, { status: 401 })
+			return NextResponse.json(
+				{ error: 'Missing token' },
+				{ status: 401 }
+			)
 		}
-
 		const decodedToken = await adminAuth.verifyIdToken(token)
 		const user = await syncFirebaseUser(decodedToken)
-
 		return NextResponse.json({
 			success: true,
 			user: {

@@ -1,5 +1,4 @@
 import { Slider as SliderPrimitive } from '@base-ui/react/slider'
-
 import { cn } from '@/lib/utils'
 
 function Slider({
@@ -15,7 +14,6 @@ function Slider({
 		: Array.isArray(defaultValue)
 			? defaultValue
 			: [min, max]
-
 	return (
 		<SliderPrimitive.Root
 			className={cn(
@@ -51,5 +49,4 @@ function Slider({
 		</SliderPrimitive.Root>
 	)
 }
-
 export { Slider }

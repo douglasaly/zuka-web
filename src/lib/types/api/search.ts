@@ -1,5 +1,3 @@
-// ─── Search routes ─────────────────────────────────────
-
 export type SearchProductResult = {
 	id: string
 	name: string
@@ -15,7 +13,6 @@ export type SearchProductResult = {
 	storeSlug: string
 	storeAvatar: string | null
 }
-
 export type SearchStoreResult = {
 	id: string
 	name: string
@@ -29,14 +26,11 @@ export type SearchStoreResult = {
 	followers: number
 	productCount: number
 }
-
 export type SearchCategoryResult = {
 	id: string
 	name: string
 	slug: string
 }
-
-/** GET /api/search */
 export type SearchInput = {
 	q: string
 	categoria?: string
@@ -46,7 +40,6 @@ export type SearchInput = {
 	recente?: 'true'
 	ordenar?: 'relevance' | 'price_asc' | 'price_desc' | 'newest'
 }
-
 export type SearchOutput = {
 	products: SearchProductResult[]
 	stores: SearchStoreResult[]

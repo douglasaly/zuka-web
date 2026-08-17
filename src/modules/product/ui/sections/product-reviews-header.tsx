@@ -9,7 +9,6 @@ import type { ProductReviewsResponse } from '../components/reviews/types'
 type ProductReviewsHeaderProps = {
 	product: ProductReviewsResponse['product']
 }
-
 export function ProductReviewsHeader({ product }: ProductReviewsHeaderProps) {
 	return (
 		<>

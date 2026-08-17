@@ -1,5 +1,4 @@
 'use client'
-
 import { ArrowDown, ArrowUp, Pencil, Trash2 } from 'lucide-react'
 import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { Button } from '@/components/ui/button'
@@ -7,7 +6,6 @@ import { cn } from '@/lib/utils'
 import { CategoryRowActions } from './category-row-actions'
 import type { Category, CategoryForm } from './types'
 import { monogram } from './utils'
-
 export function CategoryTree({
 	visibleRoots,
 	roots,
@@ -70,7 +68,6 @@ export function CategoryTree({
 						const fullIndex = roots.findIndex(
 							(r) => r.id === cat.id
 						)
-
 						return (
 							<li
 								key={cat.id}

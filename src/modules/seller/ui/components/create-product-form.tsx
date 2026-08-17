@@ -1,5 +1,4 @@
 'use client'
-
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
 import { useState } from 'react'
@@ -15,12 +14,10 @@ interface Category {
 	id: string
 	name: string
 }
-
 interface CreateProductFormProps {
 	categories: Category[]
 	storeId: string
 }
-
 export function CreateProductForm({
 	categories,
 	storeId,
@@ -35,7 +32,6 @@ export function CreateProductForm({
 		discountPrice: '',
 		imageUrl: '',
 	})
-
 	const mutation = useMutation({
 		mutationFn: createProduct,
 		onSuccess: () => {
@@ -60,7 +56,6 @@ export function CreateProductForm({
 			)
 		},
 	})
-
 	if (!open) {
 		return (
 			<Button
@@ -73,7 +68,6 @@ export function CreateProductForm({
 			</Button>
 		)
 	}
-
 	return (
 		<form
 			className='space-y-4 rounded-2xl border border-border/60 bg-card p-5'

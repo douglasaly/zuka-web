@@ -1,5 +1,4 @@
 'use client'
-
 import { CheckCircle2, Ellipsis, Package, Truck, XCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -16,7 +15,6 @@ type OrderActionsMenuProps = {
 	onAction: (action: PendingAction) => void
 	onOpen: () => void
 }
-
 export function OrderActionsMenu({
 	order,
 	onAction,
@@ -26,7 +24,6 @@ export function OrderActionsMenu({
 		order.allowedActions.markCompleted ||
 		order.allowedActions.markShipping ||
 		order.allowedActions.cancel
-
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger

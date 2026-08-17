@@ -7,7 +7,6 @@ type ProductReviewsSummaryProps = {
 	activeRating: number | null
 	onSelectRating: (rating: number | null) => void
 }
-
 export function ProductReviewsSummary({
 	summary,
 	activeRating,

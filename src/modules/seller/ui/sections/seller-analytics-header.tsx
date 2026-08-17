@@ -1,5 +1,4 @@
 'use client'
-
 import { cn } from '@/lib/utils'
 import { RANGE_OPTIONS } from '@/modules/seller/ui/components/analytics/constants'
 import type { AnalyticsRange } from '@/modules/seller/ui/components/analytics/mock-data'
@@ -8,7 +7,6 @@ type SellerAnalyticsHeaderProps = {
 	range: AnalyticsRange
 	onRangeChange: (range: AnalyticsRange) => void
 }
-
 export function SellerAnalyticsHeader({
 	range,
 	onRangeChange,
@@ -22,7 +20,7 @@ export function SellerAnalyticsHeader({
 						pedidos, vistas e interesse.
 					</p>
 				</div>
-				{/* biome-ignore lint/a11y/useSemanticElements: preserve original period toggle markup */}
+
 				<div
 					className='flex gap-1.5 self-start rounded-full border border-border/60 bg-card p-1'
 					role='group'
@@ -47,7 +45,6 @@ export function SellerAnalyticsHeader({
 				</div>
 			</div>
 
-			{/* biome-ignore lint/a11y/useSemanticElements: preserve original mock-data notice markup */}
 			<p
 				className='rounded-2xl border border-dashed border-border bg-muted/20 px-4 py-3 text-sm text-muted-foreground'
 				role='status'

@@ -1,5 +1,4 @@
 'use client'
-
 import { useQuery } from '@tanstack/react-query'
 import { Store } from 'lucide-react'
 import Link from 'next/link'
@@ -7,7 +6,6 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { SellerStoreDetail } from '@/lib/types/api/seller'
 import { StoreEditorForm } from '@/modules/seller/ui/components/store-editor/store-editor-form'
-
 export const SellerStoreView = () => {
 	const { data, isLoading, isError, error, refetch } = useQuery<{
 		store: SellerStoreDetail
@@ -25,7 +23,6 @@ export const SellerStoreView = () => {
 			return res.json()
 		},
 	})
-
 	if (isLoading) {
 		return (
 			<div className='min-w-0 space-y-6'>
@@ -41,7 +38,6 @@ export const SellerStoreView = () => {
 			</div>
 		)
 	}
-
 	if (isError && error.message === 'NO_STORE') {
 		return (
 			<div className='flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/70 bg-muted/20 px-6 py-20 text-center'>
@@ -63,7 +59,6 @@ export const SellerStoreView = () => {
 			</div>
 		)
 	}
-
 	if (isError || !data?.store) {
 		return (
 			<div className='flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/70 bg-muted/20 px-6 py-20 text-center'>
@@ -83,6 +78,5 @@ export const SellerStoreView = () => {
 			</div>
 		)
 	}
-
 	return <StoreEditorForm store={data.store} />
 }

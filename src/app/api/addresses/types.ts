@@ -12,7 +12,6 @@ export type Address = {
 	createdAt: string
 	updatedAt: string
 }
-
 export type CreateAddressInput = {
 	label: string
 	street: string
@@ -23,5 +22,4 @@ export type CreateAddressInput = {
 	recipientName: string
 	isDefault?: boolean
 }
-
 export type UpdateAddressInput = Partial<CreateAddressInput>

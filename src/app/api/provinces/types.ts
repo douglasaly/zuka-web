@@ -7,5 +7,4 @@ const provincesSchema = z.object({
 	createdAt: z.date().nullable(),
 	updatedAt: z.date().nullable(),
 })
-
 export type Province = z.infer<typeof provincesSchema>

@@ -1,5 +1,4 @@
 'use client'
-
 import { useQuery } from '@tanstack/react-query'
 import { ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'
@@ -14,7 +13,10 @@ import {
 } from '@/components/ui/chart'
 import { formatPrice } from '@/utils/format-price'
 
-type DailySale = { date: string; sales: number }
+type DailySale = {
+	date: string
+	sales: number
+}
 type TopProduct = {
 	id: string
 	name: string
@@ -31,56 +33,53 @@ type DashboardOrder = {
 	status: 'shipping' | 'pending' | 'completed' | 'cancelled'
 	statusLabel: string
 }
-
 const RANGE_OPTIONS = [
 	{ value: 7, label: '7d' },
 	{ value: 14, label: '14d' },
 	{ value: 30, label: '30d' },
 ] as const
-
 const chartConfig = {
 	sales: {
 		label: 'Vendas',
 		color: 'var(--color-neutral-900)',
 	},
 } satisfies ChartConfig
-
 const formatShortDate = (date: string) => {
 	const d = new Date(date)
 	return d.toLocaleDateString('pt-PT', { day: '2-digit', month: 'short' })
 }
-
 export const SellerSummaryTab = () => {
 	const [range, setRange] = useState(7)
-
-	const { data: dailyData } = useQuery<{ data: DailySale[] }>({
+	const { data: dailyData } = useQuery<{
+		data: DailySale[]
+	}>({
 		queryKey: ['seller-daily-sales', range],
 		queryFn: () =>
 			fetch(`/api/seller/stats/daily?days=${range}`).then((r) =>
 				r.json()
 			),
 	})
-
-	const { data: topProductsData } = useQuery<{ data: TopProduct[] }>({
+	const { data: topProductsData } = useQuery<{
+		data: TopProduct[]
+	}>({
 		queryKey: ['seller-top-products'],
 		queryFn: () =>
 			fetch('/api/seller/stats/top-products?limit=5').then((r) =>
 				r.json()
 			),
 	})
-
-	const { data: ordersData } = useQuery<{ orders: DashboardOrder[] }>({
+	const { data: ordersData } = useQuery<{
+		orders: DashboardOrder[]
+	}>({
 		queryKey: ['seller-dashboard-orders'],
 		queryFn: () =>
 			fetch('/api/seller/orders?limit=5', {
 				credentials: 'include',
 			}).then((r) => r.json()),
 	})
-
 	const dailySales = dailyData?.data ?? []
 	const topProducts = topProductsData?.data ?? []
 	const latestOrders = ordersData?.orders ?? []
-
 	return (
 		<div className='space-y-6'>
 			<div className='rounded-2xl border bg-white p-5'>

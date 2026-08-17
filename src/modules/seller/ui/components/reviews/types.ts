@@ -1,11 +1,9 @@
 export type ReviewScope = 'store' | 'product'
-
 export type RatingSummary = {
 	average: number
 	count: number
 	distribution: number[]
 }
-
 export type StoreReviewProduct = {
 	id: string
 	productId: string
@@ -15,7 +13,6 @@ export type StoreReviewProduct = {
 	body: string | null
 	createdAt: string
 }
-
 export type SellerStoreReview = {
 	id: string
 	orderId: string
@@ -28,7 +25,6 @@ export type SellerStoreReview = {
 	createdAt: string
 	products: StoreReviewProduct[]
 }
-
 export type SellerProductReview = {
 	id: string
 	reviewId: string
@@ -43,7 +39,6 @@ export type SellerProductReview = {
 	createdAt: string
 	storeReply: string | null
 }
-
 export type SellerReviewsResponse = {
 	success: true
 	summary: {

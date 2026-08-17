@@ -1,5 +1,4 @@
 'use client'
-
 import { useState } from 'react'
 import { useSellerDashboard } from '../../hooks/use-seller-dashboard'
 import { SellerDashboardSkeleton } from '../components/seller-dashboard-skeleton'
@@ -10,16 +9,13 @@ import { SellerTabs } from '../components/seller-tabs'
 import { SellerWelcomeBanner } from '../components/seller-welcome-banner'
 import { SellerOrdersSection } from '../sections/seller-orders-section'
 import { SellerProductsSection } from '../sections/seller-product-section'
-
 export const SellerDashboardView = () => {
 	const [tab, setTab] = useState('Produtos')
 	const { isLoading, storeName, storeSlug, stats, products, latestOrders } =
 		useSellerDashboard()
-
 	if (isLoading) {
 		return <SellerDashboardSkeleton />
 	}
-
 	return (
 		<div className='space-y-6'>
 			<SellerWelcomeBanner storeName={storeName} />

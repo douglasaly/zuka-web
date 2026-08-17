@@ -4,38 +4,42 @@ import { NotificationCard } from './notification-card'
 type NotificationsDateGroupProps = {
 	label: string
 	notifications: Notification[]
-	onMarkRead: (id: string) => void
+	onOpen: (notification: Notification) => void
+	onToggleRead: (notification: Notification) => void
+	onRemove: (notification: Notification) => void
 }
-
 export const NotificationsDateGroup = ({
 	label,
 	notifications,
-	onMarkRead,
-}: NotificationsDateGroupProps) => (
-	<div className='space-y-2'>
-		<div className='flex items-center gap-3 px-1'>
-			<span className='text-xs font-bold uppercase tracking-widest text-muted-foreground/50'>
-				{label}
-			</span>
-			<div className='h-px flex-1 bg-border/40' />
-		</div>
-
-		<div className='overflow-hidden rounded-2xl border border-border/60 shadow-sm'>
-			{notifications.map((n, i) => (
-				<div
-					key={n.id}
-					className={
-						i < notifications.length - 1
-							? 'border-b border-border/40'
-							: ''
-					}
+	onOpen,
+	onToggleRead,
+	onRemove,
+}: NotificationsDateGroupProps) => {
+	const headingId = `notificacoes-${label.toLowerCase().replace(/\s+/g, '-')}`
+	return (
+		<section className='space-y-2' aria-labelledby={headingId}>
+			<div className='flex items-center gap-3 px-1'>
+				<h2
+					id={headingId}
+					className='text-xs font-bold uppercase tracking-widest text-muted-foreground/60'
 				>
-					<NotificationCard
-						notification={n}
-						onMarkRead={onMarkRead}
-					/>
-				</div>
-			))}
-		</div>
-	</div>
-)
+					{label}
+				</h2>
+				<div className='h-px flex-1 bg-border/40' aria-hidden />
+			</div>
+
+			<ul className='divide-y divide-border/40 overflow-hidden rounded-2xl border border-border/60 shadow-sm'>
+				{notifications.map((notification) => (
+					<li key={notification.id} className='scroll-mt-[11rem]'>
+						<NotificationCard
+							notification={notification}
+							onOpen={onOpen}
+							onToggleRead={onToggleRead}
+							onRemove={onRemove}
+						/>
+					</li>
+				))}
+			</ul>
+		</section>
+	)
+}

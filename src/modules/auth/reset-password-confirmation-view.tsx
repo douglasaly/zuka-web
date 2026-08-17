@@ -1,5 +1,4 @@
 'use client'
-
 import { MailCheck } from 'lucide-react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
@@ -17,7 +16,6 @@ import {
 function ConfirmationContent() {
 	const searchParams = useSearchParams()
 	const email = searchParams.get('email') ?? ''
-
 	return (
 		<div className='flex min-h-screen items-center justify-center bg-muted/25 px-4 py-12'>
 			<div className='w-full max-w-md space-y-6'>
@@ -81,7 +79,6 @@ function ConfirmationContent() {
 		</div>
 	)
 }
-
 export const ResetPasswordConfirmationView = () => {
 	return (
 		<Suspense>

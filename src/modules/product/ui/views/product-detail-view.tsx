@@ -1,5 +1,4 @@
 'use client'
-
 import { useMutation, useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -27,7 +26,6 @@ import type { RatingSummary } from '../components/reviews/types'
 interface ProductDetailViewProps {
 	id: string
 }
-
 async function fetchReviewsSummary(productId: string): Promise<RatingSummary> {
 	const res = await fetch(`/api/products/${productId}/reviews?summaryOnly=1`)
 	if (!res.ok) {
@@ -42,7 +40,6 @@ async function fetchReviewsSummary(productId: string): Promise<RatingSummary> {
 		}
 	)
 }
-
 export const ProductDetailView = ({ id }: ProductDetailViewProps) => {
 	const router = useRouter()
 	const {
@@ -51,32 +48,26 @@ export const ProductDetailView = ({ id }: ProductDetailViewProps) => {
 		isRemoving,
 		toggleSavedItem,
 	} = useSavedItems()
-
 	const isSaved = isProductSaved(id)
-
 	const { data, isLoading } = useQuery({
 		queryKey: ['product', id],
 		queryFn: () => fetchProduct(id),
 	})
-
 	const { data: reviewsSummary, isLoading: reviewsLoading } = useQuery({
 		queryKey: ['product-reviews-summary', id],
 		queryFn: () => fetchReviewsSummary(id),
-		staleTime: 60_000,
+		staleTime: 60000,
 	})
-
 	const { data: related = [] } = useQuery({
 		queryKey: ['related-products', data?.product.categoryId],
 		queryFn: () =>
 			fetchProducts({ category: data?.product.categoryId, limit: 8 }),
 		enabled: Boolean(data?.product.categoryId),
 	})
-
 	const relatedProducts = useMemo(
 		() => related.filter((p) => p.id !== id).slice(0, 4),
 		[related, id]
 	)
-
 	const chatMutation = useMutation({
 		mutationFn: () => startConversation(data?.product.id ?? ''),
 		onSuccess: (result) => {
@@ -86,11 +77,9 @@ export const ProductDetailView = ({ id }: ProductDetailViewProps) => {
 			toast.error('Falha ao iniciar conversa. Tenta novamente.')
 		},
 	})
-
 	if (isLoading) {
 		return <ProductDetailSkeleton />
 	}
-
 	if (!data) {
 		return (
 			<div className='flex min-h-[50vh] flex-col items-center justify-center gap-4 px-4'>
@@ -104,35 +93,26 @@ export const ProductDetailView = ({ id }: ProductDetailViewProps) => {
 			</div>
 		)
 	}
-
 	const { product, images } = data
 	const gallery =
 		images.length > 0 ? images : [product.image ?? PRODUCT_PLACEHOLDER]
-
 	const handleToggleSave = () => {
 		toggleSavedItem(product.id)
 	}
-
 	const handleShare = async () => {
 		const url = typeof window !== 'undefined' ? window.location.href : ''
-
 		if (navigator.share) {
 			try {
 				await navigator.share({ title: product.name, url })
-			} catch {
-				// utilizador cancelou a partilha, nada a fazer
-			}
+			} catch {}
 			return
 		}
-
 		await navigator.clipboard.writeText(url)
 		toast.success('Link copiado')
 	}
-
 	const whatsappMessage = encodeURIComponent(
 		`Olá! Tenho interesse em "${product.name}"`
 	)
-
 	return (
 		<div className='mx-auto max-w-4xl pb-10 pt-2'>
 			<ProductGallery

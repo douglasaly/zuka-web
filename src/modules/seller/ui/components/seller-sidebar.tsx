@@ -1,5 +1,4 @@
 'use client'
-
 import {
 	LayoutGrid,
 	LogOut,
@@ -36,11 +35,12 @@ type NavItem = {
 	icon: typeof LayoutGrid
 	href: string
 	badgeKey?: 'pendingOrders' | 'unreadMessages'
-	/** If set, item is hidden when the member lacks this permission */
 	permission?: StorePermission
 }
-
-const GROUPS: Array<{ label: string; items: NavItem[] }> = [
+const GROUPS: Array<{
+	label: string
+	items: NavItem[]
+}> = [
 	{
 		label: 'Principal',
 		items: [
@@ -106,17 +106,13 @@ const GROUPS: Array<{ label: string; items: NavItem[] }> = [
 		],
 	},
 ]
-
 const FOOTER_ITEMS = [
 	{ title: 'Ver como comprador', icon: Store, href: '/feed/explorar' },
 	{ title: 'Sair', icon: LogOut, href: '/log-out' },
 ]
-
 const ALL_NAV_HREFS = GROUPS.flatMap((group) =>
 	group.items.map((item) => item.href)
 )
-
-/** Exact path, or longest nav href that is a parent of the current path. */
 function resolveActiveHref(pathname: string): string | null {
 	const matches = ALL_NAV_HREFS.filter(
 		(href) => pathname === href || pathname.startsWith(`${href}/`)
@@ -126,13 +122,11 @@ function resolveActiveHref(pathname: string): string | null {
 		href.length > best.length ? href : best
 	)
 }
-
 export const SellerSidebar = () => {
 	const pathname = usePathname()
 	const { data: unread } = useUnreadCounts()
 	const { can, isLoading } = useSellerAccess()
 	const activeHref = resolveActiveHref(pathname)
-
 	return (
 		<Sidebar
 			className='border-r border-sidebar-border bg-sidebar'
@@ -155,12 +149,10 @@ export const SellerSidebar = () => {
 				{GROUPS.map((group) => {
 					const items = group.items.filter((item) => {
 						if (!item.permission) return true
-						// While loading access, keep links visible to avoid flicker
 						if (isLoading) return true
 						return can(item.permission)
 					})
 					if (items.length === 0) return null
-
 					return (
 						<SidebarGroup key={group.label}>
 							<SidebarGroupLabel>
@@ -172,12 +164,10 @@ export const SellerSidebar = () => {
 										const Icon = item.icon
 										const isActive =
 											activeHref === item.href
-
 										const badgeCount =
 											item.badgeKey && unread
 												? unread[item.badgeKey]
 												: 0
-
 										return (
 											<SidebarMenuItem key={item.title}>
 												<SidebarMenuButton
@@ -219,7 +209,6 @@ export const SellerSidebar = () => {
 					{FOOTER_ITEMS.map((item) => {
 						const Icon = item.icon
 						const isViewAsBuyer = item.href === '/feed/explorar'
-
 						return (
 							<SidebarMenuItem key={item.title}>
 								<SidebarMenuButton

@@ -7,20 +7,17 @@ const exploreLinks = [
 	{ label: 'Produtos', href: '/feed/explorar' },
 	{ label: 'Lojas', href: '/feed/explorar?tab=stores' },
 ]
-
 const resourceLinks = [
 	{ label: 'Perguntas frequentes', href: '/perguntas-frequentes' },
 	{ label: 'Abrir uma loja', href: '/onboarding/seller' },
 	{ label: 'Painel da loja', href: '/dashboard/seller' },
 ]
-
 const socialLinks = [
 	{ icon: Share2, href: '#', label: 'Partilhar' },
 	{ icon: Globe, href: '#', label: 'Website' },
 	{ icon: MessageCircle, href: '#', label: 'Mensagens' },
 	{ icon: Mail, href: 'mailto:ola@zuka.co.mz', label: 'Email' },
 ]
-
 export const AppFooter = () => {
 	return (
 		<footer className='mt-auto border-t border-border/60 bg-muted/20'>

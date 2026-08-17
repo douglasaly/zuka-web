@@ -31,7 +31,6 @@ function ProductsFallback() {
 		</div>
 	)
 }
-
 export default function SellerProductsPage() {
 	return (
 		<Suspense fallback={<ProductsFallback />}>

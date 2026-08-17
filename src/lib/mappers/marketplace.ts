@@ -6,12 +6,10 @@ type DbImage = {
 	is_primary?: boolean | null
 	position?: number | null
 }
-
 type DbRating = {
 	rating_avg?: number | null
 	rating_count?: number | null
 }
-
 type DbStore = {
 	id: string
 	name: string
@@ -26,10 +24,11 @@ type DbStore = {
 	whatsapp?: string | null
 	email?: string | null
 	has_delivery?: boolean | null
-	provinces?: { name: string } | null
+	provinces?: {
+		name: string
+	} | null
 	store_ratings?: DbRating | DbRating[] | null
 }
-
 type DbProduct = {
 	id: string
 	name: string
@@ -43,32 +42,31 @@ type DbProduct = {
 	store_id: string
 	created_at?: string | null
 	stores?: DbStore | null
-	categories?: { id: string; name: string; slug: string } | null
+	categories?: {
+		id: string
+		name: string
+		slug: string
+	} | null
 	product_images?: DbImage[] | null
 	product_ratings?: DbRating | DbRating[] | null
 }
-
-/** Strip invalid or dev-only placeholder URLs so components fall back to local images. */
 function sanitizeUrl(url: string | null | undefined): string | null {
 	if (!url) return null
 	if (url.startsWith('data:')) return null
 	if (url.includes('via.placeholder.com')) return null
 	return url
 }
-
 function pickPrimaryImage(images?: DbImage[] | null) {
 	if (!images?.length) return null
 	const primary = images.find((img) => img.is_primary) ?? images[0]
 	return sanitizeUrl(primary?.url)
 }
-
 function storeLocation(store?: DbStore | null) {
 	if (!store) return ''
 	const province = store.provinces?.name ?? ''
 	const neighborhood = store.state ?? ''
 	return [province, neighborhood].filter(Boolean).join(' · ')
 }
-
 function pickRating(ratings?: DbRating | DbRating[] | null): {
 	avg: number
 	count: number
@@ -79,7 +77,6 @@ function pickRating(ratings?: DbRating | DbRating[] | null): {
 		count: Number(row?.rating_count ?? 0),
 	}
 }
-
 export function mapProductRow(row: DbProduct): Product {
 	const store = row.stores
 	const createdAt = row.created_at ? new Date(row.created_at) : null
@@ -88,7 +85,6 @@ export function mapProductRow(row: DbProduct): Product {
 		Date.now() - createdAt.getTime() < 1000 * 60 * 60 * 24 * 14
 	const productRating = pickRating(row.product_ratings)
 	const storeRating = pickRating(store?.store_ratings)
-
 	return {
 		id: row.id,
 		name: row.name,
@@ -116,7 +112,6 @@ export function mapProductRow(row: DbProduct): Product {
 		categoryName: row.categories?.name,
 	}
 }
-
 export function mapGroupedProduct(item: {
 	product: Record<string, unknown>
 	store: Record<string, unknown> | null
@@ -130,12 +125,13 @@ export function mapGroupedProduct(item: {
 		product_images: item.images as DbImage[],
 	})
 }
-
 export function mapStoreRow(
-	store: DbStore & { product_count?: number; follower_count?: number }
+	store: DbStore & {
+		product_count?: number
+		follower_count?: number
+	}
 ): StoreProfile {
 	const rating = pickRating(store.store_ratings)
-
 	return {
 		id: store.id,
 		name: store.name,
@@ -156,7 +152,6 @@ export function mapStoreRow(
 		status: store.status ?? null,
 	}
 }
-
 const orderStatusMap = {
 	PENDING: { status: 'pending' as const, label: 'Pendente' },
 	CONTACTED: { status: 'pending' as const, label: 'Contactado' },
@@ -164,7 +159,6 @@ const orderStatusMap = {
 	COMPLETED: { status: 'completed' as const, label: 'Entregue' },
 	CANCELLED: { status: 'cancelled' as const, label: 'Cancelado' },
 }
-
 export function mapOrderRow(order: {
 	id: string
 	total: number
@@ -172,12 +166,14 @@ export function mapOrderRow(order: {
 	item_count: number
 	status: string
 	created_at: string
-	stores?: { name: string; logo_url?: string | null } | null
+	stores?: {
+		name: string
+		logo_url?: string | null
+	} | null
 }): OrderSummary {
 	const mapped =
 		orderStatusMap[order.status as keyof typeof orderStatusMap] ??
 		orderStatusMap.PENDING
-
 	return {
 		id: order.id,
 		storeName: order.stores?.name ?? 'Loja',

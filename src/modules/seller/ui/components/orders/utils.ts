@@ -1,6 +1,5 @@
 import { DEFAULT_PER_PAGE, PER_PAGE_OPTIONS } from './constants'
 import type { PendingAction } from './types'
-
 export function formatOrderDate(iso: string) {
 	return new Date(iso).toLocaleDateString('pt-PT', {
 		day: 'numeric',
@@ -8,7 +7,6 @@ export function formatOrderDate(iso: string) {
 		year: 'numeric',
 	})
 }
-
 export function confirmCopy(action: PendingAction) {
 	switch (action.nextStatus) {
 		case 'SHIPPING':
@@ -41,7 +39,6 @@ export function confirmCopy(action: PendingAction) {
 			}
 	}
 }
-
 export function buildPageList(
 	current: number,
 	totalPages: number
@@ -63,7 +60,6 @@ export function buildPageList(
 	}
 	return result
 }
-
 export function parsePerPage(
 	raw: string | null,
 	options?: {

@@ -1,13 +1,8 @@
 'use client'
-
 import { Eye, EyeOff } from 'lucide-react'
 import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { Input } from '@/components/ui/input'
 
-/**
- * Password field with visibility toggle — same interaction as signup's
- * PasswordInputField, without onboarding input chrome (fits profile cards).
- */
 type PasswordToggleFieldProps = {
 	id: string
 	value: string
@@ -19,7 +14,6 @@ type PasswordToggleFieldProps = {
 	required?: boolean
 	placeholder?: string
 }
-
 export function PasswordToggleField({
 	id,
 	value,

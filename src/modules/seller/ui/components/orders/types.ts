@@ -1,8 +1,6 @@
 import type { OrderStatus } from '@/lib/orders/status-transitions'
 import type { OrderSheetPendingAction } from '../seller-order-detail-sheet'
-
 export type ReviewState = 'none' | 'awaiting' | 'done'
-
 export type SellerOrder = {
 	id: string
 	shortId: string
@@ -23,7 +21,6 @@ export type SellerOrder = {
 		cancel: boolean
 	}
 }
-
 export type OrdersResponse = {
 	orders: SellerOrder[]
 	total: number
@@ -32,5 +29,4 @@ export type OrdersResponse = {
 	totalPages: number
 	hasMore: boolean
 }
-
 export type PendingAction = OrderSheetPendingAction

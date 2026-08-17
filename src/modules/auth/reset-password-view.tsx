@@ -1,5 +1,4 @@
 'use client'
-
 import { sendPasswordResetEmail } from 'firebase/auth'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -16,40 +15,40 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { auth } from '@/lib/firebase/firebase-client'
-
 export const ResetPasswordView = () => {
 	const router = useRouter()
 	const [email, setEmail] = useState('')
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
-
 	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault()
 		setLoading(true)
 		setError(null)
-
 		try {
 			await sendPasswordResetEmail(auth, email, {
 				url: `${window.location.origin}/auth/redefinir`,
 				handleCodeInApp: true,
 			})
-
 			router.push(
 				`/auth/recuperar/confirmacao?email=${encodeURIComponent(email)}`
 			)
 		} catch (err: unknown) {
 			const firebaseCode =
 				err && typeof err === 'object' && 'code' in err
-					? String((err as { code: string }).code)
+					? String(
+							(
+								err as {
+									code: string
+								}
+							).code
+						)
 					: ''
-
 			const messages: Record<string, string> = {
 				'auth/user-not-found': 'Não existe conta com este email.',
 				'auth/invalid-email': 'Email inválido. Verifique o endereço.',
 				'auth/too-many-requests':
 					'Muitas tentativas. Aguarde alguns minutos e tente novamente.',
 			}
-
 			setError(
 				messages[firebaseCode] ||
 					'Ocorreu um erro ao enviar o email. Tente novamente.'
@@ -58,7 +57,6 @@ export const ResetPasswordView = () => {
 			setLoading(false)
 		}
 	}
-
 	return (
 		<div className='flex min-h-screen items-center justify-center bg-muted/25 px-4 py-12'>
 			<div className='w-full max-w-md space-y-6'>

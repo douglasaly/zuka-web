@@ -1,5 +1,4 @@
 'use client'
-
 import { ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import type { ReactNode } from 'react'
@@ -19,13 +18,11 @@ interface OnboardingShellProps {
 	className?: string
 	maxWidth?: 'sm' | 'md' | 'lg'
 }
-
 const maxWidthClass = {
 	sm: 'max-w-md',
 	md: 'max-w-xl',
 	lg: 'max-w-2xl',
 }
-
 export function OnboardingShell({
 	title,
 	subtitle,
@@ -39,7 +36,6 @@ export function OnboardingShell({
 	maxWidth = 'md',
 }: OnboardingShellProps) {
 	const router = useRouter()
-
 	function handleBack() {
 		if (onBack) {
 			onBack()
@@ -47,7 +43,6 @@ export function OnboardingShell({
 		}
 		router.back()
 	}
-
 	return (
 		<div className='flex flex-1 flex-col bg-background'>
 			<div className='mx-auto flex w-full flex-1 flex-col px-4 py-6 sm:px-6 sm:py-10'>
@@ -88,7 +83,12 @@ export function OnboardingShell({
 						)}
 					</div>
 
-					<div className={cn('flex-1 space-y-5 sm:space-y-6', className)}>
+					<div
+						className={cn(
+							'flex-1 space-y-5 sm:space-y-6',
+							className
+						)}
+					>
 						{children}
 					</div>
 				</div>

@@ -1,15 +1,4 @@
 'use client'
-
-/**
- * THESIS: Thread as a focused reply surface — buyer identity leads, bubbles
- * scan by side, composer stays reachable; refuses anonymous "Conversa" chrome.
- * OWN-WORLD: Seller Operate + inbox list grammar; desktop split fills the void.
- * STORY: Read buyer thread → reply → stay in flow.
- * FIRST VIEWPORT: Header + messages + composer (list alongside on lg).
- * FORM: Extend seller inbox Operate surface.
- * ADAPT: Fixed viewport height, safe-area composer, touch targets, internal scroll.
- */
-
 import { useSellerConversation } from '@/modules/seller/hooks/use-seller-conversation'
 import { SellerConversationComposer } from '@/modules/seller/ui/sections/seller-conversation-composer'
 import { SellerConversationHeader } from '@/modules/seller/ui/sections/seller-conversation-header'
@@ -18,19 +7,15 @@ import { SellerConversationMessages } from '@/modules/seller/ui/sections/seller-
 import { useSetSellerPageMeta } from '../layouts/seller-page-meta'
 
 const SHELL = '-m-4 flex h-[calc(100dvh-76px)] min-w-0 sm:-m-6'
-
 type SellerConversationViewProps = {
 	id: string
 }
-
 export const SellerConversationView = ({ id }: SellerConversationViewProps) => {
 	useSetSellerPageMeta({
 		title: 'Mensagens',
 		crumbs: ['Dashboard', 'Mensagens'],
 	})
-
 	const c = useSellerConversation(id)
-
 	return (
 		<div className={SHELL}>
 			<SellerConversationInboxRail

@@ -1,5 +1,4 @@
 'use client'
-
 import { ChevronRight, ExternalLink, type LucideIcon } from 'lucide-react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
@@ -11,7 +10,6 @@ type SettingsNavRowProps = {
 	href: string
 	external?: boolean
 }
-
 export function SettingsNavRow({
 	icon: Icon,
 	title,
@@ -24,7 +22,6 @@ export function SettingsNavRow({
 		'hover:bg-muted/40 focus-visible:bg-muted/40 focus-visible:outline-none',
 		'focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset'
 	)
-
 	const content = (
 		<>
 			<span className='flex size-9 shrink-0 items-center justify-center rounded-xl bg-muted/70'>
@@ -49,7 +46,6 @@ export function SettingsNavRow({
 			)}
 		</>
 	)
-
 	if (external) {
 		return (
 			<a
@@ -62,7 +58,6 @@ export function SettingsNavRow({
 			</a>
 		)
 	}
-
 	return (
 		<Link href={href} className={className}>
 			{content}

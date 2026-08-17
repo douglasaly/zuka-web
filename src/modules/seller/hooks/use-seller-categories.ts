@@ -1,5 +1,4 @@
 'use client'
-
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useDeferredValue, useMemo, useState } from 'react'
 import { toast } from 'sonner'
@@ -9,14 +8,12 @@ import type {
 } from '@/modules/seller/ui/components/categories/types'
 import { EMPTY_FORM } from '@/modules/seller/ui/components/categories/types'
 import { Slug } from '@/utils/slug'
-
 export function useSellerCategories() {
 	const queryClient = useQueryClient()
 	const [form, setForm] = useState<CategoryForm | null>(null)
 	const [deleteTarget, setDeleteTarget] = useState<Category | null>(null)
 	const [query, setQuery] = useState('')
 	const deferredQuery = useDeferredValue(query)
-
 	const { data, isLoading, isError, refetch } = useQuery<{
 		categories: Category[]
 	}>({
@@ -27,7 +24,6 @@ export function useSellerCategories() {
 			return res.json()
 		},
 	})
-
 	const categories = data?.categories ?? []
 	const roots = useMemo(
 		() =>
@@ -39,7 +35,6 @@ export function useSellerCategories() {
 				),
 		[categories]
 	)
-
 	function childrenOf(parentId: string) {
 		return categories
 			.filter((c) => c.parentId === parentId)
@@ -48,7 +43,6 @@ export function useSellerCategories() {
 					a.position - b.position || a.name.localeCompare(b.name)
 			)
 	}
-
 	const visibleRoots = useMemo(() => {
 		const q = deferredQuery.trim().toLowerCase()
 		if (!q) return roots
@@ -65,10 +59,8 @@ export function useSellerCategories() {
 			)
 		})
 	}, [roots, categories, deferredQuery])
-
 	const isFiltering = deferredQuery.trim().length > 0
 	const subCount = categories.length - roots.length
-
 	const saveMutation = useMutation({
 		mutationFn: async () => {
 			if (!form?.name.trim()) throw new Error('O nome é obrigatório')
@@ -112,7 +104,6 @@ export function useSellerCategories() {
 		},
 		onError: (error: Error) => toast.error(error.message),
 	})
-
 	const deleteMutation = useMutation({
 		mutationFn: async (id: string) => {
 			const res = await fetch('/api/seller/categories', {
@@ -133,9 +124,13 @@ export function useSellerCategories() {
 		},
 		onError: (error: Error) => toast.error(error.message),
 	})
-
 	const reorderMutation = useMutation({
-		mutationFn: async (items: Array<{ id: string; position: number }>) => {
+		mutationFn: async (
+			items: Array<{
+				id: string
+				position: number
+			}>
+		) => {
 			const res = await fetch('/api/seller/categories', {
 				method: 'PATCH',
 				headers: { 'Content-Type': 'application/json' },
@@ -151,7 +146,6 @@ export function useSellerCategories() {
 		},
 		onError: (error: Error) => toast.error(error.message),
 	})
-
 	function move(list: Category[], index: number, direction: -1 | 1) {
 		const target = index + direction
 		if (target < 0 || target >= list.length) return
@@ -163,11 +157,9 @@ export function useSellerCategories() {
 			next.map((item, position) => ({ id: item.id, position }))
 		)
 	}
-
 	function openCreate() {
 		setForm({ ...EMPTY_FORM })
 	}
-
 	function openEdit(cat: Category) {
 		setForm({
 			id: cat.id,
@@ -176,15 +168,12 @@ export function useSellerCategories() {
 			parentId: cat.parentId ?? '',
 		})
 	}
-
 	function clearDeleteTarget() {
 		setDeleteTarget(null)
 	}
-
 	function confirmDelete() {
 		if (deleteTarget) deleteMutation.mutate(deleteTarget.id)
 	}
-
 	return {
 		form,
 		setForm,

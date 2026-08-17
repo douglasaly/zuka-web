@@ -18,7 +18,6 @@ export interface MockProduct {
 	description: string
 	category: string
 }
-
 export interface MockStore {
 	id: string
 	name: string
@@ -36,7 +35,6 @@ export interface MockStore {
 	phone: string
 	about: string
 }
-
 export interface MockOrder {
 	id: string
 	storeName: string
@@ -48,7 +46,6 @@ export interface MockOrder {
 	status: 'shipping' | 'pending' | 'completed' | 'cancelled'
 	statusLabel: string
 }
-
 export const exploreCategories = [
 	{ value: 'all', label: 'Todos' },
 	{ value: 'electronics', label: 'Electrónica' },
@@ -59,7 +56,6 @@ export const exploreCategories = [
 	{ value: 'footwear', label: 'Calçado' },
 	{ value: 'kids', label: 'Crianças' },
 ]
-
 export const mockProducts: MockProduct[] = [
 	{
 		id: '1',
@@ -224,7 +220,6 @@ export const mockProducts: MockProduct[] = [
 		description: 'Vestido elegante confeccionado em chitenge autêntico.',
 	},
 ]
-
 export const mockStores: MockStore[] = [
 	{
 		id: 'artesanato-beira',
@@ -284,7 +279,6 @@ export const mockStores: MockStore[] = [
 		about: 'Capulanas, chitenges e moda tradicional moçambicana.',
 	},
 ]
-
 export const mockOrders: MockOrder[] = [
 	{
 		id: 'ord-1',
@@ -335,19 +329,15 @@ export const mockOrders: MockOrder[] = [
 		statusLabel: 'Cancelado',
 	},
 ]
-
 export function getProductById(id: string) {
 	return mockProducts.find((p) => p.id === id)
 }
-
 export function getStoreBySlug(slug: string) {
 	return mockStores.find((s) => s.slug === slug)
 }
-
 export function getProductsByStore(slug: string) {
 	return mockProducts.filter((p) => p.storeSlug === slug)
 }
-
 export function getRelatedProducts(productId: string, limit = 4) {
 	const product = getProductById(productId)
 	if (!product) return mockProducts.slice(0, limit)

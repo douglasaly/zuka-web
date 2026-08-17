@@ -1,5 +1,4 @@
 'use client'
-
 import { ExternalLink, Lock, LogOut, Store, Users } from 'lucide-react'
 import type { StorePermission } from '@/lib/auth/store-permissions'
 import { SettingsBand } from '@/modules/seller/ui/components/settings/settings-band'
@@ -9,7 +8,6 @@ type SellerSettingsDestinationsProps = {
 	can: (permission: StorePermission) => boolean
 	storeSlug?: string | null
 }
-
 export function SellerSettingsDestinations({
 	can,
 	storeSlug,

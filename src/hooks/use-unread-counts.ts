@@ -1,16 +1,12 @@
 'use client'
-
 import { useQuery } from '@tanstack/react-query'
 import { useUserProfile } from './use-user-profile'
-
 export type UnreadCounts = {
 	pendingOrders: number
 	unreadMessages: number
 }
-
 export function useUnreadCounts() {
 	const { isAuthenticated, profile } = useUserProfile()
-
 	return useQuery<UnreadCounts>({
 		queryKey: ['unread-counts', profile?.id],
 		queryFn: async () => {
@@ -27,7 +23,7 @@ export function useUnreadCounts() {
 			}
 		},
 		enabled: isAuthenticated,
-		refetchInterval: 30_000,
-		staleTime: 10_000,
+		refetchInterval: 30000,
+		staleTime: 10000,
 	})
 }

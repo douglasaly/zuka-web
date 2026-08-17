@@ -1,5 +1,4 @@
 'use client'
-
 import { Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
 import { IconTooltipButton } from '@/components/icon-tooltip-button'
@@ -16,7 +15,6 @@ type PasswordInputFieldProps = {
 	required?: boolean
 	id?: string
 }
-
 export function PasswordInputField({
 	value,
 	onChange,
@@ -27,7 +25,6 @@ export function PasswordInputField({
 	id,
 }: PasswordInputFieldProps) {
 	const [visible, setVisible] = useState(false)
-
 	return (
 		<div className='relative'>
 			<Input

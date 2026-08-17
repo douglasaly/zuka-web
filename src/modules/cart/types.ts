@@ -1,7 +1,5 @@
 import type { Product } from '@/types/marketplace'
-
 export const MAX_CART_QUANTITY = 99
-
 export type CartProductInput = Pick<
 	Product,
 	| 'id'
@@ -15,7 +13,6 @@ export type CartProductInput = Pick<
 	| 'storeSlug'
 	| 'storeAvatar'
 >
-
 export type CartItem = {
 	productId: string
 	name: string
@@ -24,7 +21,6 @@ export type CartItem = {
 	unitPrice: number
 	currency: string
 }
-
 export type Cart = {
 	storeId: string
 	storeName: string
@@ -33,17 +29,18 @@ export type Cart = {
 	items: CartItem[]
 	updatedAt: number
 }
-
 export type CartsState = {
 	carts: Record<string, Cart>
 	hasHydrated: boolean
 }
-
 export type CartActions = {
 	addItem: (
 		product: CartProductInput,
 		quantity?: number
-	) => { storeId: string; merged: boolean }
+	) => {
+		storeId: string
+		merged: boolean
+	}
 	removeItem: (storeId: string, productId: string) => void
 	updateQuantity: (
 		storeId: string,
@@ -60,7 +57,6 @@ export type CartActions = {
 	) => void
 	markHydrated: () => void
 }
-
 export type ReconciledProduct = {
 	productId: string
 	currentPrice: number | null

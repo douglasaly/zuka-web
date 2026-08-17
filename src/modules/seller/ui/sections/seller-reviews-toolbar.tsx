@@ -1,5 +1,4 @@
 'use client'
-
 import { Search, Star, X } from 'lucide-react'
 import Link from 'next/link'
 import { IconTooltipButton } from '@/components/icon-tooltip-button'
@@ -18,7 +17,6 @@ type SellerReviewsToolbarProps = {
 	onNeedsReplyChange: (value: boolean) => void
 	resultLabel: string
 }
-
 export function SellerReviewsToolbar({
 	scope,
 	onScopeChange,
@@ -109,7 +107,6 @@ export function SellerReviewsToolbar({
 		</div>
 	)
 }
-
 export function SellerReviewsEmptyState() {
 	return (
 		<div className='flex w-full flex-col items-center rounded-2xl border border-border bg-card px-6 py-16 text-center sm:py-20'>
@@ -133,7 +130,6 @@ export function SellerReviewsEmptyState() {
 		</div>
 	)
 }
-
 export function SellerReviewsFilteredEmpty({
 	onClear,
 }: {
@@ -155,7 +151,6 @@ export function SellerReviewsFilteredEmpty({
 		</div>
 	)
 }
-
 export function SellerReviewsErrorState({ onRetry }: { onRetry: () => void }) {
 	return (
 		<div className='flex w-full flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-muted/20 px-6 py-16 text-center'>
@@ -176,7 +171,6 @@ export function SellerReviewsErrorState({ onRetry }: { onRetry: () => void }) {
 		</div>
 	)
 }
-
 export function ReviewsSkeleton() {
 	return (
 		<div className='space-y-5'>

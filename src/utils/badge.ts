@@ -1,5 +1,4 @@
 type BadgeType = 'promo' | 'active' | 'hidden'
-
 export const getBadge = (product: {
 	discountPrice?: number | null
 	price: number

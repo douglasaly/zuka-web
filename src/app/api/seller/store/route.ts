@@ -14,26 +14,21 @@ const STORE_SELECT = `
 	has_delivery, delivery_zones,
 	provinces ( name )
 `
-
 type StoreStatus = Database['public']['Enums']['store_status']
 type StoreRow = NonNullable<
 	Awaited<ReturnType<typeof fetchStoreDetail>>['store']
 >
-
 async function fetchStoreDetail(storeId: string) {
 	const supabase = createSupabaseAdmin()
-
 	const { data: store, error } = await supabase
 		.from('stores')
 		.select(STORE_SELECT)
 		.eq('id', storeId)
 		.is('deleted_at', null)
 		.maybeSingle()
-
 	if (error) throw error
 	return { supabase, store }
 }
-
 async function loadStoreBundle(
 	supabase: ReturnType<typeof createSupabaseAdmin>,
 	storeId: string,
@@ -54,15 +49,12 @@ async function loadStoreBundle(
 			.is('deleted_at', null)
 			.order('created_at', { ascending: false }),
 	])
-
 	return mapSellerStoreDetail(store, count ?? 0, documents ?? [])
 }
-
 export async function GET() {
 	try {
 		const auth = await requireSellerStore({ permission: 'store.read' })
 		if (isSellerStoreAuthError(auth)) return auth.error
-
 		const { supabase, store } = await fetchStoreDetail(auth.store.id)
 		if (!store) {
 			return NextResponse.json(
@@ -70,7 +62,6 @@ export async function GET() {
 				{ status: 404 }
 			)
 		}
-
 		const detail = await loadStoreBundle(
 			supabase,
 			store.id as string,
@@ -85,12 +76,10 @@ export async function GET() {
 		)
 	}
 }
-
 export async function PATCH(request: Request) {
 	try {
 		const auth = await requireSellerStore({ permission: 'store.update' })
 		if (isSellerStoreAuthError(auth)) return auth.error
-
 		const user = auth.user
 		const body = await request.json()
 		const parsed = UpdateSellerStoreSchema.safeParse(body)
@@ -100,7 +89,6 @@ export async function PATCH(request: Request) {
 				{ status: 400 }
 			)
 		}
-
 		const {
 			name,
 			slug,
@@ -117,7 +105,6 @@ export async function PATCH(request: Request) {
 			deliveryZones,
 			currentStep,
 		} = parsed.data
-
 		const { supabase, store } = await fetchStoreDetail(auth.store.id)
 		if (!store) {
 			return NextResponse.json(
@@ -125,14 +112,12 @@ export async function PATCH(request: Request) {
 				{ status: 404 }
 			)
 		}
-
 		if (logoUrl && logoUrl !== store.logo_url && !isR2PublicUrl(logoUrl)) {
 			return NextResponse.json(
 				{ error: 'O logo deve ser carregado para o armazenamento' },
 				{ status: 400 }
 			)
 		}
-
 		if (
 			bannerUrl &&
 			bannerUrl !== store.banner_url &&
@@ -143,15 +128,12 @@ export async function PATCH(request: Request) {
 				{ status: 400 }
 			)
 		}
-
 		const updates: Database['public']['Tables']['stores']['Update'] = {
 			updated_at: new Date().toISOString(),
 		}
-
 		if (typeof name === 'string' && name.trim()) {
 			updates.name = name.trim()
 		}
-
 		if (typeof slug === 'string' && slug.trim()) {
 			const nextSlug = Slug(slug)
 			if (!nextSlug) {
@@ -160,7 +142,6 @@ export async function PATCH(request: Request) {
 					{ status: 400 }
 				)
 			}
-
 			if (nextSlug !== store.slug) {
 				const { data: conflict } = await supabase
 					.from('stores')
@@ -168,7 +149,6 @@ export async function PATCH(request: Request) {
 					.eq('slug', nextSlug)
 					.neq('id', store.id as string)
 					.maybeSingle()
-
 				if (conflict) {
 					return NextResponse.json(
 						{ error: 'Este slug já está em uso' },
@@ -176,10 +156,8 @@ export async function PATCH(request: Request) {
 					)
 				}
 			}
-
 			updates.slug = nextSlug
 		}
-
 		if (logoUrl !== undefined && logoUrl !== store.logo_url) {
 			updates.logo_url = logoUrl
 		}
@@ -198,7 +176,6 @@ export async function PATCH(request: Request) {
 		if (provinceId !== undefined) updates.province_id = provinceId
 		if (typeof neighborhood === 'string')
 			updates.state = neighborhood.trim()
-
 		if (status === 'ACTIVE' || status === 'INACTIVE') {
 			const current = store.status as StoreStatus | null
 			if (
@@ -215,7 +192,6 @@ export async function PATCH(request: Request) {
 			}
 			updates.status = status
 		}
-
 		if (hasDelivery !== undefined)
 			updates.has_delivery = Boolean(hasDelivery)
 		if (Array.isArray(deliveryZones)) {
@@ -223,42 +199,35 @@ export async function PATCH(request: Request) {
 				.map((z: unknown) => String(z).trim())
 				.filter(Boolean)
 		}
-
 		const { error: storeError } = await supabase
 			.from('stores')
 			.update(updates)
 			.eq('id', store.id as string)
-
 		if (storeError) throw storeError
-
 		if (currentStep || hasDelivery !== undefined) {
 			const { data: sellerProfile } = await supabase
 				.from('seller_profiles')
 				.select('id')
 				.eq('user_id', user.id as string)
 				.maybeSingle()
-
 			if (sellerProfile) {
 				const { data: onboarding } = await supabase
 					.from('seller_onboarding')
 					.select('id')
 					.eq('seller_profile_id', sellerProfile.id as string)
 					.maybeSingle()
-
 				if (onboarding) {
 					const onboardingUpdates: Record<string, unknown> = {
 						updated_at: new Date().toISOString(),
 					}
 					if (currentStep)
 						onboardingUpdates.current_step = currentStep
-
 					await supabase
 						.from('seller_onboarding')
 						.update(
 							onboardingUpdates as Database['public']['Tables']['seller_onboarding']['Update']
 						)
 						.eq('id', onboarding.id as string)
-
 					if (hasDelivery !== undefined) {
 						await supabase.from('seller_onboarding_steps').insert({
 							id: uuidv7(),
@@ -271,7 +240,6 @@ export async function PATCH(request: Request) {
 				}
 			}
 		}
-
 		const { store: refreshed } = await fetchStoreDetail(auth.store.id)
 		if (!refreshed) {
 			return NextResponse.json(
@@ -279,13 +247,11 @@ export async function PATCH(request: Request) {
 				{ status: 404 }
 			)
 		}
-
 		const detail = await loadStoreBundle(
 			supabase,
 			refreshed.id as string,
 			refreshed
 		)
-
 		return NextResponse.json({ success: true, store: detail })
 	} catch (error) {
 		console.error('[PATCH /api/seller/store]', error)

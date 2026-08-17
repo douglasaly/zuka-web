@@ -1,5 +1,4 @@
 'use client'
-
 import { Search, X } from 'lucide-react'
 import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { Input } from '@/components/ui/input'
@@ -15,13 +14,14 @@ type ProductReviewsToolbarProps = {
 	onClearRating: () => void
 	resultLabel: string
 }
-
-const SORT_OPTIONS: { value: ProductReviewSort; label: string }[] = [
+const SORT_OPTIONS: {
+	value: ProductReviewSort
+	label: string
+}[] = [
 	{ value: 'recent', label: 'Mais recentes' },
 	{ value: 'highest', label: 'Maior nota' },
 	{ value: 'lowest', label: 'Menor nota' },
 ]
-
 export function ProductReviewsToolbar({
 	search,
 	onSearchChange,

@@ -1,5 +1,4 @@
 'use client'
-
 import { useUserDetail } from '@/modules/admin/hooks/use-user-detail'
 import { UserDetailActions } from '../sections/user-detail-actions'
 import { UserDetailCards } from '../sections/user-detail-cards'
@@ -8,17 +7,14 @@ import {
 	UserDetailNotFound,
 } from '../sections/user-detail-gates'
 import { UserDetailHeader } from '../sections/user-detail-profile'
-
 export function UserDetailView({ id }: { id: string }) {
 	const d = useUserDetail(id)
-
 	if (d.isLoading) {
 		return <UserDetailLoading />
 	}
 	if (!d.user) {
 		return <UserDetailNotFound />
 	}
-
 	return (
 		<div className='max-w-2xl space-y-6'>
 			<UserDetailHeader user={d.user} />

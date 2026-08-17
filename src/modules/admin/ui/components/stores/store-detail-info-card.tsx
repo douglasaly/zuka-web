@@ -14,7 +14,6 @@ export function StoreDetailInfoCard({
 		</div>
 	)
 }
-
 export function StoreDetailInfoRow({
 	label,
 	value,

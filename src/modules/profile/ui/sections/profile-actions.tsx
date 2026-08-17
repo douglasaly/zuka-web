@@ -11,7 +11,6 @@ type ProfileActionsProps = {
 	profile: UserProfile
 	isSeller: boolean
 }
-
 export function ProfileActions({ profile, isSeller }: ProfileActionsProps) {
 	return (
 		<div className='grid gap-3 sm:grid-cols-2'>
