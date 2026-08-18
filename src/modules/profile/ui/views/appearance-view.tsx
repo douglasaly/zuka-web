@@ -48,53 +48,55 @@ export const AppearanceView = () => {
 				</div>
 			</div>
 
-			<div className='grid gap-4 sm:grid-cols-3'>
-				{THEMES.map(({ id, label, description, icon: Icon }) => {
-					const isActive = mounted && theme === id
-					return (
-						<button
-							type='button'
-							key={id}
-							onClick={() => setTheme(id)}
-							className={`group relative flex flex-col items-center gap-3 rounded-2xl border-2 p-6 text-center transition-all hover:border-secondary/50 ${
-								isActive
-									? 'border-secondary bg-secondary/5'
-									: 'border-border/60 bg-card'
-							}`}
-						>
-							<div
-								className={`flex size-12 items-center justify-center rounded-full transition-colors ${
+			<div className='flex flex-col justify-center items-center h-full min-h-[60vh]'>
+				<div className='grid gap-4 sm:grid-cols-3'>
+					{THEMES.map(({ id, label, description, icon: Icon }) => {
+						const isActive = mounted && theme === id
+						return (
+							<button
+								type='button'
+								key={id}
+								onClick={() => setTheme(id)}
+								className={`group relative flex flex-col items-center gap-3 rounded-2xl border-2 p-6 text-center transition-all hover:border-secondary/50 ${
 									isActive
-										? 'bg-secondary text-secondary-foreground'
-										: 'bg-muted text-muted-foreground group-hover:bg-secondary/10'
+										? 'border-secondary bg-secondary/5'
+										: 'border-border/60 bg-card'
 								}`}
 							>
-								<Icon className='size-6' />
-							</div>
-
-							<div>
-								<p
-									className={`text-sm font-semibold ${
+								<div
+									className={`flex size-12 items-center justify-center rounded-full transition-colors ${
 										isActive
-											? 'text-secondary'
-											: 'text-foreground'
+											? 'bg-secondary text-secondary-foreground'
+											: 'bg-muted text-muted-foreground group-hover:bg-secondary/10'
 									}`}
 								>
-									{label}
-								</p>
-								<p className='mt-1 text-xs text-muted-foreground'>
-									{description}
-								</p>
-							</div>
-
-							{isActive && (
-								<div className='absolute right-3 top-3 flex size-5 items-center justify-center rounded-full bg-secondary'>
-									<div className='size-2 rounded-full bg-secondary-foreground' />
+									<Icon className='size-6' />
 								</div>
-							)}
-						</button>
-					)
-				})}
+
+								<div>
+									<p
+										className={`text-sm font-semibold ${
+											isActive
+												? 'text-secondary'
+												: 'text-foreground'
+										}`}
+									>
+										{label}
+									</p>
+									<p className='mt-1 text-xs text-muted-foreground'>
+										{description}
+									</p>
+								</div>
+
+								{isActive && (
+									<div className='absolute right-3 top-3 flex size-5 items-center justify-center rounded-full bg-secondary'>
+										<div className='size-2 rounded-full bg-secondary-foreground' />
+									</div>
+								)}
+							</button>
+						)
+					})}
+				</div>
 			</div>
 		</div>
 	)

@@ -1,10 +1,9 @@
 'use client'
 import { useQuery } from '@tanstack/react-query'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
 import { fetchStoreBySlug } from '@/lib/api/marketplace'
+import { StoreNotFound } from '../components/not-found-stores'
 import { StoreAboutPanel } from '../components/store-about-panel'
 import { StoreHero } from '../components/store-hero'
 import { StoreInfoCard } from '../components/store-info-card'
@@ -28,17 +27,7 @@ export const StoreView = ({ slug }: StoreViewProps) => {
 		return <StoreSkeleton />
 	}
 	if (!data) {
-		return (
-			<div className='flex min-h-[50vh] flex-col items-center justify-center gap-4 px-4'>
-				<p className='text-muted-foreground'>Loja não encontrada.</p>
-				<Button
-					render={<Link href='/feed/explorar' />}
-					variant='outline'
-				>
-					Voltar a explorar
-				</Button>
-			</div>
-		)
+		return <StoreNotFound />
 	}
 	const { store, products } = data
 	const handleToggleSave = () => {

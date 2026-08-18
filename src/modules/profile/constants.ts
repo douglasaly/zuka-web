@@ -1,73 +1,10 @@
-export const MOCK_SAVED_ITEMS = [
-	{
-		id: '1',
-		imageUrl: '/placeholder.png',
-		name: 'Capulana tradicional estampada',
-		storeName: 'Loja da Fátima',
-		price: '850 MZN',
-	},
-	{
-		id: '2',
-		imageUrl: '/placeholder.png',
-		name: 'Colar artesanal de missangas',
-		storeName: 'Artesanato Maputo',
-		price: '320 MZN',
-	},
-	{
-		id: '3',
-		imageUrl: '/placeholder.png',
-		name: 'Cesto de palha decorativo',
-		storeName: 'Cestos & Cia',
-		price: '450 MZN',
-	},
-	{
-		id: '4',
-		imageUrl: '/placeholder.png',
-		name: 'Quadro pintado à mão - Baobá',
-		storeName: 'Arte Local MZ',
-		price: '1200 MZN',
-	},
-]
-export const MOCK_FOLLOWED_STORES = [
-	{
-		id: '1',
-		imageUrl: '/placeholder.png',
-		name: 'Loja da Fátima',
-		location: 'Maputo • Baixa',
-		verified: true,
-	},
-	{
-		id: '2',
-		imageUrl: '/placeholder.png',
-		name: 'Artesanato Maputo',
-		location: 'Maputo • Polana',
-		verified: true,
-	},
-	{
-		id: '3',
-		imageUrl: '/placeholder.png',
-		name: 'Cestos & Cia',
-		location: 'Matola • Centro',
-		verified: false,
-	},
-]
 export type SettingField = {
 	id: string
 	label: string
 	value: string
 	type: 'text' | 'email' | 'tel'
 }
-export const MOCK_ACCOUNT_FIELDS: SettingField[] = [
-	{ id: 'firstName', label: 'Nome', value: 'Fátima', type: 'text' },
-	{ id: 'lastName', label: 'Apelido', value: 'Cossa', type: 'text' },
-	{
-		id: 'email',
-		label: 'Email',
-		value: 'fatima.cossa@email.com',
-		type: 'email',
-	},
-	{ id: 'phone', label: 'Telefone', value: '+258 84 123 4567', type: 'tel' },
-]
+
 export type NotificationSetting = {
 	id: string
 	title: string
@@ -92,12 +29,6 @@ export const MOCK_NOTIFICATIONS: NotificationSetting[] = [
 		title: 'Mensagens',
 		description: 'Quando uma loja lhe responder uma mensagem',
 		enabled: true,
-	},
-	{
-		id: 'priceDrops',
-		title: 'Queda de preço',
-		description: 'Quando um produto guardado ficar mais barato',
-		enabled: false,
 	},
 ]
 export type PrivacySetting = {

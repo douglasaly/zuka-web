@@ -1,10 +1,8 @@
 'use client'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import { toast } from 'sonner'
-import { Button } from '@/components/ui/button'
 import { useSavedItems } from '@/hooks/use-saved-items'
 import {
 	fetchProduct,
@@ -17,6 +15,7 @@ import { ProductDescription } from '../components/product-description'
 import { ProductDetailSkeleton } from '../components/product-detail-skeleton'
 import { ProductGallery } from '../components/product-gallery'
 import { ProductHeader } from '../components/product-header'
+import { ProductNotFound } from '../components/product-not-found'
 import { ProductPrice } from '../components/product-price'
 import { ProductStoreCard } from '../components/product-store-card'
 import { RelatedProducts } from '../components/related-products'
@@ -81,17 +80,7 @@ export const ProductDetailView = ({ id }: ProductDetailViewProps) => {
 		return <ProductDetailSkeleton />
 	}
 	if (!data) {
-		return (
-			<div className='flex min-h-[50vh] flex-col items-center justify-center gap-4 px-4'>
-				<p className='text-muted-foreground'>Produto não encontrado.</p>
-				<Button
-					render={<Link href='/feed/explorar' />}
-					variant='outline'
-				>
-					Voltar a explorar
-				</Button>
-			</div>
-		)
+		return <ProductNotFound />
 	}
 	const { product, images } = data
 	const gallery =
