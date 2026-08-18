@@ -1,7 +1,6 @@
 'use client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ExternalLink, Loader2, Save } from 'lucide-react'
-import Link from 'next/link'
+import { Loader2, Save } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -137,26 +136,6 @@ export function StoreEditorForm({ store }: StoreEditorFormProps) {
 							? 'Tem alterações por guardar.'
 							: 'Aparência e dados públicos da sua loja.'}
 				</p>
-				<Button
-					variant='outline'
-					size='sm'
-					className='shrink-0 rounded-full'
-					render={
-						<Link
-							href={`/lojas/${form.slug || store.slug}`}
-							target='_blank'
-							rel='noopener noreferrer'
-						>
-							<span className='inline-flex items-center gap-1.5'>
-								<ExternalLink className='size-3.5' />
-								<span className='hidden sm:inline'>
-									Ver como comprador
-								</span>
-								<span className='sm:hidden'>Ver loja</span>
-							</span>
-						</Link>
-					}
-				/>
 			</div>
 
 			<StoreHeroPreview
@@ -192,7 +171,7 @@ export function StoreEditorForm({ store }: StoreEditorFormProps) {
 			</div>
 
 			{canUpdate ? (
-				<div className='fixed bottom-0 left-0 right-0 z-20 max-w-full border-t border-border/60 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80 md:left-(--sidebar-width)'>
+				<div className='fixed bottom-0 left-0 right-0 z-20 max-w-full bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80 md:left-(--sidebar-width)'>
 					<div className='mx-auto flex w-full max-w-6xl min-w-0 flex-wrap items-center justify-end gap-2 px-4 py-3 sm:justify-between sm:gap-3 sm:px-6'>
 						<p className='hidden min-w-0 flex-1 text-xs text-muted-foreground sm:block'>
 							{mediaUploading

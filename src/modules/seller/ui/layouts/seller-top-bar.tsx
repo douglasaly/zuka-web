@@ -1,6 +1,5 @@
 'use client'
-import { ExternalLink, Menu } from 'lucide-react'
-import Link from 'next/link'
+import { Menu } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { SidebarTrigger } from '@/components/ui/sidebar'
@@ -9,8 +8,8 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { setViewAsBuyerMode } from '@/lib/auth/view-as-buyer'
 import { NotificationDropdown } from '@/modules/notifications/ui/components/notification-dropdown'
+import { SellerStoreHeaderActions } from '../components/seller-store-header-actions'
 import { useSellerPageMeta } from './seller-page-meta'
 
 const SEGMENT_LABELS: Record<string, string> = {
@@ -103,16 +102,9 @@ export const SellerTopBar = () => {
 					</p>
 				</div>
 
-				<NotificationDropdown />
+				<SellerStoreHeaderActions />
 
-				<Link
-					href='/feed/explorar'
-					onClick={() => setViewAsBuyerMode()}
-					className='hidden items-center gap-1.5 rounded-lg border border-border/60 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground sm:flex'
-				>
-					<ExternalLink className='size-3' />
-					Ver como comprador
-				</Link>
+				<NotificationDropdown />
 			</div>
 		</header>
 	)

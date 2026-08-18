@@ -4,11 +4,13 @@ import {
 	type ReactNode,
 	useContext,
 	useEffect,
+	useRef,
 	useState,
 } from 'react'
 export type SellerPageMeta = {
 	title?: string | null
 	crumbs?: string[] | null
+	action?: ReactNode
 }
 type SellerPageMetaContextValue = {
 	meta: SellerPageMeta
@@ -38,10 +40,13 @@ export function useSetSellerPageMeta(meta: SellerPageMeta) {
 	const { setMeta } = useSellerPageMeta()
 	const title = meta.title ?? null
 	const crumbsKey = meta.crumbs?.join('|') ?? ''
+	const actionRef = useRef<ReactNode>(meta.action)
+	actionRef.current = meta.action
 	useEffect(() => {
 		setMeta({
 			title,
 			crumbs: crumbsKey ? crumbsKey.split('|') : null,
+			action: actionRef.current,
 		})
 		return () => setMeta({})
 	}, [title, crumbsKey, setMeta])

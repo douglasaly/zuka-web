@@ -22,7 +22,7 @@ export const SellerDashboardView = () => {
 
 			{stats.length > 0 && <SellerStatsGrid stats={stats} />}
 
-			<QuickActions storeSlug={storeSlug} />
+			<QuickActions storeSlug={storeSlug} storeName={storeName} />
 
 			<SellerTabs value={tab} onChange={setTab} />
 
