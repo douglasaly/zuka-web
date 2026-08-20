@@ -27,7 +27,7 @@ export function SellerStoreHeaderActions() {
 
 	const handleCopy = async () => {
 		if (!slug) return
-		await navigator.clipboard.writeText(absoluteUrl(`/loja/${slug}`))
+		await navigator.clipboard.writeText(absoluteUrl(`/lojas/${slug}`))
 		toast.success('Link copiado')
 		setCopied(true)
 		setTimeout(() => setCopied(false), 3000)
@@ -38,7 +38,7 @@ export function SellerStoreHeaderActions() {
 	return (
 		<div className='flex items-center gap-1.5'>
 			<Link
-				href={`/loja/${slug}`}
+				href={`/lojas/${slug}`}
 				target='_blank'
 				className='hidden items-center gap-1.5 rounded-lg border border-border/60 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground sm:flex'
 			>

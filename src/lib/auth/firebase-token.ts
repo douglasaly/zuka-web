@@ -9,8 +9,12 @@ export async function getBearerIdTokenFromHeaders(): Promise<string | null> {
 export async function getFirebaseUidFromRequest(): Promise<string | null> {
 	const session = (await cookies()).get(SESSION_COOKIE)?.value
 	if (session) {
-		const decoded = await adminAuth.verifySessionCookie(session, true)
-		return decoded.uid
+		try {
+			const decoded = await adminAuth.verifySessionCookie(session, true)
+			return decoded.uid
+		} catch {
+			// Stale or invalid cookie — fall through to Bearer token if present.
+		}
 	}
 	const idToken = await getBearerIdTokenFromHeaders()
 	if (idToken) {
