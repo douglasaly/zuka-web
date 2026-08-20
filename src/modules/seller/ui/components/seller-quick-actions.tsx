@@ -33,7 +33,7 @@ const handleShare = async (
 	storeName: string,
 	navigatorShare = false
 ) => {
-	const url = absoluteUrl(`/loja/${storeSlug}`)
+	const url = absoluteUrl(`/lojas/${storeSlug}`)
 	if (navigatorShare && navigator.share) {
 		try {
 			await navigator.share({

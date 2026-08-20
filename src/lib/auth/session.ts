@@ -13,6 +13,7 @@ export async function getSessionUser() {
 		.eq('firebase_uid', firebaseUid)
 		.maybeSingle()
 	if (error) throw error
+	if (!data || data.deleted_at) return null
 	return data
 }
 export async function requireSessionUser() {
