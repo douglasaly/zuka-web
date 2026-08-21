@@ -21,13 +21,13 @@ export function useNotificationPush() {
 		if (data.pendingOrders > curr.pendingOrders) {
 			new Notification('Novo pedido recebido', {
 				body: `Tem ${data.pendingOrders} pedido${data.pendingOrders > 1 ? 's' : ''} pendente${data.pendingOrders > 1 ? 's' : ''}.`,
-				icon: '/favicon.ico',
+				icon: '/apple-icon',
 			})
 		}
 		if (data.unreadMessages > curr.unreadMessages) {
 			new Notification('Nova mensagem', {
 				body: `Tem ${data.unreadMessages} mensagen${data.unreadMessages > 1 ? 'ns' : 'm'} não lida${data.unreadMessages > 1 ? 's' : ''}.`,
-				icon: '/favicon.ico',
+				icon: '/apple-icon',
 			})
 		}
 		prev.current = data
