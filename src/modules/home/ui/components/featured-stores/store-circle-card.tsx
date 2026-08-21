@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { StoreAvatar } from '@/components/store-avatar'
 import { STORE_PLACEHOLDER } from '@/lib/api/marketplace'
 import { cn } from '@/lib/utils'
-import type { StoreProfile } from '@/types/marketplace'
+import type { StoreProfile } from '@/types'
 
 type StoreCircleCardProps = {
 	store: StoreProfile

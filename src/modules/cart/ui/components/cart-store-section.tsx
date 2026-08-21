@@ -18,10 +18,10 @@ import {
 	cartItemCount,
 	cartTotal,
 } from '@/modules/cart/lib/cart-utils'
-import type { Cart, ReconciledProduct } from '@/modules/cart/types'
+import type { Cart, ReconciledProduct } from '@/types'
 import { useCreateOrder } from '@/modules/orders/hooks/use-create-order'
 import { whatsappHref } from '@/modules/orders/lib/order-copy'
-import type { CreatedBuyerOrder } from '@/modules/orders/types'
+import type { CreatedBuyerOrder } from '@/types'
 import { formatPrice } from '@/utils/format-price'
 import { CartItemRow } from './cart-item-row'
 

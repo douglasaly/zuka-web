@@ -1,16 +1,7 @@
 import { BadgeCheck, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { StoreAvatar } from '@/components/store-avatar'
-export type FollowedStore = {
-	followedAt: string | null
-	id: string
-	name: string
-	imageUrl: string | null
-	slug: string
-	verified: boolean
-	verifiedAt: string | null
-	location: string
-}
+import type { FollowedStore } from '@/types'
 type FollowedStoreCardProps = {
 	store: FollowedStore
 }

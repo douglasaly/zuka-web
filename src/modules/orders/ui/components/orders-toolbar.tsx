@@ -11,10 +11,9 @@ import {
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
 	PERIOD_FILTERS,
-	type PeriodFilter,
 	STATUS_FILTERS,
-	type StatusFilter,
-} from '@/modules/orders/types'
+} from '@/modules/orders/constants'
+import type { PeriodFilter, StatusFilter } from '@/types'
 
 type OrdersToolbarProps = {
 	search: string

@@ -16,7 +16,7 @@ import {
 	useTransition,
 } from 'react'
 import { toast } from 'sonner'
-import type { SellerProduct } from '@/lib/types/api/seller'
+import type { SellerProduct } from '@/types'
 import { useSellerAccess } from '@/modules/seller/hooks/use-seller-access'
 import { parsePerPage } from '@/modules/seller/ui/components/orders/utils'
 import {

@@ -1,7 +1,7 @@
 import type {
 	SellerStoreDetail,
 	SellerStoreDocument,
-} from '@/lib/types/api/seller'
+} from '@/types'
 
 type DocumentRow = {
 	id: string

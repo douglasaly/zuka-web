@@ -1,9 +1,9 @@
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
-import type { ProductsViewMode } from './products-section-header'
+import type { ViewMode } from '@/types'
 
 type ProductsSectionSkeletonProps = {
-	viewMode: ProductsViewMode
+	viewMode: ViewMode
 }
 export const ProductsSectionSkeleton = ({
 	viewMode,

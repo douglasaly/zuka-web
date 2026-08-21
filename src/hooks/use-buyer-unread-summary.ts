@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { useUserProfile } from '@/hooks/use-user-profile'
-import type { NotificationType } from '@/types/notifications'
+import type { NotificationType } from '@/types'
 
 export type BuyerUnreadSummary = {
 	total: number

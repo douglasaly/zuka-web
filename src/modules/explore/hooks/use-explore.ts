@@ -2,15 +2,13 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
-import type { ViewMode } from '@/components/view-mode-toggle'
 import { useDebouncedValue } from '@/hooks/use-debounced-value'
 import { getCategories } from '@/lib/api/categories'
 import {
 	fetchProductsInfinite,
 	fetchStoresInfinite,
 } from '@/lib/api/marketplace'
-import type { FilterValues } from '@/modules/search/ui/components/search-filters-sheet'
-import type { CategoryOption } from '../ui/components/category-filter'
+import type { CategoryOption, FilterValues, ViewMode } from '@/types'
 
 interface Category {
 	id: string

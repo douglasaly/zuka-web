@@ -1,4 +1,4 @@
-import type { UserProfile } from '@/types/marketplace'
+import type { UserProfile } from '@/types'
 export function hasActiveStore(profile: UserProfile | null | undefined) {
 	return Boolean(profile?.stores?.some((store) => store.status === 'ACTIVE'))
 }

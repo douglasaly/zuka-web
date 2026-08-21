@@ -1,4 +1,4 @@
-import type { SellerProduct } from '@/lib/types/api/seller'
+import type { SellerProduct } from '@/types'
 import { formatPrice } from '@/utils/format-price'
 export function ProductPriceDisplay({ product }: { product: SellerProduct }) {
 	const discount = product.discountPrice

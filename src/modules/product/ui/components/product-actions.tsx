@@ -3,7 +3,7 @@ import { MessageCircle, Phone, ShoppingCart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useCart } from '@/hooks/use-cart'
 import { trackContactEvent } from '@/lib/contact-events'
-import type { CartProductInput } from '@/modules/cart/types'
+import type { CartProductInput } from '@/types'
 
 type ProductActionsProps = {
 	storeId: string

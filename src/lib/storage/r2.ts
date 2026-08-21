@@ -1,9 +1,9 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { uuidv7 } from 'uuidv7'
-import type { UploadPurpose } from '@/types/uploads'
+import type { UploadPurpose } from '@/types'
 
-export type { UploadPurpose } from '@/types/uploads'
+export type { UploadPurpose } from '@/types'
 
 const ALLOWED_CONTENT_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
 const CONTENT_TYPE_EXTENSION: Record<string, string> = {

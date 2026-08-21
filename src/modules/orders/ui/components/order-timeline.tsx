@@ -2,7 +2,7 @@
 import { Check, Circle, PackageX, Truck } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { formatTimelineAt } from '@/modules/orders/lib/map-buyer-order'
-import type { BuyerOrderTimelineStep } from '@/modules/orders/types'
+import type { BuyerOrderTimelineStep } from '@/types'
 
 type OrderTimelineProps = {
 	steps: BuyerOrderTimelineStep[]

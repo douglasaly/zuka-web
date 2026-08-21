@@ -1,4 +1,4 @@
-import type { SellerStoreDetail } from '@/lib/types/api/seller'
+import type { SellerStoreDetail } from '@/types'
 export type StoreFormState = {
 	name: string
 	slug: string

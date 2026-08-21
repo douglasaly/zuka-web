@@ -1,9 +1,7 @@
 import { Store } from 'lucide-react'
+import type { FollowedStore } from '@/types'
 import { EmptyState } from '../components/empty-state'
-import {
-	type FollowedStore,
-	FollowedStoreCard,
-} from '../components/followed-store-card'
+import { FollowedStoreCard } from '../components/followed-store-card'
 import { FollowedStoreCardSkeleton } from '../components/followed-store-card-skeleton'
 
 type ProfileFollowedTabProps = {

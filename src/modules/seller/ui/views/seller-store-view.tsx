@@ -4,7 +4,7 @@ import { Store } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import type { SellerStoreDetail } from '@/lib/types/api/seller'
+import type { SellerStoreDetail } from '@/types'
 import { StoreEditorForm } from '@/modules/seller/ui/components/store-editor/store-editor-form'
 export const SellerStoreView = () => {
 	const { data, isLoading, isError, error, refetch } = useQuery<{

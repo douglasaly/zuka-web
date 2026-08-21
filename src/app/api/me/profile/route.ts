@@ -9,7 +9,7 @@ import {
 } from '@/lib/axios/api-response'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import { UpdateProfileSchema } from '@/lib/validations'
-import type { UserProfile } from '@/types/marketplace'
+import type { UserProfile } from '@/types'
 
 function nestedCount(value: unknown): number {
 	if (!Array.isArray(value)) return 0

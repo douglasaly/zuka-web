@@ -6,18 +6,10 @@ import { Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { FilterCarousel } from '@/components/filter-carousel'
 import { getCategories } from '@/lib/api/categories'
+import type { Categories } from '@/types'
 
 interface Props {
 	categoryId?: string
-}
-export interface Categories {
-	id: string
-	parentId: any
-	name: string
-	slug: string
-	createdAt: string
-	updatedAt: string
-	deletedAt: any
 }
 export const CategoriesSectionSuspense = ({ categoryId }: Props) => {
 	const { data: categories = [] } = useQuery<Categories[]>({

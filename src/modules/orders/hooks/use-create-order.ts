@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { useCart } from '@/hooks/use-cart'
 import { createBuyerOrder } from '@/lib/api/marketplace'
-import type { CreatedBuyerOrder } from '@/modules/orders/types'
+import type { CreatedBuyerOrder } from '@/types'
 
 type UseCreateOrderOptions = {
 	onCreated?: (order: CreatedBuyerOrder, storeId: string) => void

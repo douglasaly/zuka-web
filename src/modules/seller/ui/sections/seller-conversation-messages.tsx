@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import { LoadMoreMessages } from '@/modules/messages/ui/components/load-more-messages'
-import type { SellerConversationMessage } from '@/modules/seller/hooks/use-seller-conversation'
+import type { SellerConversationMessage } from '@/types'
 import {
 	dayKey,
 	dayLabel,

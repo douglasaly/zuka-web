@@ -1,6 +1,6 @@
 'use client'
 import { Button } from '@/components/ui/button'
-import type { Notification } from '@/types/notifications'
+import type { Notification } from '@/types'
 import { NotificationsDateGroup } from '../components/notification-date-group'
 import {
 	NotificationsEmptyAll,

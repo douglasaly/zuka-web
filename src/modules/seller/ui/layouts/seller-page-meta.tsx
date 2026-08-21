@@ -7,11 +7,7 @@ import {
 	useRef,
 	useState,
 } from 'react'
-export type SellerPageMeta = {
-	title?: string | null
-	crumbs?: string[] | null
-	action?: ReactNode
-}
+import type { SellerPageMeta } from '@/types'
 type SellerPageMetaContextValue = {
 	meta: SellerPageMeta
 	setMeta: (meta: SellerPageMeta) => void

@@ -7,7 +7,7 @@ import { PRODUCT_PLACEHOLDER } from '@/lib/api/marketplace'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 import { cn } from '@/lib/utils'
 import { lineTotal } from '@/modules/cart/lib/cart-utils'
-import type { CartItem, ReconciledProduct } from '@/modules/cart/types'
+import type { CartItem, ReconciledProduct } from '@/types'
 import { formatPrice } from '@/utils/format-price'
 import { CartQtyStepper } from './cart-qty-stepper'
 

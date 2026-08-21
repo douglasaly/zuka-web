@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { requireSessionUser } from '@/lib/auth/session'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
-import type { UpdateAddressInput } from '../types'
+import type { UpdateAddressInput } from '@/types'
 export async function PATCH(
 	request: NextRequest,
 	{

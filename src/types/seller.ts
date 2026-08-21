@@ -1,3 +1,11 @@
+import type { ReactNode } from 'react'
+
+export type SellerPageMeta = {
+	title?: string | null
+	crumbs?: string[] | null
+	action?: ReactNode
+}
+
 export type SellerProduct = {
 	id: string
 	name: string
@@ -11,6 +19,22 @@ export type SellerProduct = {
 	images: string[]
 	description: string | null
 }
+
+/** Dashboard stub product (mock/list preview with string price) */
+export type SellerDashboardProduct = {
+	id: string
+	name: string
+	price: string
+	imageUrl: string
+}
+
+export type SellerStat = {
+	id: string
+	icon: 'trending' | 'package' | 'users' | 'eye'
+	value: string
+	label: string
+}
+
 export type SellerStore = {
 	id: string
 	name: string
@@ -221,48 +245,6 @@ export type InviteMemberInput = {
 export type InviteMemberOutput = {
 	success: true
 	revived?: boolean
-}
-export type GetSellerStatsInput = {
-	range?: number
-}
-export type GetSellerStatsOutput = {
-	data: {
-		totalSales: number
-		totalSalesPrev: number
-		totalSalesPct: number
-		totalOrders: number
-		totalOrdersPrev: number
-		totalOrdersPct: number
-		whatsappContacts: number
-		whatsappContactsPct: number
-		callContacts: number
-		callContactsPct: number
-		totalFollowers: number
-		productCount: number
-	}
-}
-export type GetSellerAnalyticsOutput = {
-	success: true
-	mock: true
-	range: '7d' | '30d' | '90d'
-	data: {
-		totalSales: number
-		totalOrders: number
-		totalViews: number
-		totalFollowers: number
-		productCount: number
-		changes: {
-			totalSales: number
-			totalOrders: number
-			totalViews: number
-			totalFollowers: number
-			productCount: number
-		}
-		dailySales: Array<{
-			date: string
-			sales: number
-		}>
-	}
 }
 export type GetSellerUnreadCountsOutput = {
 	pendingOrders: number

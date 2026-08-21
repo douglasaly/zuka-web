@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Store } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import type { UserProfile } from '@/types/marketplace'
+import type { UserProfile } from '@/types'
 import { ProductForm } from '../components/product-form'
 export const SellerNewProductView = () => {
 	const { data: profile, isLoading } = useQuery<UserProfile | null>({

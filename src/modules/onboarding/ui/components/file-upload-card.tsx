@@ -4,7 +4,7 @@ import { Camera, Loader2, SquarePen, Upload, User, X } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { uploadImageToR2 } from '@/lib/api/uploads'
 import { cn } from '@/lib/utils'
-import type { UploadPurpose } from '@/types/uploads'
+import type { UploadPurpose } from '@/types'
 
 interface FileUploadCardProps {
 	label: string

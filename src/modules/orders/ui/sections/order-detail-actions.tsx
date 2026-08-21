@@ -2,7 +2,7 @@
 import { MessageCircle, RotateCcw, Store } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import type { BuyerOrder } from '@/modules/orders/types'
+import type { BuyerOrder } from '@/types'
 
 type OrderDetailActionsProps = {
 	order: BuyerOrder

@@ -10,7 +10,7 @@ import {
 	SheetTitle,
 } from '@/components/ui/sheet'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
-import type { SellerProduct } from '@/lib/types/api/seller'
+import type { SellerProduct } from '@/types'
 import { cn } from '@/lib/utils'
 import { ProductStatusChip } from '@/modules/seller/ui/components/products/product-status-chip'
 import { formatPrice } from '@/utils/format-price'

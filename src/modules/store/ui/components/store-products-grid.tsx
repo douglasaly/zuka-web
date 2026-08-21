@@ -1,6 +1,6 @@
 import { PackageOpen } from 'lucide-react'
 import { ProductCard } from '@/components/product-card'
-import type { Product } from '@/types/marketplace'
+import type { Product } from '@/types'
 
 type StoreProductsGridProps = {
 	products: Product[]

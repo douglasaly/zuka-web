@@ -1,5 +1,5 @@
-import type { Product } from '@/types/marketplace'
-export const MAX_CART_QUANTITY = 99
+import type { Product } from './product'
+
 export type CartProductInput = Pick<
 	Product,
 	| 'id'

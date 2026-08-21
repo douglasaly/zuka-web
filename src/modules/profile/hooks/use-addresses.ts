@@ -1,7 +1,7 @@
 'use client'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import type { Address, CreateAddressInput } from '@/app/api/addresses/types'
+import type { Address, CreateAddressInput } from '@/types'
 export type ProvinceOption = {
 	id: string
 	name: string

@@ -2,7 +2,7 @@
 import type { LucideIcon } from 'lucide-react'
 import { Bell, Inbox } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import type { NotificationType } from '@/types/notifications'
+import type { NotificationType } from '@/types'
 import {
 	NOTIFICATION_META,
 	NOTIFICATION_TYPE_ORDER,

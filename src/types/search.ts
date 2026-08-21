@@ -1,3 +1,12 @@
+export type FilterValues = {
+	category: string
+	minPrice: string
+	maxPrice: string
+	sort: string
+	province: string
+	isNew: string
+}
+
 export type SearchProductResult = {
 	id: string
 	name: string

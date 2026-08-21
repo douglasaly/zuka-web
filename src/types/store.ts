@@ -1,3 +1,63 @@
+export interface StoreProfile {
+	id: string
+	name: string
+	slug: string
+	location: string
+	neighborhood: string
+	verified: boolean
+	rating: number
+	reviewCount: number
+	followers: number
+	productCount: number
+	bannerUrl: string | null
+	logoUrl: string | null
+	whatsapp: string | null
+	phone: string | null
+	about: string
+	email: string | null
+	status: string | null
+}
+
+export type FollowedStore = {
+	followedAt: string | null
+	id: string
+	name: string
+	imageUrl: string | null
+	slug: string
+	verified: boolean
+	verifiedAt: string | null
+	location: string
+}
+
+export type StoreFollowItem = {
+	followed_at: string | null
+	store: {
+		id: string
+		name: string
+		logo_url: string | null
+		slug: string
+		state: string
+		verified_at: string | null
+		province: {
+			name: string
+		}
+	}
+}
+
+export interface FollowedStores {
+	data: StoreFollowItem[]
+	metaData: {
+		total: number
+		limit: number
+		nextCursor: string | null
+	}
+}
+
+export type NormalizedStore = StoreFollowItem[]
+
+export type FollowedStoreItem = StoreFollowItem
+export type ListFollowedStoresOutput = FollowedStores
+
 export type StoreRow = {
 	id: string
 	name: string
@@ -179,26 +239,4 @@ export type UnfollowStoreOutput = {
 }
 export type IsFollowingOutput = {
 	isFollowing: boolean
-}
-export type FollowedStoreItem = {
-	followed_at: string | null
-	store: {
-		id: string
-		name: string
-		logo_url: string | null
-		slug: string
-		state: string
-		verified_at: string | null
-		province: {
-			name: string
-		}
-	}
-}
-export type ListFollowedStoresOutput = {
-	data: FollowedStoreItem[]
-	metaData: {
-		total: number
-		limit: number
-		nextCursor: string | null
-	}
 }

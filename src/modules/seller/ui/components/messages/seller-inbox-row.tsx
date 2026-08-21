@@ -4,16 +4,9 @@ import 'dayjs/locale/pt'
 import Link from 'next/link'
 import { UserAvatar } from '@/components/user-avatar'
 import { cn } from '@/lib/utils'
+import type { SellerConversation } from '@/types'
 
 dayjs.locale('pt')
-export type SellerConversation = {
-	id: string
-	otherUserName: string
-	otherUserAvatar: string | null
-	lastMessage: string | null
-	lastMessageAt: string | null
-	unread: boolean
-}
 export function formatInboxTime(iso: string): string {
 	const d = dayjs(iso)
 	const diffMin = dayjs().diff(d, 'minute')

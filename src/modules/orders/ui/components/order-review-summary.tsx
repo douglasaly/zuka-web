@@ -3,7 +3,7 @@ import { MessageSquareText, PenLine } from 'lucide-react'
 import Image from 'next/image'
 import { PRODUCT_PLACEHOLDER, STORE_PLACEHOLDER } from '@/lib/api/marketplace'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
-import type { BuyerOrderReview } from '@/modules/orders/types'
+import type { BuyerOrderReview } from '@/types'
 import { StarRating } from '@/modules/product/ui/components/reviews/star-rating'
 import { formatLongPtDate } from '@/utils/format-date'
 

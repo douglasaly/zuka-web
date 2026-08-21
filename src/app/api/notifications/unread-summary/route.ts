@@ -6,7 +6,7 @@ import {
 	withErrorHandling,
 } from '@/lib/axios/api-response'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
-import type { NotificationType } from '@/types/notifications'
+import type { NotificationType } from '@/types'
 
 const TRACKED_TYPES: NotificationType[] = [
 	'order',

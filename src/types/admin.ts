@@ -1,35 +1,3 @@
-export type GetAdminStatsOutput = {
-	totalUsers: number
-	totalUsersPct: number
-	activeStores: number
-	activeStoresPct: number
-	pendingApprovals: number
-	totalProducts: number
-	totalProductsPct: number
-	messagesToday: number
-}
-export type GetAdminAnalyticsInput = {
-	days?: number
-}
-export type AdminAnalyticsDay = {
-	date: string
-	count: number
-}
-export type AdminTopStore = {
-	id: string
-	name: string
-	slug: string
-	created_at: string
-	products: number
-	followers: number
-}
-export type GetAdminAnalyticsOutput = {
-	signupsByDay: AdminAnalyticsDay[]
-	productsByDay: AdminAnalyticsDay[]
-	storesByDay: AdminAnalyticsDay[]
-	approvalRate: number
-	topStores: AdminTopStore[]
-}
 export type AdminUser = {
 	id: string
 	first_name: string | null

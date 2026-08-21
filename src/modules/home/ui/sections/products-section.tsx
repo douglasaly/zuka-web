@@ -6,14 +6,12 @@ import { InfiniteScrollTrigger } from '@/components/infinite-scroll-trigger'
 import { fetchProductsInfinite } from '@/lib/api/marketplace'
 import { ProductsList } from '../components/products/product-list'
 import { ProductsSectionSkeleton } from '../components/products/product-section-list'
-import {
-	ProductsSectionHeader,
-	type ProductsViewMode,
-} from '../components/products/products-section-header'
+import { ProductsSectionHeader } from '../components/products/products-section-header'
+import type { ViewMode } from '@/types'
 
 const HOME_PRODUCTS_PAGE_SIZE = 24
 export const ProductsSection = () => {
-	const [viewMode, setViewMode] = useState<ProductsViewMode>('grid')
+	const [viewMode, setViewMode] = useState<ViewMode>('grid')
 	const productsQuery = useInfiniteQuery({
 		queryKey: ['home-products'],
 		queryFn: ({ pageParam }) =>

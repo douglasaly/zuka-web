@@ -1,7 +1,7 @@
 'use client'
 import { Minus, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { MAX_CART_QUANTITY } from '@/modules/cart/types'
+import { MAX_CART_QUANTITY } from '@/modules/cart/constants'
 
 type CartQtyStepperProps = {
 	value: number

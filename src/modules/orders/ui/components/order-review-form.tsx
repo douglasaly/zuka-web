@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { PRODUCT_PLACEHOLDER } from '@/lib/api/marketplace'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
-import type { BuyerOrderItem } from '@/modules/orders/types'
+import type { BuyerOrderItem } from '@/types'
 import { StarRatingInput } from './star-rating-input'
 
 type OrderReviewFormProps = {

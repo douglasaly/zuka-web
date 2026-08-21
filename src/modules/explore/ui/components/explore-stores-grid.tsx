@@ -1,7 +1,7 @@
 import { Store } from 'lucide-react'
 import { InfiniteScrollTrigger } from '@/components/infinite-scroll-trigger'
 import { EmptyState } from '@/modules/profile/ui/components/empty-state'
-import type { StoreProfile } from '@/types/marketplace'
+import type { StoreProfile } from '@/types'
 import { ExploreStoreCard } from './explore-store-card'
 
 type ExploreStoresGridProps = {

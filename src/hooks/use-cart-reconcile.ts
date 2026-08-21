@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { fetchProduct } from '@/lib/api/marketplace'
 import { effectivePrice, pricesDiffer } from '@/modules/cart/lib/cart-utils'
-import type { ReconciledProduct } from '@/modules/cart/types'
+import type { ReconciledProduct } from '@/types'
 import { useCartList } from './use-cart'
 
 type FetchedProduct = {

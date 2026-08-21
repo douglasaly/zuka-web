@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { requireSessionUser } from '@/lib/auth/session'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
-import type { CreateAddressInput } from './types'
+import type { CreateAddressInput } from '@/types'
 export async function GET() {
 	try {
 		const user = await requireSessionUser()

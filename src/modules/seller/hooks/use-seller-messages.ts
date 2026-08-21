@@ -1,7 +1,7 @@
 'use client'
 import { useDeferredValue, useMemo, useState } from 'react'
 import { flattenPages, useInfiniteList } from '@/hooks/use-infinite-list'
-import type { SellerConversation } from '../ui/components/messages/seller-inbox-row'
+import type { SellerConversation } from '@/types'
 export type SellerMessagesFilter = 'all' | 'unread'
 export const SELLER_MESSAGES_SHELL =
 	'-m-4 flex h-[calc(100dvh-76px)] min-w-0 flex-col sm:-m-6 lg:flex-row'

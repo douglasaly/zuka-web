@@ -8,7 +8,7 @@ import {
 	cartsItemCount,
 	cartsTotal,
 } from '@/modules/cart/lib/cart-utils'
-import type { Cart } from '@/modules/cart/types'
+import type { Cart } from '@/types'
 import { formatPrice } from '@/utils/format-price'
 
 type CartAsideProps = {

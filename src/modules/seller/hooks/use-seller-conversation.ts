@@ -11,17 +11,7 @@ import {
 } from 'react'
 import { toast } from 'sonner'
 import { flattenPages, useInfiniteList } from '@/hooks/use-infinite-list'
-import type { SellerConversation } from '@/modules/seller/ui/components/messages/seller-inbox-row'
-
-export type SellerConversationMessage = {
-	id: string
-	conversation_id: string
-	user_id: string | null
-	store_id: string | null
-	content: string
-	status: string
-	created_at: string
-}
+import type { SellerConversation, SellerConversationMessage } from '@/types'
 
 const INBOX_LIMIT = 20
 const MESSAGES_LIMIT = 30

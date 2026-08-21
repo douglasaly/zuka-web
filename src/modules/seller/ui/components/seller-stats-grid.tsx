@@ -1,4 +1,5 @@
-import { SellerStatCard, type SellerStatData } from './seller-stat-card'
+import { SellerStatCard } from './seller-stat-card'
+import type { SellerStatData } from '@/types'
 
 type SellerStatsGridProps = {
 	stats: SellerStatData[]

@@ -4,7 +4,7 @@ import { PackageSearch } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import type { SellerProductDetail } from '@/lib/types/api/seller'
+import type { SellerProductDetail } from '@/types'
 import type { ProductStatusValue } from '../components/product-editor/constants'
 import { ProductForm } from '../components/product-form'
 

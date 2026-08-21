@@ -2,10 +2,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useUserProfile } from '@/hooks/use-user-profile'
-import type { UserProfile } from '@/types/marketplace'
+import type { SellerDashboardProduct, SellerStatData, UserProfile } from '@/types'
 import { formatPrice } from '@/utils/format-price'
-import type { SellerProduct } from '../constants'
-import type { SellerStatData } from '../ui/components/seller-stat-card'
 
 type StatsData = {
 	totalSales: number
@@ -119,7 +117,7 @@ export function useSellerDashboard() {
 				},
 			]
 		: []
-	const products: SellerProduct[] = useMemo(
+	const products: SellerDashboardProduct[] = useMemo(
 		() =>
 			(productsData?.products ?? []).map((p) => ({
 				id: p.id,

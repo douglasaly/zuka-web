@@ -6,7 +6,7 @@ import type {
 	BuyerOrder,
 	PeriodFilter,
 	StatusFilter,
-} from '@/modules/orders/types'
+} from '@/types'
 
 const PAGE_SIZE = 5
 export type OrdersPage = {

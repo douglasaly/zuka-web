@@ -1,8 +1,5 @@
 import { cn } from '@/lib/utils'
-export type CategoryOption = {
-	value: string
-	label: string
-}
+import type { CategoryOption } from '@/types'
 type CategoryFilterProps = {
 	options: CategoryOption[]
 	value: string

@@ -1,6 +1,6 @@
 'use client'
 import { useRouter, useSearchParams } from 'next/navigation'
-import type { FilterValues } from '../ui/components/search-filters-sheet'
+import type { FilterValues } from '@/types'
 export function useSearchFilters() {
 	const router = useRouter()
 	const searchParams = useSearchParams()

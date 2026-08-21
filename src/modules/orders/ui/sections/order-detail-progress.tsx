@@ -1,6 +1,6 @@
 'use client'
 import { Separator } from '@/components/ui/separator'
-import type { BuyerOrderTimelineStep } from '@/modules/orders/types'
+import type { BuyerOrderTimelineStep } from '@/types'
 import { OrderTimeline } from '../components/order-timeline'
 
 type OrderDetailProgressProps = {

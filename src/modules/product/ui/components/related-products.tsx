@@ -1,5 +1,5 @@
 import { ProductCard } from '@/components/product-card'
-import type { Product } from '@/types/marketplace'
+import type { Product } from '@/types'
 
 type RelatedProductsProps = {
 	products: Product[]

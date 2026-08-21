@@ -1,5 +1,6 @@
 import type { OrderStatus } from '@/lib/orders/status-transitions'
-import type { OrderSheetPendingAction } from '../seller-order-detail-sheet'
+import type { OrderSheetPendingAction } from '@/types'
+
 export type ReviewState = 'none' | 'awaiting' | 'done'
 export type SellerOrder = {
 	id: string

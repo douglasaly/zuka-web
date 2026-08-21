@@ -1,5 +1,5 @@
 'use client'
-import type { SellerProduct } from '@/lib/types/api/seller'
+import type { SellerProduct } from '@/types'
 import { OrdersPagination } from '@/modules/seller/ui/components/orders/orders-pagination'
 import { SellerProductListItem } from '@/modules/seller/ui/components/products/seller-product-list-item'
 import { SellerProductsEmpty } from '@/modules/seller/ui/sections/seller-products-empty'

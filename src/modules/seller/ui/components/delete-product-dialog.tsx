@@ -8,10 +8,10 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog'
-import type { SellerProduct } from '../../constants'
+import type { SellerDashboardProduct } from '@/types'
 
 type DeleteProductDialogProps = {
-	product: SellerProduct | null
+	product: SellerDashboardProduct | null
 	onOpenChange: (open: boolean) => void
 	onConfirm: () => void
 	isDeleting?: boolean

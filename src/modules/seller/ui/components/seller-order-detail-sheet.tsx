@@ -23,13 +23,9 @@ import { Skeleton } from '@/components/ui/skeleton'
 import type { OrderStatus } from '@/lib/orders/status-transitions'
 import { cn } from '@/lib/utils'
 import { formatPrice } from '@/utils/format-price'
+import type { OrderSheetPendingAction } from '@/types'
 import { ReviewBadge } from './orders/review-badge'
 import type { ReviewState } from './orders/types'
-export type OrderSheetPendingAction = {
-	orderId: string
-	shortId: string
-	nextStatus: Extract<OrderStatus, 'SHIPPING' | 'COMPLETED' | 'CANCELLED'>
-}
 type OrderDetail = {
 	id: string
 	status: OrderStatus

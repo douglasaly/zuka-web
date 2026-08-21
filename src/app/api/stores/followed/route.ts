@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getSessionUser } from '@/lib/auth/session'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
-import type { FollowedStores } from '@/types/stores'
+import type { FollowedStores } from '@/types'
 export async function GET(req: Request) {
 	const user = await getSessionUser()
 	if (!user) {

@@ -1,7 +1,7 @@
 'use client'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
-import type { Notification } from '@/types/notifications'
+import type { Notification } from '@/types'
 import { useNotificationsFeed } from '../../hooks/use-notifications-feed'
 import { NotificationsFilterBar } from '../components/notification-filter-bar'
 import { NotificationsAside } from '../components/notifications-aside'

@@ -1,4 +1,4 @@
-import type { Notification } from '@/types/notifications'
+import type { Notification } from '@/types'
 import { NotificationCard } from './notification-card'
 
 type NotificationsDateGroupProps = {

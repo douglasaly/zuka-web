@@ -3,12 +3,12 @@ import { Package, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/modules/profile/ui/components/empty-state'
-import type { SellerProduct } from '../../constants'
+import type { SellerDashboardProduct } from '@/types'
 import { DeleteProductDialog } from '../components/delete-product-dialog'
 import { SellerProductRow } from '../components/seller-product-row'
 
 type SellerProductsSectionProps = {
-	products: SellerProduct[]
+	products: SellerDashboardProduct[]
 	onAdd: () => void
 	onEdit: (id: string) => void
 	onDelete: (id: string) => void
@@ -20,7 +20,7 @@ export const SellerProductsSection = ({
 	onDelete,
 }: SellerProductsSectionProps) => {
 	const [productToDelete, setProductToDelete] =
-		useState<SellerProduct | null>(null)
+		useState<SellerDashboardProduct | null>(null)
 	const [isDeleting, setIsDeleting] = useState(false)
 	const handleConfirmDelete = async () => {
 		if (!productToDelete) return

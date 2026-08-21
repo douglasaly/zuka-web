@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import type {
 	SellerStoreDetail,
 	UpdateSellerStoreInput,
-} from '@/lib/types/api/seller'
+} from '@/types'
 import { useSellerAccess } from '@/modules/seller/hooks/use-seller-access'
 import { useSetSellerPageMeta } from '../../layouts/seller-page-meta'
 import { LOCKED_STATUS_LABELS, STATUS_OPTIONS } from './constants'
