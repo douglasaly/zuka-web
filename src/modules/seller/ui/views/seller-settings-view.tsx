@@ -36,7 +36,14 @@ export const SellerSettingsView = () => {
 				<SellerSettingsAlerts
 					prefs={s.prefs}
 					prefsReady={s.prefsReady}
+					prefsDirty={s.prefsDirty}
+					isSavingPrefs={s.isSavingPrefs}
 					onUpdatePref={s.updatePref}
+					onSavePrefs={() => void s.savePrefs()}
+					browserPermission={s.browserPermission}
+					onEnableBrowserNotifications={() =>
+						void s.enableBrowserNotifications()
+					}
 				/>
 			</div>
 		</div>

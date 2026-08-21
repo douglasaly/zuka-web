@@ -1,7 +1,7 @@
 import { ogSize, renderOgImage } from '@/lib/seo/og-image'
 import { SITE_DESCRIPTION, SITE_NAME } from '@/lib/seo/site'
 
-export const alt = `${SITE_NAME} — marketplace em Moçambique`
+export const alt = `${SITE_NAME} - Marketplace em Moçambique`
 export const size = ogSize
 export const contentType = 'image/png'
 

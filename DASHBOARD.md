@@ -11,7 +11,7 @@
 
 ## Fase 0 — Fundação ✅
 
-_Estrutura antes das features._
+*Estrutura antes das features.*
 
 - [x] Adicionar `loading.tsx` e `error.tsx` em `/dashboard/seller/`
 - [x] Adicionar `loading.tsx` e `error.tsx` em `/dashboard/` (root)
@@ -22,9 +22,11 @@ _Estrutura antes das features._
 
 ---
 
+
+
 ## Fase 1 — Sidebar + Rotas
 
-_Expandir navegação e criar páginas._
+*Expandir navegação e criar páginas.*
 
 - [x] Sidebar com itens agrupados (hoje: 3 grupos, 8 itens + footer; filtrado por permissões)
 - [x] Rota `/dashboard/seller/pedidos/page.tsx`
@@ -41,60 +43,72 @@ _Expandir navegação e criar páginas._
 - [ ] Rota `/dashboard/seller/analytics/page.tsx` activa — o ficheiro existe mas chama `notFound()`; `SellerAnalyticsView` não está ligada
 - [x] Rota `/dashboard/seller/configuracoes/page.tsx`
 
+
+
 ### 🧱 O que foi construído
 
-| Ficheiro | Tipo | Responsabilidade |
-|---|---|---|
-| `seller-sidebar.tsx` | Componente | 3 grupos (Principal / Loja / Configurações), badges (pendingOrders, unreadMessages), Membros, "Ver como comprador" |
-| `product-form.tsx` | Componente | Formulário partilhado (`create`/`edit`), categorias, imagens múltiplas, preview Sheet, validação |
-| `seller-orders-view.tsx` | View | Lista de pedidos, empty state, skeleton, search, filtros status/data |
-| `seller-order-detail-view.tsx` | View | Detalhe do pedido + acções reais (envio / entregue / cancelar) |
-| `seller-messages-view.tsx` | View | Inbox: pesquisa, filtro não lidas, paginação, empty/error |
-| `seller-conversation-view.tsx` | View | Chat + rail de inbox, bolhas, send, Enter, auto-scroll, marcar lida |
-| `seller-store-view.tsx` | View | Editor completo da loja (Fase 7) |
-| `seller-products-view.tsx` | View | Lista com search, filtros status/categoria/preço, bulk, preview |
-| `seller-new-product-view.tsx` | View | Wrapper loja → `ProductForm` (create) |
-| `seller-edit-product-view.tsx` | View | Fetch produto → `ProductForm` (edit) |
-| `seller-categories-view.tsx` | View | CRUD + reordenar categorias |
-| `seller-reviews-view.tsx` | View | API real: média, distribuição, loja vs produto, responder |
-| `seller-analytics-view.tsx` | View | KPI + tendência — **órfã** (página devolve 404) |
-| `seller-settings-view.tsx` | View | Destinos (loja, membros, password) + prefs + zona de perigo |
-| `seller-members-view.tsx` | View | Equipe, convite por email, roles |
-| `products/[id]/route.ts` | API | `GET` + `PATCH` + `DELETE` (valida store_id) |
+
+| Ficheiro                       | Tipo       | Responsabilidade                                                                                                   |
+| ------------------------------ | ---------- | ------------------------------------------------------------------------------------------------------------------ |
+| `seller-sidebar.tsx`           | Componente | 3 grupos (Principal / Loja / Configurações), badges (pendingOrders, unreadMessages), Membros, "Ver como comprador" |
+| `product-form.tsx`             | Componente | Formulário partilhado (`create`/`edit`), categorias, imagens múltiplas, preview Sheet, validação                   |
+| `seller-orders-view.tsx`       | View       | Lista de pedidos, empty state, skeleton, search, filtros status/data                                               |
+| `seller-order-detail-view.tsx` | View       | Detalhe do pedido + acções reais (envio / entregue / cancelar)                                                     |
+| `seller-messages-view.tsx`     | View       | Inbox: pesquisa, filtro não lidas, paginação, empty/error                                                          |
+| `seller-conversation-view.tsx` | View       | Chat + rail de inbox, bolhas, send, Enter, auto-scroll, marcar lida                                                |
+| `seller-store-view.tsx`        | View       | Editor completo da loja (Fase 7)                                                                                   |
+| `seller-products-view.tsx`     | View       | Lista com search, filtros status/categoria/preço, bulk, preview                                                    |
+| `seller-new-product-view.tsx`  | View       | Wrapper loja → `ProductForm` (create)                                                                              |
+| `seller-edit-product-view.tsx` | View       | Fetch produto → `ProductForm` (edit)                                                                               |
+| `seller-categories-view.tsx`   | View       | CRUD + reordenar categorias                                                                                        |
+| `seller-reviews-view.tsx`      | View       | API real: média, distribuição, loja vs produto, responder                                                          |
+| `seller-analytics-view.tsx`    | View       | KPI + tendência — **órfã** (página devolve 404)                                                                    |
+| `seller-settings-view.tsx`     | View       | Destinos (loja, membros, password) + prefs + zona de perigo                                                        |
+| `seller-members-view.tsx`      | View       | Equipe, convite por email, roles                                                                                   |
+| `products/[id]/route.ts`       | API        | `GET` + `PATCH` + `DELETE` (valida store_id)                                                                       |
+
+
+
 
 ### 🔧 O que pode ser melhorado
 
 1. **Sidebar** — Incluir **Desempenho** (`/analytics`) quando a rota for reactivada. Categorias só aparecem a partir de Produtos.
 2. **Inbox split-view** — Em `/mensagens` o painel direito é placeholder ("Seleccione uma conversa"); o chat só abre em `/mensagens/[id]`. No desktop, abrir a conversa inline na mesma página.
-3. **`seller-analytics-view`** — Ligar a view à página e à sidebar; deixar de devolver `notFound()`.
-4. **`product-form`** — Preview local da imagem **antes** do upload (hoje faz upload imediato para R2). Variações (tamanho/cor) ainda não existem no schema.
+3. `seller-analytics-view` — Ligar a view à página e à sidebar; deixar de devolver `notFound()`.
+4. `product-form` — Preview local da imagem **antes** do upload (hoje faz upload imediato para R2). 
 5. **Atalhos** — Restaurar `A` → analytics; documentar `P` produtos (não pedidos).
+
+
 
 ### ✨ Adições (hooks / API / membros)
 
-| Ficheiro | Tipo | O que faz |
-|---|---|---|
-| `hooks/use-shortcut.ts` | Hook | Atalhos: `P` produtos, `O` pedidos, `M` mensagens, `N` novo produto — ignorados em inputs. **Sem `A` analytics.** |
-| `hooks/use-unread-counts.ts` | Hook | Polling `/api/seller/unread-counts` a cada 30s |
-| `hooks/use-notification-push.ts` | Hook | `Notification` API quando pendingOrders / unreadMessages sobem — **não lê** as prefs das configurações |
-| `api/seller/unread-counts/route.ts` | API | Pedidos pendentes + conversas não lidas |
-| `api/seller/products/bulk/route.ts` | API | Bulk `delete` / `activate` / `deactivate` |
-| `api/seller/members/route.ts` | API | `GET` membros, `POST` convite por email + role |
-| `api/seller/members/[id]/route.ts` | API | `PATCH` role, `DELETE` membro |
-| `layouts/seller-layout-client.tsx` | Client | Injecta shortcuts + push sem quebrar o layout server |
-| `views/seller-members-view.tsx` | View | Lista Equipe + modal de convite |
-| `migrations/20250710090000_store_members.sql` | SQL | Tabela `store_members` UNIQUE(store_id, user_id) |
+
+| Ficheiro                                      | Tipo   | O que faz                                                                                                             |
+| --------------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------- |
+| `hooks/use-shortcut.ts`                       | Hook   | Atalhos: `P` produtos, `O` pedidos, `M` mensagens, `N` novo produto — ignorados em inputs. **Sem** `A` **analytics.** |
+| `hooks/use-unread-counts.ts`                  | Hook   | Polling `/api/seller/unread-counts` a cada 30s                                                                        |
+| `hooks/use-notification-push.ts`              | Hook   | `Notification` API quando pendingOrders / unreadMessages sobem — **não lê** as prefs das configurações                |
+| `api/seller/unread-counts/route.ts`           | API    | Pedidos pendentes + conversas não lidas                                                                               |
+| `api/seller/products/bulk/route.ts`           | API    | Bulk `delete` / `activate` / `deactivate`                                                                             |
+| `api/seller/members/route.ts`                 | API    | `GET` membros, `POST` convite por email + role                                                                        |
+| `api/seller/members/[id]/route.ts`            | API    | `PATCH` role, `DELETE` membro                                                                                         |
+| `layouts/seller-layout-client.tsx`            | Client | Injecta shortcuts + push sem quebrar o layout server                                                                  |
+| `views/seller-members-view.tsx`               | View   | Lista Equipe + modal de convite                                                                                       |
+| `migrations/20250710090000_store_members.sql` | SQL    | Tabela `store_members` UNIQUE(store_id, user_id)                                                                      |
+
 
 ---
 
+
+
 ## Fase 2 — API Layer ✅ (analytics ainda mock)
 
-_Endpoints reais para substituir mocks._
+*Endpoints reais para substituir mocks.*
 
 - [x] `GET /api/seller/stats` — KPIs com comparativo (sales, orders, followers, products; range)
 - [x] `GET /api/seller/stats/daily` — série temporal de vendas (usada no Resumo)
 - [x] `GET /api/seller/stats/top-products` — top produtos (limit 1–10, usada no Resumo)
-- [x] `GET /api/seller/stats/analytics` — **existe mas devolve `mock: true`** (`getMockSellerAnalytics`)
+- [x] `GET /api/seller/stats/analytics` — **existe mas devolve** `mock: true` (`getMockSellerAnalytics`)
 - [x] `GET /api/seller/reviews` — avaliações da loja + produtos, search, needsReply
 - [x] `POST /api/seller/reviews/[id]/reply` — resposta da loja
 - [x] `POST /api/seller/products/bulk` — bulk delete/activate/deactivate
@@ -111,6 +125,8 @@ _Endpoints reais para substituir mocks._
 - [x] `POST /api/stores/conversations/[id]/messages` — enviar como loja
 - [x] `PATCH /api/stores/conversations/[id]/read` — marcar lida
 
+
+
 ### 🔧 O que pode ser melhorado
 
 1. Substituir mock em `/api/seller/stats/analytics` por agregação real (reutilizar `/stats` + `/stats/daily` + vistas quando houver tracking).
@@ -120,9 +136,11 @@ _Endpoints reais para substituir mocks._
 
 ---
 
+
+
 ## Fase 3 — Dashboard Principal
 
-_Transformar a página inicial do seller._
+*Transformar a página inicial do seller.*
 
 - [x] Welcome banner real (nome da loja da BD)
 - [x] KPI cards ligados à API (`GET /api/seller/stats`; `MOCK_SELLER_STATS` já não é usado na view)
@@ -133,6 +151,8 @@ _Transformar a página inicial do seller._
 - [x] Tab "Pedidos" funcional (tabela + filtros + acções via `SellerOrdersSection`)
 - [x] Loading skeleton da página (`SellerDashboardSkeleton`)
 - [x] Empty states com ícone + CTA (não ilustração custom)
+
+
 
 ### 🔧 O que pode ser melhorado
 
@@ -145,9 +165,11 @@ _Transformar a página inicial do seller._
 
 ---
 
+
+
 ## Fase 4 — Pedidos ✅
 
-_Gestão completa de pedidos._
+*Gestão completa de pedidos.*
 
 - [x] Lista com produto, cliente, valor, data, status colorido
 - [x] Filtros: todos / pendentes / em envio / entregue / cancelado (enum: PENDING → SHIPPING → COMPLETED; CANCELLED)
@@ -162,9 +184,11 @@ Fluxo linear (sem saltar etapas): **Pendente → Em envio → Entregue**. Cancel
 
 ---
 
+
+
 ## Fase 5 — Produtos ✅
 
-_Gestão completa de produtos (páginas próprias)._
+*Gestão completa de produtos (páginas próprias).*
 
 - [x] Lista com imagem, nome, preço, status, categorias
 - [x] Filtros: categoria, status, preço, search
@@ -174,18 +198,24 @@ _Gestão completa de produtos (páginas próprias)._
 - [x] Pré-visualização em Sheet
 - [x] Gestão de categorias: criar, editar, reordenar
 
+
+
 ### 🧱 O que foi construído
 
-| Ficheiro | Tipo | Responsabilidade |
-|---|---|---|
-| `api/seller/products/route.ts` | API | Lista com filtros preço/categoria/status/search |
-| `api/seller/products/[id]/route.ts` | API | `GET` detalhe + `PATCH` multi-imagens/status |
-| `api/seller/categories/route.ts` | API | CRUD + reordenar categorias |
-| `product-editor/*` | Components | Imagens múltiplas, status, preview Sheet |
-| `product-form.tsx` | Form | Layout 2 colunas create/edit |
-| `seller-products-view.tsx` | View | Lista + filtros preço + preview |
-| `seller-categories-view.tsx` | View | Criar/editar/reordenar/eliminar |
-| `migrations/20250730120000_categories_position.sql` | SQL | Coluna `position` em categories |
+
+| Ficheiro                                            | Tipo       | Responsabilidade                                |
+| --------------------------------------------------- | ---------- | ----------------------------------------------- |
+| `api/seller/products/route.ts`                      | API        | Lista com filtros preço/categoria/status/search |
+| `api/seller/products/[id]/route.ts`                 | API        | `GET` detalhe + `PATCH` multi-imagens/status    |
+| `api/seller/categories/route.ts`                    | API        | CRUD + reordenar categorias                     |
+| `product-editor/*`                                  | Components | Imagens múltiplas, status, preview Sheet        |
+| `product-form.tsx`                                  | Form       | Layout 2 colunas create/edit                    |
+| `seller-products-view.tsx`                          | View       | Lista + filtros preço + preview                 |
+| `seller-categories-view.tsx`                        | View       | Criar/editar/reordenar/eliminar                 |
+| `migrations/20250730120000_categories_position.sql` | SQL        | Coluna `position` em categories                 |
+
+
+
 
 ### 🔧 O que pode ser melhorado
 
@@ -193,15 +223,19 @@ _Gestão completa de produtos (páginas próprias)._
 2. Preview local antes do upload (ver Fase 1).
 3. Duplicar produto; rascunho vs publicado mais explícito no fluxo.
 
+
+
 ### ⚠️ Migração
 
 Correr `supabase/migrations/20250730120000_categories_position.sql` antes de usar reordenação de categorias.
 
 ---
 
+
+
 ## Fase 6 — Mensagens ✅ (realtime ainda em falta)
 
-_Chat com clientes._
+*Chat com clientes.*
 
 - [x] Lista de conversas: avatar, nome, última mensagem, timestamp, badge não lidas
 - [x] Chat: bolhas, input com Enter, timestamp, carregar mensagens antigas
@@ -209,6 +243,8 @@ _Chat com clientes._
 - [x] Badge de mensagens não lidas no sidebar (polling 30s)
 - [x] Auto-scroll ao abrir / ao enviar
 - [x] Marcar conversa como lida (`PATCH .../read`)
+
+
 
 ### 🔧 O que pode ser melhorado
 
@@ -219,9 +255,11 @@ _Chat com clientes._
 
 ---
 
+
+
 ## Fase 7 — Minha Loja ✅
 
-_Perfil e configurações da loja._
+*Perfil e configurações da loja.*
 
 - [x] Logo upload (preview + crop)
 - [x] Banner upload
@@ -232,17 +270,23 @@ _Perfil e configurações da loja._
 - [x] Documentos: status verificação, re-envio
 - [x] Status da loja: activo / pausado / fechado
 
+
+
 ### 🧱 O que foi construído
 
-| Ficheiro | Tipo | Responsabilidade |
-|---|---|---|
-| `api/seller/store/route.ts` | API | `GET` loja + docs; `PATCH` identidade, media, contactos, localização, entrega, status |
-| `api/seller/store/documents/route.ts` | API | `POST` reenvio de documentos |
-| `api/seller/store/map-store.ts` | Mapper | Normaliza store + documents |
-| `store-editor/*` | Components | Hero, media (+crop), identidade, contactos, localização, entrega, status, documentos |
-| `store-editor-form.tsx` | Form | Estado, save sticky bar, toasts |
-| `seller-store-view.tsx` | View | Fetch `/api/seller/store` → form |
-| `migrations/20250730100000_store_delivery_settings.sql` | SQL | `has_delivery`, `delivery_fee`, `delivery_eta_minutes`, `delivery_zones` |
+
+| Ficheiro                                                | Tipo       | Responsabilidade                                                                      |
+| ------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------- |
+| `api/seller/store/route.ts`                             | API        | `GET` loja + docs; `PATCH` identidade, media, contactos, localização, entrega, status |
+| `api/seller/store/documents/route.ts`                   | API        | `POST` reenvio de documentos                                                          |
+| `api/seller/store/map-store.ts`                         | Mapper     | Normaliza store + documents                                                           |
+| `store-editor/*`                                        | Components | Hero, media (+crop), identidade, contactos, localização, entrega, status, documentos  |
+| `store-editor-form.tsx`                                 | Form       | Estado, save sticky bar, toasts                                                       |
+| `seller-store-view.tsx`                                 | View       | Fetch `/api/seller/store` → form                                                      |
+| `migrations/20250730100000_store_delivery_settings.sql` | SQL        | `has_delivery`, `delivery_fee`, `delivery_eta_minutes`, `delivery_zones`              |
+
+
+
 
 ### 🔧 O que pode ser melhorado
 
@@ -252,9 +296,11 @@ _Perfil e configurações da loja._
 
 ---
 
+
+
 ## Fase 8 — Analytics
 
-_Relatórios e gráficos. UI existe em `SellerAnalyticsView`, mas a rota está desligada._
+*Relatórios e gráficos. UI existe em* `SellerAnalyticsView`*, mas a rota está desligada.*
 
 - [ ] Reactivar `/dashboard/seller/analytics` (deixar de chamar `notFound()`) e item na sidebar
 - [x] Range picker UI: 7d / 30d / 90d
@@ -272,6 +318,8 @@ O Resumo do dashboard já cobre uma fatia disto (vendas diárias reais + top 5).
 
 ---
 
+
+
 ## Fase 9 — Avaliações ✅ (denúncia em falta)
 
 - [x] Lista de reviews: cliente, produto, rating, comentário, data (API real, sem mock)
@@ -282,6 +330,8 @@ O Resumo do dashboard já cobre uma fatia disto (vendas diárias reais + top 5).
 - [x] Filtros: âmbito loja/produto, pesquisa, "precisa de resposta"
 
 ---
+
+
 
 ## Fase 10 — Configurações
 
@@ -294,9 +344,11 @@ O Resumo do dashboard já cobre uma fatia disto (vendas diárias reais + top 5).
 
 ---
 
+
+
 ## Fase 11 — Polimento UX/UI
 
-_Tornar tudo espectacular._
+*Tornar tudo espectacular.*
 
 - [ ] Micro-interacções consistentes (hover/focus/transição em todos os ecrãs; vários já têm `transition-colors`)
 - [ ] Modo escuro consistente — vários blocos do dashboard usam `bg-white` / `text-neutral-900`
@@ -310,6 +362,8 @@ _Tornar tudo espectacular._
 
 ---
 
+
+
 ## Prioridades seguintes (ordenado)
 
 1. Reactivar Desempenho (página + sidebar + dados reais) ou remover a rota morta até haver tracking.
@@ -321,6 +375,8 @@ _Tornar tudo espectacular._
 7. Variações de produto e CSV de analytics — depois do núcleo acima.
 
 ---
+
+
 
 ## Timeline Estimada
 
@@ -339,3 +395,4 @@ Fase 10: Configurações   ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬜⬜⬜  ~1 dia (prefs l
 Fase 11: Polimento UX    ⬛⬛⬛⬛⬛⬛⬛⬜⬜⬜⬜⬜  ~2 dias (dark + mobile nav)
                                   Restante estimado: ~8–10 dias
 ```
+

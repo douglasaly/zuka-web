@@ -5,8 +5,10 @@ export type UnreadCounts = {
 	pendingOrders: number
 	unreadMessages: number
 }
-export function useUnreadCounts() {
+export function useUnreadCounts(options?: { enabled?: boolean }) {
 	const { isAuthenticated, profile } = useUserProfile()
+	const enabled =
+		isAuthenticated && (options?.enabled === undefined || options.enabled)
 	return useQuery<UnreadCounts>({
 		queryKey: ['unread-counts', profile?.id],
 		queryFn: async () => {
@@ -22,7 +24,7 @@ export function useUnreadCounts() {
 				unreadMessages: Number(json.unreadMessages) || 0,
 			}
 		},
-		enabled: isAuthenticated,
+		enabled,
 		refetchInterval: 30000,
 		staleTime: 10000,
 	})

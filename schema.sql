@@ -193,6 +193,14 @@ CREATE TABLE "users" (
         CONSTRAINT "users_email_unique" UNIQUE("email")
 );
 
+CREATE TABLE "user_preferences" (
+        "user_id" uuid PRIMARY KEY NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
+        "prefs" jsonb DEFAULT '{}'::jsonb NOT NULL,
+        "created_at" timestamp with time zone DEFAULT now() NOT NULL,
+        "updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+        "deleted_at" timestamp with time zone
+);
+
 CREATE TABLE "verification_documents" (
         "id" uuid PRIMARY KEY NOT NULL,
         "owner_id" uuid NOT NULL,

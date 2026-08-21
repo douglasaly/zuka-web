@@ -1,52 +1,97 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
+import { useBrowserNotificationPermission } from '@/hooks/use-browser-notification-permission'
+import { useUserPreferences } from '@/hooks/use-user-preferences'
 import { useUserProfile } from '@/hooks/use-user-profile'
 import { useSellerAccess } from '@/modules/seller/hooks/use-seller-access'
 
-const PREFS_KEY = 'zuka:seller-notification-prefs'
 export type NotificationPrefs = {
 	orders: boolean
 	messages: boolean
 	reviews: boolean
 }
-const DEFAULT_PREFS: NotificationPrefs = {
-	orders: true,
-	messages: true,
-	reviews: true,
-}
-function readPrefs(): NotificationPrefs {
-	if (typeof window === 'undefined') return DEFAULT_PREFS
-	try {
-		const raw = localStorage.getItem(PREFS_KEY)
-		if (!raw) return DEFAULT_PREFS
-		const parsed = JSON.parse(raw) as Partial<NotificationPrefs>
-		return {
-			orders: parsed.orders ?? DEFAULT_PREFS.orders,
-			messages: parsed.messages ?? DEFAULT_PREFS.messages,
-			reviews: parsed.reviews ?? DEFAULT_PREFS.reviews,
-		}
-	} catch {
-		return DEFAULT_PREFS
-	}
-}
+
 export function useSellerSettings() {
 	const { profile, isLoading, isAuthenticated } = useUserProfile()
 	const { can } = useSellerAccess()
-	const [prefs, setPrefs] = useState<NotificationPrefs>(DEFAULT_PREFS)
-	const [prefsReady, setPrefsReady] = useState(false)
+	const {
+		preferences,
+		isReady,
+		updatePreferences,
+		isLoading: prefsLoading,
+		isUpdating,
+	} = useUserPreferences()
+	const browserPermission = useBrowserNotificationPermission()
+
+	const serverPrefs = preferences.seller.notifications
+	const [draft, setDraft] = useState<NotificationPrefs>(serverPrefs)
+
 	useEffect(() => {
-		setPrefs(readPrefs())
-		setPrefsReady(true)
-	}, [])
+		setDraft({ ...serverPrefs })
+	}, [serverPrefs])
+
+	const dirty =
+		draft.orders !== serverPrefs.orders ||
+		draft.messages !== serverPrefs.messages ||
+		draft.reviews !== serverPrefs.reviews
+
 	function updatePref(key: keyof NotificationPrefs, value: boolean) {
-		setPrefs((prev) => {
-			const next = { ...prev, [key]: value }
-			try {
-				localStorage.setItem(PREFS_KEY, JSON.stringify(next))
-			} catch {}
-			return next
-		})
+		setDraft((prev) => ({ ...prev, [key]: value }))
 	}
+
+	async function savePrefs() {
+		const wantsBrowserAlerts =
+			draft.orders || draft.messages || draft.reviews
+
+		let permissionNote: 'granted' | 'denied' | 'blocked' | null = null
+		if (wantsBrowserAlerts && browserPermission.isDefault) {
+			const result = await browserPermission.requestPermission()
+			if (result === 'granted') permissionNote = 'granted'
+			else if (result === 'denied') permissionNote = 'denied'
+		} else if (wantsBrowserAlerts && browserPermission.denied) {
+			permissionNote = 'blocked'
+		}
+
+		try {
+			await updatePreferences({
+				seller: { notifications: draft },
+			})
+			if (permissionNote === 'granted') {
+				toast.success('Preferências e alertas do navegador activados')
+			} else if (permissionNote === 'denied') {
+				toast.message(
+					'Preferências guardadas. Alertas do navegador bloqueados - active-os nas definições do navegador.'
+				)
+			} else if (permissionNote === 'blocked') {
+				toast.message(
+					'Preferências guardadas. Para alertas no desktop, permita notificações para este site no browser.'
+				)
+			} else {
+				toast.success('Preferências guardadas')
+			}
+		} catch (err) {
+			toast.error(
+				err instanceof Error
+					? err.message
+					: 'Não foi possível guardar as preferências'
+			)
+		}
+	}
+
+	async function enableBrowserNotifications() {
+		const result = await browserPermission.requestPermission()
+		if (result === 'granted') {
+			toast.success('Alertas do navegador activados')
+		} else if (result === 'denied') {
+			toast.error(
+				'Notificações bloqueadas. Altere a permissão deste site nas definições do navegador.'
+			)
+		} else if (result === 'unsupported') {
+			toast.error('Este navegador não suporta notificações.')
+		}
+	}
+
 	const store = profile?.stores[0]
 	const displayName = profile
 		? [profile.firstName, profile.lastName].filter(Boolean).join(' ').trim()
@@ -57,9 +102,14 @@ export function useSellerSettings() {
 		isLoading,
 		isAuthenticated,
 		can,
-		prefs,
-		prefsReady,
+		prefs: draft,
+		prefsReady: isAuthenticated ? isReady && !prefsLoading : true,
+		prefsDirty: dirty,
+		isSavingPrefs: isUpdating,
 		updatePref,
+		savePrefs,
+		browserPermission,
+		enableBrowserNotifications,
 		store,
 		storeName,
 	}
