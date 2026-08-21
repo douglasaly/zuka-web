@@ -20,9 +20,9 @@ import {
 	SidebarMenuItem,
 	SidebarMenuSkeleton,
 } from '@/components/ui/sidebar'
-import { useCartItemCount, useHasHydrated } from '@/hooks/use-cart'
+import { useCartItemCount, useHasHydrated } from '@/hooks/cart/use-cart'
 import { useInbox } from '@/hooks/use-inbox'
-import { useNotifications } from '@/hooks/use-notifications'
+import { useNotifications } from '@/hooks/notifications/use-notifications'
 import { useUserProfile } from '@/hooks/use-user-profile'
 import { cn } from '@/lib/utils'
 

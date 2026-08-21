@@ -20,7 +20,6 @@ export type SellerProduct = {
 	description: string | null
 }
 
-/** Dashboard stub product (mock/list preview with string price) */
 export type SellerDashboardProduct = {
 	id: string
 	name: string

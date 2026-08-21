@@ -29,6 +29,8 @@ export type FollowedStore = {
 	location: string
 }
 
+export type NormalizedStore = StoreFollowItem[]
+
 export type StoreFollowItem = {
 	followed_at: string | null
 	store: {
@@ -52,8 +54,6 @@ export interface FollowedStores {
 		nextCursor: string | null
 	}
 }
-
-export type NormalizedStore = StoreFollowItem[]
 
 export type FollowedStoreItem = StoreFollowItem
 export type ListFollowedStoresOutput = FollowedStores

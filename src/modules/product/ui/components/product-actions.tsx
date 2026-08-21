@@ -1,7 +1,7 @@
 'use client'
 import { MessageCircle, Phone, ShoppingCart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useCart } from '@/hooks/use-cart'
+import { useCart } from '@/hooks/cart/use-cart'
 import { trackContactEvent } from '@/lib/contact-events'
 import type { CartProductInput } from '@/types'
 

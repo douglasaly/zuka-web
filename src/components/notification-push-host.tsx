@@ -1,6 +1,6 @@
 'use client'
 
-import { useNotificationPush } from '@/hooks/use-notification-push'
+import { useNotificationPush } from '@/hooks/notifications/use-notification-push'
 
 export function NotificationPushHost() {
 	useNotificationPush()

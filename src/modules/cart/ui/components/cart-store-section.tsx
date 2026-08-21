@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import { StoreAvatar } from '@/components/store-avatar'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { useCart } from '@/hooks/use-cart'
+import { useCart } from '@/hooks/cart/use-cart'
 import { useUserProfile } from '@/hooks/use-user-profile'
 import { startConversation } from '@/lib/api/marketplace'
 import { STORE_PLACEHOLDER } from '@/lib/constants/images'
@@ -18,10 +18,9 @@ import {
 	cartItemCount,
 	cartTotal,
 } from '@/modules/cart/lib/cart-utils'
-import type { Cart, ReconciledProduct } from '@/types'
 import { useCreateOrder } from '@/modules/orders/hooks/use-create-order'
 import { whatsappHref } from '@/modules/orders/lib/order-copy'
-import type { CreatedBuyerOrder } from '@/types'
+import type { Cart, CreatedBuyerOrder, ReconciledProduct } from '@/types'
 import { formatPrice } from '@/utils/format-price'
 import { CartItemRow } from './cart-item-row'
 

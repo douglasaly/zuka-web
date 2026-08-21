@@ -13,7 +13,11 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { useCartItemCount, useCartList, useHasHydrated } from '@/hooks/use-cart'
+import {
+	useCartItemCount,
+	useCartList,
+	useHasHydrated,
+} from '@/hooks/cart/use-cart'
 import { STORE_PLACEHOLDER } from '@/lib/constants/images'
 import {
 	cartCurrency,

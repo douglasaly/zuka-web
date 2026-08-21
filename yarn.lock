@@ -2709,10 +2709,10 @@
     postcss "8.5.15"
     tailwindcss "4.3.1"
 
-"@tanstack/intent@^0.3.2":
-  version "0.3.2"
-  resolved "https://registry.npmjs.org/@tanstack/intent/-/intent-0.3.2.tgz"
-  integrity sha512-Apyfkf0O8QqHQJjy/cB1QW2GpYTOyjf98nFAaYtzjBc0V5YzJoy0wnmZSLvwBJxE8/Hhy0Bsa+EPt/fdeJyXkw==
+"@tanstack/intent@^0.3.6":
+  version "0.3.6"
+  resolved "https://registry.yarnpkg.com/@tanstack/intent/-/intent-0.3.6.tgz#8a6b88378e942983bd9952cb80d68cc5d220f529"
+  integrity sha512-ylew/4T3layUXSfE/SDGUSAi1B3U/wuoNUE0adC3j/s6wzX7omV6e6hAv0WyMC52Inren8kqvwpHj+G/ZBbQHQ==
   dependencies:
     cac "^6.7.14"
     jsonc-parser "^3.3.1"
@@ -5386,7 +5386,7 @@ lines-and-columns@^1.1.6:
 
 list@^2.0.19:
   version "2.0.19"
-  resolved "https://registry.npmjs.org/list/-/list-2.0.19.tgz"
+  resolved "https://registry.yarnpkg.com/list/-/list-2.0.19.tgz#370a3d7d3e24cfd5ced2c89cda2baf28e31e2830"
   integrity sha512-nnVaRp4RaMAQkCpypTThsdxKqgPMiSwJq93eAm2/IbpUa8sd04XKBhkKu+bMk63HmdjK8b8Cuh4xARHWX2ye/Q==
 
 locate-path@^3.0.0:

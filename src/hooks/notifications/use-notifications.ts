@@ -5,7 +5,7 @@ import {
 	getNotifications,
 	markNotificationsRead,
 } from '@/lib/api/notifications'
-import { useUserProfile } from './use-user-profile'
+import { useUserProfile } from '@/hooks/use-user-profile'
 export function useNotifications() {
 	const queryClient = useQueryClient()
 	const { isAuthenticated } = useUserProfile()

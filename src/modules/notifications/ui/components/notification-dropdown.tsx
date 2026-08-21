@@ -12,7 +12,7 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { useNotifications } from '@/hooks/use-notifications'
+import { useNotifications } from '@/hooks/notifications/use-notifications'
 import { useUserProfile } from '@/hooks/use-user-profile'
 import { cn } from '@/lib/utils'
 import type { Notification } from '@/types'
