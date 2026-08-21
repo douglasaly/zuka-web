@@ -1,5 +1,14 @@
 -- Admin notification batches (GROUP BY in SQL) + missing updated_at triggers.
 
+ALTER TABLE public.notifications
+	ADD COLUMN IF NOT EXISTS batch_id UUID NULL,
+	ADD COLUMN IF NOT EXISTS sender_user_id UUID NULL REFERENCES public.users(id) ON DELETE SET NULL,
+	ADD COLUMN IF NOT EXISTS sender_store_id UUID NULL REFERENCES public.stores(id) ON DELETE SET NULL;
+
+CREATE INDEX IF NOT EXISTS notifications_batch_id_idx
+	ON public.notifications (batch_id)
+	WHERE deleted_at IS NULL;
+
 CREATE OR REPLACE FUNCTION public.list_notification_batches(p_limit integer DEFAULT 50)
 RETURNS TABLE (
 	id uuid,
