@@ -119,7 +119,6 @@ export function deepMerge<T extends Record<string, unknown>>(
 	return out as T
 }
 
-/** Merge unknown DB jsonb with defaults and strip invalid keys via Zod. */
 export function normalizePreferences(raw: unknown): PreferencesDocument {
 	const merged = deepMerge(
 		DEFAULT_PREFERENCES as unknown as Record<string, unknown>,
