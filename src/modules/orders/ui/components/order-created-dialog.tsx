@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog'
 import { trackContactEvent } from '@/lib/contact-events'
 import { buyerOrderPath, whatsappHref } from '@/modules/orders/lib/order-copy'
-import type { CreatedBuyerOrder } from '@/modules/orders/types'
+import type { CreatedBuyerOrder } from '@/types'
 
 type OrderCreatedDialogProps = {
 	order: CreatedBuyerOrder | null

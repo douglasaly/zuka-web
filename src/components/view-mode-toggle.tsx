@@ -1,6 +1,6 @@
 import { LayoutGrid, List } from 'lucide-react'
 import { IconTooltipButton } from '@/components/icon-tooltip-button'
-export type ViewMode = 'grid' | 'list'
+import type { ViewMode } from '@/types'
 type ViewModeToggleProps = {
 	value: ViewMode
 	onChange: (mode: ViewMode) => void

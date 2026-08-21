@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getSessionUser } from '@/lib/auth/session'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
-import type { SavedItem } from '@/types/saved-items'
+import type { SavedItem } from '@/types'
 
 type SavedProductEmbed = {
 	id: string

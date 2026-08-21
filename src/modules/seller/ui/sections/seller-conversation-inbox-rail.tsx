@@ -2,11 +2,9 @@
 import { Inbox } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { LoadMoreMessages } from '@/modules/messages/ui/components/load-more-messages'
-import {
-	type SellerConversation,
-	SellerInboxRow,
-} from '@/modules/seller/ui/components/messages/seller-inbox-row'
+import { SellerInboxRow } from '@/modules/seller/ui/components/messages/seller-inbox-row'
 import { SellerInboxRailHeader } from '@/modules/seller/ui/components/messages/seller-messages-headers'
+import type { SellerConversation } from '@/types'
 
 type SellerConversationInboxRailProps = {
 	activeId: string

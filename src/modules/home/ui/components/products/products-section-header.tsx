@@ -1,9 +1,9 @@
 import { ArrowRight, LayoutGrid, List } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { type ViewMode, ViewModeToggle } from '@/components/view-mode-toggle'
+import { ViewModeToggle } from '@/components/view-mode-toggle'
 import { cn } from '@/lib/utils'
-export type ProductsViewMode = 'grid' | 'list'
+import type { ViewMode } from '@/types'
 type ProductsSectionHeaderProps = {
 	viewMode: ViewMode
 	onViewModeChange: (mode: ViewMode) => void

@@ -1,5 +1,5 @@
 import { Heart } from 'lucide-react'
-import type { SavedItem } from '@/types/saved-items'
+import type { SavedItem } from '@/types'
 import { EmptyState } from '../components/empty-state'
 import { SavedItemCard } from '../components/saved-item-card'
 import { SavedItemCardSkeleton } from '../components/saved-item-card-skeleton'

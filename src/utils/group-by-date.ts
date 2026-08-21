@@ -1,4 +1,4 @@
-import type { Notification } from '@/types/notifications'
+import type { Notification } from '@/types'
 export function groupByDate(items: Notification[]) {
 	const now = new Date()
 	const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())

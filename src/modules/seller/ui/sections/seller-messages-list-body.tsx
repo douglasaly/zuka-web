@@ -2,10 +2,8 @@
 import { Button } from '@/components/ui/button'
 import { LoadMoreMessages } from '@/modules/messages/ui/components/load-more-messages'
 import type { SellerMessagesFilter } from '../../hooks/use-seller-messages'
-import {
-	type SellerConversation,
-	SellerInboxRow,
-} from '../components/messages/seller-inbox-row'
+import { SellerInboxRow } from '../components/messages/seller-inbox-row'
+import type { SellerConversation } from '@/types'
 
 type SellerMessagesListBodyProps = {
 	visible: SellerConversation[]

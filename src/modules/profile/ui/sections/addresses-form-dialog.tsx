@@ -1,6 +1,6 @@
 'use client'
 import { Loader2 } from 'lucide-react'
-import type { CreateAddressInput } from '@/app/api/addresses/types'
+import type { CreateAddressInput } from '@/types'
 import { Button } from '@/components/ui/button'
 import {
 	Dialog,

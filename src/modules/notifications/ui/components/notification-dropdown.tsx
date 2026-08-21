@@ -15,7 +15,7 @@ import {
 import { useNotifications } from '@/hooks/use-notifications'
 import { useUserProfile } from '@/hooks/use-user-profile'
 import { cn } from '@/lib/utils'
-import type { Notification } from '@/types/notifications'
+import type { Notification } from '@/types'
 import { NotificationItem } from './notification-item'
 import { NotificationsSkeleton } from './notifications-skeleton'
 export function NotificationDropdown() {

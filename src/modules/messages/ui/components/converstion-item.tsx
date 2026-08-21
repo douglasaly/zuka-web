@@ -4,7 +4,7 @@ import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { StoreAvatar } from '@/components/store-avatar'
 import { cn } from '@/lib/utils'
-import type { InboxItem } from '@/types/messages'
+import type { InboxItem } from '@/types'
 
 dayjs.locale('pt')
 function formatTimeAgo(date: string): string {

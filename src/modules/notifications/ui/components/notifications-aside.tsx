@@ -3,7 +3,7 @@ import { ArrowRight, MessageCircle, ShoppingBag } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import type { NotificationType } from '@/types/notifications'
+import type { NotificationType } from '@/types'
 import {
 	NOTIFICATION_META,
 	NOTIFICATION_TYPE_ORDER,

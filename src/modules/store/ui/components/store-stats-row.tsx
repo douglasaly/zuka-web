@@ -1,5 +1,5 @@
 import { Star } from 'lucide-react'
-import type { StoreProfile } from '@/types/marketplace'
+import type { StoreProfile } from '@/types'
 
 type StoreStatsRowProps = {
 	store: StoreProfile

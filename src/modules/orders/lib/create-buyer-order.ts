@@ -1,7 +1,7 @@
 import { uuidv7 } from 'uuidv7'
 import { getManagedStoreIds } from '@/lib/auth/seller'
 import type { createSupabaseAdmin } from '@/lib/supabase/admin'
-import { MAX_CART_QUANTITY } from '@/modules/cart/types'
+import { MAX_CART_QUANTITY } from '@/modules/cart/constants'
 import {
 	ensureBuyerStoreConversation,
 	postConversationMessage,
@@ -13,7 +13,7 @@ import {
 	type OrderLineCopy,
 	orderShortId,
 } from '@/modules/orders/lib/order-copy'
-import type { CreatedBuyerOrder } from '@/modules/orders/types'
+import type { CreatedBuyerOrder } from '@/types'
 
 type Db = ReturnType<typeof createSupabaseAdmin>
 export type CreateBuyerOrderInput = {

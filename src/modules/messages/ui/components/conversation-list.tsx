@@ -2,7 +2,7 @@ import { MessageSquare } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/modules/profile/ui/components/empty-state'
-import type { InboxItem } from '@/types/messages'
+import type { InboxItem } from '@/types'
 import { ConversationItem } from './converstion-item'
 
 type ConversationsListProps = {

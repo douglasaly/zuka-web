@@ -1,4 +1,4 @@
-import type { Categories } from '@/modules/home/ui/sections/categories-section'
+import type { Categories } from '@/types'
 export async function getCategories(): Promise<Categories[]> {
 	const response = await fetch('/api/categories', {
 		method: 'GET',

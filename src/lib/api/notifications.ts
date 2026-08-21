@@ -1,7 +1,7 @@
 import type {
 	ListNotificationsOutput,
 	UpdateNotificationsInput,
-} from '@/lib/types/api/notifications'
+} from '@/types'
 export async function getNotifications(limit = 5, page: number | string = 0) {
 	const params = new URLSearchParams({
 		limit: String(limit),

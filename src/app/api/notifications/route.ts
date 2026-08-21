@@ -13,7 +13,7 @@ import {
 	OffsetPaginationSchema,
 	UpdateNotificationsSchema,
 } from '@/lib/validations'
-import type { NotificationRow } from '@/types/notifications'
+import type { NotificationRow } from '@/types'
 
 function normalizeLink(link: string | null) {
 	if (link?.startsWith('/pedidos/')) return `/feed${link}`

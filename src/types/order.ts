@@ -1,3 +1,36 @@
+import type { OrderStatus } from '@/lib/orders/status-transitions'
+
+export interface OrderSummary {
+	id: string
+	storeName: string
+	storeAvatar: string | null
+	date: string
+	itemCount: number
+	total: number
+	currency: string
+	status: 'shipping' | 'pending' | 'completed' | 'cancelled'
+	statusLabel: string
+}
+
+export type OrderItem = {
+	id: string
+	quantity: number
+	unitPrice: number
+	currency: string
+	productName: string
+	productSlug: string
+}
+export type ListOrdersOutput = {
+	success: true
+	orders: OrderSummary[]
+}
+export type GetOrderOutput = {
+	success: true
+	order: OrderSummary
+	storeSlug: string | null
+	items: OrderItem[]
+}
+
 export type BuyerOrderStatus =
 	| 'pending'
 	| 'shipping'
@@ -35,13 +68,6 @@ export type BuyerOrderTimelineStep = {
 	at: string | null
 	state: 'done' | 'current' | 'upcoming'
 }
-export type BuyerOrderDetail = {
-	order: BuyerOrder
-	items: BuyerOrderItem[]
-	timeline: BuyerOrderTimelineStep[]
-	notes: string | null
-	review: BuyerOrderReview | null
-}
 export type BuyerOrderProductReview = {
 	productId: string
 	productName: string
@@ -58,21 +84,20 @@ export type BuyerOrderReview = {
 	storeRepliedAt: string | null
 	products: BuyerOrderProductReview[]
 }
-export const STATUS_FILTERS = [
-	{ value: 'all', label: 'Todos' },
-	{ value: 'pending', label: 'Em processamento' },
-	{ value: 'shipping', label: 'Em envio' },
-	{ value: 'completed', label: 'Entregue' },
-	{ value: 'cancelled', label: 'Cancelado' },
-] as const
-export const PERIOD_FILTERS = [
-	{ value: 'all', label: 'Todo o período' },
-	{ value: '7', label: 'Últimos 7 dias' },
-	{ value: '30', label: 'Últimos 30 dias' },
-	{ value: '90', label: 'Últimos 90 dias' },
-] as const
-export type StatusFilter = (typeof STATUS_FILTERS)[number]['value']
-export type PeriodFilter = (typeof PERIOD_FILTERS)[number]['value']
+export type BuyerOrderDetail = {
+	order: BuyerOrder
+	items: BuyerOrderItem[]
+	timeline: BuyerOrderTimelineStep[]
+	notes: string | null
+	review: BuyerOrderReview | null
+}
+export type StatusFilter =
+	| 'all'
+	| 'pending'
+	| 'shipping'
+	| 'completed'
+	| 'cancelled'
+export type PeriodFilter = 'all' | '7' | '30' | '90'
 export type CreatedBuyerOrder = {
 	orderId: string
 	shortId: string
@@ -81,3 +106,10 @@ export type CreatedBuyerOrder = {
 	storePhone: string | null
 	whatsappMessage: string
 }
+
+export type OrderSheetPendingAction = {
+	orderId: string
+	shortId: string
+	nextStatus: Extract<OrderStatus, 'SHIPPING' | 'COMPLETED' | 'CANCELLED'>
+}
+export type PendingAction = OrderSheetPendingAction

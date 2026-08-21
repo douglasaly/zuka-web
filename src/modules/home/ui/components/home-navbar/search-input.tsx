@@ -6,10 +6,8 @@ import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
-import {
-	type FilterValues,
-	SearchFiltersSheet,
-} from '@/modules/search/ui/components/search-filters-sheet'
+import { SearchFiltersSheet } from '@/modules/search/ui/components/search-filters-sheet'
+import type { FilterValues } from '@/types'
 export const SearchInput = () => {
 	const searchParams = useSearchParams()
 	const router = useRouter()

@@ -1,3 +1,20 @@
+/** Home/explore category row (camelCase API shape) */
+export interface Categories {
+	id: string
+	parentId: unknown
+	name: string
+	slug: string
+	createdAt: string
+	updatedAt: string
+	deletedAt: unknown
+}
+
+export type CategoryOption = {
+	value: string
+	label: string
+}
+
+/** Admin/DB category row (snake_case) */
 export type Category = {
 	id: string
 	parent_id: string | null

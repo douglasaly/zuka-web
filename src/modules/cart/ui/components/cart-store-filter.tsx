@@ -1,7 +1,7 @@
 'use client'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cartItemCount } from '@/modules/cart/lib/cart-utils'
-import type { Cart } from '@/modules/cart/types'
+import type { Cart } from '@/types'
 
 type CartStoreFilterProps = {
 	carts: Cart[]

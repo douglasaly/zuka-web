@@ -3,13 +3,16 @@ import {
 	mapProductRow,
 	mapStoreRow,
 } from '@/lib/mappers/marketplace'
-import type { CreatedBuyerOrder } from '@/modules/orders/types'
 import type {
+	BuyerOrder,
+	BuyerOrderDetail,
+	CreatedBuyerOrder,
 	OrderSummary,
 	Product,
+	SellerProduct,
 	StoreProfile,
 	UserProfile,
-} from '@/types/marketplace'
+} from '@/types'
 export const PRODUCT_PLACEHOLDER = '/product-placeholder.jpg'
 export const STORE_PLACEHOLDER = '/placeholder.png'
 type GroupedProduct = {
@@ -206,16 +209,14 @@ export async function fetchStoreBySlug(slug: string) {
 		),
 	}
 }
-export async function fetchOrders(): Promise<
-	import('@/modules/orders/types').BuyerOrder[]
-> {
+export async function fetchOrders(): Promise<BuyerOrder[]> {
 	const res = await fetch('/api/orders', { credentials: 'include' })
 	if (res.status === 401) {
 		throw new Error('Unauthorized')
 	}
 	if (!res.ok) throw new Error('Failed to load orders')
 	const json = await res.json()
-	return (json.orders ?? []) as import('@/modules/orders/types').BuyerOrder[]
+	return (json.orders ?? []) as BuyerOrder[]
 }
 export async function createBuyerOrder(input: {
 	storeId: string
@@ -243,7 +244,7 @@ export async function fetchOrder(id: string) {
 	if (res.status === 404) return null
 	if (!res.ok) throw new Error('Failed to load order')
 	const json = await res.json()
-	return json as import('@/modules/orders/types').BuyerOrderDetail & {
+	return json as BuyerOrderDetail & {
 		storeSlug: string | null
 	}
 }
@@ -260,17 +261,6 @@ export async function fetchUserProfile(): Promise<UserProfile | null> {
 	if (!res.ok) throw new Error('Failed to load profile')
 	const json = await res.json()
 	return json.profile as UserProfile
-}
-export interface SellerProduct {
-	id: string
-	name: string
-	price: number
-	discountPrice: number | null
-	currency: string
-	status: string
-	isVisible: boolean
-	categoryName: string | null
-	image: string | null
 }
 export async function fetchSellerProducts() {
 	const res = await fetch('/api/seller/products', { credentials: 'include' })

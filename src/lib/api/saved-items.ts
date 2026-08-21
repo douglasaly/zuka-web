@@ -1,4 +1,4 @@
-import type { SavedItem } from '@/types/saved-items'
+import type { SavedItem } from '@/types'
 export async function FetchSavedItems(): Promise<SavedItem[]> {
 	const res = await fetch('/api/saved-items', {
 		credentials: 'include',

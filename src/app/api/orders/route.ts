@@ -15,7 +15,7 @@ import {
 } from '@/lib/validations'
 import { createBuyerOrder } from '@/modules/orders/lib/create-buyer-order'
 import { mapBuyerOrder } from '@/modules/orders/lib/map-buyer-order'
-import type { BuyerOrderStatus } from '@/modules/orders/types'
+import type { BuyerOrderStatus } from '@/types'
 
 const STATUS_DB: Record<BuyerOrderStatus, OrderStatus[]> = {
 	pending: ['PENDING', 'CONTACTED'],

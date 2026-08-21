@@ -1,10 +1,10 @@
 import { Package } from 'lucide-react'
 import { InfiniteScrollTrigger } from '@/components/infinite-scroll-trigger'
 import { ProductCard } from '@/components/product-card'
-import type { ViewMode } from '@/components/view-mode-toggle'
+import type { ViewMode } from '@/types'
 import { cn } from '@/lib/utils'
 import { EmptyState } from '@/modules/profile/ui/components/empty-state'
-import type { Product } from '@/types/marketplace'
+import type { Product } from '@/types'
 
 type ExploreProductsGridProps = {
 	products: Product[]

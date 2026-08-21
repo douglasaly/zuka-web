@@ -1,4 +1,4 @@
-import type { StoreProfile } from '@/types/marketplace'
+import type { StoreProfile } from '@/types'
 import { StoreCircleCard } from './store-circle-card'
 
 type FeaturedStoresListProps = {

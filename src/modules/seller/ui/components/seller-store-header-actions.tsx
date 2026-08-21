@@ -7,7 +7,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { absoluteUrl } from '@/lib/seo/site'
-import type { GetSellerStoreOutput } from '@/lib/types/api/seller'
+import type { GetSellerStoreOutput } from '@/types'
 
 export function SellerStoreHeaderActions() {
 	const [copied, setCopied] = useState(false)

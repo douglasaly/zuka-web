@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { OrderStatusBadge } from '@/components/order-status-badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import type { BuyerOrder } from '@/modules/orders/types'
+import type { BuyerOrder } from '@/types'
 
 type OrderDetailHeaderProps = {
 	order: BuyerOrder

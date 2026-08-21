@@ -12,7 +12,7 @@ import { PRODUCT_PLACEHOLDER } from '@/lib/api/marketplace'
 import { BLUR_PLACEHOLDER, STORE_PLACEHOLDER } from '@/lib/constants/images'
 import { cn } from '@/lib/utils'
 import { toCartProductInput } from '@/modules/cart/lib/cart-utils'
-import type { Product } from '@/types/marketplace'
+import type { Product } from '@/types'
 import { formatPrice } from '@/utils/format-price'
 
 type ProductCardProps = {

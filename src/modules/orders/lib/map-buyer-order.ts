@@ -4,7 +4,7 @@ import type {
 	BuyerOrderItem,
 	BuyerOrderStatus,
 	BuyerOrderTimelineStep,
-} from '@/modules/orders/types'
+} from '@/types'
 import { formatLongPtDate, formatLongPtDateTime } from '@/utils/format-date'
 
 type ProductImage = {

@@ -1,6 +1,6 @@
 import { BadgeCheck } from 'lucide-react'
 import { UserAvatar } from '@/components/user-avatar'
-import type { UserProfile } from '@/types/marketplace'
+import type { UserProfile } from '@/types'
 import { ProfileStats } from '../components/profile-stats'
 
 type ProfileStat = {

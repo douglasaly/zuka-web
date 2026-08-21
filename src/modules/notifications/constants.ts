@@ -8,7 +8,7 @@ import {
 	Tag,
 	UserPlus,
 } from 'lucide-react'
-import type { NotificationType } from '@/types/notifications'
+import type { NotificationType } from '@/types'
 export type NotificationMeta = {
 	icon: LucideIcon
 	tint: string

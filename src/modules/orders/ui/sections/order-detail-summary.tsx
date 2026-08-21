@@ -3,7 +3,7 @@ import type {
 	BuyerOrder,
 	BuyerOrderItem,
 	BuyerOrderReview,
-} from '@/modules/orders/types'
+} from '@/types'
 import {
 	OrderReviewForm,
 	OrderReviewWaitingPanel,

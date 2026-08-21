@@ -1,4 +1,4 @@
-import type { UploadPurpose } from '@/types/uploads'
+import type { UploadPurpose } from '@/types'
 export async function uploadImageToR2(
 	file: File,
 	purpose: UploadPurpose

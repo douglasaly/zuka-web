@@ -6,13 +6,7 @@ import {
 	TrendingUp,
 	Users,
 } from 'lucide-react'
-export type SellerStatData = {
-	id: string
-	icon: 'trending' | 'package' | 'whatsapp' | 'phone' | 'users' | 'eye'
-	value: string
-	label: string
-	change?: number
-}
+import type { SellerStatData } from '@/types'
 const ICONS = {
 	trending: { Icon: TrendingUp, bg: 'bg-rose-100', fg: 'text-rose-500' },
 	package: { Icon: Package, bg: 'bg-blue-100', fg: 'text-blue-500' },

@@ -8,7 +8,7 @@ import type {
 	CartItem,
 	CartProductInput,
 	CartsState,
-} from '@/modules/cart/types'
+} from '@/types'
 
 type CartStore = CartsState & CartActions
 function dropEmptyCart(

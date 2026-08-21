@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
-import type { Notification } from '@/types/notifications'
+import type { Notification } from '@/types'
 import { formatLongPtDateTime } from '@/utils/format-date'
 import { NOTIFICATION_META, NOTIFICATION_UNREAD_SURFACE } from '../../constants'
 import { NotificationAvatar } from './notification-avatar'

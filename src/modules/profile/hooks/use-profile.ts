@@ -10,7 +10,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useSavedItems } from '@/hooks/use-saved-items'
 import { useUserProfile } from '@/hooks/use-user-profile'
-import { normalizeStore } from '@/types/stores'
+import { normalizeStore } from '@/lib/mappers/stores'
 export const PROFILE_TABS = [
 	{ title: 'Guardados', icon: Heart },
 	{ title: 'Lojas seguidas', icon: Store },

@@ -1,12 +1,10 @@
 'use client'
-import { type ViewMode, ViewModeToggle } from '@/components/view-mode-toggle'
-import {
-	CategoryFilter,
-	type CategoryOption,
-} from '../components/category-filter'
+import { ViewModeToggle } from '@/components/view-mode-toggle'
+import { CategoryFilter } from '../components/category-filter'
 import { ExploreProductsGrid } from '../components/explore-products-grid'
 import { ExploreProductsSkeleton } from '../components/explore-products-skeleton'
 import { ExploreResultsCount } from '../components/explore-result-count'
+import type { CategoryOption, ViewMode } from '@/types'
 
 interface Props {
 	categorySlug: string

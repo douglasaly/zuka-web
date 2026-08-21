@@ -1,5 +1,5 @@
 'use client'
-import type { Address } from '@/app/api/addresses/types'
+import type { Address } from '@/types'
 import { AddressCard } from '../components/addresses/address-card'
 
 type AddressesListProps = {

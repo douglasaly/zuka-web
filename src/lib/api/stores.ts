@@ -1,4 +1,4 @@
-import type { FollowedStores } from '@/types/stores'
+import type { FollowedStores } from '@/types'
 
 type FollowStoreResponse = {
 	success: boolean

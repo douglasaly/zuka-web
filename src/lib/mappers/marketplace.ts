@@ -1,4 +1,4 @@
-import type { OrderSummary, Product, StoreProfile } from '@/types/marketplace'
+import type { OrderSummary, Product, StoreProfile } from '@/types'
 import { formatLongPtDate } from '@/utils/format-date'
 
 type DbImage = {

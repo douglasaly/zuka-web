@@ -3,7 +3,7 @@ import { resolveCategoryIds } from '@/lib/categories/resolve-category-ids'
 import { mapProductRow } from '@/lib/mappers/marketplace'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import { sanitizeFtsTerm, sanitizeIlikeTerm } from '@/lib/validations'
-import type { Product, StoreProfile } from '@/types/marketplace'
+import type { Product, StoreProfile } from '@/types'
 
 export type SearchProduct = Product
 export type SearchStore = StoreProfile

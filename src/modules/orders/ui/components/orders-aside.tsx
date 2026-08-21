@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { PRODUCT_PLACEHOLDER, STORE_PLACEHOLDER } from '@/lib/api/marketplace'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 import { cn } from '@/lib/utils'
-import type { BuyerOrder, StatusFilter } from '@/modules/orders/types'
+import type { BuyerOrder, StatusFilter } from '@/types'
 
 type OrdersAsideProps = {
 	pendingReviews: BuyerOrder[]

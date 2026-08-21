@@ -15,8 +15,8 @@ import {
 	restoreNotifications,
 	setNotificationsRead,
 } from '@/lib/api/notifications'
-import type { ListNotificationsOutput } from '@/lib/types/api/notifications'
-import type { Notification, NotificationType } from '@/types/notifications'
+import type { ListNotificationsOutput } from '@/types'
+import type { Notification, NotificationType } from '@/types'
 import { groupByDate } from '@/utils/group-by-date'
 import { NOTIFICATION_TYPE_ORDER, type NotificationFilter } from '../constants'
 

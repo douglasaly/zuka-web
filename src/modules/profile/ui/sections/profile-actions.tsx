@@ -4,7 +4,7 @@ import {
 	isAwaitingSellerApproval,
 	needsSellerOnboarding,
 } from '@/lib/auth/routing'
-import type { UserProfile } from '@/types/marketplace'
+import type { UserProfile } from '@/types'
 import { ProfileActionLink } from '../components/product-action-link'
 
 type ProfileActionsProps = {

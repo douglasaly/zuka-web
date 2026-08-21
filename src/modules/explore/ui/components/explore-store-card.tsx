@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { STORE_PLACEHOLDER } from '@/lib/api/marketplace'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
-import type { StoreProfile } from '@/types/marketplace'
+import type { StoreProfile } from '@/types'
 
 type ExploreStoreCardProps = {
 	store: StoreProfile

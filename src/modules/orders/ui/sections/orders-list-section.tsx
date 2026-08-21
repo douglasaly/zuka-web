@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import type { BuyerOrder } from '@/modules/orders/types'
+import type { BuyerOrder } from '@/types'
 import { OrderCard } from '../components/order-card'
 import { OrdersEmptyAll, OrdersEmptyFiltered } from './orders-gates'
 

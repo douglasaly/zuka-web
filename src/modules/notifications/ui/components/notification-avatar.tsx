@@ -1,7 +1,7 @@
 import { StoreAvatar } from '@/components/store-avatar'
 import { UserAvatar } from '@/components/user-avatar'
 import { cn } from '@/lib/utils'
-import type { Notification } from '@/types/notifications'
+import type { Notification } from '@/types'
 import { NOTIFICATION_META } from '../../constants'
 
 type NotificationAvatarProps = {

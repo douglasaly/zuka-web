@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { STORE_PLACEHOLDER } from '@/lib/api/marketplace'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
-import type { BuyerOrder } from '@/modules/orders/types'
+import type { BuyerOrder } from '@/types'
 
 type OrderDetailStoreProps = {
 	order: BuyerOrder

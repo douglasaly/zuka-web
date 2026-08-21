@@ -1,11 +1,10 @@
 import { ProductCard } from '@/components/product-card'
 import { cn } from '@/lib/utils'
-import type { Product } from '@/types/marketplace'
-import type { ProductsViewMode } from './products-section-header'
+import type { Product, ViewMode } from '@/types'
 
 type ProductsListProps = {
 	products: Product[]
-	viewMode: ProductsViewMode
+	viewMode: ViewMode
 }
 export const ProductsList = ({ products, viewMode }: ProductsListProps) => (
 	<div

@@ -1,6 +1,6 @@
 'use client'
 import { Loader2, MapPin, Trash2 } from 'lucide-react'
-import type { Address } from '@/app/api/addresses/types'
+import type { Address } from '@/types'
 import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { Card, CardContent } from '@/components/ui/card'
 import { LABEL_ICONS } from './constants'

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { Separator } from '@/components/ui/separator'
 import { PRODUCT_PLACEHOLDER } from '@/lib/api/marketplace'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
-import type { BuyerOrder, BuyerOrderItem } from '@/modules/orders/types'
+import type { BuyerOrder, BuyerOrderItem } from '@/types'
 import { formatPrice } from '@/utils/format-price'
 
 type OrderDetailItemsProps = {

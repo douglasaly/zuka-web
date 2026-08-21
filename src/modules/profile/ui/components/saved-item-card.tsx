@@ -6,7 +6,7 @@ import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { StoreAvatar } from '@/components/store-avatar'
 import { PRODUCT_PLACEHOLDER, STORE_PLACEHOLDER } from '@/lib/api/marketplace'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
-import type { SavedItem } from '@/types/saved-items'
+import type { SavedItem } from '@/types'
 import { formatPrice } from '@/utils/format-price'
 
 type SavedItemCardProps = {

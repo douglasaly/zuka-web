@@ -7,7 +7,7 @@ import { getFollowedStores } from '@/lib/api/stores'
 import { clearViewAsBuyerMode } from '@/lib/auth/view-as-buyer'
 import { createAppSession } from '@/lib/firebase/create-session'
 import { auth } from '@/lib/firebase/firebase-client'
-import type { UserProfile } from '@/types/marketplace'
+import type { UserProfile } from '@/types'
 export function useUserProfile() {
 	const [firebaseUser, setFirebaseUser] = useState<User | null>(null)
 	const [authReady, setAuthReady] = useState(false)

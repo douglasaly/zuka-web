@@ -1,4 +1,4 @@
-import type { SellerProduct } from '@/lib/types/api/seller'
+import type { SellerProduct } from '@/types'
 export const STATUS_OPTIONS = [
 	{ value: 'all', label: 'Todos' },
 	{ value: 'ACTIVE', label: 'Activos' },

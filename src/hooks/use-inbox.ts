@@ -1,6 +1,6 @@
 'use client'
 import { useQuery } from '@tanstack/react-query'
-import type { InboxItem } from '@/types/messages'
+import type { InboxItem } from '@/types'
 import { useUserProfile } from './use-user-profile'
 export const useInbox = () => {
 	const {

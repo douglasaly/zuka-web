@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { PRODUCT_PLACEHOLDER, STORE_PLACEHOLDER } from '@/lib/api/marketplace'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
-import type { BuyerOrder } from '@/modules/orders/types'
+import type { BuyerOrder } from '@/types'
 import { formatPrice } from '@/utils/format-price'
 
 type OrderCardProps = {

@@ -45,15 +45,8 @@ import {
 import { useMediaQuery } from '@/hooks/use-media-query'
 import { getCategories } from '@/lib/api/categories'
 import { getProvinces } from '@/lib/api/provinces'
+import type { FilterValues } from '@/types'
 
-type FilterValues = {
-	category: string
-	minPrice: string
-	maxPrice: string
-	sort: string
-	province: string
-	isNew: string
-}
 type SearchFiltersSheetProps = {
 	values: FilterValues
 	onApply: (values: FilterValues) => void
@@ -373,4 +366,3 @@ function FiltersContent({
 		</div>
 	)
 }
-export type { FilterValues }

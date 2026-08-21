@@ -1,7 +1,7 @@
 'use client'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { fetchOrder } from '@/lib/api/marketplace'
-import type { BuyerOrder, BuyerOrderStatus } from '@/modules/orders/types'
+import type { BuyerOrder, BuyerOrderStatus } from '@/types'
 
 function statusTone(status: BuyerOrderStatus) {
 	switch (status) {

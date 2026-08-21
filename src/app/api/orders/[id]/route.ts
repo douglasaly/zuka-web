@@ -7,7 +7,7 @@ import {
 	mapBuyerOrderItem,
 	pickProductImage,
 } from '@/modules/orders/lib/map-buyer-order'
-import type { BuyerOrderReview } from '@/modules/orders/types'
+import type { BuyerOrderReview } from '@/types'
 export async function GET(
 	_req: Request,
 	{

@@ -6,7 +6,7 @@ import { IconTooltipButton } from '@/components/icon-tooltip-button'
 import { STORE_PLACEHOLDER } from '@/lib/api/marketplace'
 import { BLUR_PLACEHOLDER } from '@/lib/constants/images'
 import { cn } from '@/lib/utils'
-import type { StoreProfile } from '@/types/marketplace'
+import type { StoreProfile } from '@/types'
 import { ImageLightbox } from './image-light-box'
 
 type StoreHeroProps = {

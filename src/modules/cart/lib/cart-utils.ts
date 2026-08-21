@@ -1,10 +1,6 @@
-import type { Product } from '@/types/marketplace'
-import {
-	type Cart,
-	type CartItem,
-	type CartProductInput,
-	MAX_CART_QUANTITY,
-} from '../types'
+import type { Cart, CartItem, CartProductInput, Product } from '@/types'
+import { MAX_CART_QUANTITY } from '@/modules/cart/constants'
+
 export function effectivePrice(
 	product: Pick<CartProductInput, 'price' | 'discountPrice'>
 ) {
