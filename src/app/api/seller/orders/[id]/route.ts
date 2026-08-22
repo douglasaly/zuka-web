@@ -260,14 +260,24 @@ export async function PATCH(
 			.update(update)
 			.eq('id', id)
 			.eq('store_id', store.id as string)
+			.eq('status', currentStatus)
 			.select(`
 				*,
 				stores(name, logo_url),
 				users!orders_buyer_id_fkey(id, first_name, last_name, email, phone_number, avatar_url),
 				order_items(id, quantity, unit_price, currency, products(id, name, slug))
 			`)
-			.single()
+			.maybeSingle()
 		if (updateError) throw updateError
+		if (!updated) {
+			return NextResponse.json(
+				{
+					error:
+						'O estado do pedido foi alterado noutro ecrã. Actualize a página e tente novamente.',
+				},
+				{ status: 409 }
+			)
+		}
 		if (nextStatus === 'COMPLETED') {
 			const buyerId = updated.buyer_id as string
 			const shortId = String(updated.id).slice(0, 8)

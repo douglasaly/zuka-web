@@ -2,6 +2,10 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getSessionUser } from '@/lib/auth/session'
 import {
+	createdAtIdCursorFilter,
+	encodeCreatedAtIdCursor,
+} from '@/lib/api/cursor-pagination'
+import {
 	apiError,
 	ErrorCode,
 	withErrorHandling,
@@ -95,8 +99,11 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 		.eq('user_id', user.id)
 		.is('deleted_at', null)
 		.order('created_at', { ascending: false })
+		.order('id', { ascending: false })
 	if (cursor) {
-		listQuery = listQuery.lt('created_at', cursor).limit(limit + 1)
+		listQuery = listQuery
+			.or(createdAtIdCursorFilter(cursor))
+			.limit(limit + 1)
 	} else {
 		listQuery = listQuery.range(offset, offset + limit - 1)
 	}
@@ -125,7 +132,10 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 			limit,
 			offset: cursor ? 0 : offset,
 			hasMore,
-			nextCursor: hasMore && last?.createdAt ? last.createdAt : null,
+			nextCursor:
+				hasMore && last?.createdAt && last?.id
+					? encodeCreatedAtIdCursor(last.createdAt, last.id)
+					: null,
 		},
 	})
 })

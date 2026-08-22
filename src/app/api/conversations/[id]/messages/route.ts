@@ -65,9 +65,13 @@ export const POST = withErrorHandling(async (request, { params }) => {
 		)
 		.single()
 	if (error) throw error
-	await supabase
+	const { error: conversationError } = await supabase
 		.from('conversations')
-		.update({ last_message_at: new Date().toISOString() })
+		.update({
+			last_message_at: new Date().toISOString(),
+			last_message_id: message.id,
+		})
 		.eq('id', conversationId)
+	if (conversationError) throw conversationError
 	return apiSuccess(message, 201)
 })
