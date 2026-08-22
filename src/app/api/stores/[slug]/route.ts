@@ -83,6 +83,8 @@ export async function GET(req: Request, { params }: GetStoreProps) {
 				'id, store_id, category_id, name, slug, is_visible, description, status, price, discount_price, currency, created_at, updated_at, categories(id, name, slug), product_images(url, is_primary, position), product_ratings(rating_avg, rating_count)'
 			)
 			.eq('store_id', storeId)
+			.eq('is_visible', true)
+			.eq('status', 'ACTIVE')
 			.is('deleted_at', null)
 			.order('created_at', { ascending: false })
 			.range(offset, offset + limit - 1)
@@ -100,6 +102,8 @@ export async function GET(req: Request, { params }: GetStoreProps) {
 			.from('products')
 			.select('*', { count: 'exact', head: true })
 			.eq('store_id', storeId)
+			.eq('is_visible', true)
+			.eq('status', 'ACTIVE')
 			.is('deleted_at', null)
 		const { count: followerCount } = await supabase
 			.from('store_followers')
