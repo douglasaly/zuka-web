@@ -24,20 +24,30 @@ export const SITE_KEYWORDS = [
 	'marketplace multivendedor em Moçambique',
 ]
 
-const FALLBACK_SITE_URL =
-	process.env.VERCEL_URL! || process.env.NEXT_PUBLIC_APP_URL!
+const DEFAULT_SITE_URL = 'http://localhost:3000'
+
+/** Ensure env values like `my-app.vercel.app` become valid URL origins. */
+function normalizeSiteOrigin(raw: string): string {
+	const trimmed = raw.trim().replace(/\/+$/, '')
+	if (!trimmed) return DEFAULT_SITE_URL
+	if (/^https?:\/\//i.test(trimmed)) return trimmed
+	return `https://${trimmed}`
+}
+
+function resolveSiteOrigin(): string {
+	const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim()
+	if (appUrl) return normalizeSiteOrigin(appUrl)
+	const vercelUrl = process.env.VERCEL_URL?.trim()
+	if (vercelUrl) return normalizeSiteOrigin(vercelUrl)
+	return DEFAULT_SITE_URL
+}
 
 export function getSiteUrl() {
-	const raw = process.env.NEXT_PUBLIC_APP_URL?.trim() || FALLBACK_SITE_URL
-	return raw.replace(/\/+$/, '')
+	return resolveSiteOrigin()
 }
 
 export function getMetadataBase() {
-	try {
-		return new URL(getSiteUrl())
-	} catch {
-		return new URL(FALLBACK_SITE_URL)
-	}
+	return new URL(getSiteUrl())
 }
 
 export function absoluteUrl(path = '/') {
