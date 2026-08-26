@@ -89,7 +89,7 @@ export async function createBuyerOrder(
 	const { data: products, error: productsError } = await db
 		.from('products')
 		.select(
-			'id, name, store_id, price, discount_price, currency, is_visible, deleted_at'
+			'id, name, store_id, price, discount_price, currency, is_visible, status, deleted_at'
 		)
 		.in('id', productIds)
 	if (productsError) throw productsError
@@ -101,7 +101,12 @@ export async function createBuyerOrder(
 	> = []
 	for (const productId of productIds) {
 		const product = productById.get(productId)
-		if (!product || product.deleted_at || !product.is_visible) {
+		if (
+			!product ||
+			product.deleted_at ||
+			!product.is_visible ||
+			product.status !== 'ACTIVE'
+		) {
 			return {
 				ok: false,
 				status: 400,

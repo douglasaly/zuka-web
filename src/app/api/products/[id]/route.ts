@@ -26,6 +26,7 @@ export async function GET(
 			)
 			.eq('id', id)
 			.eq('is_visible', true)
+			.eq('status', 'ACTIVE')
 			.is('deleted_at', null)
 			.eq('stores.status', 'ACTIVE')
 			.is('stores.deleted_at', null)
