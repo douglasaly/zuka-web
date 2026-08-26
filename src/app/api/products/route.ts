@@ -93,6 +93,7 @@ export const GET = withErrorHandling(async (request) => {
 			'id, store_id, category_id, name, slug, is_visible, description, status, price, discount_price, currency, created_at, stores!inner(id, name, slug, logo_url, verified_at, state, phone, has_delivery, provinces(name), status, store_ratings(rating_avg, rating_count)), categories(id, name, slug), product_images(url, is_primary, position), product_ratings(rating_avg, rating_count)'
 		)
 		.eq('is_visible', true)
+		.eq('status', 'ACTIVE')
 		.is('deleted_at', null)
 		.eq('stores.status', 'ACTIVE')
 		.is('stores.deleted_at', null)

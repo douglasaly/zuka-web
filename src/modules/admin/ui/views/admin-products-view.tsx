@@ -51,7 +51,7 @@ export function AdminProductsView() {
 				onReactivate={(id) =>
 					p.patchMutation.mutate({
 						id,
-						body: { is_visible: true },
+						body: { is_visible: true, status: 'ACTIVE' },
 					})
 				}
 				onDelete={p.setConfirmDelete}
@@ -69,7 +69,7 @@ export function AdminProductsView() {
 				onReactivate={(id) =>
 					p.patchMutation.mutate({
 						id,
-						body: { is_visible: true },
+						body: { is_visible: true, status: 'ACTIVE' },
 					})
 				}
 				onDelete={p.setConfirmDelete}
