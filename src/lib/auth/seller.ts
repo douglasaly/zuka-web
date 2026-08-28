@@ -80,6 +80,12 @@ async function loadPermissionsForRbacRole(
 	if (keys.length === 0) return fallbackPermissions(rbacRoleName)
 	return keys as StorePermission[]
 }
+const BLOCKED_STORE_STATUSES = new Set(['BANNED', 'SUSPENDED'])
+
+function isStoreSellerAccessAllowed(status: string | null | undefined) {
+	return !status || !BLOCKED_STORE_STATUSES.has(status)
+}
+
 function fallbackPermissions(rbacRoleName: string): StorePermission[] {
 	if (rbacRoleName === 'store_owner') return [...STORE_OWNER_PERMISSIONS]
 	if (rbacRoleName === 'store_manager')
@@ -183,6 +189,17 @@ export async function requireSellerStore(options?: {
 		}
 		memberRole = row!.role
 		isOwner = store.owner_id === userId
+	}
+	if (!isStoreSellerAccessAllowed(store.status)) {
+		return {
+			error: NextResponse.json(
+				{
+					error:
+						'A loja está suspensa ou banida. Contacte o suporte Zuka.',
+				},
+				{ status: 403 }
+			),
+		}
 	}
 	const rbacRole =
 		rbacRoleNameForMemberRole(isOwner ? 'owner' : memberRole) ??
