@@ -139,19 +139,30 @@ export async function PATCH(req: Request, { params }: Params) {
 			.eq('id', id)
 		if (error) throw error
 		if (imageUrls) {
-			await supabase.from('product_images').delete().eq('product_id', id)
-			if (imageUrls.length > 0) {
-				await supabase.from('product_images').insert(
-					imageUrls.map((url, index) => ({
-						id: uuidv7(),
-						product_id: id,
-						url,
-						position: index,
-						is_primary: index === 0,
-						alt: typeof body.name === 'string' ? body.name : null,
-					}))
-				)
+			const rows = imageUrls.map((url, index) => ({
+				id: uuidv7(),
+				product_id: id,
+				url,
+				position: index,
+				is_primary: index === 0,
+				alt: typeof body.name === 'string' ? body.name : null,
+			}))
+			if (rows.length > 0) {
+				const { error: insertError } = await supabase
+					.from('product_images')
+					.insert(rows)
+				if (insertError) throw insertError
 			}
+			const keepIds = rows.map((row) => row.id)
+			let deleteQuery = supabase
+				.from('product_images')
+				.delete()
+				.eq('product_id', id)
+			if (keepIds.length > 0) {
+				deleteQuery = deleteQuery.not('id', 'in', `(${keepIds.join(',')})`)
+			}
+			const { error: deleteError } = await deleteQuery
+			if (deleteError) throw deleteError
 		}
 		return NextResponse.json({ success: true })
 	} catch (error) {
