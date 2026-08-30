@@ -50,6 +50,7 @@ export function useCartReconcile() {
 			return { fetched, missing }
 		},
 	})
+	const isPending = query.isLoading || query.isFetching
 	const byProductId = useMemo(() => {
 		const map: Record<string, ReconciledProduct> = {}
 		const fetched = query.data?.fetched ?? {}
@@ -60,7 +61,7 @@ export function useCartReconcile() {
 				map[id] = {
 					productId: id,
 					currentPrice: null,
-					unavailable: missing.has(id),
+					unavailable: missing.has(id) || isPending,
 					priceChanged: false,
 					storePhone: null,
 				}
@@ -78,7 +79,7 @@ export function useCartReconcile() {
 			}
 		}
 		return map
-	}, [query.data, snapshot])
+	}, [query.data, snapshot, isPending])
 	return {
 		byProductId,
 		isLoading: query.isLoading,

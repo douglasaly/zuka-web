@@ -21,19 +21,26 @@ function canPush(): boolean {
  * Never prompts for permission — that is settings-only (user gesture).
  */
 export function useNotificationPush() {
-	const { isAuthenticated, isSeller } = useUserProfile()
-	useSellerStorePush(isAuthenticated && isSeller)
-	useBuyerInboxPush(isAuthenticated)
+	const { isAuthenticated, isSeller, profile } = useUserProfile()
+	const userId = profile?.id ?? null
+	useSellerStorePush(isAuthenticated && isSeller, userId)
+	useBuyerInboxPush(isAuthenticated, userId)
 }
 
-function useSellerStorePush(enabled: boolean) {
+function useSellerStorePush(enabled: boolean, userId: string | null) {
 	const primed = useRef(false)
 	const prev = useRef({ pendingOrders: 0, unreadMessages: 0 })
+	const trackedUserId = useRef<string | null>(null)
 	const { data } = useUnreadCounts({ enabled })
 	const { preferences, isReady } = useUserPreferences()
 	const prefs = preferences.seller.notifications
 
 	useEffect(() => {
+		if (trackedUserId.current !== userId) {
+			trackedUserId.current = userId
+			primed.current = false
+			prev.current = { pendingOrders: 0, unreadMessages: 0 }
+		}
 		if (!enabled || !data || !isReady) return
 
 		const fire = (opts: {
@@ -94,21 +101,27 @@ function useSellerStorePush(enabled: boolean) {
 			pendingOrders: data.pendingOrders,
 			unreadMessages: data.unreadMessages,
 		}
-	}, [enabled, data, isReady, prefs.orders, prefs.messages])
+	}, [enabled, userId, data, isReady, prefs.orders, prefs.messages])
 }
 
-function useBuyerInboxPush(enabled: boolean) {
+function useBuyerInboxPush(enabled: boolean, userId: string | null) {
 	const primed = useRef(false)
 	const prev = useRef({
 		orders: 0,
 		messages: 0,
 		promotions: 0,
 	})
+	const trackedUserId = useRef<string | null>(null)
 	const { data } = useBuyerUnreadSummary()
 	const { preferences, isReady } = useUserPreferences()
 	const prefs = preferences.buyer.notifications
 
 	useEffect(() => {
+		if (trackedUserId.current !== userId) {
+			trackedUserId.current = userId
+			primed.current = false
+			prev.current = { orders: 0, messages: 0, promotions: 0 }
+		}
 		if (!enabled || !data || !isReady) return
 
 		const orders = data.byType.order ?? 0
@@ -179,5 +192,13 @@ function useBuyerInboxPush(enabled: boolean) {
 		if (promotions > p.promotions) notifyPromotions(promotions, false)
 
 		prev.current = { orders, messages, promotions }
-	}, [enabled, data, isReady, prefs.orders, prefs.messages, prefs.promotions])
+	}, [
+		enabled,
+		userId,
+		data,
+		isReady,
+		prefs.orders,
+		prefs.messages,
+		prefs.promotions,
+	])
 }

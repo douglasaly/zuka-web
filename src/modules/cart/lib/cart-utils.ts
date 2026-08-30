@@ -1,10 +1,14 @@
-import type { Cart, CartItem, CartProductInput, Product } from '@/types'
 import { MAX_CART_QUANTITY } from '@/modules/cart/constants'
+import type { Cart, CartItem, CartProductInput, Product } from '@/types'
 
 export function effectivePrice(
 	product: Pick<CartProductInput, 'price' | 'discountPrice'>
 ) {
-	return product.discountPrice ?? product.price
+	const { price, discountPrice } = product
+	if (discountPrice != null && discountPrice > 0 && discountPrice < price) {
+		return discountPrice
+	}
+	return price
 }
 export function clampQuantity(quantity: number) {
 	if (!Number.isFinite(quantity)) return 1
