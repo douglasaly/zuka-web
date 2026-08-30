@@ -54,7 +54,11 @@ export function CartStoreSection({
 	const hasUnavailable = cart.items.some(
 		(item) => byProductId[item.productId]?.unavailable
 	)
-	const canOrder = Boolean(firstAvailable) && !hasUnavailable
+	const hasPriceDrift = cart.items.some(
+		(item) => byProductId[item.productId]?.priceChanged
+	)
+	const canOrder =
+		Boolean(firstAvailable) && !hasUnavailable && !hasPriceDrift
 	const ordering = createOrder.isPending
 	const chatMutation = useMutation({
 		mutationFn: () => startConversation(firstAvailable?.productId ?? ''),

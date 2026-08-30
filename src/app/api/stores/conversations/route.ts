@@ -1,6 +1,10 @@
 import type { NextRequest } from 'next/server'
 import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
 import { apiCursorList, withErrorHandling } from '@/lib/axios/api-response'
+import {
+	buyerDisplayName,
+	getBuyerProfileVisibilityMap,
+} from '@/lib/preferences/buyer-privacy'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import { CursorPaginationSchema } from '@/lib/validations'
 export const GET = withErrorHandling(async (request: NextRequest) => {
@@ -61,6 +65,10 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 					}>,
 				}
 	const buyerMap = new Map((buyers ?? []).map((b) => [b.id, b]))
+	const profileVisibility = await getBuyerProfileVisibilityMap(
+		supabase,
+		buyerIds
+	)
 	const lastMessageIds = pageItems
 		.map((c) => c.last_message_id)
 		.filter(Boolean) as string[]
@@ -88,10 +96,14 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 		)
 		const buyerPart = members.find((p) => p.user_id !== store.owner_id)
 		const buyerUser = buyerPart ? buyerMap.get(buyerPart.user_id) : null
-		const firstName = buyerUser?.first_name ?? ''
-		const lastName = buyerUser?.last_name ?? ''
-		const name =
-			[firstName, lastName].filter(Boolean).join(' ') || 'Cliente'
+		const profileVisible = buyerPart
+			? (profileVisibility.get(buyerPart.user_id) ?? true)
+			: true
+		const name = buyerDisplayName(
+			profileVisible,
+			buyerUser?.first_name,
+			buyerUser?.last_name
+		)
 		const lastMessage = conv.last_message_id
 			? lastMessageById.get(conv.last_message_id)
 			: undefined
@@ -105,7 +117,9 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 		return {
 			id: conv.id,
 			otherUserName: name,
-			otherUserAvatar: buyerUser?.avatar_url ?? null,
+			otherUserAvatar: profileVisible
+				? (buyerUser?.avatar_url ?? null)
+				: null,
 			lastMessage: lastMessage?.content ?? null,
 			lastMessageAt: conv.last_message_at,
 			unread,
