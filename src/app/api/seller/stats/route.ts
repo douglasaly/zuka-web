@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
 						total: number
 				  }[]
 				| null
-		) => (rows ?? []).reduce((acc, r) => acc + (r.total ?? 0), 0)
+		) => (rows ?? []).reduce((acc, r) => acc + (r.total ?? 0), 0) / 100
 		const totalSales = sumTotal(currentSales)
 		const totalSalesPrev = sumTotal(prevSales)
 		const { count: totalOrders } = await supabase
