@@ -227,6 +227,14 @@ export async function POST(
 			.insert(productRows)
 		if (productsError) {
 			await supabase.from('reviews').delete().eq('id', reviewId)
+			await supabase
+				.from('orders')
+				.update({
+					review_eligible: true,
+					reviewed_at: null,
+					updated_at: new Date().toISOString(),
+				})
+				.eq('id', orderId)
 			throw productsError
 		}
 		return NextResponse.json({

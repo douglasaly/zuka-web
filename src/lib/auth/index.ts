@@ -67,7 +67,8 @@ export async function getAuth(): Promise<Auth> {
 	const firebaseUid = await getFirebaseUid()
 	if (!firebaseUid) return { authenticated: false }
 	const user = await getUserByFirebaseUid(firebaseUid)
-	if (!user || user.deleted_at) return { authenticated: false }
+	if (!user || user.deleted_at || user.status !== 'ACTIVE')
+		return { authenticated: false }
 	return { authenticated: true, user, uid: firebaseUid }
 }
 export async function requireAuth(): Promise<AuthenticatedAuth> {

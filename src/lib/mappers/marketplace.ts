@@ -138,7 +138,7 @@ export function mapStoreRow(
 		slug: store.slug,
 		location: store.provinces?.name ?? store.state ?? '',
 		neighborhood: store.state ?? '',
-		verified: Boolean(store.verified_at) || store.status === 'ACTIVE',
+		verified: Boolean(store.verified_at),
 		rating: rating.count > 0 ? rating.avg : 0,
 		reviewCount: rating.count,
 		followers: store.follower_count ?? 0,
