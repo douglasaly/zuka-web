@@ -18,6 +18,8 @@ export function useSellerSettings() {
 	const {
 		preferences,
 		isReady,
+		isError: prefsError,
+		refetch: refetchPreferences,
 		updatePreferences,
 		isLoading: prefsLoading,
 		isUpdating,
@@ -104,6 +106,8 @@ export function useSellerSettings() {
 		can,
 		prefs: draft,
 		prefsReady: isAuthenticated ? isReady && !prefsLoading : true,
+		prefsError: isAuthenticated ? prefsError : false,
+		refetchPreferences,
 		prefsDirty: dirty,
 		isSavingPrefs: isUpdating,
 		updatePref,

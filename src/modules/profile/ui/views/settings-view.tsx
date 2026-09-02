@@ -87,6 +87,8 @@ export const SettingsView = () => {
 		updatePreferences,
 		isLoading: prefsLoading,
 		isUpdating,
+		isError: prefsError,
+		refetch: refetchPreferences,
 	} = useUserPreferences()
 	const browserPermission = useBrowserNotificationPermission()
 	const [draft, setDraft] = useState<BuyerDraft>(() =>
@@ -158,6 +160,18 @@ export const SettingsView = () => {
 
 	if (isLoading || (isAuthenticated && prefsLoading)) {
 		return <SettingsSkeleton />
+	}
+	if (isAuthenticated && prefsError) {
+		return (
+			<div className='mx-auto flex min-h-[50vh] max-w-lg flex-col items-center justify-center gap-4 px-4 text-center'>
+				<p className='text-muted-foreground'>
+					Não foi possível carregar as suas preferências.
+				</p>
+				<Button onClick={() => void refetchPreferences()}>
+					Tentar novamente
+				</Button>
+			</div>
+		)
 	}
 	if (!isAuthenticated || !profile) {
 		return (
@@ -328,7 +342,7 @@ export const SettingsView = () => {
 
 			<div className='flex justify-end'>
 				<Button
-					disabled={!dirty || isUpdating}
+					disabled={prefsError || !dirty || isUpdating}
 					onClick={() => void savePreferences()}
 				>
 					{isUpdating ? 'A guardar…' : 'Guardar preferências'}

@@ -36,6 +36,8 @@ export const SellerSettingsView = () => {
 				<SellerSettingsAlerts
 					prefs={s.prefs}
 					prefsReady={s.prefsReady}
+					prefsError={s.prefsError}
+					onRetryPrefs={() => void s.refetchPreferences()}
 					prefsDirty={s.prefsDirty}
 					isSavingPrefs={s.isSavingPrefs}
 					onUpdatePref={s.updatePref}
