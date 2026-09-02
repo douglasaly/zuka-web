@@ -12,6 +12,8 @@ type BrowserPermissionApi = ReturnType<typeof useBrowserNotificationPermission>
 type SellerSettingsAlertsProps = {
 	prefs: NotificationPrefs
 	prefsReady: boolean
+	prefsError: boolean
+	onRetryPrefs: () => void
 	prefsDirty: boolean
 	isSavingPrefs: boolean
 	onUpdatePref: (key: keyof NotificationPrefs, value: boolean) => void
@@ -39,6 +41,8 @@ function browserPermissionLabel(
 export function SellerSettingsAlerts({
 	prefs,
 	prefsReady,
+	prefsError,
+	onRetryPrefs,
 	prefsDirty,
 	isSavingPrefs,
 	onUpdatePref,
@@ -57,7 +61,14 @@ export function SellerSettingsAlerts({
 				title='Notificações'
 				description='Tópicos da loja e permissão do navegador neste dispositivo.'
 			>
-				{prefsReady ? (
+				{prefsError ? (
+					<div className='flex flex-col items-center gap-3 px-4 py-6 text-center text-sm text-muted-foreground'>
+						<p>Não foi possível carregar as preferências.</p>
+						<Button size='sm' onClick={onRetryPrefs}>
+							Tentar novamente
+						</Button>
+					</div>
+				) : prefsReady ? (
 					<>
 						<div className='flex min-w-0 items-start gap-3 border-b border-border/60 px-3.5 py-3.5 sm:px-4'>
 							<div className='mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground'>
