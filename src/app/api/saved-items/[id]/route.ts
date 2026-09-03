@@ -18,7 +18,7 @@ export async function DELETE(_req: Request, { params }: Props) {
 		const { error } = await supabase
 			.from('saved_items')
 			.delete()
-			.eq('id', id)
+			.eq('product_id', id)
 			.eq('user_id', user.id)
 		if (error) {
 			return NextResponse.json(
