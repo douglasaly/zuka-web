@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query'
 import { MessageCircle, Package, Store } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useRef } from 'react'
 import { toast } from 'sonner'
 import { StoreAvatar } from '@/components/store-avatar'
 import { Button } from '@/components/ui/button'
@@ -42,6 +43,7 @@ export function CartStoreSection({
 	const createOrder = useCreateOrder({
 		onCreated: (order) => onOrderCreated(order),
 	})
+	const orderingLock = useRef(false)
 	const total = cartTotal(cart)
 	const currency = cartCurrency(cart)
 	const count = cartItemCount(cart)
@@ -89,6 +91,8 @@ export function CartStoreSection({
 			router.push('/auth/login?next=/carrinho')
 			return
 		}
+		if (orderingLock.current || createOrder.isPending) return
+		orderingLock.current = true
 		try {
 			await createOrder.mutateAsync({
 				storeId: cart.storeId,
@@ -97,7 +101,10 @@ export function CartStoreSection({
 					quantity: item.quantity,
 				})),
 			})
-		} catch {}
+		} catch {
+		} finally {
+			orderingLock.current = false
+		}
 	}
 	return (
 		<section className='space-y-3' aria-labelledby={`cart-${cart.storeId}`}>
