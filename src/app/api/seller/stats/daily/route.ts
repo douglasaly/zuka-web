@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
 		for (const order of orders ?? []) {
 			const key = (order.created_at as string).split('T')[0]
 			const prev = dailyMap.get(key) ?? 0
-			dailyMap.set(key, prev + (order.total ?? 0))
+			dailyMap.set(key, prev + (order.total ?? 0) / 100)
 		}
 		const data = Array.from(dailyMap.entries()).map(([date, sales]) => ({
 			date,

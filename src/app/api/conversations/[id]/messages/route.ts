@@ -24,18 +24,17 @@ export const GET = withErrorHandling(async (request, { params }) => {
 		)
 		.eq('conversation_id', conversationId)
 		.is('deleted_at', null)
-		.order('created_at', { ascending: true })
+		.order('created_at', { ascending: false })
 		.limit(limit + 1)
 	if (cursor) {
-		query = query.gt('created_at', cursor)
+		query = query.lt('created_at', cursor)
 	}
 	const { data, error } = await query
 	if (error) throw error
 	const hasMore = (data?.length ?? 0) > limit
-	const messages = hasMore ? data?.slice(0, limit) : (data ?? [])
-	const nextCursor = hasMore
-		? (messages[messages.length - 1]?.created_at ?? null)
-		: null
+	const pageDesc = hasMore ? (data?.slice(0, limit) ?? []) : (data ?? [])
+	const messages = [...pageDesc].reverse()
+	const nextCursor = hasMore ? (messages[0]?.created_at ?? null) : null
 	return apiCursorList(messages, { hasMore, nextCursor, limit })
 })
 export const POST = withErrorHandling(async (request, { params }) => {
