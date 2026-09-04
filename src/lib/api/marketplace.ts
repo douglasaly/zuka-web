@@ -166,6 +166,32 @@ export async function fetchProduct(id: string) {
 		images: (images ?? []).map((img) => String(img.url)),
 	}
 }
+export type ProductReconcileResult =
+	| { status: 'ok'; product: Product }
+	| { status: 'missing' }
+	| { status: 'error' }
+export async function fetchProductForReconcile(
+	id: string
+): Promise<ProductReconcileResult> {
+	const res = await fetch(`/api/products/${id}`)
+	if (res.status === 404) return { status: 'missing' }
+	if (!res.ok) return { status: 'error' }
+	const json = await res.json()
+	const { product, store, category, images } = json.data as GroupedProduct
+	return {
+		status: 'ok',
+		product: mapProductRow({
+			...(product as Parameters<typeof mapProductRow>[0]),
+			stores: store as Parameters<typeof mapProductRow>[0]['stores'],
+			categories: category as Parameters<
+				typeof mapProductRow
+			>[0]['categories'],
+			product_images: images as Parameters<
+				typeof mapProductRow
+			>[0]['product_images'],
+		}),
+	}
+}
 export async function fetchStores(params?: {
 	search?: string
 	limit?: number

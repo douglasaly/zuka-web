@@ -1,7 +1,7 @@
 'use client'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { fetchProduct } from '@/lib/api/marketplace'
+import { fetchProductForReconcile } from '@/lib/api/marketplace'
 import { effectivePrice, pricesDiffer } from '@/modules/cart/lib/cart-utils'
 import type { ReconciledProduct } from '@/types'
 import { useCartList } from './use-cart'
@@ -28,24 +28,25 @@ export function useCartReconcile() {
 		enabled: snapshot.productIds.length > 0,
 		staleTime: 60000,
 		queryFn: async () => {
-			const results = await Promise.allSettled(
-				snapshot.productIds.map(async (id) => {
-					const data = await fetchProduct(id)
-					return { id, product: data.product }
-				})
+			const results = await Promise.all(
+				snapshot.productIds.map(async (id) => ({
+					id,
+					result: await fetchProductForReconcile(id),
+				}))
 			)
 			const fetched: Record<string, FetchedProduct> = {}
 			const missing: string[] = []
-			for (const result of results) {
-				if (result.status !== 'fulfilled') continue
-				const { id, product } = result.value
-				fetched[id] = {
-					currentPrice: effectivePrice(product),
-					storePhone: product.storePhone,
+			for (const { id, result } of results) {
+				if (result.status === 'ok') {
+					fetched[id] = {
+						currentPrice: effectivePrice(result.product),
+						storePhone: result.product.storePhone,
+					}
+					continue
 				}
-			}
-			for (const id of snapshot.productIds) {
-				if (!fetched[id]) missing.push(id)
+				if (result.status === 'missing') {
+					missing.push(id)
+				}
 			}
 			return { fetched, missing }
 		},
@@ -59,7 +60,7 @@ export function useCartReconcile() {
 			if (!live) {
 				map[id] = {
 					productId: id,
-					currentPrice: null,
+					currentPrice: snapshot.unitPrices[id] ?? null,
 					unavailable: missing.has(id),
 					priceChanged: false,
 					storePhone: null,
