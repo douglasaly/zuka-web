@@ -57,7 +57,29 @@ export async function DELETE(req: Request) {
 	const { id } = await req.json()
 	if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 })
 	const supabase = createSupabaseAdmin()
-	const { error } = await supabase.from('categories').delete().eq('id', id)
+	const { count } = await supabase
+		.from('products')
+		.select('id', { count: 'exact', head: true })
+		.eq('category_id', id)
+		.is('deleted_at', null)
+	if ((count ?? 0) > 0) {
+		return NextResponse.json(
+			{
+				error: 'Existem produtos nesta categoria. Mova-os antes de eliminar.',
+			},
+			{ status: 400 }
+		)
+	}
+	const now = new Date().toISOString()
+	await supabase
+		.from('categories')
+		.update({ parent_id: null, updated_at: now })
+		.eq('parent_id', id)
+		.is('deleted_at', null)
+	const { error } = await supabase
+		.from('categories')
+		.update({ deleted_at: now, updated_at: now })
+		.eq('id', id)
 	if (error)
 		return NextResponse.json({ error: error.message }, { status: 500 })
 	bustCategoryCache()

@@ -53,16 +53,21 @@ export async function PATCH(req: Request, { params }: Params) {
 	const { id } = await params
 	const body = await req.json()
 	const supabase = createSupabaseAdmin()
-	const { status, rejectionReason, ...rest } = body
-	const updates: Record<string, unknown> = {
-		...rest,
+	const { status, rejectionReason } = body as {
+		status?: string
+		rejectionReason?: string
+	}
+	const updates: Database['public']['Tables']['stores']['Update'] = {
 		updated_at: new Date().toISOString(),
 	}
 	if (status) updates.status = status
 	if (status === 'ACTIVE') updates.verified_at = new Date().toISOString()
+	if (status === 'REJECTED' && typeof rejectionReason === 'string') {
+		updates.rejection_reason = rejectionReason.trim() || null
+	}
 	const { data, error } = await supabase
 		.from('stores')
-		.update(updates as Database['public']['Tables']['stores']['Update'])
+		.update(updates)
 		.eq('id', id)
 		.select('*')
 		.single()
