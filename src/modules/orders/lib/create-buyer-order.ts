@@ -116,12 +116,21 @@ export async function createBuyerOrder(
 				message: 'Todos os produtos têm de ser da mesma loja.',
 			}
 		}
+		const unitCents = unitPriceCents(product)
+		if (unitCents <= 0) {
+			return {
+				ok: false,
+				status: 400,
+				message:
+					'Um produto do carrinho tem preço inválido. Remove-o e tenta de novo.',
+			}
+		}
 		const quantity = qtyByProduct.get(productId) ?? 0
 		lines.push({
 			productId,
 			name: product.name,
 			quantity,
-			unitPriceCents: unitPriceCents(product),
+			unitPriceCents: unitCents,
 			currency: product.currency ?? 'MZN',
 		})
 	}

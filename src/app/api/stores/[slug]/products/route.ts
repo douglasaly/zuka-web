@@ -1,4 +1,8 @@
 import { NextResponse } from 'next/server'
+import {
+	createdAtIdCursorFilter,
+	encodeCreatedAtIdCursor,
+} from '@/lib/api/cursor-pagination'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 
 interface GetStoreProductsProps {
@@ -56,7 +60,7 @@ export async function GET(req: Request, { params }: GetStoreProductsProps) {
 			.order('id', { ascending: false })
 			.limit(limit + 1)
 		if (cursor) {
-			query = query.lt('id', cursor)
+			query = query.or(createdAtIdCursorFilter(cursor))
 		}
 		const { data: rows, error: productsError } = await query
 		if (productsError) {
@@ -80,8 +84,8 @@ export async function GET(req: Request, { params }: GetStoreProductsProps) {
 		let nextCursor: string | null = null
 		if (productRows.length > limit) {
 			const extra = productRows.pop()
-			if (extra) {
-				nextCursor = extra.id
+			if (extra?.created_at) {
+				nextCursor = encodeCreatedAtIdCursor(extra.created_at, extra.id)
 			}
 		}
 		const productsData = productRows.map((product) => {
