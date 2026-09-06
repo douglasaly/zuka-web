@@ -3,6 +3,7 @@ import { uuidv7 } from 'uuidv7'
 import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
 import { isR2PublicUrl } from '@/lib/storage/r2'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
+import { SellerUpdateProductSchema } from '@/lib/validations'
 
 type Params = {
 	params: Promise<{
@@ -87,6 +88,18 @@ export async function PATCH(req: Request, { params }: Params) {
 		const { id } = await params
 		const { store } = auth
 		const body = await req.json()
+		const parsed = SellerUpdateProductSchema.safeParse(body)
+		if (!parsed.success) {
+			return NextResponse.json(
+				{
+					error:
+						parsed.error.issues[0]?.message ??
+						'Dados do produto inválidos',
+				},
+				{ status: 400 }
+			)
+		}
+		const updatesBody = parsed.data
 		const supabase = createSupabaseAdmin()
 		const { data: existing } = await supabase
 			.from('products')
@@ -101,10 +114,12 @@ export async function PATCH(req: Request, { params }: Params) {
 				{ status: 404 }
 			)
 		}
-		const imageUrls: string[] | undefined = Array.isArray(body.imageUrls)
-			? body.imageUrls
-			: body.imageUrl
-				? [body.imageUrl]
+		const imageUrls: string[] | undefined = Array.isArray(
+			updatesBody.imageUrls
+		)
+			? updatesBody.imageUrls
+			: updatesBody.imageUrl
+				? [updatesBody.imageUrl]
 				: undefined
 		if (imageUrls?.some((url) => url && !isR2PublicUrl(url))) {
 			return NextResponse.json(
@@ -115,24 +130,26 @@ export async function PATCH(req: Request, { params }: Params) {
 		const updates: Record<string, unknown> = {
 			updated_at: new Date().toISOString(),
 		}
-		if (body.name !== undefined) updates.name = body.name
-		if (body.description !== undefined)
-			updates.description = body.description
-		if (body.categoryId !== undefined) updates.category_id = body.categoryId
-		if (body.price !== undefined)
-			updates.price = Math.round(Number(body.price) * 100)
-		if (body.discountPrice !== undefined)
+		if (updatesBody.name !== undefined) updates.name = updatesBody.name
+		if (updatesBody.description !== undefined)
+			updates.description = updatesBody.description
+		if (updatesBody.categoryId !== undefined)
+			updates.category_id = updatesBody.categoryId
+		if (updatesBody.price !== undefined)
+			updates.price = Math.round(updatesBody.price * 100)
+		if (updatesBody.discountPrice !== undefined)
 			updates.discount_price =
-				body.discountPrice != null && body.discountPrice !== ''
-					? Math.round(Number(body.discountPrice) * 100)
+				updatesBody.discountPrice != null
+					? Math.round(updatesBody.discountPrice * 100)
 					: null
-		if (body.status !== undefined) {
-			updates.status = body.status
-			if (body.isVisible === undefined) {
-				updates.is_visible = VISIBLE_STATUSES.has(body.status)
+		if (updatesBody.status !== undefined) {
+			updates.status = updatesBody.status
+			if (updatesBody.isVisible === undefined) {
+				updates.is_visible = VISIBLE_STATUSES.has(updatesBody.status)
 			}
 		}
-		if (body.isVisible !== undefined) updates.is_visible = body.isVisible
+		if (updatesBody.isVisible !== undefined)
+			updates.is_visible = updatesBody.isVisible
 		const { error } = await supabase
 			.from('products')
 			.update(updates as never)
@@ -148,7 +165,10 @@ export async function PATCH(req: Request, { params }: Params) {
 						url,
 						position: index,
 						is_primary: index === 0,
-						alt: typeof body.name === 'string' ? body.name : null,
+						alt:
+							typeof updatesBody.name === 'string'
+								? updatesBody.name
+								: null,
 					}))
 				)
 			}

@@ -39,6 +39,24 @@ export const CreateProductSchema = z.object({
 	imageUrls: z.array(z.url()).max(8).optional(),
 	status: z.enum(['DRAFT', 'ACTIVE', 'INACTIVE']).optional(),
 })
+export const SellerUpdateProductSchema = z.object({
+	name: z.string().min(1, 'Nome é obrigatório').max(255).optional(),
+	description: z.string().max(5000).nullable().optional(),
+	categoryId: z.uuid('Categoria inválida').optional(),
+	price: z
+		.number()
+		.positive('O valor do produto deve ser maior que 0')
+		.optional(),
+	discountPrice: z
+		.number()
+		.positive('O valor do desconto do produto deve ser maior que 0')
+		.nullable()
+		.optional(),
+	status: z.enum(['DRAFT', 'ACTIVE', 'INACTIVE']).optional(),
+	isVisible: z.boolean().optional(),
+	imageUrl: z.url().optional(),
+	imageUrls: z.array(z.url()).max(8).optional(),
+})
 const PRODUCT_STATUS = [
 	'DRAFT',
 	'PENDING_REVIEW',

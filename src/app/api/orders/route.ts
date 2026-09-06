@@ -1,4 +1,8 @@
 import { type NextRequest, NextResponse } from 'next/server'
+import {
+	createdAtIdCursorFilter,
+	encodeCreatedAtIdCursor,
+} from '@/lib/api/cursor-pagination'
 import { requireAuth } from '@/lib/auth'
 import { getSessionUser } from '@/lib/auth/session'
 import {
@@ -86,9 +90,10 @@ export async function GET(request: NextRequest) {
 			.eq('buyer_id', user.id as string)
 			.is('deleted_at', null)
 			.order('created_at', { ascending: false })
+			.order('id', { ascending: false })
 			.limit(limit + 1)
 		if (cursor) {
-			query = query.lt('created_at', cursor)
+			query = query.or(createdAtIdCursorFilter(cursor))
 		}
 		if (statusParam !== 'all' && statusParam in STATUS_DB) {
 			query = query.in(
@@ -138,7 +143,12 @@ export async function GET(request: NextRequest) {
 		const pageRows = hasMore ? rows.slice(0, limit) : rows
 		const last = pageRows[pageRows.length - 1]
 		const nextCursor =
-			hasMore && last?.created_at ? String(last.created_at) : null
+			hasMore && last?.created_at && last?.id
+				? encodeCreatedAtIdCursor(
+						String(last.created_at),
+						String(last.id)
+					)
+				: null
 		const orders = pageRows.map((row) =>
 			mapBuyerOrder(row as Parameters<typeof mapBuyerOrder>[0])
 		)
