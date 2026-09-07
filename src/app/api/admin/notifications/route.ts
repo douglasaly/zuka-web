@@ -20,6 +20,32 @@ type BatchRow = {
 	read_count: number | string
 }
 
+async function getActiveUserIdsByRole(
+	supabase: ReturnType<typeof createSupabaseAdmin>,
+	roleName: string
+): Promise<string[]> {
+	const { data: roleData } = await supabase
+		.from('roles')
+		.select('id')
+		.eq('name', roleName)
+		.maybeSingle()
+	if (!roleData) return []
+
+	const { data: userRoles } = await supabase
+		.from('user_roles')
+		.select('user_id')
+		.eq('role_id', roleData.id)
+	const candidateIds = (userRoles ?? []).map((r) => r.user_id)
+	if (candidateIds.length === 0) return []
+
+	const { data: activeUsers } = await supabase
+		.from('users')
+		.select('id')
+		.in('id', candidateIds)
+		.is('deleted_at', null)
+	return (activeUsers ?? []).map((u) => u.id)
+}
+
 async function listBatchesFallback(
 	supabase: ReturnType<typeof createSupabaseAdmin>
 ) {
@@ -105,20 +131,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 	let userIds: string[]
 	if (target === 'buyers' || target === 'sellers') {
 		const roleName = target === 'buyers' ? 'buyer' : 'seller'
-		const { data: roleData } = await supabase
-			.from('roles')
-			.select('id')
-			.eq('name', roleName)
-			.maybeSingle()
-		if (roleData) {
-			const { data: userRoles } = await supabase
-				.from('user_roles')
-				.select('user_id')
-				.eq('role_id', roleData.id)
-			userIds = (userRoles ?? []).map((r) => r.user_id)
-		} else {
-			userIds = []
-		}
+		userIds = await getActiveUserIdsByRole(supabase, roleName)
 	} else {
 		const { data: users } = await supabase
 			.from('users')
