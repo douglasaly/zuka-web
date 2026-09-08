@@ -64,19 +64,13 @@ export async function POST(request: Request) {
 				{ status: 400 }
 			)
 		}
-		if (existing?.length) {
-			await supabase
-				.from('verification_documents')
-				.update({ deleted_at: now, updated_at: now })
-				.eq('store_id', storeId)
-				.is('deleted_at', null)
-				.in('status', ['PENDING', 'REJECTED'])
-		}
+		const idCardDocId = uuidv7()
+		const selfieDocId = uuidv7()
 		const { data: inserted, error: docsError } = await supabase
 			.from('verification_documents')
 			.insert([
 				{
-					id: uuidv7(),
+					id: idCardDocId,
 					owner_id: ownerId,
 					store_id: storeId,
 					type: 'ID_CARD' as const,
@@ -84,7 +78,7 @@ export async function POST(request: Request) {
 					file_url: idCardUrl,
 				},
 				{
-					id: uuidv7(),
+					id: selfieDocId,
 					owner_id: ownerId,
 					store_id: storeId,
 					type: 'OTHER' as const,
@@ -97,6 +91,16 @@ export async function POST(request: Request) {
 				'id, type, status, file_url, back_file_url, rejection_reason, reviewed_at, created_at, metadata'
 			)
 		if (docsError) throw docsError
+		if (existing?.length) {
+			const { error: cleanupError } = await supabase
+				.from('verification_documents')
+				.update({ deleted_at: now, updated_at: now })
+				.eq('store_id', storeId)
+				.is('deleted_at', null)
+				.in('status', ['PENDING', 'REJECTED'])
+				.not('id', 'in', `(${idCardDocId},${selfieDocId})`)
+			if (cleanupError) throw cleanupError
+		}
 		return NextResponse.json({
 			success: true,
 			documents: (inserted ?? []).map(mapStoreDocument),

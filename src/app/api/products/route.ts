@@ -8,6 +8,10 @@ import {
 	withErrorHandling,
 } from '@/lib/axios/api-response'
 import { resolveCategoryIds } from '@/lib/categories/resolve-category-ids'
+import {
+	applyTimestampIdCursor,
+	encodeTimestampIdCursor,
+} from '@/lib/pagination/timestamp-id-cursor'
 import { isR2PublicUrl } from '@/lib/storage/r2'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import {
@@ -123,14 +127,16 @@ export const GET = withErrorHandling(async (request) => {
 	} else if (filters.ordenar === 'price_desc') {
 		query = query.order('price', { ascending: false })
 	} else {
-		query = query.order('created_at', { ascending: false })
+		query = query.order('created_at', { ascending: false }).order('id', {
+			ascending: false,
+		})
 	}
 	if (
 		cursor &&
 		filters.ordenar !== 'price_asc' &&
 		filters.ordenar !== 'price_desc'
 	) {
-		query = query.lt('created_at', cursor)
+		query = applyTimestampIdCursor(query, cursor, 'created_at', 'id')
 	}
 	const { data, error } = await query
 	if (error) throw error
@@ -150,7 +156,9 @@ export const GET = withErrorHandling(async (request) => {
 			)
 		: grouped
 	const lastRow = rows[rows.length - 1]
-	const nextCursor = hasMore ? (lastRow?.created_at ?? null) : null
+	const nextCursor = hasMore
+		? encodeTimestampIdCursor(lastRow?.created_at, lastRow?.id ?? '')
+		: null
 	return apiCursorList(result, { hasMore, nextCursor, limit })
 })
 export const POST = withErrorHandling(async (request) => {

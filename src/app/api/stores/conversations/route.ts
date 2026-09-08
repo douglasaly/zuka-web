@@ -2,6 +2,10 @@ import type { NextRequest } from 'next/server'
 import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
 import { apiCursorList, withErrorHandling } from '@/lib/axios/api-response'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
+import {
+	applyTimestampIdCursor,
+	encodeTimestampIdCursor,
+} from '@/lib/pagination/timestamp-id-cursor'
 import { CursorPaginationSchema } from '@/lib/validations'
 export const GET = withErrorHandling(async (request: NextRequest) => {
 	const auth = await requireSellerStore({ permission: 'message.read' })
@@ -19,10 +23,9 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 		.eq('store_id', store.id)
 		.is('deleted_at', null)
 		.order('last_message_at', { ascending: false, nullsFirst: false })
+		.order('id', { ascending: false })
 		.limit(limit + 1)
-	if (cursor) {
-		query = query.lt('last_message_at', cursor)
-	}
+	query = applyTimestampIdCursor(query, cursor, 'last_message_at', 'id')
 	const { data: conversations, error } = await query
 	if (error) throw error
 	if (!conversations || conversations.length === 0) {
@@ -111,8 +114,9 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 			unread,
 		}
 	})
+	const lastItem = pageItems[pageItems.length - 1]
 	const nextCursor = hasMore
-		? (pageItems[pageItems.length - 1]?.last_message_at ?? null)
+		? encodeTimestampIdCursor(lastItem?.last_message_at, lastItem?.id ?? '')
 		: null
 	return apiCursorList(data, { hasMore, nextCursor, limit })
 })
