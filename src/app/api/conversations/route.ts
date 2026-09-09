@@ -209,15 +209,66 @@ export const POST = withErrorHandling(async (request) => {
 				id: conversationId,
 				product_id: productId,
 				store_id: storeId,
+				buyer_id: auth.user.id,
 			})
-		if (convError) throw convError
-		const { error: partError } = await supabase
-			.from('conversation_participants')
-			.insert([
-				{ conversation_id: conversationId, user_id: auth.user.id },
-				{ conversation_id: conversationId, user_id: storeOwnerId },
-			])
-		if (partError) throw partError
+		if (convError?.code === '23505') {
+			const { data: racedRows, error: racedError } = await supabase
+				.from('conversations')
+				.select('id, deleted_at')
+				.eq('store_id', storeId)
+				.eq('buyer_id', auth.user.id)
+				.order('deleted_at', { ascending: true, nullsFirst: true })
+				.order('last_message_at', {
+					ascending: false,
+					nullsFirst: false,
+				})
+				.order('created_at', { ascending: false })
+				.limit(1)
+			if (racedError) throw racedError
+			const raced = racedRows?.[0]
+			if (!raced) throw convError
+			conversationId = raced.id as string
+			created = false
+			const updates: {
+				product_id: string
+				deleted_at?: null
+				updated_at: string
+			} = {
+				product_id: productId,
+				updated_at: new Date().toISOString(),
+			}
+			if (raced.deleted_at) updates.deleted_at = null
+			const { error: reviveError } = await supabase
+				.from('conversations')
+				.update(updates)
+				.eq('id', conversationId)
+			if (reviveError) throw reviveError
+			const { data: ownerPart } = await supabase
+				.from('conversation_participants')
+				.select('user_id')
+				.eq('conversation_id', conversationId)
+				.eq('user_id', storeOwnerId)
+				.maybeSingle()
+			if (!ownerPart) {
+				const { error: ownerPartError } = await supabase
+					.from('conversation_participants')
+					.insert({
+						conversation_id: conversationId,
+						user_id: storeOwnerId,
+					})
+				if (ownerPartError) throw ownerPartError
+			}
+		} else if (convError) {
+			throw convError
+		} else {
+			const { error: partError } = await supabase
+				.from('conversation_participants')
+				.insert([
+					{ conversation_id: conversationId, user_id: auth.user.id },
+					{ conversation_id: conversationId, user_id: storeOwnerId },
+				])
+			if (partError) throw partError
+		}
 	}
 	if (content?.trim()) {
 		const messageId = uuidv7()

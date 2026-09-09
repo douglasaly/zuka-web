@@ -63,8 +63,59 @@ export async function ensureBuyerStoreConversation(input: {
 		id: conversationId,
 		product_id: productId,
 		store_id: storeId,
+		buyer_id: buyerId,
 	})
-	if (convError) throw convError
+	if (convError) {
+		if (convError.code === '23505') {
+			const { data: racedRows, error: racedError } = await db
+				.from('conversations')
+				.select('id, deleted_at')
+				.eq('store_id', storeId)
+				.eq('buyer_id', buyerId)
+				.order('deleted_at', { ascending: true, nullsFirst: true })
+				.order('last_message_at', {
+					ascending: false,
+					nullsFirst: false,
+				})
+				.order('created_at', { ascending: false })
+				.limit(1)
+			if (racedError) throw racedError
+			const raced = racedRows?.[0]
+			if (!raced) throw convError
+			const racedId = raced.id
+			const updates: {
+				product_id: string
+				updated_at: string
+				deleted_at?: null
+			} = {
+				product_id: productId,
+				updated_at: new Date().toISOString(),
+			}
+			if (raced.deleted_at) updates.deleted_at = null
+			const { error: reviveError } = await db
+				.from('conversations')
+				.update(updates)
+				.eq('id', racedId)
+			if (reviveError) throw reviveError
+			const { data: ownerPart } = await db
+				.from('conversation_participants')
+				.select('user_id')
+				.eq('conversation_id', racedId)
+				.eq('user_id', storeOwnerId)
+				.maybeSingle()
+			if (!ownerPart) {
+				const { error: ownerPartError } = await db
+					.from('conversation_participants')
+					.insert({
+						conversation_id: racedId,
+						user_id: storeOwnerId,
+					})
+				if (ownerPartError) throw ownerPartError
+			}
+			return racedId
+		}
+		throw convError
+	}
 	const { error: partError } = await db
 		.from('conversation_participants')
 		.insert([

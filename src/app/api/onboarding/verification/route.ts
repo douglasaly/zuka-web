@@ -55,6 +55,31 @@ export async function POST(request: Request) {
 		}
 		const storeId = store.id as string
 		const ownerId = user.id as string
+		const now = new Date().toISOString()
+		const { data: existing } = await supabase
+			.from('verification_documents')
+			.select('id, status')
+			.eq('store_id', storeId)
+			.is('deleted_at', null)
+		const canResubmit =
+			!existing?.length ||
+			existing.some(
+				(d) => d.status === 'REJECTED' || d.status === 'PENDING'
+			)
+		if (!canResubmit && existing?.every((d) => d.status === 'APPROVED')) {
+			return NextResponse.json(
+				{ error: 'Os documentos já foram aprovados' },
+				{ status: 400 }
+			)
+		}
+		if (existing?.length) {
+			await supabase
+				.from('verification_documents')
+				.update({ deleted_at: now, updated_at: now })
+				.eq('store_id', storeId)
+				.is('deleted_at', null)
+				.in('status', ['PENDING', 'REJECTED'])
+		}
 		const { error: docsError } = await supabase
 			.from('verification_documents')
 			.insert([
