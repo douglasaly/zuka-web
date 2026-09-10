@@ -18,6 +18,25 @@ import {
 import { shuffleWithStoreDiversity } from '@/utils/shuffle'
 import { Slug } from '@/utils/slug'
 
+const PRICE_CURSOR_PREFIX = 'price|'
+
+function encodePriceCursor(price: number, id: string): string {
+	return `${PRICE_CURSOR_PREFIX}${price}|${id}`
+}
+
+function parsePriceCursor(
+	cursor: string
+): { price: number; id: string } | null {
+	if (!cursor.startsWith(PRICE_CURSOR_PREFIX)) return null
+	const rest = cursor.slice(PRICE_CURSOR_PREFIX.length)
+	const sep = rest.indexOf('|')
+	if (sep <= 0) return null
+	const price = Number(rest.slice(0, sep))
+	const id = rest.slice(sep + 1)
+	if (!Number.isFinite(price) || !id) return null
+	return { price, id }
+}
+
 type ProductRow = {
 	id: string
 	store_id: string
@@ -119,18 +138,34 @@ export const GET = withErrorHandling(async (request) => {
 		query = query.gte('created_at', fourteenDaysAgo)
 	}
 	if (filters.ordenar === 'price_asc') {
-		query = query.order('price', { ascending: true })
+		query = query
+			.order('price', { ascending: true })
+			.order('id', { ascending: true })
+		if (cursor) {
+			const parsed = parsePriceCursor(cursor)
+			if (parsed) {
+				query = query.or(
+					`price.gt.${parsed.price},and(price.eq.${parsed.price},id.gt.${parsed.id})`
+				)
+			}
+		}
 	} else if (filters.ordenar === 'price_desc') {
-		query = query.order('price', { ascending: false })
+		query = query
+			.order('price', { ascending: false })
+			.order('id', { ascending: false })
+		if (cursor) {
+			const parsed = parsePriceCursor(cursor)
+			if (parsed) {
+				query = query.or(
+					`price.lt.${parsed.price},and(price.eq.${parsed.price},id.lt.${parsed.id})`
+				)
+			}
+		}
 	} else {
 		query = query.order('created_at', { ascending: false })
-	}
-	if (
-		cursor &&
-		filters.ordenar !== 'price_asc' &&
-		filters.ordenar !== 'price_desc'
-	) {
-		query = query.lt('created_at', cursor)
+		if (cursor) {
+			query = query.lt('created_at', cursor)
+		}
 	}
 	const { data, error } = await query
 	if (error) throw error
@@ -150,7 +185,17 @@ export const GET = withErrorHandling(async (request) => {
 			)
 		: grouped
 	const lastRow = rows[rows.length - 1]
-	const nextCursor = hasMore ? (lastRow?.created_at ?? null) : null
+	let nextCursor: string | null = null
+	if (hasMore && lastRow) {
+		if (
+			filters.ordenar === 'price_asc' ||
+			filters.ordenar === 'price_desc'
+		) {
+			nextCursor = encodePriceCursor(lastRow.price, lastRow.id)
+		} else {
+			nextCursor = lastRow.created_at ?? null
+		}
+	}
 	return apiCursorList(result, { hasMore, nextCursor, limit })
 })
 export const POST = withErrorHandling(async (request) => {
