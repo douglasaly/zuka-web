@@ -61,9 +61,9 @@ async function notifyMemberInvited(
 		id: uuidv7(),
 		user_id: opts.targetUserId,
 		type: 'system',
-		title: `Foste adicionado a ${opts.store.name}`,
-		body: `Passaste a fazer parte da equipe da loja como ${roleLabel}. Abre o painel do vendedor para começar.`,
-		link: '/dashboard/seller',
+		title: `Convite para ${opts.store.name}`,
+		body: `Foste convidado para a equipe da loja como ${roleLabel}. Abre o painel do vendedor para aceitar o convite.`,
+		link: '/convites-loja',
 		sender_store_id: opts.store.id,
 	})
 	if (error) {
@@ -208,10 +208,10 @@ export async function POST(request: NextRequest) {
 				.from('store_members')
 				.update({
 					role,
-					status: 'active',
+					status: 'pending',
 					invited_by: user.id,
 					invited_at: now,
-					joined_at: now,
+					joined_at: null,
 					deleted_at: null,
 					updated_at: now,
 				})
@@ -231,10 +231,10 @@ export async function POST(request: NextRequest) {
 				store_id: store.id,
 				user_id: targetUserId,
 				role,
-				status: 'active',
+				status: 'pending',
 				invited_by: user.id,
 				invited_at: now,
-				joined_at: now,
+				joined_at: null,
 				created_at: now,
 				updated_at: now,
 			})

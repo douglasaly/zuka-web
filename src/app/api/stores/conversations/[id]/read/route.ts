@@ -12,7 +12,11 @@ export async function PATCH(_request: Request, { params }: Params) {
 		const { id: conversationId } = await params
 		const auth = await requireSellerStore({ permission: 'message.read' })
 		if (isSellerStoreAuthError(auth)) return auth.error
-		const { store } = auth
+		const { user, store } = auth
+		// Unread badges use the store owner's last_read_at; staff viewing must not clear it.
+		if (user.id !== store.owner_id) {
+			return NextResponse.json({ success: true })
+		}
 		const supabase = createSupabaseAdmin()
 		const { data: conversation } = await supabase
 			.from('conversations')
