@@ -13,6 +13,82 @@ import {
 	CreateConversationSchema,
 	CursorPaginationSchema,
 } from '@/lib/validations'
+
+type AdminClient = ReturnType<typeof createSupabaseAdmin>
+
+async function countBuyerUnreadByConversations(
+	supabase: AdminClient,
+	userId: string,
+	conversationIds: string[]
+): Promise<Map<string, number>> {
+	if (conversationIds.length === 0) return new Map()
+	const { data, error } = await supabase.rpc(
+		'count_buyer_unread_by_conversations',
+		{
+			p_user_id: userId,
+			p_conversation_ids: conversationIds,
+		}
+	)
+	if (!error && Array.isArray(data)) {
+		return new Map(
+			(
+				data as Array<{
+					conversation_id: string
+					unread_count: number
+				}>
+			).map((row) => [row.conversation_id, row.unread_count])
+		)
+	}
+	if (error) {
+		console.error('[count_buyer_unread_by_conversations]', error.message)
+	}
+	return countBuyerUnreadByConversationsFallback(
+		supabase,
+		userId,
+		conversationIds
+	)
+}
+
+async function countBuyerUnreadByConversationsFallback(
+	supabase: AdminClient,
+	userId: string,
+	conversationIds: string[]
+): Promise<Map<string, number>> {
+	const { data: participants, error: participantsError } = await supabase
+		.from('conversation_participants')
+		.select('conversation_id, last_read_at')
+		.eq('user_id', userId)
+		.in('conversation_id', conversationIds)
+	if (participantsError) throw participantsError
+	const lastReadAtMap = new Map(
+		(participants ?? []).map((row) => [
+			row.conversation_id,
+			row.last_read_at,
+		])
+	)
+	const unreadMap = new Map<string, number>()
+	await Promise.all(
+		conversationIds.map(async (conversationId) => {
+			const lastReadAt = lastReadAtMap.get(conversationId)
+			let query = supabase
+				.from('messages')
+				.select('id', { count: 'exact', head: true })
+				.eq('conversation_id', conversationId)
+				.not('store_id', 'is', null)
+				.is('deleted_at', null)
+			if (lastReadAt) {
+				query = query.gt('created_at', lastReadAt)
+			}
+			const { count, error } = await query
+			if (error) throw error
+			if ((count ?? 0) > 0) {
+				unreadMap.set(conversationId, count ?? 0)
+			}
+		})
+	)
+	return unreadMap
+}
+
 export const GET = withErrorHandling(async (request) => {
 	const auth = await requireAuth()
 	const { searchParams } = new URL(request.url)
@@ -52,21 +128,18 @@ export const GET = withErrorHandling(async (request) => {
 		.map((c) => c.last_message_id)
 		.filter(Boolean) as string[]
 	const conversationIds = pageItems.map((c) => c.id)
-	const [lastMessagesResult, unreadResult] = await Promise.all([
+	const [lastMessagesResult, unreadMap] = await Promise.all([
 		lastMessageIds.length > 0
 			? supabase
 					.from('messages')
 					.select('id, content, user_id, store_id')
 					.in('id', lastMessageIds)
 			: Promise.resolve({ data: [] }),
-		conversationIds.length > 0
-			? supabase
-					.from('messages')
-					.select('conversation_id, created_at')
-					.in('conversation_id', conversationIds)
-					.not('store_id', 'is', null)
-					.is('deleted_at', null)
-			: Promise.resolve({ data: [] }),
+		countBuyerUnreadByConversations(
+			supabase,
+			auth.user.id,
+			conversationIds
+		),
 	])
 	const lastMessageMap = new Map(
 		(lastMessagesResult.data ?? []).map((m) => [
@@ -74,24 +147,6 @@ export const GET = withErrorHandling(async (request) => {
 			{ content: m.content, userId: m.user_id, storeId: m.store_id },
 		])
 	)
-	const lastReadAtMap = new Map(
-		pageItems.map((c) => {
-			const participant = Array.isArray(c.conversation_participants)
-				? c.conversation_participants[0]
-				: c.conversation_participants
-			return [c.id, participant?.last_read_at ?? null]
-		})
-	)
-	const unreadMap = new Map<string, number>()
-	for (const msg of unreadResult.data ?? []) {
-		const lastReadAt = lastReadAtMap.get(msg.conversation_id)
-		if (msg.created_at && (!lastReadAt || msg.created_at > lastReadAt)) {
-			unreadMap.set(
-				msg.conversation_id,
-				(unreadMap.get(msg.conversation_id) ?? 0) + 1
-			)
-		}
-	}
 	const inbox = pageItems.map((c) => {
 		const lastMsg = c.last_message_id
 			? (lastMessageMap.get(c.last_message_id) ?? null)
