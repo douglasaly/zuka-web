@@ -8,7 +8,7 @@ import {
 	withErrorHandling,
 } from '@/lib/axios/api-response'
 import { resolveCategoryIds } from '@/lib/categories/resolve-category-ids'
-import { isR2PublicUrl } from '@/lib/storage/r2'
+import { isR2PublicUrlForUser } from '@/lib/storage/r2'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import {
 	CreateProductSchema,
@@ -181,7 +181,9 @@ export const POST = withErrorHandling(async (request) => {
 			: imageUrl
 				? [imageUrl]
 				: []
-	if (urls.some((url) => !isR2PublicUrl(url))) {
+	if (
+		urls.some((url) => !isR2PublicUrlForUser(url, auth.user.id as string))
+	) {
 		return apiError(
 			ErrorCode.VALIDATION_ERROR,
 			'A imagem deve ser carregada para o armazenamento'

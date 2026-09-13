@@ -7,6 +7,7 @@ import {
 	ErrorCode,
 	withErrorHandling,
 } from '@/lib/axios/api-response'
+import { isR2PublicUrlForUser } from '@/lib/storage/r2'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import { UpdateProfileSchema } from '@/lib/validations'
 import type { UserProfile } from '@/types'
@@ -30,6 +31,16 @@ export const PATCH = withErrorHandling(async (request: NextRequest) => {
 		)
 	}
 	const { firstName, lastName, phoneNumber, avatarUrl } = parsed.data
+	if (
+		avatarUrl !== undefined &&
+		avatarUrl !== '' &&
+		!isR2PublicUrlForUser(avatarUrl, user.id as string)
+	) {
+		return apiError(
+			ErrorCode.VALIDATION_ERROR,
+			'O avatar deve ser carregado para o armazenamento'
+		)
+	}
 	const updates: Record<string, unknown> = {
 		updated_at: new Date().toISOString(),
 	}

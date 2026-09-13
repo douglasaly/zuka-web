@@ -126,13 +126,20 @@ export const POST = withErrorHandling(async (request) => {
 		.select('*')
 		.single()
 	if (error) throw error
-	await supabase
-		.from('seller_onboarding')
-		.update({
-			current_step: 'STORE_PROFILE',
-			status: 'DRAFT',
-			updated_at: new Date().toISOString(),
-		})
-		.eq('seller_profile_id', sellerProfile.id)
+	const { count: ownedStoreCount } = await supabase
+		.from('stores')
+		.select('id', { count: 'exact', head: true })
+		.eq('owner_id', auth.user.id)
+		.is('deleted_at', null)
+	if (ownedStoreCount === 1) {
+		await supabase
+			.from('seller_onboarding')
+			.update({
+				current_step: 'STORE_PROFILE',
+				status: 'DRAFT',
+				updated_at: new Date().toISOString(),
+			})
+			.eq('seller_profile_id', sellerProfile.id)
+	}
 	return apiSuccess({ store }, 201)
 })

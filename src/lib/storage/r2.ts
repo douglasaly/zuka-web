@@ -76,6 +76,32 @@ export function isR2PublicUrl(url: string | null | undefined) {
 		return false
 	}
 }
+const USER_UPLOAD_SEGMENTS = [
+	'stores',
+	'products',
+	'verification',
+	'avatars',
+	'uploads',
+] as const
+function objectPathFromPublicUrl(url: string) {
+	const base = getR2PublicBaseUrl()
+	return url.startsWith(`${base}/`) ? url.slice(base.length + 1) : null
+}
+export function isR2PublicUrlForUser(
+	url: string | null | undefined,
+	userId: string
+) {
+	if (!url || !userId || !isR2PublicUrl(url)) return false
+	try {
+		const path = objectPathFromPublicUrl(url)
+		if (!path) return false
+		return USER_UPLOAD_SEGMENTS.some((segment) =>
+			path.startsWith(`${segment}/${userId}/`)
+		)
+	} catch {
+		return false
+	}
+}
 export async function createPresignedUploadUrl(
 	key: string,
 	contentType: string
@@ -99,6 +125,16 @@ export function assertR2PublicUrl(
 ) {
 	if (!url) return
 	if (!isR2PublicUrl(url)) {
+		throw new Error(`${fieldName} must be an image uploaded to storage`)
+	}
+}
+export function assertR2PublicUrlForUser(
+	url: string | null | undefined,
+	userId: string,
+	fieldName: string
+) {
+	if (!url) return
+	if (!isR2PublicUrlForUser(url, userId)) {
 		throw new Error(`${fieldName} must be an image uploaded to storage`)
 	}
 }
