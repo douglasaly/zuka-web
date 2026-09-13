@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { uuidv7 } from 'uuidv7'
 import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
-import { isR2PublicUrl } from '@/lib/storage/r2'
+import { isR2PublicUrlForUser } from '@/lib/storage/r2'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 
 type Params = {
@@ -106,7 +106,12 @@ export async function PATCH(req: Request, { params }: Params) {
 			: body.imageUrl
 				? [body.imageUrl]
 				: undefined
-		if (imageUrls?.some((url) => url && !isR2PublicUrl(url))) {
+		if (
+			imageUrls?.some(
+				(url) =>
+					url && !isR2PublicUrlForUser(url, auth.user.id as string)
+			)
+		) {
 			return NextResponse.json(
 				{ error: 'A imagem deve ser carregada primeiro' },
 				{ status: 400 }

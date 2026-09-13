@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { uuidv7 } from 'uuidv7'
 import { mapSellerStoreDetail } from '@/app/api/seller/store/map-store'
 import { isSellerStoreAuthError, requireSellerStore } from '@/lib/auth/seller'
-import { isR2PublicUrl } from '@/lib/storage/r2'
+import { isR2PublicUrlForUser } from '@/lib/storage/r2'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import type { Database } from '@/lib/supabase/types'
 import { UpdateSellerStoreSchema } from '@/lib/validations'
@@ -112,7 +112,11 @@ export async function PATCH(request: Request) {
 				{ status: 404 }
 			)
 		}
-		if (logoUrl && logoUrl !== store.logo_url && !isR2PublicUrl(logoUrl)) {
+		if (
+			logoUrl &&
+			logoUrl !== store.logo_url &&
+			!isR2PublicUrlForUser(logoUrl, user.id as string)
+		) {
 			return NextResponse.json(
 				{ error: 'O logo deve ser carregado para o armazenamento' },
 				{ status: 400 }
@@ -121,7 +125,7 @@ export async function PATCH(request: Request) {
 		if (
 			bannerUrl &&
 			bannerUrl !== store.banner_url &&
-			!isR2PublicUrl(bannerUrl)
+			!isR2PublicUrlForUser(bannerUrl, user.id as string)
 		) {
 			return NextResponse.json(
 				{ error: 'O banner deve ser carregado para o armazenamento' },

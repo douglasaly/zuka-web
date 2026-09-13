@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { uuidv7 } from 'uuidv7'
 import { getUserRoles } from '@/lib/auth/roles'
 import { getSessionUser } from '@/lib/auth/session'
-import { isR2PublicUrl } from '@/lib/storage/r2'
+import { isR2PublicUrlForUser } from '@/lib/storage/r2'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 export async function POST(request: Request) {
 	try {
@@ -21,7 +21,10 @@ export async function POST(request: Request) {
 				{ status: 400 }
 			)
 		}
-		if (!isR2PublicUrl(idCardUrl) || !isR2PublicUrl(selfieUrl)) {
+		if (
+			!isR2PublicUrlForUser(idCardUrl, user.id as string) ||
+			!isR2PublicUrlForUser(selfieUrl, user.id as string)
+		) {
 			return NextResponse.json(
 				{
 					error: 'Os documentos devem ser carregados para o armazenamento',
