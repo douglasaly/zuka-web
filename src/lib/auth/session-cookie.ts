@@ -29,6 +29,15 @@ export async function createSession(idToken: string) {
 }
 export async function deleteSession() {
 	const cookieStore = await cookies()
+	const session = cookieStore.get(SESSION_COOKIE)?.value
+	if (session) {
+		try {
+			const decoded = await adminAuth.verifySessionCookie(session)
+			await adminAuth.revokeRefreshTokens(decoded.sub)
+		} catch {
+			// Cookie already invalid or expired — still clear client state.
+		}
+	}
 	cookieStore.delete(SESSION_COOKIE)
 	return { success: true }
 }
