@@ -90,6 +90,111 @@ function fallbackPermissions(rbacRoleName: string): StorePermission[] {
 		return [...STORE_ROLE_UI.viewer.permissions]
 	return []
 }
+const BLOCKED_STORE_STATUSES = new Set(['BANNED', 'SUSPENDED'])
+type ResolvedStore = SellerStoreContext['store']
+type StoreMembershipRow = {
+	role: string
+	stores:
+		| {
+				id: string
+				name: string
+				slug: string
+				owner_id: string
+				status: string | null
+				deleted_at: string | null
+		  }
+		| Array<{
+				id: string
+				name: string
+				slug: string
+				owner_id: string
+				status: string | null
+				deleted_at: string | null
+		  }>
+}
+function membershipStore(row: StoreMembershipRow): ResolvedStore | null {
+	const storeRow = Array.isArray(row.stores) ? row.stores[0] : row.stores
+	if (!storeRow || storeRow.deleted_at) return null
+	return {
+		id: storeRow.id,
+		name: storeRow.name,
+		slug: storeRow.slug,
+		owner_id: storeRow.owner_id,
+		status: storeRow.status,
+	}
+}
+function isBlockedStoreStatus(status: string | null | undefined): boolean {
+	return BLOCKED_STORE_STATUSES.has(status ?? '')
+}
+async function resolveSellerStoreContext(
+	supabase: SupabaseClient,
+	userId: string
+): Promise<{
+	store: ResolvedStore
+	memberRole: string
+	isOwner: boolean
+} | null> {
+	const [{ data: ownedStores, error: ownedError }, { data: memberships, error: memberError }] =
+		await Promise.all([
+			supabase
+				.from('stores')
+				.select('id, name, slug, owner_id, status')
+				.eq('owner_id', userId)
+				.is('deleted_at', null)
+				.order('created_at', { ascending: true }),
+			supabase
+				.from('store_members')
+				.select(`
+					role,
+					stores!inner (
+						id,
+						name,
+						slug,
+						owner_id,
+						status,
+						deleted_at
+					)
+				`)
+				.eq('user_id', userId)
+				.is('deleted_at', null)
+				.eq('status', 'active')
+				.order('created_at', { ascending: true }),
+		])
+	if (ownedError) throw ownedError
+	if (memberError) throw memberError
+	const owned = (ownedStores ?? []) as ResolvedStore[]
+	const activeOwned = owned.find((store) => store.status === 'ACTIVE')
+	if (activeOwned) {
+		return { store: activeOwned, memberRole: 'owner', isOwner: true }
+	}
+	for (const row of (memberships ?? []) as StoreMembershipRow[]) {
+		const store = membershipStore(row)
+		if (store?.status === 'ACTIVE') {
+			return {
+				store,
+				memberRole: row.role,
+				isOwner: store.owner_id === userId,
+			}
+		}
+	}
+	const fallbackOwned = owned.find(
+		(store) => !isBlockedStoreStatus(store.status)
+	)
+	if (fallbackOwned) {
+		return { store: fallbackOwned, memberRole: 'owner', isOwner: true }
+	}
+	for (const row of (memberships ?? []) as StoreMembershipRow[]) {
+		const store = membershipStore(row)
+		if (store && !isBlockedStoreStatus(store.status)) {
+			return {
+				store,
+				memberRole: row.role,
+				isOwner: store.owner_id === userId,
+			}
+		}
+	}
+	return null
+}
 export async function requireSellerStore(options?: {
 	permission?: StorePermission | StorePermission[]
 }): Promise<SellerStoreAuthResult> {
@@ -104,86 +209,18 @@ export async function requireSellerStore(options?: {
 	}
 	const supabase = db()
 	const userId = user.id as string
-	const { data: ownedStore, error: ownedError } = await supabase
-		.from('stores')
-		.select('id, name, slug, owner_id, status')
-		.eq('owner_id', userId)
-		.is('deleted_at', null)
-		.order('created_at', { ascending: true })
-		.limit(1)
-		.maybeSingle()
-	if (ownedError) throw ownedError
-	let store = ownedStore as SellerStoreContext['store'] | null
-	let memberRole = 'owner'
-	let isOwner = true
-	if (!store) {
-		const { data: membership, error: memberError } = await supabase
-			.from('store_members')
-			.select(`
-				role,
-				status,
-				stores!inner (
-					id,
-					name,
-					slug,
-					owner_id,
-					status,
-					deleted_at
-				)
-			`)
-			.eq('user_id', userId)
-			.is('deleted_at', null)
-			.eq('status', 'active')
-			.order('created_at', { ascending: true })
-			.limit(1)
-			.maybeSingle()
-		if (memberError) throw memberError
-		const row = membership as {
-			role: string
-			status: string
-			stores:
-				| {
-						id: string
-						name: string
-						slug: string
-						owner_id: string
-						status: string | null
-						deleted_at: string | null
-				  }
-				| Array<{
-						id: string
-						name: string
-						slug: string
-						owner_id: string
-						status: string | null
-						deleted_at: string | null
-				  }>
-		} | null
-		const storeRow = row
-			? Array.isArray(row.stores)
-				? row.stores[0]
-				: row.stores
-			: null
-		if (!storeRow || storeRow.deleted_at) {
-			return {
-				error: NextResponse.json(
-					{
-						error: 'Crie a sua loja ou peça acesso a um dono de loja no Zuka.',
-					},
-					{ status: 403 }
-				),
-			}
+	const resolved = await resolveSellerStoreContext(supabase, userId)
+	if (!resolved) {
+		return {
+			error: NextResponse.json(
+				{
+					error: 'Crie a sua loja ou peça acesso a um dono de loja no Zuka.',
+				},
+				{ status: 403 }
+			),
 		}
-		store = {
-			id: storeRow.id,
-			name: storeRow.name,
-			slug: storeRow.slug,
-			owner_id: storeRow.owner_id,
-			status: storeRow.status,
-		}
-		memberRole = row!.role
-		isOwner = store.owner_id === userId
 	}
+	const { store, memberRole, isOwner } = resolved
 	const rbacRole =
 		rbacRoleNameForMemberRole(isOwner ? 'owner' : memberRole) ??
 		'store_viewer'
