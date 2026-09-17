@@ -1,4 +1,5 @@
 import { uuidv7 } from 'uuidv7'
+import { syncStoreConversationParticipants } from '@/lib/messaging/sync-store-conversation-participants'
 import type { createSupabaseAdmin } from '@/lib/supabase/admin'
 
 type Db = ReturnType<typeof createSupabaseAdmin>
@@ -41,21 +42,12 @@ export async function ensureBuyerStoreConversation(input: {
 			.update(updates)
 			.eq('id', conversationId)
 		if (reviveError) throw reviveError
-		const { data: ownerPart } = await db
-			.from('conversation_participants')
-			.select('user_id')
-			.eq('conversation_id', conversationId)
-			.eq('user_id', storeOwnerId)
-			.maybeSingle()
-		if (!ownerPart) {
-			const { error: ownerPartError } = await db
-				.from('conversation_participants')
-				.insert({
-					conversation_id: conversationId,
-					user_id: storeOwnerId,
-				})
-			if (ownerPartError) throw ownerPartError
-		}
+		await syncStoreConversationParticipants(
+			db,
+			conversationId,
+			storeOwnerId,
+			buyerId
+		)
 		return conversationId
 	}
 	const conversationId = uuidv7()

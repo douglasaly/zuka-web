@@ -2,6 +2,10 @@ import { cookies } from 'next/headers'
 import { getUserRoles } from '@/lib/auth/roles'
 import { getManagedStoreIds } from '@/lib/auth/seller'
 import { adminAuth } from '@/lib/firebase/firebase-admin'
+import {
+	resolveStoreConversationBuyerId,
+	syncStoreConversationParticipants,
+} from '@/lib/messaging/sync-store-conversation-participants'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import type { Database } from '@/lib/supabase/types'
 import { SESSION_COOKIE } from '@/utils/constants'
@@ -168,8 +172,9 @@ export async function requireConversationParticipant(
 		.is('deleted_at', null)
 		.maybeSingle()
 	if (conversation?.store_id) {
+		const storeId = conversation.store_id as string
 		const managedStoreIds = await getManagedStoreIds(auth.user.id)
-		if (managedStoreIds.includes(conversation.store_id as string)) {
+		if (managedStoreIds.includes(storeId)) {
 			throw new Response(
 				JSON.stringify({
 					success: false,
@@ -181,6 +186,43 @@ export async function requireConversationParticipant(
 				}),
 				{ status: 403, headers: { 'Content-Type': 'application/json' } }
 			)
+		}
+		const { data: store } = await supabase
+			.from('stores')
+			.select('owner_id')
+			.eq('id', storeId)
+			.is('deleted_at', null)
+			.maybeSingle()
+		if (store?.owner_id) {
+			const storeOwnerId = store.owner_id as string
+			const buyerId = await resolveStoreConversationBuyerId(
+				supabase,
+				conversationId,
+				storeOwnerId
+			)
+			if (buyerId) {
+				await syncStoreConversationParticipants(
+					supabase,
+					conversationId,
+					storeOwnerId,
+					buyerId
+				)
+				if (auth.user.id !== buyerId) {
+					throw new Response(
+						JSON.stringify({
+							success: false,
+							error: {
+								code: 'FORBIDDEN',
+								message: 'Não é participante desta conversa',
+							},
+						}),
+						{
+							status: 403,
+							headers: { 'Content-Type': 'application/json' },
+						}
+					)
+				}
+			}
 		}
 	}
 	return { ...auth, participant }

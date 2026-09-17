@@ -1,6 +1,7 @@
 import { uuidv7 } from 'uuidv7'
 import { requireAuth } from '@/lib/auth'
 import { getManagedStoreIds } from '@/lib/auth/seller'
+import { syncStoreConversationParticipants } from '@/lib/messaging/sync-store-conversation-participants'
 import {
 	apiCursorList,
 	apiError,
@@ -185,21 +186,12 @@ export const POST = withErrorHandling(async (request) => {
 			.update(updates)
 			.eq('id', conversationId)
 		if (reviveError) throw reviveError
-		const { data: ownerPart } = await supabase
-			.from('conversation_participants')
-			.select('user_id')
-			.eq('conversation_id', conversationId)
-			.eq('user_id', storeOwnerId)
-			.maybeSingle()
-		if (!ownerPart) {
-			const { error: ownerPartError } = await supabase
-				.from('conversation_participants')
-				.insert({
-					conversation_id: conversationId,
-					user_id: storeOwnerId,
-				})
-			if (ownerPartError) throw ownerPartError
-		}
+		await syncStoreConversationParticipants(
+			supabase,
+			conversationId,
+			storeOwnerId,
+			auth.user.id
+		)
 	} else {
 		conversationId = uuidv7()
 		created = true

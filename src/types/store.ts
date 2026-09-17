@@ -42,7 +42,7 @@ export type StoreFollowItem = {
 		verified_at: string | null
 		province: {
 			name: string
-		}
+		} | null
 	}
 }
 

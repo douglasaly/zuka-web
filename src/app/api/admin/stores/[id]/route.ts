@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { requireAdminUser } from '@/lib/auth/admin'
+import { syncStoreConversationParticipantsForStore } from '@/lib/messaging/sync-store-conversation-participants'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
 import type { Database } from '@/lib/supabase/types'
 
@@ -60,6 +61,28 @@ export async function PATCH(req: Request, { params }: Params) {
 	}
 	if (status) updates.status = status
 	if (status === 'ACTIVE') updates.verified_at = new Date().toISOString()
+
+	const ownerIdChanging =
+		typeof rest.owner_id === 'string' && rest.owner_id.length > 0
+	if (ownerIdChanging) {
+		const { data: currentStore } = await supabase
+			.from('stores')
+			.select('owner_id')
+			.eq('id', id)
+			.maybeSingle()
+		if (
+			currentStore?.owner_id &&
+			currentStore.owner_id !== rest.owner_id
+		) {
+			await syncStoreConversationParticipantsForStore(
+				supabase,
+				id,
+				rest.owner_id as string,
+				currentStore.owner_id as string
+			)
+		}
+	}
+
 	const { data, error } = await supabase
 		.from('stores')
 		.update(updates as Database['public']['Tables']['stores']['Update'])
