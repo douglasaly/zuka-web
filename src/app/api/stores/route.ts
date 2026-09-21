@@ -97,6 +97,19 @@ export const POST = withErrorHandling(async (request) => {
 	} = parsed.data
 	const sellerProfile = await ensureSellerProfile(auth.user.id)
 	const supabase = createSupabaseAdmin()
+	const { count: ownedStoreCount, error: ownedStoreError } = await supabase
+		.from('stores')
+		.select('id', { count: 'exact', head: true })
+		.eq('owner_id', auth.user.id)
+		.is('deleted_at', null)
+	if (ownedStoreError) throw ownedStoreError
+	if ((ownedStoreCount ?? 0) > 0) {
+		return apiError(
+			ErrorCode.VALIDATION_ERROR,
+			'Já tens uma loja registada. Só é permitida uma loja por vendedor.',
+			409
+		)
+	}
 	let slug = Slug(name)
 	const { data: slugConflict } = await supabase
 		.from('stores')

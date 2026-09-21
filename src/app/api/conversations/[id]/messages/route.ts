@@ -7,6 +7,7 @@ import {
 	withErrorHandling,
 } from '@/lib/axios/api-response'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
+import { isStoreContactable } from '@/lib/stores/contact-eligibility'
 import { CursorPaginationSchema, SendMessageSchema } from '@/lib/validations'
 export const GET = withErrorHandling(async (request, { params }) => {
 	const { id: conversationId } = await params
@@ -51,6 +52,26 @@ export const POST = withErrorHandling(async (request, { params }) => {
 	}
 	const { content } = parsed.data
 	const supabase = createSupabaseAdmin()
+	const { data: conversation, error: conversationError } = await supabase
+		.from('conversations')
+		.select('id, stores!inner(status, deleted_at)')
+		.eq('id', conversationId)
+		.is('deleted_at', null)
+		.single()
+	if (conversationError || !conversation) {
+		return apiError(ErrorCode.NOT_FOUND, 'Conversa não encontrada', 404)
+	}
+	const storeRow = conversation.stores as {
+		status: string | null
+		deleted_at: string | null
+	}
+	if (!isStoreContactable(storeRow)) {
+		return apiError(
+			ErrorCode.FORBIDDEN,
+			'Esta loja já não aceita mensagens.',
+			403
+		)
+	}
 	const { data: message, error } = await supabase
 		.from('messages')
 		.insert({
