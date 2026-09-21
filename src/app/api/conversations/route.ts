@@ -9,6 +9,7 @@ import {
 	withErrorHandling,
 } from '@/lib/axios/api-response'
 import { createSupabaseAdmin } from '@/lib/supabase/admin'
+import { isStoreContactable } from '@/lib/stores/contact-eligibility'
 import {
 	CreateConversationSchema,
 	CursorPaginationSchema,
@@ -130,18 +131,28 @@ export const POST = withErrorHandling(async (request) => {
 	const supabase = createSupabaseAdmin()
 	const { data: product } = await supabase
 		.from('products')
-		.select('store_id, stores!inner(owner_id)')
+		.select(
+			'store_id, is_visible, stores!inner(owner_id, status, deleted_at)'
+		)
 		.eq('id', productId)
 		.is('deleted_at', null)
 		.single()
 	if (!product) {
 		return apiError(ErrorCode.NOT_FOUND, 'Produto não encontrado')
 	}
-	const storeOwnerId = (
-		product.stores as {
-			owner_id: string
-		}
-	).owner_id
+	const storeRow = product.stores as {
+		owner_id: string
+		status: string | null
+		deleted_at: string | null
+	}
+	if (!isStoreContactable(storeRow) || !product.is_visible) {
+		return apiError(
+			ErrorCode.NOT_FOUND,
+			'Loja não disponível para mensagens.',
+			404
+		)
+	}
+	const storeOwnerId = storeRow.owner_id
 	const storeId = product.store_id as string
 	const managedStoreIds = await getManagedStoreIds(auth.user.id)
 	if (managedStoreIds.includes(storeId)) {
