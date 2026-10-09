@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { useBuyerChatUnread } from '@/hooks/use-buyer-chat-unread'
 import { useBuyerUnreadSummary } from '@/hooks/use-buyer-unread-summary'
 import { useUnreadCounts } from '@/hooks/use-unread-counts'
 import { useUserPreferences } from '@/hooks/use-user-preferences'
@@ -105,6 +106,7 @@ function useBuyerInboxPush(enabled: boolean) {
 		promotions: 0,
 	})
 	const { data } = useBuyerUnreadSummary()
+	const { data: chatUnread = 0 } = useBuyerChatUnread()
 	const { preferences, isReady } = useUserPreferences()
 	const prefs = preferences.buyer.notifications
 
@@ -112,7 +114,7 @@ function useBuyerInboxPush(enabled: boolean) {
 		if (!enabled || !data || !isReady) return
 
 		const orders = data.byType.order ?? 0
-		const messages = data.byType.message ?? 0
+		const messages = chatUnread
 		const promotions =
 			(data.byType.promotion ?? 0) + (data.byType.offer ?? 0)
 
@@ -179,5 +181,13 @@ function useBuyerInboxPush(enabled: boolean) {
 		if (promotions > p.promotions) notifyPromotions(promotions, false)
 
 		prev.current = { orders, messages, promotions }
-	}, [enabled, data, isReady, prefs.orders, prefs.messages, prefs.promotions])
+	}, [
+		enabled,
+		data,
+		chatUnread,
+		isReady,
+		prefs.orders,
+		prefs.messages,
+		prefs.promotions,
+	])
 }
